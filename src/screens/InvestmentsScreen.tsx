@@ -101,6 +101,7 @@ export default function InvestmentsScreen() {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
   const [showTypeModal, setShowTypeModal] = useState(false);
+  const [showFrequencyModal, setShowFrequencyModal] = useState(false);
   const [showDateRangeModal, setShowDateRangeModal] = useState(false);
   const [showFilterCurrencyModal, setShowFilterCurrencyModal] = useState(false);
   const [currencySearch, setCurrencySearch] = useState('');
@@ -110,12 +111,12 @@ export default function InvestmentsScreen() {
   const responsiveStyles = {
     headerSubtitle: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
     summaryLabel: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    summaryValue: { fontSize: Math.max(18, Math.min(24 * (width / 375), 24)) },
-    sectionTitle: { fontSize: Math.max(16, Math.min(18 * (width / 375), 20)) },
-    investmentName: { fontSize: Math.max(14, Math.min(16 * (width / 375), 18)) },
+    summaryValue: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
+    sectionTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
+    investmentName: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
     investmentAmount: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
     investmentGain: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    chartTitle: { fontSize: Math.max(16, Math.min(18 * (width / 375), 20)) },
+    chartTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
   };
 
   const investmentTypes = [
@@ -129,6 +130,39 @@ export default function InvestmentsScreen() {
   useEffect(() => {
     loadInitialData();
   }, []);
+
+  // Reload categories and currencies when form opens
+  useEffect(() => {
+    if (showAddForm) {
+      const reloadData = async () => {
+        try {
+          // Reload currencies
+          const currenciesData = await currenciesService.getCurrencies();
+          setCurrencies(currenciesData);
+          
+          // Reload categories (investment type only)
+          const categoriesResponse = await categoriesService.getCategories();
+          const allCats = [
+            ...(categoriesResponse.system || []),
+            ...(categoriesResponse.custom || []),
+          ];
+          const investmentCats = allCats
+            .filter((cat: any) => cat.type === 'investment')
+            .map((cat: any) => ({
+              id: String(cat.id),
+              name: cat.name,
+              icon: cat.icon || 'CircleEllipsis',
+              color: cat.color,
+              type: cat.type || 'investment',
+            }));
+          setAvailableCategories(investmentCats);
+        } catch (error) {
+          console.error('Failed to reload data for form:', error);
+        }
+      };
+      reloadData();
+    }
+  }, [showAddForm]);
 
   useEffect(() => {
     if (currency) {
@@ -658,13 +692,7 @@ export default function InvestmentsScreen() {
                   <Text style={[styles.formLabel, { color: colors.foreground }]}>{t('addTransaction.frequency')}</Text>
                   <Pressable
                     style={[styles.selectButton, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}
-                    onPress={() => {
-                      // Simple frequency selection
-                      const frequencies = ['monthly', 'quarterly', 'yearly'];
-                      const currentIndex = frequencies.indexOf(formData.frequency);
-                      const nextIndex = (currentIndex + 1) % frequencies.length;
-                      setFormData({ ...formData, frequency: frequencies[nextIndex] });
-                    }}
+                    onPress={() => setShowFrequencyModal(true)}
                   >
                     <Text style={[styles.selectButtonText, { color: colors.foreground }]}>
                       {t(`addTransaction.${formData.frequency}`)}
@@ -1293,6 +1321,41 @@ export default function InvestmentsScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Frequency Selection Modal */}
+      <Modal
+        visible={showFrequencyModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowFrequencyModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+              <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('addTransaction.frequency')}</Text>
+              <Pressable onPress={() => setShowFrequencyModal(false)}>
+                <X size={24} color={colors.mutedForeground} />
+              </Pressable>
+            </View>
+            <ScrollView style={styles.modalList}>
+              {['monthly', 'quarterly', 'yearly'].map((freq) => (
+                <Pressable
+                  key={freq}
+                  style={[styles.modalItem, { borderBottomColor: colors.border }]}
+                  onPress={() => {
+                    setFormData({ ...formData, frequency: freq });
+                    setShowFrequencyModal(false);
+                  }}
+                >
+                  <Text style={[styles.modalItemText, { color: colors.foreground }, formData.frequency === freq && { color: colors.primary, fontWeight: '600' }]}>
+                    {t(`addTransaction.${freq}`)}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -1468,7 +1531,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   chartTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 16,
@@ -1481,7 +1544,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 16,
@@ -1635,13 +1698,13 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   formHeaderTitle: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
   },
   formScrollContent: {
     padding: 16,
-    paddingBottom: 32,
+    paddingBottom: 100,
   },
   formSection: {
     marginBottom: 16,
@@ -1797,7 +1860,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e0e0e0',
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
   },

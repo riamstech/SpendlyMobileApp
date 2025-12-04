@@ -141,7 +141,7 @@ export default function OnboardingScreen({
   const responsiveStyles = {
     logo: { width: 80 * scale, height: 80 * scale },
     headerSubtitle: { fontSize: Math.max(12, Math.min(14 * scale, 16)) },
-    buttonText: { fontSize: Math.max(14, Math.min(16 * scale, 18)) },
+    buttonText: { fontSize: Math.max(14, Math.min(16 * scale, 16)) },
     formPadding: Math.max(16, Math.min(20 * scale, 24)),
     buttonPadding: Math.max(14, Math.min(16 * scale, 18)),
   };
@@ -566,7 +566,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   cardTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#212121',
     marginBottom: 8,
@@ -689,7 +689,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(3, 169, 244, 0.1)',
   },
   currencyFlag: {
-    fontSize: 24,
+    fontSize: 16,
     marginRight: 12,
   },
   currencyInfo: {

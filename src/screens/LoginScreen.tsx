@@ -19,6 +19,7 @@ import { authService } from '../api/services/auth';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
+import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
 
 interface LoginScreenProps {
   onLoginSuccess?: () => void;
@@ -93,13 +94,13 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
   // Responsive styles
   const responsiveStyles = {
     logo: { width: 80 * scale, height: 80 * scale },
-    appName: { fontSize: Math.max(18, Math.min(22 * scale, 24)) },
-    tagline: { fontSize: Math.max(13, Math.min(15 * scale, 17)) },
+    appName: { fontSize: Math.max(14, Math.min(16 * scale, 16)) },
+    tagline: { fontSize: Math.max(13, Math.min(15 * scale, 16)) },
     label: { fontSize: Math.max(13, Math.min(14 * scale, 15)) },
-    input: { fontSize: Math.max(14, Math.min(16 * scale, 18)) },
+    input: { fontSize: Math.max(14, Math.min(16 * scale, 16)) },
     errorText: { fontSize: Math.max(11, Math.min(12 * scale, 13)) },
     forgotPasswordText: { fontSize: Math.max(13, Math.min(14 * scale, 15)) },
-    buttonText: { fontSize: Math.max(14, Math.min(16 * scale, 18)) },
+    buttonText: { fontSize: Math.max(14, Math.min(16 * scale, 16)) },
     dividerText: { fontSize: Math.max(12, Math.min(13 * scale, 14)) },
     googleButtonText: { fontSize: Math.max(14, Math.min(15 * scale, 16)) },
     signupText: { fontSize: Math.max(13, Math.min(14 * scale, 15)) },
@@ -301,13 +302,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   appName: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    ...textStyles.h3,
     color: '#fff',
     marginBottom: 4,
   },
   tagline: {
-    fontSize: 15,
+    ...textStyles.bodySmall,
     color: 'rgba(255, 255, 255, 0.9)',
     letterSpacing: 0.5,
   },
@@ -334,16 +334,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   label: {
-    fontSize: 14,
-    fontWeight: '600',
+    ...textStyles.label,
     color: '#333',
     marginBottom: 8,
   },
   input: {
+    ...textStyles.body,
     flex: 1,
     paddingVertical: 14,
     paddingHorizontal: 40,
-    fontSize: 16,
     color: '#333',
   },
   inputIcon: {
@@ -358,8 +357,8 @@ const styles = StyleSheet.create({
     borderColor: '#FF5252',
   },
   errorText: {
+    ...textStyles.caption,
     marginTop: 4,
-    fontSize: 12,
     color: '#FF5252',
   },
   forgotPassword: {
@@ -367,8 +366,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   forgotPasswordText: {
+    ...textStyles.bodySmall,
     color: '#03A9F4',
-    fontSize: 14,
     fontWeight: '600',
   },
   loginButton: {
@@ -386,8 +385,8 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   loginButtonText: {
+    ...textStyles.body,
     color: '#fff',
-    fontSize: 16,
     fontWeight: 'bold',
   },
   signupContainer: {
@@ -396,12 +395,12 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   signupText: {
+    ...textStyles.bodySmall,
     color: '#666',
-    fontSize: 14,
   },
   signupLink: {
+    ...textStyles.bodySmall,
     color: '#03A9F4',
-    fontSize: 14,
     fontWeight: 'bold',
   },
   dividerRow: {
@@ -415,8 +414,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#E5E7EB',
   },
   dividerText: {
+    ...textStyles.caption,
     marginHorizontal: 12,
-    fontSize: 13,
     color: '#9CA3AF',
   },
   googleButton: {
@@ -444,7 +443,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   googleButtonText: {
-    fontSize: 15,
+    ...textStyles.bodySmall,
     color: '#111827',
     fontWeight: '500',
   },

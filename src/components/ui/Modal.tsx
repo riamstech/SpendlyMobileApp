@@ -59,7 +59,7 @@ export default function Modal({
                   <Text
                     style={[
                       styles.title,
-                      { fontSize: Math.max(18, 20 * scale) },
+                      { fontSize: Math.max(14, Math.min(16 * scale, 16)) },
                     ]}
                   >
                     {title}

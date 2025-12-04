@@ -72,24 +72,22 @@ export default function AddTransactionScreen({
   // Responsive scaling
   const scale = Math.min(width / 375, 1);
   const isSmallScreen = width < 375;
+  const responsiveTextStyles = createResponsiveTextStyles(width);
 
-  // Load user's default currency
+  // Load currencies and user's default currency
   useEffect(() => {
-    const loadUserCurrency = async () => {
+    const loadData = async () => {
       try {
-        const user = await authService.getCurrentUser();
-        setCurrency(user.defaultCurrency || 'USD');
-      } catch (error) {
-        setCurrency('USD');
-      }
-    };
-    loadUserCurrency();
-  }, []);
+        // Load user's default currency first
+        let userCurrency = 'USD';
+        try {
+          const user = await authService.getCurrentUser();
+          userCurrency = user.defaultCurrency || 'USD';
+        } catch (error) {
+          console.warn('AddTransaction: Could not load user currency, using USD');
+        }
 
-  // Load currencies
-  useEffect(() => {
-    const loadCurrencies = async () => {
-      try {
+        // Load currencies from API
         setLoadingCurrencies(true);
         console.log('AddTransaction: Loading currencies from API...');
         const currenciesData = await currenciesService.getCurrencies();
@@ -97,27 +95,29 @@ export default function AddTransactionScreen({
         
         if (currenciesData && currenciesData.length > 0) {
           setCurrencies(currenciesData);
-          // Set default currency if not already set
-          if (!currency) {
-            setCurrency(currenciesData[0].code);
-          }
+          // Set user's default currency or first available currency
+          const defaultCurrency = currenciesData.find(c => c.code === userCurrency) 
+            ? userCurrency 
+            : currenciesData[0].code;
+          setCurrency(defaultCurrency);
         } else {
           console.warn('AddTransaction: No currencies returned from API');
-          // Set empty array to show empty state
           setCurrencies([]);
+          setCurrency(userCurrency);
         }
       } catch (error: any) {
         console.error('AddTransaction: Error loading currencies:', error);
         Alert.alert(
-          t('common.error') || 'Error',
-          t('addTransaction.errorLoadingCurrencies') || 'Failed to load currencies. Please try again.'
+          t('common.error'),
+          t('addTransaction.errorLoadingCurrencies')
         );
         setCurrencies([]);
+        setCurrency('USD');
       } finally {
         setLoadingCurrencies(false);
       }
     };
-    loadCurrencies();
+    loadData();
   }, []);
 
   // Load categories
@@ -152,8 +152,8 @@ export default function AddTransactionScreen({
       } catch (error: any) {
         console.error('AddTransaction: Error loading categories:', error);
         Alert.alert(
-          t('common.error') || 'Error',
-          t('addTransaction.errorLoadingCategories') || 'Failed to load categories. Please try again.'
+          t('common.error'),
+          t('addTransaction.errorLoadingCategories')
         );
         setCategories([]);
       } finally {
@@ -205,7 +205,7 @@ export default function AddTransactionScreen({
 
   const handleSubmit = async () => {
     if (!amount || !category || !description) {
-      Alert.alert('Error', 'Please fill in all required fields');
+      Alert.alert(t('common.error'), t('addTransaction.fillRequiredFields'));
       return;
     }
 
@@ -223,9 +223,9 @@ export default function AddTransactionScreen({
         reminder_days: isRecurring ? parseInt(reminderDays) : undefined,
       });
 
-      Alert.alert('Success', 'Transaction added successfully', [
+      Alert.alert(t('common.success'), t('addTransaction.success'), [
         {
-          text: 'OK',
+          text: t('common.ok'),
           onPress: () => {
             if (onSuccess) {
               onSuccess();
@@ -236,8 +236,8 @@ export default function AddTransactionScreen({
     } catch (error: any) {
       console.error('Error creating transaction:', error);
       Alert.alert(
-        'Error',
-        error?.response?.data?.message || 'Failed to create transaction'
+        t('common.error'),
+        error?.response?.data?.message || t('addTransaction.errorCreate')
       );
     } finally {
       setSubmitting(false);
@@ -248,121 +248,145 @@ export default function AddTransactionScreen({
   const selectedCurrency = currencies.find((c) => c.code === currency);
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <StatusBar style="dark" />
-      <View style={styles.header}>
-        <Text style={[styles.headerTitle, responsiveTextStyles.h3]}>
-          {t('addTransaction.title') || 'Add Transaction'}
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+        <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>
+          {t('addTransaction.title')}
         </Text>
         <Pressable onPress={onCancel} style={styles.closeButton}>
-          <X size={24 * scale} color="#666" />
+          <X size={24 * scale} color={colors.mutedForeground} />
         </Pressable>
       </View>
 
       <ScrollView
-        style={styles.scrollView}
+        style={[styles.scrollView, { backgroundColor: colors.background }]}
         contentContainerStyle={[styles.scrollContent, { paddingBottom: 100 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Transaction Type */}
-        <Card style={{ marginBottom: 16 }}>
-          <Text style={styles.label}>{t('addTransaction.transactionType') || 'Transaction Type'}</Text>
+        <Card style={{ marginBottom: 16, backgroundColor: colors.card }}>
+          <Text style={[styles.label, { color: colors.foreground }]}>{t('addTransaction.transactionType')}</Text>
           <View style={styles.typeContainer}>
             <Pressable
               style={[
                 styles.typeButton,
                 transactionType === 'income' && styles.typeButtonActive,
-                { borderColor: transactionType === 'income' ? '#4CAF50' : '#E5E7EB' },
-                { backgroundColor: transactionType === 'income' ? 'rgba(76, 175, 80, 0.1)' : 'transparent' },
+                { 
+                  borderColor: transactionType === 'income' ? '#4CAF50' : colors.border,
+                  backgroundColor: transactionType === 'income' ? 'rgba(76, 175, 80, 0.1)' : colors.inputBackground,
+                },
               ]}
               onPress={() => setTransactionType('income')}
             >
               <DollarSign
                 size={20 * scale}
-                color={transactionType === 'income' ? '#4CAF50' : '#9CA3AF'}
+                color={transactionType === 'income' ? '#4CAF50' : colors.mutedForeground}
               />
               <Text
                 style={[
                   styles.typeButtonText,
-                  { color: transactionType === 'income' ? '#4CAF50' : '#9CA3AF' },
+                  { color: transactionType === 'income' ? '#4CAF50' : colors.mutedForeground },
                 ]}
               >
-                {t('addTransaction.income') || 'Income'}
+                {t('addTransaction.income')}
               </Text>
             </Pressable>
             <Pressable
               style={[
                 styles.typeButton,
                 transactionType === 'expense' && styles.typeButtonActive,
-                { borderColor: transactionType === 'expense' ? '#FF5252' : '#E5E7EB' },
-                { backgroundColor: transactionType === 'expense' ? 'rgba(255, 82, 82, 0.1)' : 'transparent' },
+                { 
+                  borderColor: transactionType === 'expense' ? '#FF5252' : colors.border,
+                  backgroundColor: transactionType === 'expense' ? 'rgba(255, 82, 82, 0.1)' : colors.inputBackground,
+                },
               ]}
               onPress={() => setTransactionType('expense')}
             >
               <CreditCard
                 size={20 * scale}
-                color={transactionType === 'expense' ? '#FF5252' : '#9CA3AF'}
+                color={transactionType === 'expense' ? '#FF5252' : colors.mutedForeground}
               />
               <Text
                 style={[
                   styles.typeButtonText,
-                  { color: transactionType === 'expense' ? '#FF5252' : '#9CA3AF' },
+                  { color: transactionType === 'expense' ? '#FF5252' : colors.mutedForeground },
                 ]}
               >
-                {t('addTransaction.expense') || 'Expense'}
+                {t('addTransaction.expense')}
               </Text>
             </Pressable>
           </View>
         </Card>
 
         {/* Amount & Currency */}
-        <Card style={{ marginBottom: 16 }}>
+        <Card style={{ marginBottom: 16, backgroundColor: colors.card }}>
           <View style={styles.amountRow}>
             <View style={styles.amountInputContainer}>
-              <Text style={styles.label}>{t('addTransaction.amount') || 'Amount'}</Text>
+              <Text style={[styles.label, { color: colors.foreground }]}>{t('addTransaction.amount')}</Text>
               <TextInput
-                style={[styles.amountInput, { fontSize: Math.max(16, 18 * scale) }]}
+                style={[
+                  styles.amountInput, 
+                  { 
+                    backgroundColor: colors.inputBackground,
+                    borderColor: colors.border,
+                    color: colors.foreground,
+                    fontSize: Math.max(14, Math.min(16 * scale, 16))
+                  }
+                ]}
                 placeholder="0.00"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={colors.mutedForeground}
                 value={amount}
                 onChangeText={setAmount}
                 keyboardType="decimal-pad"
               />
             </View>
             <View style={styles.currencyContainer}>
-              <Text style={styles.label}>{t('addTransaction.currency') || 'Currency'}</Text>
+              <Text style={[styles.label, { color: colors.foreground }]}>{t('addTransaction.currency')}</Text>
               <Pressable
-                style={styles.selectButton}
+                style={[
+                  styles.selectButton,
+                  { 
+                    backgroundColor: colors.inputBackground,
+                    borderColor: colors.border,
+                  }
+                ]}
                 onPress={() => setShowCurrencyModal(true)}
                 disabled={loadingCurrencies}
               >
                 {loadingCurrencies ? (
-                  <ActivityIndicator size="small" color="#03A9F4" />
+                  <ActivityIndicator size="small" color={colors.primary} />
                 ) : (
-                  <Text style={styles.selectButtonText}>
-                    {selectedCurrency?.flag || currency || t('addTransaction.selectCurrency') || 'USD'}
+                  <Text style={[styles.selectButtonText, { color: colors.foreground }]}>
+                    {selectedCurrency?.flag || currency || t('addTransaction.selectCurrency')}
                   </Text>
                 )}
-                <ChevronDown size={16 * scale} color="#666" />
+                <ChevronDown size={16 * scale} color={colors.mutedForeground} />
               </Pressable>
             </View>
           </View>
         </Card>
 
         {/* Category */}
-        <Card style={{ marginBottom: 16 }}>
-          <Text style={styles.label}>{t('addTransaction.category') || 'Category'}</Text>
+        <Card style={{ marginBottom: 16, backgroundColor: colors.card }}>
+          <Text style={[styles.label, { color: colors.foreground }]}>{t('addTransaction.category')}</Text>
           {loadingCategories ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="small" color={colors.primary} />
-              <Text style={[styles.loadingText, { color: colors.foreground }]}>{t('addTransaction.loadingCategories') || 'Loading categories...'}</Text>
+              <Text style={[styles.loadingText, { color: colors.foreground }]}>{t('addTransaction.loadingCategories')}</Text>
             </View>
           ) : filteredCategories.length === 0 ? (
-            <Text style={styles.emptyText}>{t('addTransaction.noCategoriesAvailable') || 'No categories available'}</Text>
+            <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>{t('addTransaction.noCategoriesAvailable')}</Text>
           ) : (
             <>
               <Pressable
-                style={styles.selectButton}
+                style={[
+                  styles.selectButton,
+                  { 
+                    backgroundColor: colors.inputBackground,
+                    borderColor: colors.border,
+                  }
+                ]}
                 onPress={() => setShowCategoryModal(true)}
               >
                 <View style={styles.selectedCategoryContainer}>
@@ -371,47 +395,61 @@ export default function AddTransactionScreen({
                       {getEmojiFromIcon(selectedCategory.icon || '')}
                     </Text>
                   )}
-                  <Text style={styles.selectButtonText}>
-                    {selectedCategory?.name || t('addTransaction.selectCategory') || 'Select Category'}
+                  <Text style={[styles.selectButtonText, { color: colors.foreground }]}>
+                    {selectedCategory?.name || t('addTransaction.selectCategory')}
                   </Text>
                 </View>
-                <ChevronDown size={16 * scale} color="#666" />
+                <ChevronDown size={16 * scale} color={colors.mutedForeground} />
               </Pressable>
             </>
           )}
         </Card>
 
         {/* Description & Date */}
-        <Card style={{ marginBottom: 16 }}>
+        <Card style={{ marginBottom: 16, backgroundColor: colors.card }}>
           <Input
-            label={t('addTransaction.description') || 'Description'}
-            placeholder={t('addTransaction.descriptionPlaceholder') || 'Enter description'}
+            label={t('addTransaction.description')}
+            placeholder={t('addTransaction.descriptionPlaceholder')}
             value={description}
             onChangeText={setDescription}
             containerStyle={{ marginBottom: 16 }}
           />
           <View>
-            <Text style={styles.label}>{t('addTransaction.date') || 'Date'}</Text>
+            <Text style={[styles.label, { color: colors.foreground }]}>{t('addTransaction.date')}</Text>
             <Pressable
-              style={styles.selectButton}
+              style={[
+                styles.selectButton,
+                { 
+                  backgroundColor: colors.inputBackground,
+                  borderColor: colors.border,
+                }
+              ]}
               onPress={() => setShowDateModal(true)}
             >
               <View style={styles.selectedCategoryContainer}>
-                <Calendar size={18 * scale} color="#666" />
-                <Text style={styles.selectButtonText}>{date}</Text>
+                <Calendar size={18 * scale} color={colors.mutedForeground} />
+                <Text style={[styles.selectButtonText, { color: colors.foreground }]}>{date}</Text>
               </View>
-              <ChevronDown size={16 * scale} color="#666" />
+              <ChevronDown size={16 * scale} color={colors.mutedForeground} />
             </Pressable>
           </View>
         </Card>
 
         {/* Notes */}
-        <Card style={{ marginBottom: 16 }}>
-          <Text style={styles.label}>{t('addTransaction.notes') || 'Notes'}</Text>
+        <Card style={{ marginBottom: 16, backgroundColor: colors.card }}>
+          <Text style={[styles.label, { color: colors.foreground }]}>{t('addTransaction.notes')}</Text>
           <TextInput
-            style={[styles.notesInput, { fontSize: Math.max(14, 16 * scale) }]}
-            placeholder={t('addTransaction.notesPlaceholder') || 'Add notes (optional)'}
-            placeholderTextColor="#9CA3AF"
+            style={[
+              styles.notesInput, 
+              { 
+                backgroundColor: colors.inputBackground,
+                borderColor: colors.border,
+                color: colors.foreground,
+                fontSize: Math.max(14, 16 * scale)
+              }
+            ]}
+            placeholder={t('addTransaction.notesPlaceholder')}
+            placeholderTextColor={colors.mutedForeground}
             value={notes}
             onChangeText={setNotes}
             multiline
@@ -421,7 +459,7 @@ export default function AddTransactionScreen({
 
         {/* Submit Button */}
         <Button
-          title={submitting ? (t('common.saving') || 'Saving...') : (t('addTransaction.submit') || 'Add Transaction')}
+          title={submitting ? t('common.saving') : t('addTransaction.submit')}
           onPress={handleSubmit}
           disabled={submitting || !amount || !category || !description}
           loading={submitting}
@@ -447,6 +485,10 @@ export default function AddTransactionScreen({
                   style={[
                     styles.categoryItem,
                     isSelected && styles.categoryItemSelected,
+                    {
+                      borderColor: isSelected ? colors.primary : colors.border,
+                      backgroundColor: isSelected ? `${colors.primary}20` : colors.card,
+                    }
                   ]}
                   onPress={() => {
                     setCategory(cat.name);
@@ -460,6 +502,9 @@ export default function AddTransactionScreen({
                     style={[
                       styles.categoryItemText,
                       isSelected && styles.categoryItemTextSelected,
+                      {
+                        color: isSelected ? colors.primary : colors.mutedForeground,
+                      }
                     ]}
                   >
                     {cat.name}
@@ -480,11 +525,18 @@ export default function AddTransactionScreen({
         }}
         title={t('addTransaction.selectCurrency') || 'Select Currency'}
       >
-        <View style={styles.currencySearchContainer}>
+        <View style={[styles.currencySearchContainer, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
           <TextInput
-            style={styles.currencySearchInput}
-            placeholder={t('addTransaction.searchCurrency') || 'Search currency...'}
-            placeholderTextColor="#999"
+            style={[
+              styles.currencySearchInput,
+              {
+                backgroundColor: colors.inputBackground,
+                borderColor: colors.border,
+                color: colors.foreground,
+              }
+            ]}
+            placeholder={t('addTransaction.searchCurrency')}
+            placeholderTextColor={colors.mutedForeground}
             value={currencySearch}
             onChangeText={setCurrencySearch}
           />
@@ -500,7 +552,7 @@ export default function AddTransactionScreen({
               <Text style={[styles.loadingText, { color: colors.foreground }]}>{t('addTransaction.loadingCurrencies') || 'Loading currencies...'}</Text>
             </View>
           ) : currencies.length === 0 ? (
-            <Text style={styles.emptyText}>{t('addTransaction.noCurrenciesAvailable') || 'No currencies available'}</Text>
+            <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>{t('addTransaction.noCurrenciesAvailable')}</Text>
           ) : (
             currencies
               .filter((curr) => {
@@ -511,31 +563,38 @@ export default function AddTransactionScreen({
                   (curr.name || '').toLowerCase().includes(q)
                 );
               })
-              .map((curr) => (
-                <Pressable
-                  key={curr.code}
-                  style={[
-                    styles.currencyItem,
-                    currency === curr.code && styles.currencyItemSelected,
-                  ]}
-                  onPress={() => {
-                    setCurrency(curr.code);
-                    setShowCurrencyModal(false);
-                    setCurrencySearch('');
-                  }}
-                >
-                  <Text style={styles.currencyFlag}>{curr.flag || '💰'}</Text>
-                  <View style={styles.currencyInfo}>
-                    <Text style={styles.currencyCode}>{curr.code}</Text>
-                    {curr.name && (
-                      <Text style={styles.currencyName}>{curr.name}</Text>
+              .map((curr) => {
+                const isSelected = currency === curr.code;
+                return (
+                  <Pressable
+                    key={curr.code}
+                    style={[
+                      styles.currencyItem,
+                      isSelected && styles.currencyItemSelected,
+                      {
+                        borderColor: isSelected ? colors.primary : colors.border,
+                        backgroundColor: isSelected ? `${colors.primary}20` : colors.card,
+                      }
+                    ]}
+                    onPress={() => {
+                      setCurrency(curr.code);
+                      setShowCurrencyModal(false);
+                      setCurrencySearch('');
+                    }}
+                  >
+                    <Text style={styles.currencyFlag}>{curr.flag || '💰'}</Text>
+                    <View style={styles.currencyInfo}>
+                      <Text style={[styles.currencyCode, { color: colors.foreground }]}>{curr.code}</Text>
+                      {curr.name && (
+                        <Text style={[styles.currencyName, { color: colors.mutedForeground }]}>{curr.name}</Text>
+                      )}
+                    </View>
+                    {isSelected && (
+                      <Text style={[styles.checkmark, { color: colors.primary }]}>✓</Text>
                     )}
-                  </View>
-                  {currency === curr.code && (
-                    <Text style={styles.checkmark}>✓</Text>
-                  )}
-                </Pressable>
-              ))
+                  </Pressable>
+                );
+              })
           )}
         </ScrollView>
       </Modal>
@@ -549,32 +608,40 @@ export default function AddTransactionScreen({
           onRequestClose={() => setShowDateModal(false)}
         >
           <View style={styles.datePickerModal}>
-            <View style={styles.datePickerHeader}>
-              <Pressable onPress={() => setShowDateModal(false)}>
-                <Text style={styles.datePickerCancel}>Cancel</Text>
-              </Pressable>
-              <Text style={styles.datePickerTitle}>Select Date</Text>
-              <Pressable
-                onPress={() => {
-                  const formattedDate = selectedDate.toISOString().split('T')[0];
-                  setDate(formattedDate);
-                  setShowDateModal(false);
-                }}
-              >
-                <Text style={styles.datePickerDone}>Done</Text>
-              </Pressable>
-            </View>
-            <DateTimePicker
-              value={selectedDate}
-              mode="date"
-              display="spinner"
-              onChange={(event, date) => {
-                if (date) {
-                  setSelectedDate(date);
-                }
-              }}
-              maximumDate={new Date()}
+            <Pressable 
+              style={{ flex: 1 }}
+              onPress={() => setShowDateModal(false)}
             />
+            <View style={[styles.datePickerContent, { backgroundColor: colors.card }]}>
+              <View style={[styles.datePickerHeader, { borderBottomColor: colors.border }]}>
+                <Pressable onPress={() => setShowDateModal(false)}>
+                  <Text style={[styles.datePickerCancel, { color: colors.mutedForeground }]}>{t('addTransaction.cancel')}</Text>
+                </Pressable>
+                <Text style={[styles.datePickerTitle, { color: colors.foreground }]}>{t('addTransaction.selectDate')}</Text>
+                <Pressable
+                  onPress={() => {
+                    const formattedDate = selectedDate.toISOString().split('T')[0];
+                    setDate(formattedDate);
+                    setShowDateModal(false);
+                  }}
+                >
+                  <Text style={[styles.datePickerDone, { color: colors.primary }]}>{t('addTransaction.done')}</Text>
+                </Pressable>
+              </View>
+              <DateTimePicker
+                value={selectedDate}
+                mode="date"
+                display="spinner"
+                onChange={(event, date) => {
+                  if (date) {
+                    setSelectedDate(date);
+                  }
+                }}
+                maximumDate={new Date()}
+                textColor={isDark ? '#fff' : '#000'}
+                themeVariant={isDark ? 'dark' : 'light'}
+              />
+            </View>
           </View>
         </RNModal>
       )}
@@ -594,7 +661,6 @@ export default function AddTransactionScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   header: {
     flexDirection: 'row',
@@ -602,9 +668,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
   },
   headerTitle: {
     ...textStyles.h3,
@@ -619,9 +683,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    ...textStyles.label,
     marginBottom: 8,
   },
   typeContainer: {
@@ -655,14 +717,11 @@ const styles = StyleSheet.create({
     flex: 2,
   },
   amountInput: {
+    ...textStyles.displaySmall,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#f5f5f5',
-    color: '#333',
-    fontFamily: fonts.mono,
   },
   currencyContainer: {
     flex: 1,
@@ -672,16 +731,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: '#e0e0e0',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#f5f5f5',
     marginTop: 8,
   },
   selectButtonText: {
-    fontSize: 15,
-    color: '#333',
+    ...textStyles.bodySmall,
   },
   selectedCategoryContainer: {
     flexDirection: 'row',
@@ -689,7 +745,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   categoryIcon: {
-    fontSize: 20,
+    fontSize: 16,
   },
   loadingContainer: {
     flexDirection: 'row',
@@ -702,19 +758,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   emptyText: {
-    color: '#999',
+    ...textStyles.bodySmall,
     textAlign: 'center',
     paddingVertical: 20,
-    fontSize: 14,
   },
   notesInput: {
+    ...textStyles.body,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#f5f5f5',
-    color: '#333',
     marginTop: 8,
     minHeight: 80,
     textAlignVertical: 'top',
@@ -730,43 +783,32 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#E5E7EB',
-    backgroundColor: '#fff',
   },
   categoryItemSelected: {
-    borderColor: '#03A9F4',
-    backgroundColor: 'rgba(3, 169, 244, 0.1)',
+    // Selected styling handled inline with theme colors
   },
   categoryItemIcon: {
-    fontSize: 32,
+    fontSize: 16,
     marginBottom: 8,
   },
   categoryItemText: {
-    fontSize: 12,
-    color: '#666',
+    ...textStyles.caption,
     textAlign: 'center',
   },
   categoryItemTextSelected: {
-    color: '#03A9F4',
     fontWeight: '600',
   },
   currencySearchContainer: {
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-    backgroundColor: '#fff',
   },
   currencySearchInput: {
+    ...textStyles.bodySmall,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    fontSize: 14,
-    color: '#333',
-    backgroundColor: '#f5f5f5',
-    fontFamily: fonts.sans,
   },
   currencyListContainer: {
     flex: 1,
@@ -781,18 +823,14 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    backgroundColor: '#fff',
     marginBottom: 8,
     minHeight: 60,
   },
   currencyItemSelected: {
-    borderColor: '#03A9F4',
-    backgroundColor: 'rgba(3, 169, 244, 0.1)',
     borderWidth: 2,
   },
   currencyFlag: {
-    fontSize: 28,
+    fontSize: 16,
     marginRight: 12,
     width: 32,
     textAlign: 'center',
@@ -802,19 +840,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   currencyCode: {
-    fontSize: 16,
+    ...textStyles.body,
     fontWeight: '600',
-    color: '#212121',
     marginBottom: 4,
-    fontFamily: fonts.sans,
   },
   currencyName: {
-    fontSize: 13,
-    color: '#666',
-    fontFamily: fonts.sans,
+    ...textStyles.bodySmall,
   },
   checkmark: {
-    fontSize: 20,
+    fontSize: 16,
     color: '#03A9F4',
     fontWeight: 'bold',
   },
@@ -823,28 +857,30 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
+  datePickerContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
   datePickerHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#fff',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+    borderBottomWidth: 1,
   },
   datePickerCancel: {
-    fontSize: 16,
-    color: '#666',
+    ...textStyles.body,
   },
   datePickerTitle: {
-    fontSize: 18,
+    ...textStyles.body,
     fontWeight: '600',
-    color: '#333',
   },
   datePickerDone: {
-    fontSize: 16,
-    color: '#03A9F4',
+    ...textStyles.body,
     fontWeight: '600',
   },
 });

@@ -47,7 +47,7 @@ export default function Button({
         return {
           paddingVertical: Math.max(16, 18 * scale),
           paddingHorizontal: Math.max(24, 32 * scale),
-          fontSize: Math.max(16, 18 * scale),
+          fontSize: Math.max(14, Math.min(16 * scale, 16)),
         };
       default:
         return {

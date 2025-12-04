@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 8,
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     marginRight: 2,
   },
   priceAmount: {
-    fontSize: 28,
+    fontSize: 16,
     fontWeight: 'bold',
     fontFamily: fonts.mono,
   },

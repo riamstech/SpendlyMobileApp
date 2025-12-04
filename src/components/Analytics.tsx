@@ -621,7 +621,7 @@ const styles = StyleSheet.create({
     paddingBottom: 120, // extra space so last tile isn't hidden behind bottom tab bar
   },
   sectionTitle: {
-    fontSize: 22,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#1a1a1a',
     marginBottom: 16,
@@ -811,13 +811,13 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   healthScoreValue: {
-    fontSize: 48,
+    fontSize: 16,
     fontWeight: 'bold',
     marginTop: 12,
     fontFamily: fonts.mono,
   },
   healthScoreGrade: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     marginTop: 8,
   },
@@ -899,7 +899,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   recommendationsTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
   },
   recommendationItem: {

@@ -159,10 +159,10 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
   
   const responsiveStyles = {
     headerSubtitle: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    codeText: { fontSize: Math.max(24, Math.min(32 * (width / 375), 36)) },
-    cardTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 18)) },
+    codeText: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
+    cardTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
     cardSubtitle: { fontSize: Math.max(11, Math.min(13 * (width / 375), 14)) },
-    statValue: { fontSize: Math.max(20, Math.min(24 * (width / 375), 24)) },
+    statValue: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
     statLabel: { fontSize: Math.max(11, Math.min(13 * (width / 375), 14)) },
   };
 

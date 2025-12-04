@@ -2,30 +2,33 @@ import { Platform, TextStyle } from 'react-native';
 
 /**
  * Font families matching the SpendlyApp web application
- * Web app uses: Roboto (sans), Roboto Mono (mono)
+ * Web app uses: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif
  * 
  * Mobile implementation:
- * - Main font: Roboto (Android, built-in) / San Francisco (iOS system font)
+ * - Main font: System font stack applied across all UI elements
+ *   iOS: System (San Francisco) - matches -apple-system, BlinkMacSystemFont
+ *   Android: Roboto - matches Roboto in the web stack
  * - Monospace font: Roboto Mono (Android, built-in) / Courier (iOS system font)
  * 
- * Note: Android has Roboto as the default system font, matching the web app perfectly.
- * iOS uses San Francisco by default, which provides a native iOS experience.
- * To use Roboto on iOS, you would need to load it as a custom font via expo-font.
+ * All UI elements use the system font stack for consistency.
  */
 export const fonts = {
-  // Main font family - system font stack matching web: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif
+  // Main font family - system font stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif
+  // Applied across all UI elements
+  // On iOS, omitting fontFamily uses the system font (San Francisco) - equivalent to -apple-system, BlinkMacSystemFont
+  // On Android, using 'Roboto' matches the web stack
   sans: Platform.select({
-    ios: 'System', // -apple-system, BlinkMacSystemFont on iOS
-    android: 'Roboto', // Roboto on Android
-    default: 'System', // System font on other platforms
-  }),
+    ios: undefined, // System font (San Francisco) - equivalent to -apple-system, BlinkMacSystemFont
+    android: 'Roboto', // Roboto - matches web stack
+    default: undefined, // System font on other platforms
+  }) as string | undefined,
   
-  // Header font - uses system font stack for headers
+  // Header font - uses same system font stack for headers
   header: Platform.select({
-    ios: 'System', // -apple-system, BlinkMacSystemFont
+    ios: undefined, // System font (San Francisco) - equivalent to -apple-system, BlinkMacSystemFont
     android: 'Roboto', // Roboto (matches web stack)
-    default: 'System',
-  }),
+    default: undefined, // System font
+  }) as string | undefined,
   
   // Monospace font family - matches 'Roboto Mono' from web app
   mono: Platform.select({

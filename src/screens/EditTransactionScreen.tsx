@@ -319,7 +319,7 @@ export default function EditTransactionScreen({
               <TextInput
                 style={[
                   styles.amountInput,
-                  { fontSize: Math.max(16, 18 * scale) },
+                  { fontSize: Math.max(14, Math.min(16 * scale, 16)) },
                 ]}
                 placeholder="0.00"
                 placeholderTextColor="#9CA3AF"
@@ -621,7 +621,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   categoryIcon: {
-    fontSize: 20,
+    fontSize: 16,
   },
   loadingContainer: {
     flexDirection: 'row',
@@ -670,7 +670,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(3, 169, 244, 0.1)',
   },
   categoryItemIcon: {
-    fontSize: 32,
+    fontSize: 16,
     marginBottom: 8,
   },
   categoryItemText: {
@@ -697,7 +697,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(3, 169, 244, 0.1)',
   },
   currencyFlag: {
-    fontSize: 24,
+    fontSize: 16,
     marginRight: 12,
   },
   currencyInfo: {
@@ -714,7 +714,7 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   checkmark: {
-    fontSize: 20,
+    fontSize: 16,
     color: '#03A9F4',
     fontWeight: 'bold',
   },

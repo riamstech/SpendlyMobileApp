@@ -118,8 +118,8 @@ export default function ReceiptsScreen({ onBack }: ReceiptsScreenProps) {
   const responsiveTextStyles = createResponsiveTextStyles(width);
   
   const responsiveStyles = {
-    sectionTitle: { fontSize: Math.max(16, Math.min(18 * (width / 375), 20)) },
-    cardTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 18)) },
+    sectionTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
+    cardTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
     cardValue: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
   };
 
@@ -806,7 +806,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: fonts.sans,
     fontWeight: '700',
-    fontSize: 18,
+    fontSize: 16,
     marginBottom: 16,
   },
   loadingContainer: {
@@ -827,7 +827,7 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontFamily: fonts.sans,
     fontWeight: '600',
-    fontSize: 18,
+    fontSize: 16,
     marginTop: 16,
   },
   emptySubtitle: {
@@ -879,7 +879,7 @@ const styles = StyleSheet.create({
   receiptAmount: {
     fontFamily: fonts.sans,
     fontWeight: '700',
-    fontSize: 18,
+    fontSize: 16,
     color: '#4CAF50',
   },
   ocrPreview: {
@@ -960,7 +960,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: fonts.sans,
     fontWeight: '700',
-    fontSize: 20,
+    fontSize: 16,
   },
   modalBody: {
     padding: 20,
@@ -1044,7 +1044,7 @@ const styles = StyleSheet.create({
   },
   checkmark: {
     color: '#FF9800',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
   },
   // Preview Modal

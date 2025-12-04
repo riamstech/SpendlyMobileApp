@@ -82,15 +82,17 @@ export default function BudgetScreen() {
   // Modals
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
+  const [categorySearch, setCategorySearch] = useState('');
+  const [currencySearch, setCurrencySearch] = useState('');
 
   const responsiveTextStyles = createResponsiveTextStyles(width);
   
   const responsiveStyles = {
     headerSubtitle: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
     summaryLabel: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    summaryValue: { fontSize: Math.max(18, Math.min(24 * (width / 375), 24)) },
-    sectionTitle: { fontSize: Math.max(16, Math.min(18 * (width / 375), 20)) },
-    budgetName: { fontSize: Math.max(14, Math.min(16 * (width / 375), 18)) },
+    summaryValue: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
+    sectionTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
+    budgetName: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
     budgetAmount: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
     percentageText: { fontSize: Math.max(10, Math.min(12 * (width / 375), 14)) },
   };
@@ -410,7 +412,13 @@ export default function BudgetScreen() {
                 onPress={() => setShowCurrencyModal(true)}
               >
                 <Text style={[styles.selectButtonText, { color: colors.foreground }]}>
-                  {newCategoryCurrency}
+                  {(() => {
+                    const selectedCurrency = currencies.find(c => c.code === newCategoryCurrency);
+                    if (selectedCurrency) {
+                      return `${selectedCurrency.flag ? selectedCurrency.flag + ' ' : ''}${selectedCurrency.code} (${selectedCurrency.symbol})`;
+                    }
+                    return newCategoryCurrency;
+                  })()}
                 </Text>
                 <ChevronDown size={18} color={colors.mutedForeground} />
               </Pressable>
@@ -647,26 +655,52 @@ export default function BudgetScreen() {
         visible={showCategoryModal}
         animationType="slide"
         transparent={true}
-        onRequestClose={() => setShowCategoryModal(false)}
+        onRequestClose={() => {
+          setShowCategoryModal(false);
+          setCategorySearch('');
+        }}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{t('budget.chooseCategory') || 'Choose Category'}</Text>
-              <Pressable onPress={() => setShowCategoryModal(false)}>
-                <X size={24} color="#666" />
+        <View style={[styles.modalOverlay, { backgroundColor: isDark ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.5)' }]}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+              <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('budget.chooseCategory') || 'Choose Category'}</Text>
+              <Pressable onPress={() => {
+                setShowCategoryModal(false);
+                setCategorySearch('');
+              }}>
+                <X size={24} color={colors.mutedForeground} />
               </Pressable>
+            </View>
+            <View style={[styles.searchContainer, { borderBottomColor: colors.border }]}>
+              <TextInput
+                style={[styles.searchInput, { backgroundColor: colors.muted, borderColor: colors.border, color: colors.foreground }]}
+                placeholder={t('budget.searchCategory') || 'Search category...'}
+                placeholderTextColor={colors.mutedForeground}
+                value={categorySearch}
+                onChangeText={setCategorySearch}
+              />
             </View>
             <ScrollView style={styles.modalList}>
               {availableCategories
-                .filter(cat => cat.type === 'expense' || cat.type === 'both')
+                .filter(cat => {
+                  // Filter by type
+                  if (cat.type !== 'expense' && cat.type !== 'both') return false;
+                  // Filter by search text
+                  if (categorySearch.trim()) {
+                    const searchLower = categorySearch.toLowerCase();
+                    const categoryName = translateCategoryName(cat.name, t).toLowerCase();
+                    return categoryName.includes(searchLower) || cat.name.toLowerCase().includes(searchLower);
+                  }
+                  return true;
+                })
                 .map((category) => (
                   <Pressable
                     key={category.id}
-                    style={styles.modalItem}
+                    style={[styles.modalItem, { borderBottomColor: colors.border }]}
                     onPress={() => {
                       setNewCategoryName(category.name);
                       setShowCategoryModal(false);
+                      setCategorySearch('');
                     }}
                   >
                     <View style={styles.modalItemLeft}>
@@ -682,7 +716,7 @@ export default function BudgetScreen() {
                           color={category.color || '#03A9F4'}
                         />
                       </View>
-                      <Text style={[styles.modalItemText, newCategoryName === category.name && styles.modalItemTextActive]}>
+                      <Text style={[styles.modalItemText, { color: colors.foreground }, newCategoryName === category.name && [styles.modalItemTextActive, { color: colors.primary }]]}>
                         {translateCategoryName(category.name, t)}
                       </Text>
                     </View>
@@ -698,31 +732,57 @@ export default function BudgetScreen() {
         visible={showCurrencyModal}
         animationType="slide"
         transparent={true}
-        onRequestClose={() => setShowCurrencyModal(false)}
+        onRequestClose={() => {
+          setShowCurrencyModal(false);
+          setCurrencySearch('');
+        }}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{t('addTransaction.selectCurrency') || 'Select Currency'}</Text>
-              <Pressable onPress={() => setShowCurrencyModal(false)}>
-                <X size={24} color="#666" />
+        <View style={[styles.modalOverlay, { backgroundColor: isDark ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.5)' }]}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+              <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('addTransaction.selectCurrency') || 'Select Currency'}</Text>
+              <Pressable onPress={() => {
+                setShowCurrencyModal(false);
+                setCurrencySearch('');
+              }}>
+                <X size={24} color={colors.mutedForeground} />
               </Pressable>
             </View>
+            <View style={[styles.searchContainer, { borderBottomColor: colors.border }]}>
+              <TextInput
+                style={[styles.searchInput, { backgroundColor: colors.muted, borderColor: colors.border, color: colors.foreground }]}
+                placeholder={t('reports.searchCurrency') || 'Search currency...'}
+                placeholderTextColor={colors.mutedForeground}
+                value={currencySearch}
+                onChangeText={setCurrencySearch}
+              />
+            </View>
             <ScrollView style={styles.modalList}>
-              {currencies.map((curr) => (
-                <Pressable
-                  key={curr.code}
-                  style={styles.modalItem}
-                  onPress={() => {
-                    setNewCategoryCurrency(curr.code);
-                    setShowCurrencyModal(false);
-                  }}
-                >
-                  <Text style={[styles.modalItemText, newCategoryCurrency === curr.code && styles.modalItemTextActive]}>
-                    {curr.code} - {curr.name || curr.code} ({curr.symbol})
-                  </Text>
-                </Pressable>
-              ))}
+              {currencies
+                .filter((curr) => {
+                  if (!currencySearch.trim()) return true;
+                  const q = currencySearch.toLowerCase();
+                  return (
+                    curr.code.toLowerCase().includes(q) ||
+                    (curr.name || '').toLowerCase().includes(q) ||
+                    (curr.symbol || '').toLowerCase().includes(q)
+                  );
+                })
+                .map((curr) => (
+                  <Pressable
+                    key={curr.code}
+                    style={[styles.modalItem, { borderBottomColor: colors.border }]}
+                    onPress={() => {
+                      setNewCategoryCurrency(curr.code);
+                      setShowCurrencyModal(false);
+                      setCurrencySearch('');
+                    }}
+                  >
+                    <Text style={[styles.modalItemText, { color: colors.foreground }, newCategoryCurrency === curr.code && [styles.modalItemTextActive, { color: colors.primary }]]}>
+                      {curr.flag ? `${curr.flag} ` : ''}{curr.code} {curr.name ? `- ${curr.name}` : ''} ({curr.symbol})
+                    </Text>
+                  </Pressable>
+                ))}
             </ScrollView>
           </View>
         </View>
@@ -882,7 +942,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   summaryValue: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
   },
   overviewCard: {
@@ -910,7 +970,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   overviewValue: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
     fontFamily: fonts.mono,
@@ -946,7 +1006,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   chartTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 16,
@@ -959,7 +1019,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 16,
@@ -1115,8 +1175,23 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e0e0e0',
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
+    color: '#333',
+  },
+  searchContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  searchInput: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    fontSize: 14,
     color: '#333',
   },
   modalList: {

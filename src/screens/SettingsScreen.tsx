@@ -47,7 +47,7 @@ import {
 } from 'lucide-react-native';
 import { authService } from '../api/services/auth';
 import { usersService } from '../api/services/users';
-import { currenciesService } from '../api/services/currencies';
+import { currenciesService, Currency } from '../api/services/currencies';
 import { dashboardService } from '../api/services/dashboard';
 import { COUNTRIES, US_STATES, CA_PROVINCES } from '../constants/countries';
 import { SUPPORTED_LANGUAGES } from '../i18n';
@@ -84,17 +84,17 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
   const { isDark, colors, toggleTheme } = useTheme();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
-  const [currencies, setCurrencies] = useState<Array<{ code: string; symbol: string; name?: string }>>([]);
+  const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [budgetCycleDay, setBudgetCycleDay] = useState(1);
 
   const responsiveTextStyles = createResponsiveTextStyles(width);
   
   const responsiveStyles = {
-    sectionTitle: { fontSize: Math.max(16, Math.min(18 * (width / 375), 20)) },
-    itemTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 18)) },
+    sectionTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
+    itemTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
     itemSubtitle: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    valueText: { fontSize: Math.max(14, Math.min(16 * (width / 375), 18)) },
-    buttonText: { fontSize: Math.max(14, Math.min(16 * (width / 375), 18)) },
+    valueText: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
+    buttonText: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
   };
   
   // Expanded sections
@@ -125,6 +125,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
     planType: 'monthly' | 'yearly';
     paymentMethod: 'card' | 'upi';
   } | null>(null);
+  
+  // Search states
+  const [currencySearch, setCurrencySearch] = useState('');
+  const [countrySearch, setCountrySearch] = useState('');
 
   // Security
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -187,7 +191,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       }
     } catch (error) {
       console.error('Failed to load initial data:', error);
-      Alert.alert('Error', 'Failed to load settings. Please try again.');
+      Alert.alert(t('settings.error'), t('settings.errorLoadSettings'));
     } finally {
       setLoading(false);
     }
@@ -220,7 +224,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
 
   const handleSaveProfile = async () => {
     if (!name.trim() || !email.trim()) {
-      Alert.alert('Error', 'Please fill in name and email.');
+      Alert.alert(t('settings.error'), t('settings.errorFillNameEmail'));
       return;
     }
 
@@ -235,10 +239,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       
       await loadInitialData();
       setIsEditingProfile(false);
-      Alert.alert('Success', 'Profile updated successfully');
+      Alert.alert(t('settings.success'), t('settings.successProfileUpdated'));
     } catch (error: any) {
       console.error('Error updating profile:', error);
-      Alert.alert('Error', error.response?.data?.message || 'Failed to update profile. Please try again.');
+      Alert.alert(t('settings.error'), error.response?.data?.message || t('settings.errorUpdateProfile'));
     } finally {
       setSaving(false);
     }
@@ -246,17 +250,17 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
 
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
-      Alert.alert('Error', 'Please fill in all password fields.');
+      Alert.alert(t('settings.error'), t('settings.errorFillPasswordFields'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      Alert.alert('Error', 'New passwords do not match.');
+      Alert.alert(t('settings.error'), t('settings.errorPasswordsNotMatch'));
       return;
     }
 
     if (newPassword.length < 8) {
-      Alert.alert('Error', 'Password must be at least 8 characters long.');
+      Alert.alert(t('settings.error'), t('settings.errorPasswordLength'));
       return;
     }
 
@@ -268,14 +272,14 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
         password_confirmation: confirmPassword,
       });
       
-      Alert.alert('Success', 'Password changed successfully');
+      Alert.alert(t('settings.success'), t('settings.successPasswordChanged'));
       setShowChangePassword(false);
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (error: any) {
       console.error('Error changing password:', error);
-      Alert.alert('Error', error.response?.data?.message || 'Failed to change password. Please try again.');
+      Alert.alert(t('settings.error'), error.response?.data?.message || t('settings.errorChangePassword'));
     } finally {
       setSavingPassword(false);
     }
@@ -290,10 +294,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       
       setSelectedCurrency(currency);
       await loadInitialData();
-      Alert.alert('Success', 'Currency updated successfully');
+      Alert.alert(t('settings.success'), t('settings.successCurrencyUpdated'));
     } catch (error: any) {
       console.error('Error updating currency:', error);
-      Alert.alert('Error', error.response?.data?.message || 'Failed to update currency. Please try again.');
+      Alert.alert(t('settings.error'), error.response?.data?.message || t('settings.errorUpdateCurrency'));
     } finally {
       setSaving(false);
     }
@@ -308,10 +312,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       
       await i18n.changeLanguage(locale);
       setPreferredLocale(locale);
-      Alert.alert('Success', 'Language updated successfully');
+      Alert.alert(t('settings.success'), t('settings.successLanguageUpdated'));
     } catch (error: any) {
       console.error('Error updating language:', error);
-      Alert.alert('Error', error.response?.data?.message || 'Failed to update language. Please try again.');
+      Alert.alert(t('settings.error'), error.response?.data?.message || t('settings.errorUpdateLanguage'));
     } finally {
       setSavingLanguage(false);
     }
@@ -325,10 +329,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       });
       
       setBudgetCycleDay(day);
-      Alert.alert('Success', `Budget cycle day updated to ${day}`);
+      Alert.alert(t('settings.success'), t('settings.successBudgetCycleUpdated', { day }));
     } catch (error: any) {
       console.error('Error updating budget cycle:', error);
-      Alert.alert('Error', error.response?.data?.message || 'Failed to update budget cycle. Please try again.');
+      Alert.alert(t('settings.error'), error.response?.data?.message || t('settings.errorUpdateBudgetCycle'));
     } finally {
       setSavingBudgetCycle(false);
     }
@@ -342,7 +346,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       await toggleTheme();
     } catch (error: any) {
       console.error('Error updating dark mode:', error);
-      Alert.alert('Error', 'Failed to update dark mode setting.');
+      Alert.alert(t('settings.error'), t('settings.errorUpdateDarkMode'));
     }
   };
 
@@ -354,7 +358,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       setNotifications(enabled);
     } catch (error: any) {
       console.error('Error updating notifications:', error);
-      Alert.alert('Error', 'Failed to update notifications setting.');
+      Alert.alert(t('settings.error'), t('settings.errorUpdateNotifications'));
     }
   };
 
@@ -367,7 +371,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       // Note: Biometric lock implementation would go here
     } catch (error: any) {
       console.error('Error updating biometric lock:', error);
-      Alert.alert('Error', 'Failed to update biometric lock setting.');
+      Alert.alert(t('settings.error'), t('settings.errorUpdateBiometricLock'));
     }
   };
 
@@ -381,7 +385,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       Alert.alert('Backup Data', JSON.stringify(backup, null, 2));
     } catch (error: any) {
       console.error('Error backing up data:', error);
-      Alert.alert('Error', error.response?.data?.message || 'Failed to backup data. Please try again.');
+      Alert.alert(t('settings.error'), error.response?.data?.message || t('settings.errorBackupData'));
     } finally {
       setSaving(false);
     }
@@ -389,22 +393,22 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
 
   const handleDeleteAccount = async () => {
     Alert.alert(
-      'Delete Account',
-      'Are you sure you want to delete your account? This action cannot be undone.',
+      t('settings.deleteAccountTitle'),
+      t('settings.deleteAccountConfirm'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('settings.cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('settings.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
               setSaving(true);
               await usersService.deleteAccount();
-              Alert.alert('Success', 'Account deleted successfully');
+              Alert.alert(t('settings.success'), t('settings.successAccountDeleted'));
               onLogout();
             } catch (error: any) {
               console.error('Error deleting account:', error);
-              Alert.alert('Error', error.response?.data?.message || 'Failed to delete account. Please try again.');
+              Alert.alert(t('settings.error'), error.response?.data?.message || t('settings.errorDeleteAccount'));
             } finally {
               setSaving(false);
             }
@@ -415,10 +419,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
   };
 
   const handleLogout = async () => {
-    Alert.alert('Logout', 'Are you sure you want to logout?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(t('settings.logoutTitle'), t('settings.logoutConfirm'), [
+      { text: t('settings.cancel'), style: 'cancel' },
       {
-        text: 'Logout',
+        text: t('settings.logout'),
         onPress: async () => {
           try {
             await authService.logout();
@@ -438,7 +442,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       // Request permission
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission Denied', 'Sorry, we need camera roll permissions to upload photos!');
+        Alert.alert(t('settings.permissionDenied'), t('settings.permissionDeniedMessage'));
         return;
       }
 
@@ -472,16 +476,17 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       // Update user avatar
       const updatedUser = {
         ...user,
-        avatar: response.avatar_url || usersService.getAvatarUrl(response.avatar),
+        avatar: response.avatar || response.avatar_url,
+        avatar_url: response.avatar_url || response.avatar,
       };
       setUser(updatedUser);
       
-      Alert.alert('Success', 'Profile photo updated successfully');
+      Alert.alert(t('settings.success'), t('settings.successProfilePhotoUpdated'));
     } catch (error: any) {
       console.error('Error uploading avatar:', error);
       Alert.alert(
-        'Error',
-        error.response?.data?.message || error.message || 'Failed to upload profile photo. Please try again.'
+        t('settings.error'),
+        error.response?.data?.message || error.message || t('settings.errorUploadProfilePhoto')
       );
     } finally {
       setUploadingAvatar(false);
@@ -490,7 +495,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
 
   const getAvatarUrl = (avatarPath?: string | null): string | undefined => {
     if (!avatarPath) return undefined;
-    return usersService.getAvatarUrl(avatarPath);
+    // Handle both avatar and avatar_url fields
+    const path = avatarPath || (user as any)?.avatar_url;
+    if (!path) return undefined;
+    return usersService.getAvatarUrl(path);
   };
 
   if (loading || !user) {
@@ -542,8 +550,15 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
             <View style={styles.sectionContent}>
               <View style={styles.profileHeader}>
                 <View style={styles.avatarContainer}>
-                  {getAvatarUrl(user.avatar) ? (
-                    <Image source={{ uri: getAvatarUrl(user.avatar) }} style={styles.avatar} />
+                  {getAvatarUrl(user.avatar || (user as any)?.avatar_url) ? (
+                    <Image 
+                      source={{ uri: getAvatarUrl(user.avatar || (user as any)?.avatar_url) || '' }} 
+                      style={styles.avatar}
+                      onError={() => {
+                        // Fallback to placeholder if image fails to load
+                        console.log('Avatar image failed to load');
+                      }}
+                    />
                   ) : (
                     <View style={[styles.avatarPlaceholder, { backgroundColor: colors.primary }]}>
                       <Text style={styles.avatarText}>{getInitials(user.name)}</Text>
@@ -663,8 +678,13 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                 <View style={styles.settingItemLeft}>
                   <DollarSign size={20} color={colors.primary} />
                   <View style={styles.settingItemInfo}>
-                    <Text style={[styles.settingItemLabel, { color: colors.foreground }]}>{t('settings.currency')}</Text>
-                    <Text style={[styles.settingItemValue, { color: colors.mutedForeground }]}>{selectedCurrency}</Text>
+                    <Text style={[styles.settingItemLabel, { color: colors.foreground }]}>{t('settings.currency') || 'Currency'}</Text>
+                    <Text style={[styles.settingItemValue, { color: colors.mutedForeground }]}>
+                      {(() => {
+                        const curr = currencies.find(c => c.code === selectedCurrency);
+                        return curr ? `${curr.flag || '💰'} ${curr.code}${curr.name ? ` - ${curr.name}` : ''}` : selectedCurrency;
+                      })()}
+                    </Text>
                   </View>
                 </View>
                 <ChevronDown size={18} color={colors.mutedForeground} />
@@ -839,7 +859,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
             onPress={() => toggleSection('features')}
           >
             <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
-              {t('settings.rewards') || 'Features & Rewards'}
+              {t('settings.featuresAndRewards')}
             </Text>
             {expandedSections.features ? (
               <ChevronUp size={20} color={colors.mutedForeground} />
@@ -862,7 +882,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                       {t('goals.title') || 'Savings Goals'}
                     </Text>
                     <Text style={[styles.settingItemValue, { color: colors.mutedForeground }]}>
-                      {t('goals.noGoalsSubtitle') ? 'Track your savings progress' : 'Track your savings progress'}
+                      {t('settings.trackSavingsProgress')}
                     </Text>
                   </View>
                 </View>
@@ -881,7 +901,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                       {t('reports.analytics') || 'Analytics'}
                     </Text>
                     <Text style={[styles.settingItemValue, { color: colors.mutedForeground }]}>
-                      Smart insights & financial health
+                      {t('settings.smartInsightsFinancialHealth')}
                     </Text>
                   </View>
                 </View>
@@ -900,7 +920,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                       {t('receipts.title') || 'Receipts & OCR'}
                     </Text>
                     <Text style={[styles.settingItemValue, { color: colors.mutedForeground }]}>
-                      Scan and organize receipts
+                      {t('settings.scanOrganizeReceipts')}
                     </Text>
                   </View>
                 </View>
@@ -964,7 +984,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                       <View style={styles.subscriptionDateRow}>
                         <Clock size={14} color="#6B7280" />
                         <Text style={[styles.subscriptionDate, { color: '#10B981' }]}>
-                          Valid until {new Date(user.licenseEndDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          {t('settings.validUntil', { date: new Date(user.licenseEndDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) })}
                         </Text>
                       </View>
                     )}
@@ -1126,35 +1146,81 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
         visible={showCurrencyModal}
         animationType="slide"
         transparent={true}
-        onRequestClose={() => setShowCurrencyModal(false)}
+        onRequestClose={() => {
+          setShowCurrencyModal(false);
+          setCurrencySearch('');
+        }}
       >
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
-              <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('settings.currency')}</Text>
-              <Pressable onPress={() => setShowCurrencyModal(false)}>
+              <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('settings.currency') || 'Currency'}</Text>
+              <Pressable onPress={() => {
+                setShowCurrencyModal(false);
+                setCurrencySearch('');
+              }}>
                 <Text style={[styles.modalClose, { color: colors.mutedForeground }]}>✕</Text>
               </Pressable>
             </View>
+            <View style={[styles.currencySearchContainer, { borderBottomColor: colors.border }]}>
+              <TextInput
+                style={[styles.currencySearchInput, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
+                placeholder={t('reports.searchCurrency') || 'Search currency...'}
+                placeholderTextColor={colors.mutedForeground}
+                value={currencySearch}
+                onChangeText={setCurrencySearch}
+              />
+            </View>
             <ScrollView style={styles.modalList}>
-              {currencies.map((curr) => (
-                <Pressable
-                  key={curr.code}
-                  style={[styles.modalItem, { borderBottomColor: colors.border }]}
-                  onPress={() => {
-                    handleUpdateCurrency(curr.code);
-                    setShowCurrencyModal(false);
-                  }}
-                >
-                  <Text style={[
-                    styles.modalItemText,
-                    { color: colors.foreground },
-                    selectedCurrency === curr.code && [styles.modalItemTextActive, { color: colors.primary }]
-                  ]}>
-                    {curr.code} - {curr.name || curr.code} ({curr.symbol})
-                  </Text>
-                </Pressable>
-              ))}
+              {currencies
+                .filter((curr) => {
+                  if (!currencySearch.trim()) return true;
+                  const q = currencySearch.toLowerCase();
+                  return (
+                    curr.code.toLowerCase().includes(q) ||
+                    (curr.name || '').toLowerCase().includes(q) ||
+                    (curr.symbol || '').toLowerCase().includes(q)
+                  );
+                })
+                .map((curr) => {
+                  const isSelected = selectedCurrency === curr.code;
+                  return (
+                    <Pressable
+                      key={curr.code}
+                      style={[
+                        styles.modalItem,
+                        { borderBottomColor: colors.border },
+                        isSelected && { backgroundColor: `${colors.primary}10` }
+                      ]}
+                      onPress={() => {
+                        handleUpdateCurrency(curr.code);
+                        setShowCurrencyModal(false);
+                        setCurrencySearch('');
+                      }}
+                    >
+                      <View style={styles.currencyItemRow}>
+                        <Text style={styles.currencyFlag}>{curr.flag || '💰'}</Text>
+                        <View style={styles.currencyItemInfo}>
+                          <Text style={[
+                            styles.modalItemText,
+                            { color: colors.foreground },
+                            isSelected && [styles.modalItemTextActive, { color: colors.primary }]
+                          ]}>
+                            {curr.code} {curr.name ? `- ${curr.name}` : ''}
+                          </Text>
+                          {curr.symbol && (
+                            <Text style={[styles.currencySymbol, { color: colors.mutedForeground }]}>
+                              {curr.symbol}
+                            </Text>
+                          )}
+                        </View>
+                        {isSelected && (
+                          <Text style={[styles.checkmark, { color: colors.primary }]}>✓</Text>
+                        )}
+                      </View>
+                    </Pressable>
+                  );
+                })}
             </ScrollView>
           </View>
         </View>
@@ -1204,24 +1270,44 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
         visible={showCountryModal}
         animationType="slide"
         transparent={true}
-        onRequestClose={() => setShowCountryModal(false)}
+        onRequestClose={() => {
+          setShowCountryModal(false);
+          setCountrySearch('');
+        }}
       >
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
               <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('settings.country')}</Text>
-              <Pressable onPress={() => setShowCountryModal(false)}>
+              <Pressable onPress={() => {
+                setShowCountryModal(false);
+                setCountrySearch('');
+              }}>
                 <Text style={[styles.modalClose, { color: colors.mutedForeground }]}>✕</Text>
               </Pressable>
             </View>
+            <View style={[styles.currencySearchContainer, { borderBottomColor: colors.border }]}>
+              <TextInput
+                style={[styles.currencySearchInput, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
+                placeholder={t('settings.selectCountry') || 'Search country...'}
+                placeholderTextColor={colors.mutedForeground}
+                value={countrySearch}
+                onChangeText={setCountrySearch}
+              />
+            </View>
             <ScrollView style={styles.modalList}>
               <Pressable
-                style={[styles.modalItem, { borderBottomColor: colors.border }]}
+                style={[
+                  styles.modalItem,
+                  { borderBottomColor: colors.border },
+                  !country && { backgroundColor: `${colors.primary}10` }
+                ]}
                 onPress={() => {
                   setCountry('');
                   setState('');
                   handleSaveProfile();
                   setShowCountryModal(false);
+                  setCountrySearch('');
                 }}
               >
                 <Text style={[
@@ -1231,27 +1317,48 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                 ]}>
                   {t('settings.notSpecified')}
                 </Text>
+                {!country && (
+                  <Text style={[styles.checkmark, { color: colors.primary }]}>✓</Text>
+                )}
               </Pressable>
-              {COUNTRIES.map((c) => (
-                <Pressable
-                  key={c.code}
-                  style={[styles.modalItem, { borderBottomColor: colors.border }]}
-                  onPress={() => {
-                    setCountry(c.code);
-                    setState('');
-                    handleSaveProfile();
-                    setShowCountryModal(false);
-                  }}
-                >
-                  <Text style={[
-                    styles.modalItemText,
-                    { color: colors.foreground },
-                    country === c.code && [styles.modalItemTextActive, { color: colors.primary }]
-                  ]}>
-                    {c.name}
-                  </Text>
-                </Pressable>
-              ))}
+              {COUNTRIES
+                .filter((c) => {
+                  if (!countrySearch.trim()) return true;
+                  const q = countrySearch.toLowerCase();
+                  return (
+                    c.name.toLowerCase().includes(q) ||
+                    c.code.toLowerCase().includes(q)
+                  );
+                })
+                .map((c) => {
+                  const isSelected = country === c.code;
+                  return (
+                    <Pressable
+                      key={c.code}
+                      style={[
+                        styles.modalItem,
+                        { borderBottomColor: colors.border },
+                        isSelected && { backgroundColor: `${colors.primary}10` }
+                      ]}
+                      onPress={() => {
+                        setCountry(c.code);
+                        setState('');
+                        handleSaveProfile();
+                        setShowCountryModal(false);
+                        setCountrySearch('');
+                      }}
+                    >
+                      <View style={styles.currencyItemRow}>
+                        <Text style={[styles.modalItemText, { flex: 1, color: colors.foreground }]}>
+                          {c.name}
+                        </Text>
+                        {isSelected && (
+                          <Text style={[styles.checkmark, { color: colors.primary }]}>✓</Text>
+                        )}
+                      </View>
+                    </Pressable>
+                  );
+                })}
             </ScrollView>
           </View>
         </View>
@@ -1463,7 +1570,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatarText: {
-    fontSize: 24,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#fff',
   },
@@ -1481,7 +1588,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   profileName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     marginBottom: 4,
   },
@@ -1511,16 +1618,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   formLabel: {
-    fontSize: 14,
-    fontWeight: '600',
+    ...textStyles.label,
     marginBottom: 8,
   },
   formInput: {
+    ...textStyles.body,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 8,
     borderWidth: 1,
-    fontSize: 14,
   },
   passwordInputContainer: {
     flexDirection: 'row',
@@ -1687,11 +1793,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
   },
   modalClose: {
-    fontSize: 24,
+    fontSize: 16,
   },
   modalBody: {
     padding: 20,
@@ -1728,6 +1834,40 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
     fontWeight: '600',
+  },
+  currencySearchContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
+  currencySearchInput: {
+    fontSize: 14,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  currencyItemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  currencyFlag: {
+    fontSize: 20,
+    width: 32,
+    textAlign: 'center',
+  },
+  currencyItemInfo: {
+    flex: 1,
+  },
+  currencySymbol: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  checkmark: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 8,
   },
 });
 

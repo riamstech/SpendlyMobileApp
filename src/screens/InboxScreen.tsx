@@ -199,10 +199,10 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
   const responsiveStyles = {
     headerSubtitle: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
     tabText: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    notificationTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 18)) },
+    notificationTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
     notificationMessage: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
     notificationTime: { fontSize: Math.max(10, Math.min(11 * (width / 375), 12)) },
-    emptyTitle: { fontSize: Math.max(16, Math.min(18 * (width / 375), 20)) },
+    emptyTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
     emptyText: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
   };
 
@@ -500,6 +500,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   filterTabText: {
+    ...textStyles.label,
     fontWeight: '600',
   },
   emptyState: {
@@ -518,11 +519,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   emptyTitle: {
+    ...textStyles.h4,
     fontWeight: 'bold',
     marginBottom: 8,
     textAlign: 'center',
   },
   emptyText: {
+    ...textStyles.bodySmall,
     textAlign: 'center',
   },
   notificationsList: {
@@ -556,6 +559,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   notificationTitle: {
+    ...textStyles.body,
     flex: 1,
     fontWeight: '600',
   },
@@ -566,6 +570,7 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   notificationMessage: {
+    ...textStyles.bodySmall,
     lineHeight: 20,
     marginBottom: 8,
   },
@@ -577,6 +582,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
   },
   notificationTime: {
+    ...textStyles.caption,
     fontWeight: '500',
   },
   notificationActions: {
@@ -592,6 +598,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   actionButtonText: {
+    ...textStyles.caption,
     fontWeight: '600',
   },
 });

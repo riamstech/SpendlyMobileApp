@@ -2204,7 +2204,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontFamily: fonts.sans,
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
   },
   modalActions: {
@@ -2229,7 +2229,7 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     fontFamily: fonts.sans,
-    fontSize: 24,
+    fontSize: 16,
   },
   notificationsList: {
     maxHeight: 500,

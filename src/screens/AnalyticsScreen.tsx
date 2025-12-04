@@ -742,7 +742,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   categoryEmoji: {
-    fontSize: 20,
+    fontSize: 16,
   },
   categoryInfo: {
     flex: 1,
@@ -849,7 +849,7 @@ const styles = StyleSheet.create({
   healthGrade: {
     fontFamily: fonts.sans,
     fontWeight: '600',
-    fontSize: 20,
+    fontSize: 16,
     color: '#1976D2',
   },
   infoButton: {

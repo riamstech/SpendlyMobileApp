@@ -62,8 +62,8 @@ export default function GoalsScreen({ onBack }: GoalsScreenProps) {
   const responsiveStyles = {
     headerSubtitle: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
     summaryLabel: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    summaryValue: { fontSize: Math.max(18, Math.min(24 * (width / 375), 24)) },
-    goalName: { fontSize: Math.max(16, Math.min(18 * (width / 375), 20)) },
+    summaryValue: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
+    goalName: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
     goalAmount: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
     percentageText: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
     buttonText: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
@@ -608,7 +608,7 @@ const styles = StyleSheet.create({
   summaryValue: {
     fontFamily: fonts.sans,
     fontWeight: '700',
-    fontSize: 20,
+    fontSize: 16,
   },
   loadingContainer: {
     alignItems: 'center',
@@ -628,7 +628,7 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontFamily: fonts.sans,
     fontWeight: '600',
-    fontSize: 18,
+    fontSize: 16,
     marginTop: 16,
   },
   emptySubtitle: {
@@ -672,7 +672,7 @@ const styles = StyleSheet.create({
   goalName: {
     fontFamily: fonts.sans,
     fontWeight: '700',
-    fontSize: 18,
+    fontSize: 16,
   },
   goalMeta: {
     flexDirection: 'row',
@@ -779,7 +779,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: fonts.sans,
     fontWeight: '700',
-    fontSize: 20,
+    fontSize: 16,
   },
   formGroup: {
     marginBottom: 16,

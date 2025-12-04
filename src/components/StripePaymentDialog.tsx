@@ -104,9 +104,9 @@ export default function StripePaymentDialog({
   };
 
   const responsiveStyles = {
-    title: { fontSize: Math.max(18, Math.min(22 * (width / 375), 24)) },
+    title: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
     description: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    buttonText: { fontSize: Math.max(14, Math.min(16 * (width / 375), 18)) },
+    buttonText: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
   };
 
   return (
