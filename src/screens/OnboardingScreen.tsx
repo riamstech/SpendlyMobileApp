@@ -1,0 +1,769 @@
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  Image,
+  useWindowDimensions,
+  ActivityIndicator,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { StatusBar } from 'expo-status-bar';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { currenciesService } from '../api/services/currencies';
+import { usersService } from '../api/services/users';
+import { authService } from '../api/services/auth';
+import {
+  Wallet,
+  TrendingUp,
+  PieChart,
+  BarChart3,
+  ChevronRight,
+  Check,
+  MapPin,
+} from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../contexts/ThemeContext';
+import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
+
+interface OnboardingScreenProps {
+  isAuthenticated?: boolean;
+  defaultCurrency?: string;
+  onComplete: () => void;
+}
+
+type Step = 'splash' | 'welcome' | 'features' | 'currency' | 'location';
+
+export default function OnboardingScreen({
+  isAuthenticated = false,
+  defaultCurrency: propDefaultCurrency,
+  onComplete,
+}: OnboardingScreenProps) {
+  const { t } = useTranslation('common');
+  const { width, height } = useWindowDimensions();
+  const { isDark, colors } = useTheme();
+  const responsiveTextStyles = createResponsiveTextStyles(width);
+  const [step, setStep] = useState<Step>(isAuthenticated ? 'welcome' : 'splash');
+  const [currency, setCurrency] = useState('');
+  const [country, setCountry] = useState('');
+  const [state, setState] = useState('');
+  const [currencies, setCurrencies] = useState<Array<{ code: string; symbol: string; flag: string; name: string }>>([]);
+  const [loadingCurrencies, setLoadingCurrencies] = useState(true);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
+  // Responsive scaling
+  const scale = Math.min(width / 375, height / 812);
+  const isSmallScreen = width < 375;
+  const isLargeScreen = width > 430;
+
+  // Load currencies
+  useEffect(() => {
+    const loadCurrencies = async () => {
+      try {
+        setLoadingCurrencies(true);
+        const currenciesData = await currenciesService.getCurrencies();
+        if (currenciesData && currenciesData.length > 0) {
+          setCurrencies(currenciesData);
+          if (!currency) {
+            setCurrency(propDefaultCurrency || currenciesData[0].code);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading currencies:', error);
+      } finally {
+        setLoadingCurrencies(false);
+      }
+    };
+    loadCurrencies();
+  }, []);
+
+  // Auto-transition from splash
+  useEffect(() => {
+    if (step === 'splash') {
+      const timer = setTimeout(() => {
+        setStep('welcome');
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [step]);
+
+  const handleGetLocation = async () => {
+    // For React Native, we'll use a simplified approach
+    // In production, you'd use expo-location for geolocation
+    setLocationLoading(true);
+    setLocationError(null);
+    
+    // Simulate location fetch (replace with actual expo-location in production)
+    setTimeout(() => {
+      Alert.alert(
+        'Location',
+        'Location feature will be implemented with expo-location. For now, please select manually.',
+        [{ text: 'OK' }]
+      );
+      setLocationLoading(false);
+    }, 1000);
+  };
+
+  const handleComplete = async () => {
+    try {
+      if (isAuthenticated) {
+        const currentUser = await authService.getCurrentUser();
+        const updateData: any = {};
+        
+        if (currency && currency !== currentUser.defaultCurrency) {
+          updateData.defaultCurrency = currency;
+        }
+        if (country) {
+          updateData.country = country;
+        }
+        if (state) {
+          updateData.state = state;
+        }
+        
+        if (Object.keys(updateData).length > 0) {
+          await usersService.updateUser(currentUser.id, updateData);
+        }
+      }
+      
+      onComplete();
+    } catch (error) {
+      console.error('Error completing onboarding:', error);
+      onComplete(); // Still complete even if update fails
+    }
+  };
+
+  // Responsive styles
+  const responsiveStyles = {
+    logo: { width: 80 * scale, height: 80 * scale },
+    headerSubtitle: { fontSize: Math.max(12, Math.min(14 * scale, 16)) },
+    buttonText: { fontSize: Math.max(14, Math.min(16 * scale, 18)) },
+    formPadding: Math.max(16, Math.min(20 * scale, 24)),
+    buttonPadding: Math.max(14, Math.min(16 * scale, 18)),
+  };
+
+  // Splash Screen
+  if (step === 'splash') {
+    return (
+      <LinearGradient colors={['#03A9F4', '#0288D1']} style={styles.gradient}>
+        <StatusBar style="light" />
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.splashContainer}>
+            <Image
+              source={require('../../assets/logo-dark.png')}
+              style={responsiveStyles.logo}
+              resizeMode="contain"
+            />
+            <Text style={[styles.splashTitle, responsiveTextStyles.h3]}>Spendly</Text>
+            <Text style={[styles.splashSubtitle, responsiveStyles.headerSubtitle]}>
+              Track. Save. Grow.
+            </Text>
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
+    );
+  }
+
+  // Welcome Screen
+  if (step === 'welcome') {
+    return (
+      <LinearGradient colors={['#03A9F4', '#0288D1']} style={styles.gradient}>
+        <StatusBar style="light" />
+        <SafeAreaView style={styles.safeArea}>
+          <ScrollView
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingHorizontal: isSmallScreen ? 16 : 24 },
+            ]}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.logoContainer}>
+              <View style={styles.iconCircle}>
+                <Wallet size={40 * scale} color="#03A9F4" />
+              </View>
+              <Text style={[styles.headerTitle, responsiveTextStyles.h3]}>
+                Welcome to Spendly
+              </Text>
+              <Text style={[styles.headerSubtitle, responsiveStyles.headerSubtitle]}>
+                Your personal finance companion
+              </Text>
+            </View>
+
+            <View style={[styles.card, { padding: responsiveStyles.formPadding }]}>
+              <Text style={styles.cardTitle}>Take control of your finances</Text>
+              <Text style={styles.cardText}>
+                Track expenses, manage investments, and achieve your financial goals with ease.
+              </Text>
+              <View style={styles.progressDots}>
+                <View style={[styles.dot, styles.dotActive]} />
+                <View style={styles.dot} />
+                <View style={styles.dot} />
+              </View>
+            </View>
+
+            <Pressable
+              style={[
+                styles.primaryButton,
+                { paddingVertical: responsiveStyles.buttonPadding },
+              ]}
+              onPress={() => setStep('features')}
+            >
+              <Text style={[styles.primaryButtonText, responsiveStyles.buttonText]}>
+                Get Started
+              </Text>
+              <ChevronRight size={20 * scale} color="#fff" style={{ marginLeft: 8 }} />
+            </Pressable>
+
+            <Pressable
+              style={styles.skipButton}
+              onPress={() => setStep(isAuthenticated ? 'currency' : 'currency')}
+            >
+              <Text style={styles.skipButtonText}>Skip</Text>
+            </Pressable>
+          </ScrollView>
+        </SafeAreaView>
+      </LinearGradient>
+    );
+  }
+
+  // Features Screen
+  if (step === 'features') {
+    return (
+      <LinearGradient colors={['#03A9F4', '#0288D1']} style={styles.gradient}>
+        <StatusBar style="light" />
+        <SafeAreaView style={styles.safeArea}>
+          <ScrollView
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingHorizontal: isSmallScreen ? 16 : 24 },
+            ]}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.logoContainer}>
+              <View style={styles.iconCircle}>
+                <TrendingUp size={40 * scale} color="#03A9F4" />
+              </View>
+              <Text style={[styles.headerTitle, responsiveTextStyles.h3]}>
+                Powerful Features
+              </Text>
+            </View>
+
+            <View style={styles.featuresContainer}>
+              <View style={[styles.featureCard, { padding: responsiveStyles.formPadding }]}>
+                <View style={styles.featureIconContainer}>
+                  <Wallet size={20 * scale} color="#4CAF50" />
+                </View>
+                <View style={styles.featureContent}>
+                  <Text style={styles.featureTitle}>Track Expenses</Text>
+                  <Text style={styles.featureText}>
+                    Monitor your daily spending and categorize transactions
+                  </Text>
+                </View>
+              </View>
+
+              <View style={[styles.featureCard, { padding: responsiveStyles.formPadding }]}>
+                <View style={[styles.featureIconContainer, { backgroundColor: 'rgba(3, 169, 244, 0.1)' }]}>
+                  <PieChart size={20 * scale} color="#03A9F4" />
+                </View>
+                <View style={styles.featureContent}>
+                  <Text style={styles.featureTitle}>Budget Management</Text>
+                  <Text style={styles.featureText}>
+                    Set budget limits and get alerts when approaching them
+                  </Text>
+                </View>
+              </View>
+
+              <View style={[styles.featureCard, { padding: responsiveStyles.formPadding }]}>
+                <View style={[styles.featureIconContainer, { backgroundColor: 'rgba(255, 193, 7, 0.1)' }]}>
+                  <BarChart3 size={20 * scale} color="#FFC107" />
+                </View>
+                <View style={styles.featureContent}>
+                  <Text style={styles.featureTitle}>Investment Tracking</Text>
+                  <Text style={styles.featureText}>
+                    Track your investment portfolio and monitor growth
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.progressDots}>
+              <View style={styles.dot} />
+              <View style={[styles.dot, styles.dotActive]} />
+              <View style={styles.dot} />
+            </View>
+
+            <Pressable
+              style={[
+                styles.primaryButton,
+                { paddingVertical: responsiveStyles.buttonPadding },
+              ]}
+              onPress={() => setStep('currency')}
+            >
+              <Text style={[styles.primaryButtonText, responsiveStyles.buttonText]}>
+                Continue
+              </Text>
+              <ChevronRight size={20 * scale} color="#fff" style={{ marginLeft: 8 }} />
+            </Pressable>
+          </ScrollView>
+        </SafeAreaView>
+      </LinearGradient>
+    );
+  }
+
+  // Currency Selection Screen
+  if (step === 'currency') {
+    return (
+      <LinearGradient colors={['#03A9F4', '#0288D1']} style={styles.gradient}>
+        <StatusBar style="light" />
+        <SafeAreaView style={styles.safeArea}>
+          <ScrollView
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingHorizontal: isSmallScreen ? 16 : 24 },
+            ]}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.logoContainer}>
+              <View style={[styles.iconCircle, { backgroundColor: '#4CAF50' }]}>
+                <Check size={40 * scale} color="#fff" />
+              </View>
+              <Text style={[styles.headerTitle, responsiveTextStyles.h3]}>
+                Almost Done!
+              </Text>
+              <Text style={[styles.headerSubtitle, responsiveStyles.headerSubtitle]}>
+                Select your default currency
+              </Text>
+            </View>
+
+            <View style={[styles.card, { padding: responsiveStyles.formPadding }]}>
+              <Text style={styles.label}>Default Currency</Text>
+              {loadingCurrencies ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="small" color={colors.primary} />
+                  <Text style={[styles.loadingText, { color: colors.foreground }]}>Loading currencies...</Text>
+                </View>
+              ) : (
+                <ScrollView style={styles.currencyList} nestedScrollEnabled>
+                  {currencies.map((curr) => (
+                    <Pressable
+                      key={curr.code}
+                      style={[
+                        styles.currencyItem,
+                        currency === curr.code && styles.currencyItemSelected,
+                      ]}
+                      onPress={() => setCurrency(curr.code)}
+                    >
+                      <Text style={styles.currencyFlag}>{curr.flag}</Text>
+                      <View style={styles.currencyInfo}>
+                        <Text style={styles.currencyName}>{curr.name}</Text>
+                        <Text style={styles.currencyCode}>
+                          {curr.code} ({curr.symbol})
+                        </Text>
+                      </View>
+                      {currency === curr.code && (
+                        <Check size={20 * scale} color="#03A9F4" />
+                      )}
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              )}
+              <Text style={styles.hintText}>
+                You can change this later in settings. You can also use multiple currencies for different transactions.
+              </Text>
+            </View>
+
+            <Pressable
+              style={[
+                styles.primaryButton,
+                { paddingVertical: responsiveStyles.buttonPadding },
+                !currency && styles.primaryButtonDisabled,
+              ]}
+              onPress={() => setStep('location')}
+              disabled={!currency}
+            >
+              <Text style={[styles.primaryButtonText, responsiveStyles.buttonText]}>
+                Continue
+              </Text>
+              <ChevronRight size={20 * scale} color="#fff" style={{ marginLeft: 8 }} />
+            </Pressable>
+          </ScrollView>
+        </SafeAreaView>
+      </LinearGradient>
+    );
+  }
+
+  // Location Selection Screen
+  if (step === 'location') {
+    const { COUNTRIES } = require('../constants/countries');
+    const countries = COUNTRIES.sort((a: any, b: any) => a.name.localeCompare(b.name));
+
+    return (
+      <LinearGradient colors={['#03A9F4', '#0288D1']} style={styles.gradient}>
+        <StatusBar style="light" />
+        <SafeAreaView style={styles.safeArea}>
+          <ScrollView
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingHorizontal: isSmallScreen ? 16 : 24 },
+            ]}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.logoContainer}>
+              <View style={[styles.iconCircle, { backgroundColor: '#4CAF50' }]}>
+                <MapPin size={40 * scale} color="#fff" />
+              </View>
+              <Text style={[styles.headerTitle, responsiveTextStyles.h3]}>
+                Share Your Location
+              </Text>
+              <Text style={[styles.headerSubtitle, responsiveStyles.headerSubtitle]}>
+                Help us personalize your experience
+              </Text>
+            </View>
+
+            <View style={[styles.card, { padding: responsiveStyles.formPadding }]}>
+              <Text style={styles.label}>Country</Text>
+              <ScrollView style={styles.countryList} nestedScrollEnabled>
+                {countries.map((c) => (
+                  <Pressable
+                    key={c.code}
+                    style={[
+                      styles.countryItem,
+                      country === c.code && styles.countryItemSelected,
+                    ]}
+                    onPress={() => setCountry(c.code)}
+                  >
+                    <Text style={styles.countryName}>{c.name}</Text>
+                    {country === c.code && (
+                      <Check size={20 * scale} color="#03A9F4" />
+                    )}
+                  </Pressable>
+                ))}
+              </ScrollView>
+
+              <Text style={[styles.label, { marginTop: 16 }]}>
+                State/Province (Optional)
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter your state or province"
+                placeholderTextColor="#9CA3AF"
+                value={state}
+                onChangeText={setState}
+              />
+
+              <Pressable
+                style={[
+                  styles.locationButton,
+                  locationLoading && styles.locationButtonDisabled,
+                ]}
+                onPress={handleGetLocation}
+                disabled={locationLoading}
+              >
+                {locationLoading ? (
+                  <>
+                    <ActivityIndicator size="small" color="#03A9F4" />
+                    <Text style={styles.locationButtonText}>Getting location...</Text>
+                  </>
+                ) : (
+                  <>
+                    <MapPin size={18 * scale} color="#03A9F4" />
+                    <Text style={styles.locationButtonText}>Use My Current Location</Text>
+                  </>
+                )}
+              </Pressable>
+              {locationError && (
+                <Text style={styles.errorText}>{locationError}</Text>
+              )}
+            </View>
+
+            <Pressable
+              style={[
+                styles.primaryButton,
+                { paddingVertical: responsiveStyles.buttonPadding },
+                !country && styles.primaryButtonDisabled,
+              ]}
+              onPress={handleComplete}
+              disabled={!country}
+            >
+              <Text style={[styles.primaryButtonText, responsiveStyles.buttonText]}>
+                Complete Setup
+              </Text>
+              <Check size={20 * scale} color="#fff" style={{ marginLeft: 8 }} />
+            </Pressable>
+          </ScrollView>
+        </SafeAreaView>
+      </LinearGradient>
+    );
+  }
+
+  return null;
+}
+
+const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+  },
+  splashContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  splashTitle: {
+    fontWeight: 'bold',
+    color: '#fff',
+    marginTop: 16,
+  },
+  splashSubtitle: {
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginTop: 8,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingVertical: 24,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  iconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  headerTitle: {
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    color: 'rgba(255, 255, 255, 0.9)',
+  },
+  card: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 20,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#212121',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  cardText: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  progressDots: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  dotActive: {
+    backgroundColor: '#fff',
+  },
+  primaryButton: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    marginBottom: 12,
+  },
+  primaryButtonDisabled: {
+    opacity: 0.6,
+  },
+  primaryButtonText: {
+    color: '#03A9F4',
+    fontWeight: 'bold',
+  },
+  skipButton: {
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  skipButtonText: {
+    color: '#fff',
+    fontSize: 14,
+  },
+  featuresContainer: {
+    gap: 12,
+    marginBottom: 24,
+  },
+  featureCard: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 16,
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  featureIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  featureContent: {
+    flex: 1,
+  },
+  featureTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#212121',
+    marginBottom: 4,
+  },
+  featureText: {
+    fontSize: 13,
+    color: '#666',
+    lineHeight: 18,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 12,
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+    gap: 8,
+  },
+  loadingText: {
+    fontSize: 14,
+  },
+  currencyList: {
+    maxHeight: 200,
+    marginBottom: 12,
+  },
+  currencyItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginBottom: 4,
+  },
+  currencyItemSelected: {
+    backgroundColor: 'rgba(3, 169, 244, 0.1)',
+  },
+  currencyFlag: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  currencyInfo: {
+    flex: 1,
+  },
+  currencyName: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#212121',
+    marginBottom: 2,
+  },
+  currencyCode: {
+    fontSize: 12,
+    color: '#666',
+  },
+  hintText: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 8,
+  },
+  countryList: {
+    maxHeight: 200,
+    marginBottom: 16,
+  },
+  countryItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginBottom: 4,
+  },
+  countryItemSelected: {
+    backgroundColor: 'rgba(3, 169, 244, 0.1)',
+  },
+  countryName: {
+    fontSize: 15,
+    color: '#212121',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#f5f5f5',
+    fontSize: 15,
+    color: '#333',
+    marginBottom: 16,
+  },
+  locationButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#03A9F4',
+    borderRadius: 12,
+    paddingVertical: 12,
+    gap: 8,
+    marginTop: 8,
+  },
+  locationButtonDisabled: {
+    opacity: 0.6,
+  },
+  locationButtonText: {
+    color: '#03A9F4',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  errorText: {
+    color: '#FF5252',
+    fontSize: 12,
+    marginTop: 8,
+  },
+});
+

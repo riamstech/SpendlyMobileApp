@@ -1,0 +1,82 @@
+// Country list with ISO 3166-1 alpha-2 codes
+// Sorted alphabetically by name
+export const COUNTRIES = [
+  { code: 'AE', name: 'United Arab Emirates' },
+  { code: 'AR', name: 'Argentina' },
+  { code: 'AT', name: 'Austria' },
+  { code: 'AU', name: 'Australia' },
+  { code: 'BE', name: 'Belgium' },
+  { code: 'BG', name: 'Bulgaria' },
+  { code: 'BR', name: 'Brazil' },
+  { code: 'CA', name: 'Canada' },
+  { code: 'CH', name: 'Switzerland' },
+  { code: 'CL', name: 'Chile' },
+  { code: 'CN', name: 'China' },
+  { code: 'CO', name: 'Colombia' },
+  { code: 'CZ', name: 'Czech Republic' },
+  { code: 'DE', name: 'Germany' },
+  { code: 'DK', name: 'Denmark' },
+  { code: 'EE', name: 'Estonia' },
+  { code: 'EG', name: 'Egypt' },
+  { code: 'ES', name: 'Spain' },
+  { code: 'FI', name: 'Finland' },
+  { code: 'FR', name: 'France' },
+  { code: 'GB', name: 'United Kingdom' },
+  { code: 'GR', name: 'Greece' },
+  { code: 'HR', name: 'Croatia' },
+  { code: 'HU', name: 'Hungary' },
+  { code: 'ID', name: 'Indonesia' },
+  { code: 'IE', name: 'Ireland' },
+  { code: 'IL', name: 'Israel' },
+  { code: 'IN', name: 'India' },
+  { code: 'IT', name: 'Italy' },
+  { code: 'JP', name: 'Japan' },
+  { code: 'KE', name: 'Kenya' },
+  { code: 'KR', name: 'South Korea' },
+  { code: 'LT', name: 'Lithuania' },
+  { code: 'LV', name: 'Latvia' },
+  { code: 'MX', name: 'Mexico' },
+  { code: 'MY', name: 'Malaysia' },
+  { code: 'NG', name: 'Nigeria' },
+  { code: 'NL', name: 'Netherlands' },
+  { code: 'NO', name: 'Norway' },
+  { code: 'NZ', name: 'New Zealand' },
+  { code: 'PE', name: 'Peru' },
+  { code: 'PH', name: 'Philippines' },
+  { code: 'PL', name: 'Poland' },
+  { code: 'PT', name: 'Portugal' },
+  { code: 'RO', name: 'Romania' },
+  { code: 'RU', name: 'Russia' },
+  { code: 'SA', name: 'Saudi Arabia' },
+  { code: 'SE', name: 'Sweden' },
+  { code: 'SG', name: 'Singapore' },
+  { code: 'SI', name: 'Slovenia' },
+  { code: 'SK', name: 'Slovakia' },
+  { code: 'TH', name: 'Thailand' },
+  { code: 'TR', name: 'Turkey' },
+  { code: 'US', name: 'United States' },
+  { code: 'VN', name: 'Vietnam' },
+  { code: 'ZA', name: 'South Africa' },
+];
+
+// US States
+export const US_STATES = [
+  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado",
+  "Connecticut", "Delaware", "District of Columbia", "Florida", "Georgia", "Hawaii", "Idaho",
+  "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana",
+  "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota",
+  "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada",
+  "New Hampshire", "New Jersey", "New Mexico", "New York",
+  "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon",
+  "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
+  "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
+  "Wisconsin", "Wyoming"
+];
+
+// Canadian Provinces and Territories
+export const CA_PROVINCES = [
+  "Alberta", "British Columbia", "Manitoba", "New Brunswick",
+  "Newfoundland and Labrador", "Northwest Territories", "Nova Scotia",
+  "Nunavet", "Ontario", "Prince Edward Island", "Quebec", "Saskatchewan", "Yukon"
+];
+
