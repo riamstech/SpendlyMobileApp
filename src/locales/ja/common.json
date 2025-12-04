@@ -206,6 +206,7 @@
     "noEmail": "メールなし",
     "changePhoto": "写真を変更",
     "preferences": "設定",
+    "currency": "通貨",
     "defaultCurrency": "デフォルト通貨",
     "defaultCurrencySubtitle": "主要通貨を選択",
     "language": "言語",

@@ -31,6 +31,7 @@ import { authService } from '../api/services/auth';
 import { Card, Button, Input, Modal } from '../components/ui';
 import { getEmojiFromIcon } from '../utils/iconMapper';
 import { useTheme } from '../contexts/ThemeContext';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 interface AddTransactionScreenProps {
   onSuccess?: () => void;
@@ -247,6 +248,30 @@ export default function AddTransactionScreen({
   const selectedCategory = categories.find((c) => c.name === category);
   const selectedCurrency = currencies.find((c) => c.code === currency);
 
+  // Show loading screen until both categories and currencies are loaded
+  const isLoading = loadingCategories || loadingCurrencies;
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+        <StatusBar style={isDark ? 'light' : 'dark'} />
+        <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+          <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>
+            {t('addTransaction.title')}
+          </Text>
+          <Pressable onPress={onCancel} style={styles.closeButton}>
+            <X size={24 * scale} color={colors.mutedForeground} />
+          </Pressable>
+        </View>
+        <LoadingSpinner 
+          size="large" 
+          text={t('addTransaction.loadingData') || 'Loading...'} 
+          fullScreen={true}
+        />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
@@ -351,14 +376,22 @@ export default function AddTransactionScreen({
                     borderColor: colors.border,
                   }
                 ]}
-                onPress={() => setShowCurrencyModal(true)}
-                disabled={loadingCurrencies}
+                onPress={() => {
+                  console.log('Currency button pressed, currencies:', currencies.length);
+                  console.log('Loading currencies:', loadingCurrencies);
+                  setShowCurrencyModal(true);
+                }}
               >
                 {loadingCurrencies ? (
-                  <ActivityIndicator size="small" color={colors.primary} />
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <ActivityIndicator size="small" color={colors.primary} />
+                    <Text style={[styles.selectButtonText, { color: colors.mutedForeground }]}>
+                      {t('addTransaction.loadingCurrencies') || 'Loading...'}
+                    </Text>
+                  </View>
                 ) : (
                   <Text style={[styles.selectButtonText, { color: colors.foreground }]}>
-                    {selectedCurrency?.flag || currency || t('addTransaction.selectCurrency')}
+                    {selectedCurrency?.flag ? `${selectedCurrency.flag} ${currency}` : currency || t('addTransaction.selectCurrency')}
                   </Text>
                 )}
                 <ChevronDown size={16 * scale} color={colors.mutedForeground} />
@@ -517,87 +550,89 @@ export default function AddTransactionScreen({
       </Modal>
 
       {/* Currency Selection Modal */}
-      <Modal
+      <RNModal
         visible={showCurrencyModal}
-        onClose={() => {
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => {
           setShowCurrencyModal(false);
           setCurrencySearch('');
         }}
-        title={t('addTransaction.selectCurrency') || 'Select Currency'}
       >
-        <View style={[styles.currencySearchContainer, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
-          <TextInput
-            style={[
-              styles.currencySearchInput,
-              {
-                backgroundColor: colors.inputBackground,
-                borderColor: colors.border,
-                color: colors.foreground,
-              }
-            ]}
-            placeholder={t('addTransaction.searchCurrency')}
-            placeholderTextColor={colors.mutedForeground}
-            value={currencySearch}
-            onChangeText={setCurrencySearch}
-          />
-        </View>
-        <ScrollView
-          style={styles.currencyListContainer}
-          contentContainerStyle={styles.currencyListContent}
-          showsVerticalScrollIndicator={true}
-        >
-          {loadingCurrencies ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="small" color={colors.primary} />
-              <Text style={[styles.loadingText, { color: colors.foreground }]}>{t('addTransaction.loadingCurrencies') || 'Loading currencies...'}</Text>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+              <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('addTransaction.selectCurrency') || 'Select Currency'}</Text>
+              <Pressable onPress={() => {
+                setShowCurrencyModal(false);
+                setCurrencySearch('');
+              }}>
+                <X size={24} color={colors.mutedForeground} />
+              </Pressable>
             </View>
-          ) : currencies.length === 0 ? (
-            <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>{t('addTransaction.noCurrenciesAvailable')}</Text>
-          ) : (
-            currencies
-              .filter((curr) => {
-                if (!currencySearch.trim()) return true;
-                const q = currencySearch.toLowerCase();
-                return (
-                  curr.code.toLowerCase().includes(q) ||
-                  (curr.name || '').toLowerCase().includes(q)
-                );
-              })
-              .map((curr) => {
-                const isSelected = currency === curr.code;
-                return (
-                  <Pressable
-                    key={curr.code}
-                    style={[
-                      styles.currencyItem,
-                      isSelected && styles.currencyItemSelected,
-                      {
-                        borderColor: isSelected ? colors.primary : colors.border,
-                        backgroundColor: isSelected ? `${colors.primary}20` : colors.card,
-                      }
-                    ]}
-                    onPress={() => {
-                      setCurrency(curr.code);
-                      setShowCurrencyModal(false);
-                      setCurrencySearch('');
-                    }}
-                  >
-                    <Text style={styles.currencyFlag}>{curr.flag || '💰'}</Text>
-                    <View style={styles.currencyInfo}>
-                      <Text style={[styles.currencyCode, { color: colors.foreground }]}>{curr.code}</Text>
-                      {curr.name && (
-                        <Text style={[styles.currencyName, { color: colors.mutedForeground }]}>{curr.name}</Text>
-                      )}
-                    </View>
-                    {isSelected && (
-                      <Text style={[styles.checkmark, { color: colors.primary }]}>✓</Text>
-                    )}
-                  </Pressable>
-                );
-              })
-          )}
-        </ScrollView>
-      </Modal>
+            <View style={[styles.currencySearchContainer, { borderBottomColor: colors.border }]}>
+              <TextInput
+                style={[
+                  styles.currencySearchInput,
+                  {
+                    backgroundColor: colors.inputBackground,
+                    borderColor: colors.border,
+                    color: colors.foreground,
+                  }
+                ]}
+                placeholder={t('addTransaction.searchCurrency') || 'Search currency...'}
+                placeholderTextColor={colors.mutedForeground}
+                value={currencySearch}
+                onChangeText={setCurrencySearch}
+              />
+            </View>
+            <ScrollView style={styles.modalList}>
+              {loadingCurrencies ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="small" color={colors.primary} />
+                  <Text style={[styles.loadingText, { color: colors.foreground }]}>{t('addTransaction.loadingCurrencies') || 'Loading currencies...'}</Text>
+                </View>
+              ) : currencies.length === 0 ? (
+                <View style={styles.loadingContainer}>
+                  <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>{t('addTransaction.noCurrenciesAvailable') || 'No currencies available'}</Text>
+                </View>
+              ) : (
+                currencies
+                  .filter((curr) => {
+                    if (!currencySearch.trim()) return true;
+                    const q = currencySearch.toLowerCase();
+                    return (
+                      curr.code.toLowerCase().includes(q) ||
+                      (curr.name || '').toLowerCase().includes(q)
+                    );
+                  })
+                  .map((curr) => {
+                    const isSelected = currency === curr.code;
+                    return (
+                      <Pressable
+                        key={curr.code}
+                        style={[
+                          styles.modalItem,
+                          { borderBottomColor: colors.border },
+                          isSelected && { backgroundColor: `${colors.primary}20` },
+                        ]}
+                        onPress={() => {
+                          setCurrency(curr.code);
+                          setShowCurrencyModal(false);
+                          setCurrencySearch('');
+                        }}
+                      >
+                        <Text style={[styles.modalItemText, { color: colors.foreground }, isSelected && { color: colors.primary, fontWeight: '600' }]}>
+                          {curr.flag ? `${curr.flag} ` : ''}{curr.code} {curr.name ? `- ${curr.name}` : ''}
+                        </Text>
+                      </Pressable>
+                    );
+                  })
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </RNModal>
 
       {/* Date Picker */}
       {showDateModal && Platform.OS === 'ios' && (
@@ -799,9 +834,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   currencySearchContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    marginBottom: 16,
+    paddingBottom: 12,
     borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
   },
   currencySearchInput: {
     ...textStyles.bodySmall,
@@ -809,13 +845,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
-  },
-  currencyListContainer: {
-    flex: 1,
-  },
-  currencyListContent: {
-    paddingHorizontal: 20,
-    paddingVertical: 8,
   },
   currencyItem: {
     flexDirection: 'row',
@@ -882,6 +911,42 @@ const styles = StyleSheet.create({
   datePickerDone: {
     ...textStyles.body,
     fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '70%',
+    paddingTop: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    flex: 1,
+  },
+  modalList: {
+    maxHeight: 400,
+  },
+  modalItem: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+  },
+  modalItemText: {
+    fontSize: 16,
   },
 });
 

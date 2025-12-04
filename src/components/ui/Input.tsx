@@ -7,6 +7,7 @@ import {
   TextInputProps,
   useWindowDimensions,
 } from 'react-native';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -26,12 +27,19 @@ export default function Input({
   ...textInputProps
 }: InputProps) {
   const { width } = useWindowDimensions();
+  const { isDark, colors } = useTheme();
   const scale = Math.min(width / 375, 1);
 
   return (
     <View style={[styles.container, containerStyle]}>
       {label && (
-        <Text style={[styles.label, { fontSize: Math.max(13, 14 * scale) }]}>
+        <Text style={[
+          styles.label, 
+          { 
+            fontSize: Math.max(13, 14 * scale),
+            color: colors.foreground,
+          }
+        ]}>
           {label}
         </Text>
       )}
@@ -39,23 +47,37 @@ export default function Input({
         style={[
           styles.inputWrapper,
           error && styles.inputError,
-          { paddingLeft: leftIcon ? 40 : 16, paddingRight: rightIcon ? 40 : 16 },
+          { 
+            paddingLeft: leftIcon ? 40 : 16, 
+            paddingRight: rightIcon ? 40 : 16,
+            backgroundColor: colors.inputBackground,
+            borderColor: error ? colors.destructive : colors.border,
+          },
         ]}
       >
         {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
         <TextInput
           style={[
             styles.input,
-            { fontSize: Math.max(14, 16 * scale) },
+            { 
+              fontSize: Math.max(14, 16 * scale),
+              color: colors.foreground,
+            },
             style,
           ]}
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={colors.mutedForeground}
           {...textInputProps}
         />
         {rightIcon && <View style={styles.rightIcon}>{rightIcon}</View>}
       </View>
       {error && (
-        <Text style={[styles.errorText, { fontSize: Math.max(11, 12 * scale) }]}>
+        <Text style={[
+          styles.errorText, 
+          { 
+            fontSize: Math.max(11, 12 * scale),
+            color: colors.destructive,
+          }
+        ]}>
           {error}
         </Text>
       )}
@@ -69,7 +91,6 @@ const styles = StyleSheet.create({
   },
   label: {
     fontWeight: '600',
-    color: '#333',
     marginBottom: 8,
   },
   inputWrapper: {
@@ -77,16 +98,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    backgroundColor: '#f5f5f5',
   },
   input: {
     flex: 1,
     paddingVertical: 12,
-    color: '#333',
   },
   inputError: {
-    borderColor: '#FF5252',
+    // Error border color handled inline with theme colors
   },
   leftIcon: {
     position: 'absolute',

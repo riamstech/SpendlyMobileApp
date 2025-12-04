@@ -17,7 +17,6 @@ import { StatusBar } from 'expo-status-bar';
 import { fonts, textStyles, createResponsiveTextStyles } from '../constants/fonts';
 import { useTranslation } from 'react-i18next';
 import {
-  Plus,
   Edit2,
   Trash2,
   AlertCircle,
@@ -374,7 +373,6 @@ export default function BudgetScreen() {
           style={[styles.addButton, { backgroundColor: colors.primary }]}
           onPress={() => setIsAdding(true)}
         >
-          <Plus size={20} color="#fff" />
           <Text style={styles.addButtonText}>{t('budget.addBudget')}</Text>
         </Pressable>
       </View>

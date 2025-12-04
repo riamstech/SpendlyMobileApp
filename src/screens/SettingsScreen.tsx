@@ -678,7 +678,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                 <View style={styles.settingItemLeft}>
                   <DollarSign size={20} color={colors.primary} />
                   <View style={styles.settingItemInfo}>
-                    <Text style={[styles.settingItemLabel, { color: colors.foreground }]}>{t('settings.currency') || 'Currency'}</Text>
+                    <Text style={[styles.settingItemLabel, { color: colors.foreground }]}>{t('settings.currency')}</Text>
                     <Text style={[styles.settingItemValue, { color: colors.mutedForeground }]}>
                       {(() => {
                         const curr = currencies.find(c => c.code === selectedCurrency);
@@ -1154,7 +1154,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
-              <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('settings.currency') || 'Currency'}</Text>
+              <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('settings.currency')}</Text>
               <Pressable onPress={() => {
                 setShowCurrencyModal(false);
                 setCurrencySearch('');
@@ -1526,7 +1526,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
-    paddingBottom: 32,
+    paddingBottom: 100, // Increased to ensure logout button is fully visible
   },
   section: {
     borderRadius: 12,
@@ -1759,7 +1759,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 16,
-    margin: 16,
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 32, // Extra bottom margin to ensure visibility
     borderRadius: 12,
     borderWidth: 1,
     gap: 8,

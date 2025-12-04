@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { X } from 'lucide-react-native';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface ModalProps {
   visible: boolean;
@@ -29,6 +30,7 @@ export default function Modal({
   fullScreen = false,
 }: ModalProps) {
   const { width, height } = useWindowDimensions();
+  const { isDark, colors } = useTheme();
   const scale = Math.min(width / 375, 1);
 
   return (
@@ -43,6 +45,7 @@ export default function Modal({
         <View
           style={[
             styles.modalContainer,
+            { backgroundColor: colors.card },
             fullScreen
               ? { width: width, height: height * 0.9 }
               : {
@@ -54,12 +57,15 @@ export default function Modal({
         >
           <SafeAreaView style={styles.safeArea} edges={['top']}>
             {(title || showCloseButton) && (
-              <View style={styles.header}>
+              <View style={[styles.header, { borderBottomColor: colors.border }]}>
                 {title && (
                   <Text
                     style={[
                       styles.title,
-                      { fontSize: Math.max(14, Math.min(16 * scale, 16)) },
+                      { 
+                        fontSize: Math.max(14, Math.min(16 * scale, 16)),
+                        color: colors.foreground,
+                      },
                     ]}
                   >
                     {title}
@@ -67,13 +73,13 @@ export default function Modal({
                 )}
                 {showCloseButton && (
                   <Pressable onPress={onClose} style={styles.closeButton}>
-                    <X size={24 * scale} color="#666" />
+                    <X size={24 * scale} color={colors.mutedForeground} />
                   </Pressable>
                 )}
               </View>
             )}
             <ScrollView
-              style={styles.content}
+              style={[styles.content, { backgroundColor: colors.card }]}
               showsVerticalScrollIndicator={false}
             >
               {children}
@@ -94,9 +100,9 @@ const styles = StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    zIndex: 0,
   },
   modalContainer: {
-    backgroundColor: '#fff',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     shadowColor: '#000',
@@ -104,6 +110,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 16,
     elevation: 16,
+    zIndex: 1,
+    position: 'relative',
   },
   safeArea: {
     flex: 1,
@@ -115,11 +123,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
   },
   title: {
     fontWeight: 'bold',
-    color: '#212121',
     flex: 1,
   },
   closeButton: {

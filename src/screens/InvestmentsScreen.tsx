@@ -77,8 +77,10 @@ export default function InvestmentsScreen() {
   // Date picker states
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [showInvestmentDatePicker, setShowInvestmentDatePicker] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
+  const [investmentDate, setInvestmentDate] = useState(new Date());
   
   // Form data
   const [formData, setFormData] = useState({
@@ -134,6 +136,20 @@ export default function InvestmentsScreen() {
   // Reload categories and currencies when form opens
   useEffect(() => {
     if (showAddForm) {
+      // Initialize investment date from formData
+      if (formData.date) {
+        const dateObj = new Date(formData.date + 'T00:00:00');
+        if (!isNaN(dateObj.getTime())) {
+          setInvestmentDate(dateObj);
+        } else {
+          setInvestmentDate(new Date());
+        }
+      } else {
+        const today = new Date();
+        setInvestmentDate(today);
+        setFormData(prev => ({ ...prev, date: today.toISOString().split('T')[0] }));
+      }
+      
       const reloadData = async () => {
         try {
           // Reload currencies
@@ -335,6 +351,9 @@ export default function InvestmentsScreen() {
     setEditingInvestment(investment);
     const investedAmount = (investment as any).invested_amount ?? (investment as any).investedAmount ?? 0;
     const currentValue = (investment as any).current_value ?? (investment as any).currentValue ?? investedAmount;
+    const investmentDateStr = investment.start_date || new Date().toISOString().split('T')[0];
+    const investmentDateObj = new Date(investmentDateStr + 'T00:00:00');
+    setInvestmentDate(isNaN(investmentDateObj.getTime()) ? new Date() : investmentDateObj);
     setFormData({
       name: investment.name,
       category: String(investment.category_id || investment.category?.id || ''),
@@ -342,7 +361,7 @@ export default function InvestmentsScreen() {
       investedAmount: String(investedAmount),
       currentValue: String(currentValue),
       currency: investment.currency,
-      date: investment.start_date || new Date().toISOString().split('T')[0],
+      date: investmentDateStr,
       notes: investment.notes || '',
       isRecurring: investment.recurring || false,
       frequency: investment.frequency || 'monthly',
@@ -374,6 +393,8 @@ export default function InvestmentsScreen() {
   const handleCancelEdit = () => {
     setEditingInvestment(null);
     setShowAddForm(false);
+    const today = new Date();
+    setInvestmentDate(today);
     setFormData({
       name: '',
       category: '',
@@ -381,7 +402,7 @@ export default function InvestmentsScreen() {
       investedAmount: '',
       currentValue: '',
       currency: currency,
-      date: new Date().toISOString().split('T')[0],
+      date: today.toISOString().split('T')[0],
       notes: '',
       isRecurring: false,
       frequency: 'monthly',
@@ -560,13 +581,15 @@ export default function InvestmentsScreen() {
             </View>
             <View style={[styles.formSection, { flex: 1, marginLeft: 8 }]}>
               <Text style={[styles.formLabel, { color: colors.foreground }]}>{t('addTransaction.date')}</Text>
-              <TextInput
-                style={[styles.formInput, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
-                value={formData.date}
-                onChangeText={(text) => setFormData({ ...formData, date: text })}
-                placeholder={t('investments.datePlaceholder')}
-                placeholderTextColor={colors.mutedForeground}
-              />
+              <Pressable
+                style={[styles.selectButton, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}
+                onPress={() => setShowInvestmentDatePicker(true)}
+              >
+                <Text style={[styles.selectButtonText, { color: colors.foreground }]}>
+                  {formData.date ? formatDateForDisplay(investmentDate) : t('investments.datePlaceholder')}
+                </Text>
+                <Calendar size={18} color={colors.mutedForeground} />
+              </Pressable>
             </View>
           </View>
 
@@ -742,6 +765,154 @@ export default function InvestmentsScreen() {
             )}
           </Pressable>
         </ScrollView>
+
+        {/* Investment Date Picker */}
+        {showInvestmentDatePicker && (
+          <DateTimePicker
+            value={investmentDate}
+            mode="date"
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={(event, selectedDate) => {
+              setShowInvestmentDatePicker(Platform.OS === 'ios');
+              if (selectedDate) {
+                setInvestmentDate(selectedDate);
+                const formattedDate = formatDateForAPI(selectedDate);
+                setFormData({ ...formData, date: formattedDate });
+              }
+            }}
+            maximumDate={new Date()}
+          />
+        )}
+
+        {/* Type Selection Modal */}
+        <Modal
+          visible={showTypeModal}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setShowTypeModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+              <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('investments.type')}</Text>
+                <Pressable onPress={() => setShowTypeModal(false)}>
+                  <X size={24} color={colors.mutedForeground} />
+                </Pressable>
+              </View>
+              <ScrollView style={styles.modalList}>
+                {investmentTypes.map((type) => (
+                  <Pressable
+                    key={type.key}
+                    style={[styles.modalItem, { borderBottomColor: colors.border }]}
+                    onPress={() => {
+                      setFormData({ ...formData, type: type.key });
+                      setShowTypeModal(false);
+                    }}
+                  >
+                    <Text style={[styles.modalItemText, { color: colors.foreground }, formData.type === type.key && { color: colors.primary, fontWeight: '600' }]}>
+                      {type.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Currency Selection Modal (for form) */}
+        <Modal
+          visible={showCurrencyModal}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => {
+            setShowCurrencyModal(false);
+            setCurrencySearch('');
+          }}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+              <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('reports.selectCurrency') || 'Select Currency'}</Text>
+                <Pressable onPress={() => {
+                  setShowCurrencyModal(false);
+                  setCurrencySearch('');
+                }}>
+                  <X size={24} color={colors.mutedForeground} />
+                </Pressable>
+              </View>
+              <ScrollView style={styles.modalList}>
+                <View style={[styles.currencySearchContainer, { borderBottomColor: colors.border }]}>
+                  <TextInput
+                    style={[styles.currencySearchInput, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
+                    placeholder={t('reports.searchCurrency') || 'Search currency...'}
+                    placeholderTextColor={colors.mutedForeground}
+                    value={currencySearch}
+                    onChangeText={setCurrencySearch}
+                  />
+                </View>
+                {currencies
+                  .filter((curr) => {
+                    if (!currencySearch.trim()) return true;
+                    const q = currencySearch.toLowerCase();
+                    return (
+                      curr.code.toLowerCase().includes(q) ||
+                      (curr.name || '').toLowerCase().includes(q)
+                    );
+                  })
+                  .map((curr) => (
+                    <Pressable
+                      key={curr.code}
+                      style={[styles.modalItem, { borderBottomColor: colors.border }]}
+                      onPress={() => {
+                        setFormData({ ...formData, currency: curr.code });
+                        setShowCurrencyModal(false);
+                        setCurrencySearch('');
+                      }}
+                    >
+                      <Text style={[styles.modalItemText, { color: colors.foreground }, formData.currency === curr.code && { color: colors.primary, fontWeight: '600' }]}>
+                        {curr.flag ? `${curr.flag} ` : ''}{curr.code} {curr.name ? `- ${curr.name}` : ''}
+                      </Text>
+                    </Pressable>
+                  ))}
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Frequency Selection Modal */}
+        <Modal
+          visible={showFrequencyModal}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setShowFrequencyModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+              <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('addTransaction.frequency')}</Text>
+                <Pressable onPress={() => setShowFrequencyModal(false)}>
+                  <X size={24} color={colors.mutedForeground} />
+                </Pressable>
+              </View>
+              <ScrollView style={styles.modalList}>
+                {['monthly', 'quarterly', 'yearly'].map((freq) => (
+                  <Pressable
+                    key={freq}
+                    style={[styles.modalItem, { borderBottomColor: colors.border }]}
+                    onPress={() => {
+                      setFormData({ ...formData, frequency: freq });
+                      setShowFrequencyModal(false);
+                    }}
+                  >
+                    <Text style={[styles.modalItemText, { color: colors.foreground }, formData.frequency === freq && { color: colors.primary, fontWeight: '600' }]}>
+                      {t(`addTransaction.${freq}`)}
+                    </Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
       </SafeAreaView>
     );
   }
@@ -774,7 +945,6 @@ export default function InvestmentsScreen() {
           style={[styles.addButton, { backgroundColor: colors.primary }]}
           onPress={() => setShowAddForm(true)}
         >
-          <Plus size={20} color={colors.primaryForeground} />
           <Text style={[styles.addButtonText, { color: colors.primaryForeground }]}>{t('investments.add')}</Text>
         </Pressable>
       </View>
