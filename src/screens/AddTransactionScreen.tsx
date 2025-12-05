@@ -265,7 +265,7 @@ export default function AddTransactionScreen({
         </View>
         <LoadingSpinner 
           size="large" 
-          text={t('addTransaction.loadingData') || 'Loading...'} 
+          text={t('common.loading') || 'Loading...'} 
           fullScreen={true}
         />
       </SafeAreaView>

@@ -92,7 +92,6 @@ const THEME_STORAGE_KEY = '@spendly_theme_mode';
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const systemColorScheme = useColorScheme();
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
-  const [isInitialized, setIsInitialized] = useState(false);
 
   // Determine if dark mode should be active
   const isDark = themeMode === 'dark' || (themeMode === 'system' && systemColorScheme === 'dark');
@@ -108,7 +107,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         const stored = await AsyncStorage.getItem(THEME_STORAGE_KEY);
         if (stored && (stored === 'light' || stored === 'dark' || stored === 'system')) {
           setThemeModeState(stored as ThemeMode);
-          setIsInitialized(true);
           
           // Then try to sync with backend in the background (non-blocking)
           try {
@@ -123,16 +121,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
             }
           } catch (error) {
             // Silently fail - we already have a theme from local storage
-            // Only log if it's not a 500 error (which is likely a backend issue)
-            if (error && typeof error === 'object' && 'response' in error) {
-              const axiosError = error as any;
-              if (axiosError.response?.status !== 500) {
-                console.warn('Failed to sync theme from user settings:', error);
-              }
-            }
+            // This is expected if user is not logged in
           }
         } else {
-          // No local storage, try to load from user settings
+          // No local storage, try to load from user settings (non-blocking)
           try {
             const settings = await usersService.getUserSettings();
             if (settings.settings?.darkMode !== undefined) {
@@ -141,18 +133,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
               await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
             }
           } catch (error) {
-            // If API fails, use system theme as fallback
-            console.warn('Failed to load theme from user settings, using system theme:', error);
-            setThemeModeState('system');
-          } finally {
-            setIsInitialized(true);
+            // If API fails (e.g., user not logged in), use system theme as fallback
+            // This is expected and not an error
           }
         }
       } catch (error) {
-        console.error('Failed to load theme preference:', error);
-        // Fallback to system theme
+        // Fallback to system theme - app will still render
+        console.warn('Failed to load theme preference:', error);
         setThemeModeState('system');
-        setIsInitialized(true);
       }
     };
 
@@ -182,11 +170,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     await setThemeMode(newMode);
   };
 
-  // Don't render children until theme is initialized to avoid flash
-  if (!isInitialized) {
-    return null;
-  }
-
+  // Always render children - theme will use system default until loaded
   return (
     <ThemeContext.Provider
       value={{

@@ -20,7 +20,6 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { fonts, textStyles, createResponsiveTextStyles } from '../constants/fonts';
 import { useTranslation } from 'react-i18next';
 import {
-  Plus,
   Edit2,
   Trash2,
   TrendingUp,

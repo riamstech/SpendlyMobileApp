@@ -15,6 +15,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.spendly.mobile",
       "buildNumber": "1",
+      "deploymentTarget": "13.4",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }

@@ -26,7 +26,7 @@ import {
 import { PieChart } from 'react-native-chart-kit';
 import { budgetsService } from '../api/services/budgets';
 import { categoriesService } from '../api/services/categories';
-import { currenciesService } from '../api/services/currencies';
+import { currenciesService, Currency } from '../api/services/currencies';
 import { dashboardService } from '../api/services/dashboard';
 import { authService } from '../api/services/auth';
 import { getBudgetPeriodFromCycleDay, formatDateForDisplay } from '../api/utils/dateUtils';
@@ -66,7 +66,7 @@ export default function BudgetScreen() {
   // Budget data
   const [categoryBudgets, setCategoryBudgets] = useState<CategoryBudget[]>([]);
   const [availableCategories, setAvailableCategories] = useState<Category[]>([]);
-  const [currencies, setCurrencies] = useState<Array<{ code: string; symbol: string; name?: string }>>([]);
+  const [currencies, setCurrencies] = useState<Currency[]>([]);
   
   // UI states
   const [isAdding, setIsAdding] = useState(false);
