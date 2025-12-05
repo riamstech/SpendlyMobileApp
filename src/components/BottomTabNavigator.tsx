@@ -50,13 +50,11 @@ export default function BottomTabNavigator({
     { id: 'settings', label: t('nav.settings'), icon: Settings },
   ];
 
-  const responsiveStyles = {
-    // Further reduce icon/label sizes on smaller screens so long labels like "Investments" fit
-    iconSize: Math.max(16, Math.min(20 * scale, 20)),
-    addIconSize: Math.max(22, Math.min(24 * scale, 26)),
-    labelSize: Math.max(9, Math.min(10 * scale, 10)),
-    addButtonSize: Math.max(44, Math.min(54 * scale, 58)),
-  };
+  // Responsive constants
+  const iconSize = Math.max(16, Math.min(20 * scale, 20));
+  const addIconSize = Math.max(22, Math.min(24 * scale, 26));
+  const labelSize = Math.max(9, Math.min(10 * scale, 10));
+  const addButtonSize = Math.max(44, Math.min(54 * scale, 58));
 
   return (
     <View
@@ -86,14 +84,14 @@ export default function BottomTabNavigator({
                   style={[
                     styles.addButton,
                     {
-                      width: responsiveStyles.addButtonSize,
-                      height: responsiveStyles.addButtonSize,
-                      borderRadius: responsiveStyles.addButtonSize / 2,
+                      width: addButtonSize,
+                      height: addButtonSize,
+                      borderRadius: addButtonSize / 2,
                     },
                   ]}
                 >
                   <Icon
-                    size={responsiveStyles.addIconSize}
+                    size={addIconSize}
                     color="#fff"
                   />
                 </LinearGradient>
@@ -112,7 +110,7 @@ export default function BottomTabNavigator({
               ]}
             >
               <Icon
-                size={responsiveStyles.iconSize}
+                size={iconSize}
                 color={isActive ? colors.primary : colors.mutedForeground}
                 strokeWidth={isActive ? 2.5 : 2}
               />
@@ -120,7 +118,7 @@ export default function BottomTabNavigator({
                 style={[
                   styles.tabLabel,
                   {
-                    fontSize: responsiveStyles.labelSize,
+                    fontSize: labelSize,
                     color: isActive ? colors.primary : colors.mutedForeground,
                   },
                 ]}

@@ -49,7 +49,7 @@ const normalizedLocale = (() => {
   return 'en';
 })();
 
-void i18n
+i18n
   .use(initReactI18next)
   .init({
     resources,
@@ -59,6 +59,11 @@ void i18n
     ns: ['common'],
     defaultNS: 'common',
     interpolation: { escapeValue: false },
+    compatibilityJSON: 'v3',
+  })
+  .catch((error) => {
+    console.error('Failed to initialize i18n:', error);
+    // Continue with default English if initialization fails
   });
 
 export default i18n;

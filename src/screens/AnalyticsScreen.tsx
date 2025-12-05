@@ -62,13 +62,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
 
   const responsiveTextStyles = createResponsiveTextStyles(width);
   
-  const responsiveStyles = {
-    tabText: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    sectionTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    cardTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    cardValue: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    scoreValue: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-  };
+
 
   useEffect(() => {
     loadAnalytics();
@@ -231,7 +225,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
               <Text
                 style={[
                   styles.tabText,
-                  responsiveStyles.tabText,
+                  responsiveTextStyles.bodySmall,
                   activeTab === tab.key ? styles.activeTabText : themedStyles.textMuted,
                 ]}
               >
@@ -252,7 +246,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
         {/* Insights Tab */}
         {activeTab === 'insights' && (
           <View style={styles.tabContent}>
-            <Text style={[styles.sectionTitle, themedStyles.text, responsiveStyles.sectionTitle]}>
+            <Text style={[styles.sectionTitle, themedStyles.text, responsiveTextStyles.h3]}>
               {t('analytics.smartInsights')}
             </Text>
             {insights.length === 0 ? (
@@ -297,7 +291,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
         {/* Categories Tab */}
         {activeTab === 'categories' && (
           <View style={styles.tabContent}>
-            <Text style={[styles.sectionTitle, themedStyles.text, responsiveStyles.sectionTitle]}>
+            <Text style={[styles.sectionTitle, themedStyles.text, responsiveTextStyles.h3]}>
               {t('analytics.spendingByCategory')}
             </Text>
             {categoryBreakdown.length === 0 ? (
@@ -360,7 +354,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
         {/* Trends Tab */}
         {activeTab === 'trends' && (
           <View style={styles.tabContent}>
-            <Text style={[styles.sectionTitle, themedStyles.text, responsiveStyles.sectionTitle]}>
+            <Text style={[styles.sectionTitle, themedStyles.text, responsiveTextStyles.h3]}>
               {t('analytics.spendingTrends')}
             </Text>
             {spendingTrends.length === 0 ? (
@@ -432,7 +426,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
             {/* Score Card */}
             <View style={styles.healthScoreCard}>
               <Award size={48} color="#03A9F4" />
-              <Text style={[styles.healthScoreValue, responsiveStyles.scoreValue]}>
+              <Text style={[styles.healthScoreValue, responsiveTextStyles.display]}>
                 {healthScore.score.toFixed(1)}/{healthScore.max_score}
               </Text>
               <View style={styles.gradeRow}>
@@ -454,7 +448,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
             </View>
 
             {/* Score Breakdown */}
-            <Text style={[styles.sectionTitle, themedStyles.text, responsiveStyles.sectionTitle]}>
+            <Text style={[styles.sectionTitle, themedStyles.text, responsiveTextStyles.h3]}>
               {t('analytics.scoreBreakdown')}
             </Text>
             {healthScore.factors.map((factor, index) => (
@@ -619,8 +613,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   loadingText: {
-    fontFamily: fonts.sans,
-    fontSize: 14,
+    ...textStyles.body,
     marginTop: 12,
   },
   header: {
@@ -658,7 +651,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#03A9F4',
   },
   tabText: {
-    fontFamily: fonts.sans,
+    ...textStyles.bodySmall,
     fontWeight: '500',
   },
   activeTabText: {
@@ -673,9 +666,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
   },
   sectionTitle: {
-    fontFamily: fonts.sans,
-    fontWeight: '700',
-    fontSize: 16,
+    ...textStyles.h3,
     marginBottom: 16,
   },
   emptyCard: {
@@ -685,8 +676,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   emptyText: {
-    fontFamily: fonts.sans,
-    fontSize: 14,
+    ...textStyles.body,
     marginTop: 12,
     textAlign: 'center',
   },
@@ -706,14 +696,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   insightTitle: {
-    fontFamily: fonts.sans,
+    ...textStyles.body,
     fontWeight: '600',
-    fontSize: 16,
     marginBottom: 4,
   },
   insightMessage: {
-    fontFamily: fonts.sans,
-    fontSize: 14,
+    ...textStyles.bodySmall,
     lineHeight: 20,
   },
   // Categories
@@ -748,26 +736,23 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   categoryName: {
-    fontFamily: fonts.sans,
+    ...textStyles.body,
     fontWeight: '600',
-    fontSize: 16,
   },
   categoryCount: {
-    fontFamily: fonts.sans,
-    fontSize: 12,
+    ...textStyles.caption,
     marginTop: 2,
   },
   categoryRight: {
     alignItems: 'flex-end',
   },
   categoryTotal: {
-    fontFamily: fonts.sans,
+    ...textStyles.body,
     fontWeight: '700',
-    fontSize: 16,
+    fontFamily: fonts.mono,
   },
   categoryPercentage: {
-    fontFamily: fonts.sans,
-    fontSize: 12,
+    ...textStyles.caption,
     marginTop: 2,
   },
   progressBarBg: {
@@ -792,14 +777,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   trendLabel: {
-    fontFamily: fonts.sans,
+    ...textStyles.h3,
     fontWeight: '600',
-    fontSize: 16,
   },
   trendSavingsRate: {
-    fontFamily: fonts.sans,
+    ...textStyles.bodySmall,
     fontWeight: '500',
-    fontSize: 14,
   },
   trendDetails: {
     gap: 8,
@@ -816,13 +799,12 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   trendRowLabel: {
-    fontFamily: fonts.sans,
-    fontSize: 14,
+    ...textStyles.bodySmall,
   },
   trendRowValue: {
-    fontFamily: fonts.sans,
+    ...textStyles.body,
     fontWeight: '600',
-    fontSize: 14,
+    fontFamily: fonts.mono,
   },
   // Health Score
   healthScoreCard: {
@@ -835,8 +817,9 @@ const styles = StyleSheet.create({
     borderColor: '#90CAF9',
   },
   healthScoreValue: {
-    fontFamily: fonts.sans,
+    ...textStyles.display,
     fontWeight: '700',
+    fontFamily: fonts.mono,
     color: '#0D47A1',
     marginTop: 12,
   },
@@ -847,17 +830,15 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   healthGrade: {
-    fontFamily: fonts.sans,
+    ...textStyles.h2,
     fontWeight: '600',
-    fontSize: 16,
     color: '#1976D2',
   },
   infoButton: {
     padding: 4,
   },
   healthScoreLabel: {
-    fontFamily: fonts.sans,
-    fontSize: 14,
+    ...textStyles.bodySmall,
     color: '#5C6BC0',
     marginTop: 4,
   },
@@ -874,22 +855,20 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   factorName: {
-    fontFamily: fonts.sans,
+    ...textStyles.body,
     fontWeight: '600',
-    fontSize: 16,
   },
   factorValue: {
-    fontFamily: fonts.sans,
-    fontSize: 13,
+    ...textStyles.bodySmall,
     marginTop: 4,
   },
   factorRight: {
     alignItems: 'flex-end',
   },
   factorScore: {
-    fontFamily: fonts.sans,
+    ...textStyles.h3,
     fontWeight: '700',
-    fontSize: 16,
+    fontFamily: fonts.mono,
   },
   statusBadge: {
     paddingHorizontal: 8,
@@ -898,9 +877,8 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   statusText: {
-    fontFamily: fonts.sans,
+    ...textStyles.labelSmall,
     fontWeight: '500',
-    fontSize: 11,
   },
   // Recommendations
   recommendationsCard: {
@@ -918,9 +896,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   recommendationsTitle: {
-    fontFamily: fonts.sans,
+    ...textStyles.h3,
     fontWeight: '600',
-    fontSize: 16,
   },
   recommendationItem: {
     flexDirection: 'row',
@@ -932,8 +909,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   recommendationText: {
-    fontFamily: fonts.sans,
-    fontSize: 14,
+    ...textStyles.bodySmall,
     flex: 1,
     lineHeight: 20,
   },
@@ -968,22 +944,19 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   modalTitle: {
-    fontFamily: fonts.sans,
+    ...textStyles.h3,
     fontWeight: '700',
-    fontSize: 16,
   },
   modalSubtitle: {
-    fontFamily: fonts.sans,
-    fontSize: 13,
+    ...textStyles.caption,
     marginTop: 2,
   },
   modalBody: {
     padding: 20,
   },
   modalSectionTitle: {
-    fontFamily: fonts.sans,
+    ...textStyles.h3,
     fontWeight: '600',
-    fontSize: 16,
     marginBottom: 12,
   },
   focusAreaCard: {
@@ -1000,20 +973,17 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   focusAreaName: {
-    fontFamily: fonts.sans,
+    ...textStyles.bodySmall,
     fontWeight: '600',
     color: '#E65100',
-    fontSize: 14,
   },
   focusAreaScore: {
-    fontFamily: fonts.sans,
+    ...textStyles.caption,
     color: '#757575',
-    fontSize: 12,
   },
   focusAreaValue: {
-    fontFamily: fonts.sans,
+    ...textStyles.caption,
     color: '#424242',
-    fontSize: 13,
   },
   quickWinsCard: {
     backgroundColor: '#E8F5E9',
@@ -1030,18 +1000,16 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   quickWinsTitle: {
-    fontFamily: fonts.sans,
+    ...textStyles.bodySmall,
     fontWeight: '600',
     color: '#2E7D32',
-    fontSize: 14,
   },
   quickWinsList: {
     gap: 8,
   },
   quickWinItem: {
-    fontFamily: fonts.sans,
+    ...textStyles.caption,
     color: '#388E3C',
-    fontSize: 13,
     lineHeight: 20,
   },
   modalFooter: {
@@ -1056,9 +1024,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalButtonText: {
-    fontFamily: fonts.sans,
+    ...textStyles.button,
     fontWeight: '600',
     color: '#fff',
-    fontSize: 16,
   },
 });

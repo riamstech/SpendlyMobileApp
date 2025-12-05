@@ -86,15 +86,7 @@ export default function BudgetScreen() {
 
   const responsiveTextStyles = createResponsiveTextStyles(width);
   
-  const responsiveStyles = {
-    headerSubtitle: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    summaryLabel: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    summaryValue: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    sectionTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    budgetName: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    budgetAmount: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    percentageText: { fontSize: Math.max(10, Math.min(12 * (width / 375), 14)) },
-  };
+
 
   useEffect(() => {
     loadInitialData();
@@ -367,7 +359,7 @@ export default function BudgetScreen() {
       <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
         <View>
           <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>{t('budget.title') || 'Categories & Budget'}</Text>
-          <Text style={[styles.headerSubtitle, responsiveStyles.headerSubtitle, { color: colors.mutedForeground }]}>{t('budget.subtitle') || 'Manage your spending by category'}</Text>
+          <Text style={[styles.headerSubtitle, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>{t('budget.subtitle') || 'Manage your spending by category'}</Text>
         </View>
         <Pressable
           style={[styles.addButton, { backgroundColor: colors.primary }]}
@@ -466,14 +458,14 @@ export default function BudgetScreen() {
         {/* Summary Cards */}
         <View style={styles.summaryRow}>
           <View style={[styles.summaryCard, { backgroundColor: colors.card }]}>
-            <Text style={[styles.summaryLabel, responsiveStyles.summaryLabel, { color: colors.mutedForeground }]}>{t('budget.totalBudget') || 'Total Budget'}</Text>
-            <Text style={[styles.summaryValue, responsiveStyles.summaryValue, { color: colors.foreground, fontFamily: fonts.mono }]}>
+            <Text style={[styles.summaryLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>{t('budget.totalBudget') || 'Total Budget'}</Text>
+            <Text style={[styles.summaryValue, responsiveTextStyles.body, { color: colors.foreground, fontFamily: fonts.mono, fontWeight: '600' }]}>
               {currency} {formatValue(totalBudget)}
             </Text>
           </View>
           <View style={[styles.summaryCard, { backgroundColor: colors.card }]}>
-            <Text style={[styles.summaryLabel, responsiveStyles.summaryLabel, { color: colors.mutedForeground }]}>{t('budget.totalSpent') || 'Total Spent'}</Text>
-            <Text style={[styles.summaryValue, responsiveStyles.summaryValue, { color: totalSpent > totalBudget ? '#FF5252' : colors.foreground, fontFamily: fonts.mono }]}>
+            <Text style={[styles.summaryLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>{t('budget.totalSpent') || 'Total Spent'}</Text>
+            <Text style={[styles.summaryValue, responsiveTextStyles.body, { color: totalSpent > totalBudget ? '#FF5252' : colors.foreground, fontFamily: fonts.mono, fontWeight: '600' }]}>
               {currency} {formatValue(totalSpent)}
             </Text>
           </View>
@@ -526,7 +518,7 @@ export default function BudgetScreen() {
 
         {/* Category Budget List */}
         <View style={styles.budgetsSection}>
-          <Text style={[styles.sectionTitle, responsiveStyles.sectionTitle, { color: colors.foreground }]}>{t('budget.limits') || 'Budget Limits'}</Text>
+          <Text style={[styles.sectionTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>{t('budget.limits') || 'Budget Limits'}</Text>
           {categoryBudgets.length === 0 ? (
             <View style={styles.emptyState}>
               <Text style={[styles.emptyStateText, { color: colors.mutedForeground }]}>
@@ -564,11 +556,11 @@ export default function BudgetScreen() {
                         />
                       </View>
                       <View style={styles.budgetInfo}>
-                        <Text style={[styles.budgetName, responsiveStyles.budgetName, { color: colors.foreground }]}>
+                        <Text style={[styles.budgetName, responsiveTextStyles.body, { color: colors.foreground, fontWeight: '600' }]}>
                           {translateCategoryName(category.name, t)}
                         </Text>
                         <View style={styles.budgetMeta}>
-                          <Text style={[styles.budgetAmount, responsiveStyles.budgetAmount, { color: colors.mutedForeground, fontFamily: fonts.mono }]}>
+                          <Text style={[styles.budgetAmount, responsiveTextStyles.bodySmall, { color: colors.mutedForeground, fontFamily: fonts.mono }]}>
                             {getCurrencySymbol(category.currency)} {formatValue(category.spent)} / {formatValue(category.budget)}
                           </Text>
                           <Text style={[styles.budgetCurrency, { color: colors.mutedForeground }]}> ({category.currency})</Text>
@@ -814,7 +806,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   headerSubtitle: {
-    fontSize: 12,
+    ...textStyles.bodySmall,
     color: '#666',
   },
   addButton: {
@@ -827,8 +819,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   addButtonText: {
+    ...textStyles.button,
     color: '#fff',
-    fontSize: 14,
     fontWeight: '600',
   },
   scrollView: {
@@ -853,7 +845,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   formLabel: {
-    fontSize: 14,
+    ...textStyles.label,
     fontWeight: '600',
     color: '#333',
     marginBottom: 8,
@@ -871,7 +863,7 @@ const styles = StyleSheet.create({
   },
   selectButtonText: {
     flex: 1,
-    fontSize: 14,
+    ...textStyles.bodySmall,
     color: '#333',
   },
   selectButtonPlaceholder: {
@@ -884,11 +876,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#e0e0e0',
-    fontSize: 14,
+    fontSize: 14, // Keep font size to match textStyles.bodySmall roughly for inputs
     color: '#333',
   },
   formHelperText: {
-    fontSize: 12,
+    ...textStyles.caption,
     color: '#666',
     marginTop: 8,
   },

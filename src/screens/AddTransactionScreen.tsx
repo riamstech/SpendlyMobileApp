@@ -356,7 +356,8 @@ export default function AddTransactionScreen({
                     backgroundColor: colors.inputBackground,
                     borderColor: colors.border,
                     color: colors.foreground,
-                    fontSize: Math.max(14, Math.min(16 * scale, 16))
+                    fontSize: responsiveTextStyles.displaySmall.fontSize,
+                    fontFamily: fonts.mono,
                   }
                 ]}
                 placeholder="0.00"
@@ -478,7 +479,7 @@ export default function AddTransactionScreen({
                 backgroundColor: colors.inputBackground,
                 borderColor: colors.border,
                 color: colors.foreground,
-                fontSize: Math.max(14, 16 * scale)
+                fontSize: responsiveTextStyles.body.fontSize
               }
             ]}
             placeholder={t('addTransaction.notesPlaceholder')}
@@ -740,7 +741,7 @@ const styles = StyleSheet.create({
     // Active styling handled inline
   },
   typeButtonText: {
-    fontSize: 15,
+    ...textStyles.body,
     fontWeight: '600',
   },
   amountRow: {
@@ -753,6 +754,7 @@ const styles = StyleSheet.create({
   },
   amountInput: {
     ...textStyles.displaySmall,
+    fontFamily: fonts.mono,
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 16,
@@ -790,7 +792,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   loadingText: {
-    fontSize: 14,
+    ...textStyles.body,
   },
   emptyText: {
     ...textStyles.bodySmall,
@@ -823,7 +825,7 @@ const styles = StyleSheet.create({
     // Selected styling handled inline with theme colors
   },
   categoryItemIcon: {
-    fontSize: 16,
+    fontSize: 24,
     marginBottom: 8,
   },
   categoryItemText: {
@@ -933,7 +935,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   modalTitle: {
-    fontSize: 16,
+    ...textStyles.h3,
     fontWeight: 'bold',
     flex: 1,
   },
@@ -946,7 +948,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   modalItemText: {
-    fontSize: 16,
+    ...textStyles.body,
   },
 });
 

@@ -157,14 +157,7 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
 
   const responsiveTextStyles = createResponsiveTextStyles(width);
   
-  const responsiveStyles = {
-    headerSubtitle: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    codeText: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    cardTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    cardSubtitle: { fontSize: Math.max(11, Math.min(13 * (width / 375), 14)) },
-    statValue: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    statLabel: { fontSize: Math.max(11, Math.min(13 * (width / 375), 14)) },
-  };
+
 
   if (loading) {
     return (
@@ -201,7 +194,7 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
             <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: '#fff' }]}>
               {t('referral.title')}
             </Text>
-            <Text style={[styles.headerSubtitle, responsiveStyles.headerSubtitle, { color: '#fff', opacity: 0.9 }]}>
+            <Text style={[styles.headerSubtitle, responsiveTextStyles.bodySmall, { color: '#fff', opacity: 0.9 }]}>
               {t('referral.subtitle')}
             </Text>
           </View>
@@ -219,7 +212,7 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
             <Text style={[styles.referralCodeLabel, { color: '#fff', opacity: 0.9 }]}>
               {t('referral.yourReferralCode')}
             </Text>
-            <Text style={[styles.referralCode, responsiveStyles.codeText, { color: '#fff' }]}>
+            <Text style={[styles.referralCode, responsiveTextStyles.h2, { color: '#fff' }]}>
               {referralCode}
             </Text>
             <View style={styles.referralCodeActions}>
@@ -267,7 +260,7 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
           <View style={[styles.shareOptionsCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.shareOptionsHeader}>
               <Share2 size={20} color={colors.primary} />
-              <Text style={[styles.shareOptionsTitle, responsiveStyles.cardTitle, { color: colors.foreground }]}>
+              <Text style={[styles.shareOptionsTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>
                 {t('referral.shareVia')}
               </Text>
             </View>
@@ -281,7 +274,7 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
                 ]}
               >
                 <Mail size={24} color="#4CAF50" />
-                <Text style={[styles.shareOptionText, responsiveStyles.cardSubtitle, { color: colors.foreground }]}>
+                <Text style={[styles.shareOptionText, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>
                   {t('referral.email')}
                 </Text>
               </Pressable>
@@ -294,7 +287,7 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
                 ]}
               >
                 <MessageSquare size={24} color="#03A9F4" />
-                <Text style={[styles.shareOptionText, responsiveStyles.cardSubtitle, { color: colors.foreground }]}>
+                <Text style={[styles.shareOptionText, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>
                   {t('referral.sms')}
                 </Text>
               </Pressable>
@@ -307,7 +300,7 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
                 ]}
               >
                 <MessageSquare size={24} color="#4CAF50" />
-                <Text style={[styles.shareOptionText, responsiveStyles.cardSubtitle, { color: colors.foreground }]}>
+                <Text style={[styles.shareOptionText, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>
                   {t('referral.whatsapp')}
                 </Text>
               </Pressable>
@@ -319,11 +312,11 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
             <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
               <View style={styles.statHeader}>
                 <Users size={20} color="#4CAF50" />
-                <Text style={[styles.statLabel, responsiveStyles.statLabel, { color: colors.mutedForeground }]}>
+                <Text style={[styles.statLabel, responsiveTextStyles.label, { color: colors.mutedForeground }]}>
                   {t('referral.totalReferrals')}
                 </Text>
               </View>
-              <Text style={[styles.statValue, responsiveStyles.statValue, { color: colors.foreground }]}>
+              <Text style={[styles.statValue, responsiveTextStyles.h3, { color: colors.foreground }]}>
                 {stats.totalReferrals}
               </Text>
             </View>
@@ -331,11 +324,11 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
             <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
               <View style={styles.statHeader}>
                 <Trophy size={20} color="#FFC107" />
-                <Text style={[styles.statLabel, responsiveStyles.statLabel, { color: colors.mutedForeground }]}>
+                <Text style={[styles.statLabel, responsiveTextStyles.label, { color: colors.mutedForeground }]}>
                   {t('referral.rewardsEarned')}
                 </Text>
               </View>
-              <Text style={[styles.statValue, responsiveStyles.statValue, { color: colors.foreground }]}>
+              <Text style={[styles.statValue, responsiveTextStyles.h3, { color: colors.foreground }]}>
                 {stats.totalRewardsEarned}
               </Text>
             </View>
@@ -343,11 +336,11 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
             <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
               <View style={styles.statHeader}>
                 <CheckCircle size={20} color="#4CAF50" />
-                <Text style={[styles.statLabel, responsiveStyles.statLabel, { color: colors.mutedForeground }]}>
+                <Text style={[styles.statLabel, responsiveTextStyles.label, { color: colors.mutedForeground }]}>
                   {t('referral.active')}
                 </Text>
               </View>
-              <Text style={[styles.statValue, responsiveStyles.statValue, { color: colors.foreground }]}>
+              <Text style={[styles.statValue, responsiveTextStyles.h3, { color: colors.foreground }]}>
                 {stats.activeReferrals}
               </Text>
             </View>
@@ -355,11 +348,11 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
             <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
               <View style={styles.statHeader}>
                 <Clock size={20} color="#FFC107" />
-                <Text style={[styles.statLabel, responsiveStyles.statLabel, { color: colors.mutedForeground }]}>
+                <Text style={[styles.statLabel, responsiveTextStyles.label, { color: colors.mutedForeground }]}>
                   {t('referral.pending')}
                 </Text>
               </View>
-              <Text style={[styles.statValue, responsiveStyles.statValue, { color: colors.foreground }]}>
+              <Text style={[styles.statValue, responsiveTextStyles.h3, { color: colors.foreground }]}>
                 {stats.pendingReferrals}
               </Text>
             </View>
@@ -369,7 +362,7 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
           <View style={[styles.howItWorksCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.howItWorksHeader}>
               <Gift size={20} color="#4CAF50" />
-              <Text style={[styles.howItWorksTitle, responsiveStyles.cardTitle, { color: colors.foreground }]}>
+              <Text style={[styles.howItWorksTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>
                 {t('referral.howItWorks')}
               </Text>
             </View>
@@ -379,10 +372,10 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
                   <Text style={styles.stepNumberText}>1</Text>
                 </View>
                 <View style={styles.stepContent}>
-                  <Text style={[styles.stepTitle, responsiveStyles.cardTitle, { color: colors.foreground }]}>
+                  <Text style={[styles.stepTitle, responsiveTextStyles.body, { color: colors.foreground, fontWeight: 'bold' }]}>
                     {t('referral.step1Title')}
                   </Text>
-                  <Text style={[styles.stepDescription, responsiveStyles.cardSubtitle, { color: colors.mutedForeground }]}>
+                  <Text style={[styles.stepDescription, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>
                     {t('referral.step1Description')}
                   </Text>
                 </View>
@@ -392,10 +385,10 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
                   <Text style={styles.stepNumberText}>2</Text>
                 </View>
                 <View style={styles.stepContent}>
-                  <Text style={[styles.stepTitle, responsiveStyles.cardTitle, { color: colors.foreground }]}>
+                  <Text style={[styles.stepTitle, responsiveTextStyles.body, { color: colors.foreground, fontWeight: 'bold' }]}>
                     {t('referral.step2Title')}
                   </Text>
-                  <Text style={[styles.stepDescription, responsiveStyles.cardSubtitle, { color: colors.mutedForeground }]}>
+                  <Text style={[styles.stepDescription, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>
                     {t('referral.step2Description')}
                   </Text>
                 </View>
@@ -405,10 +398,10 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
                   <Text style={styles.stepNumberText}>3</Text>
                 </View>
                 <View style={styles.stepContent}>
-                  <Text style={[styles.stepTitle, responsiveStyles.cardTitle, { color: colors.foreground }]}>
+                  <Text style={[styles.stepTitle, responsiveTextStyles.body, { color: colors.foreground, fontWeight: 'bold' }]}>
                     {t('referral.step3Title')}
                   </Text>
-                  <Text style={[styles.stepDescription, responsiveStyles.cardSubtitle, { color: colors.mutedForeground }]}>
+                  <Text style={[styles.stepDescription, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>
                     {t('referral.step3Description', { rewardText })}
                   </Text>
                 </View>
@@ -420,17 +413,17 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
           <View style={[styles.referralsCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.referralsHeader}>
               <Users size={20} color="#4CAF50" />
-              <Text style={[styles.referralsTitle, responsiveStyles.cardTitle, { color: colors.foreground }]}>
+              <Text style={[styles.referralsTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>
                 {t('referral.yourReferralsCount', { count: referrals.length })}
               </Text>
             </View>
             {referrals.length === 0 ? (
               <View style={styles.emptyReferrals}>
                 <Users size={48} color={colors.mutedForeground} style={styles.emptyIcon} />
-                <Text style={[styles.emptyText, responsiveStyles.cardSubtitle, { color: colors.mutedForeground }]}>
+                <Text style={[styles.emptyText, responsiveTextStyles.body, { color: colors.mutedForeground, fontWeight: '600' }]}>
                   {t('referral.noReferralsYet')}
                 </Text>
-                <Text style={[styles.emptySubtext, responsiveStyles.cardSubtitle, { color: colors.mutedForeground }]}>
+                <Text style={[styles.emptySubtext, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>
                   {t('referral.startSharingMessage')}
                 </Text>
               </View>
@@ -448,7 +441,7 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
                     >
                       <View style={styles.referralItemContent}>
                         <View style={styles.referralItemHeader}>
-                          <Text style={[styles.referralName, responsiveStyles.cardTitle, { color: colors.foreground }]}>
+                          <Text style={[styles.referralName, responsiveTextStyles.body, { color: colors.foreground, fontWeight: '600' }]}>
                             {referredUser.name || 'Unknown'}
                           </Text>
                           {isActive ? (
@@ -457,10 +450,10 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
                             <Clock size={16} color="#FFC107" />
                           )}
                         </View>
-                        <Text style={[styles.referralEmail, responsiveStyles.cardSubtitle, { color: colors.mutedForeground }]}>
+                        <Text style={[styles.referralEmail, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>
                           {referredUser.email || ''}
                         </Text>
-                        <Text style={[styles.referralDate, responsiveStyles.cardSubtitle, { color: colors.mutedForeground }]}>
+                        <Text style={[styles.referralDate, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
                           {t('referral.joined', { date: formatDateForDisplay(referral.created_at || referral.createdAt, i18n.language) })}
                         </Text>
                       </View>
@@ -476,7 +469,7 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
                           <Text
                             style={[
                               styles.statusBadgeText,
-                              responsiveStyles.cardSubtitle,
+                              responsiveTextStyles.labelSmall,
                               { color: isActive ? '#4CAF50' : '#FFC107' },
                             ]}
                           >
@@ -507,7 +500,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 10,
-    fontSize: 16,
+    ...textStyles.body,
   },
   scrollView: {
     flex: 1,
@@ -556,7 +549,7 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   referralCodeLabel: {
-    fontSize: 13,
+    ...textStyles.label,
     marginBottom: 8,
   },
   referralCode: {
@@ -579,7 +572,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   actionButtonText: {
-    fontSize: 14,
+    ...textStyles.button,
     fontWeight: '600',
   },
   shareOptionsCard: {
@@ -635,6 +628,7 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontWeight: 'bold',
+    fontFamily: textStyles.display.fontFamily,
   },
   howItWorksCard: {
     borderRadius: 16,
@@ -668,7 +662,7 @@ const styles = StyleSheet.create({
   },
   stepNumberText: {
     color: '#fff',
-    fontSize: 16,
+    ...textStyles.body,
     fontWeight: 'bold',
   },
   stepContent: {
@@ -739,7 +733,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   referralDate: {
-    fontSize: 11,
+    ...textStyles.caption,
   },
   referralItemStatus: {
     alignItems: 'flex-end',

@@ -59,15 +59,7 @@ export default function GoalsScreen({ onBack }: GoalsScreenProps) {
   // Responsive styles
   const responsiveTextStyles = createResponsiveTextStyles(width);
   
-  const responsiveStyles = {
-    headerSubtitle: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    summaryLabel: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    summaryValue: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    goalName: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    goalAmount: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    percentageText: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    buttonText: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-  };
+
 
   useEffect(() => {
     loadInitialData();
@@ -280,7 +272,7 @@ export default function GoalsScreen({ onBack }: GoalsScreenProps) {
             <Text style={[styles.summaryLabel, { color: '#1976D2' }]}>
               {t('goals.activeGoals')}
             </Text>
-            <Text style={[styles.summaryValue, { color: '#0D47A1' }, responsiveStyles.summaryValue]}>
+            <Text style={[styles.summaryValue, { color: '#0D47A1' }, responsiveTextStyles.h3]}>
               {activeGoals.length}
             </Text>
           </View>
@@ -288,7 +280,7 @@ export default function GoalsScreen({ onBack }: GoalsScreenProps) {
             <Text style={[styles.summaryLabel, { color: '#388E3C' }]}>
               {t('goals.completed')}
             </Text>
-            <Text style={[styles.summaryValue, { color: '#1B5E20' }, responsiveStyles.summaryValue]}>
+            <Text style={[styles.summaryValue, { color: '#1B5E20' }, responsiveTextStyles.h3]}>
               {completedGoals.length}
             </Text>
           </View>
@@ -296,7 +288,7 @@ export default function GoalsScreen({ onBack }: GoalsScreenProps) {
             <Text style={[styles.summaryLabel, { color: '#7B1FA2' }]}>
               {t('goals.totalSaved')}
             </Text>
-            <Text style={[styles.summaryValue, { color: '#4A148C' }, responsiveStyles.summaryValue]}>
+            <Text style={[styles.summaryValue, { color: '#4A148C' }, responsiveTextStyles.h3]}>
               {currency}{totalSaved.toLocaleString()}
             </Text>
           </View>
@@ -343,7 +335,7 @@ export default function GoalsScreen({ onBack }: GoalsScreenProps) {
                   <View style={styles.goalHeader}>
                     <View style={styles.goalInfo}>
                       <View style={styles.goalTitleRow}>
-                        <Text style={[styles.goalName, themedStyles.text, responsiveStyles.goalName]}>
+                        <Text style={[styles.goalName, themedStyles.text, responsiveTextStyles.h3]}>
                           {goal.name}
                         </Text>
                         {isCompleted && <CheckCircle size={20} color="#4CAF50" />}
@@ -600,15 +592,14 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   summaryLabel: {
-    fontFamily: fonts.sans,
+    ...textStyles.caption,
     fontWeight: '500',
-    fontSize: 12,
     marginBottom: 4,
   },
   summaryValue: {
-    fontFamily: fonts.sans,
+    ...textStyles.h3,
     fontWeight: '700',
-    fontSize: 16,
+    fontFamily: fonts.mono,
   },
   loadingContainer: {
     alignItems: 'center',
@@ -616,8 +607,7 @@ const styles = StyleSheet.create({
     paddingVertical: 48,
   },
   loadingText: {
-    fontFamily: fonts.sans,
-    fontSize: 14,
+    ...textStyles.body,
     marginTop: 12,
   },
   emptyContainer: {
@@ -626,14 +616,12 @@ const styles = StyleSheet.create({
     paddingVertical: 48,
   },
   emptyTitle: {
-    fontFamily: fonts.sans,
+    ...textStyles.h3,
     fontWeight: '600',
-    fontSize: 16,
     marginTop: 16,
   },
   emptySubtitle: {
-    fontFamily: fonts.sans,
-    fontSize: 14,
+    ...textStyles.body,
     marginTop: 8,
     textAlign: 'center',
   },
@@ -670,9 +658,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   goalName: {
-    fontFamily: fonts.sans,
+    ...textStyles.h3,
     fontWeight: '700',
-    fontSize: 16,
   },
   goalMeta: {
     flexDirection: 'row',
@@ -685,8 +672,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   goalAmount: {
-    fontFamily: fonts.sans,
-    fontSize: 13,
+    ...textStyles.caption,
   },
   overdueText: {
     color: '#FF5252',
@@ -705,14 +691,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   progressLabel: {
-    fontFamily: fonts.sans,
+    ...textStyles.caption,
     fontWeight: '500',
-    fontSize: 14,
   },
   progressPercentage: {
-    fontFamily: fonts.sans,
+    ...textStyles.labelSmall,
     fontWeight: '700',
-    fontSize: 14,
   },
   progressBarBg: {
     height: 8,
@@ -747,9 +731,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   actionButtonText: {
-    fontFamily: fonts.sans,
+    ...textStyles.button,
     fontWeight: '500',
-    fontSize: 13,
   },
   // Modal styles
   modalOverlay: {
@@ -777,25 +760,22 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   modalTitle: {
-    fontFamily: fonts.sans,
+    ...textStyles.h3,
     fontWeight: '700',
-    fontSize: 16,
   },
   formGroup: {
     marginBottom: 16,
   },
   formLabel: {
-    fontFamily: fonts.sans,
+    ...textStyles.label,
     fontWeight: '500',
-    fontSize: 14,
     marginBottom: 8,
   },
   formInput: {
     borderWidth: 1,
     borderRadius: 12,
     padding: 14,
-    fontFamily: fonts.sans,
-    fontSize: 16,
+    ...textStyles.body,
   },
   modalActions: {
     flexDirection: 'row',
@@ -817,8 +797,7 @@ const styles = StyleSheet.create({
   },
   modalButtonPrimaryText: {
     color: '#fff',
-    fontFamily: fonts.sans,
+    ...textStyles.button,
     fontWeight: '600',
-    fontSize: 16,
   },
 });

@@ -13,6 +13,7 @@ import { Modal } from './ui';
 import { CreditCard, X, AlertCircle } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
+import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
 import { subscriptionsService } from '../api/services/subscriptions';
 import * as Linking from 'expo-linking';
 
@@ -103,11 +104,7 @@ export default function StripePaymentDialog({
     }
   };
 
-  const responsiveStyles = {
-    title: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    description: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    buttonText: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-  };
+  const responsiveTextStyles = createResponsiveTextStyles(width);
 
   return (
     <Modal isVisible={isOpen} onClose={onClose}>
@@ -119,12 +116,12 @@ export default function StripePaymentDialog({
               <CreditCard size={24} color={colors.primary} />
             </View>
             <View style={styles.headerText}>
-              <Text style={[styles.title, responsiveStyles.title, { color: colors.foreground }]}>
+              <Text style={[styles.title, responsiveTextStyles.h3, { color: colors.foreground }]}>
                 {paymentMethod === 'upi' 
                   ? t('payment.payWithUPI') || 'Pay with UPI'
                   : t('payment.payWithCard') || 'Pay with Card'}
               </Text>
-              <Text style={[styles.description, responsiveStyles.description, { color: colors.mutedForeground }]}>
+              <Text style={[styles.description, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>
                 {t('payment.completePlanPayment', { plan: planType }) || `Complete your ${planType} plan payment`}
               </Text>
             </View>
@@ -185,7 +182,7 @@ export default function StripePaymentDialog({
               pressed && { opacity: 0.7 },
             ]}
           >
-            <Text style={[styles.cancelButtonText, responsiveStyles.buttonText, { color: colors.foreground }]}>
+            <Text style={[styles.cancelButtonText, responsiveTextStyles.button, { color: colors.foreground }]}>
               {t('common.cancel') || 'Cancel'}
             </Text>
           </Pressable>
@@ -201,7 +198,7 @@ export default function StripePaymentDialog({
             {loading ? (
               <ActivityIndicator size="small" color={colors.primaryForeground} />
             ) : (
-              <Text style={[styles.payButtonText, responsiveStyles.buttonText, { color: colors.primaryForeground }]}>
+              <Text style={[styles.payButtonText, responsiveTextStyles.button, { color: colors.primaryForeground }]}>
                 {t('payment.payNow') || 'Pay Now'}
               </Text>
             )}

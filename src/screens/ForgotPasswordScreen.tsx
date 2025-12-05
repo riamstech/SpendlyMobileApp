@@ -74,21 +74,7 @@ export default function ForgotPasswordScreen({
   };
 
   // Responsive styles
-  const responsiveStyles = {
-    logo: { width: 80 * scale, height: 80 * scale },
-    headerSubtitle: { fontSize: Math.max(12, Math.min(14 * scale, 16)) },
-    label: { fontSize: Math.max(13, Math.min(14 * scale, 15)) },
-    input: { fontSize: Math.max(14, Math.min(16 * scale, 18)) },
-    errorText: { fontSize: Math.max(11, Math.min(12 * scale, 13)) },
-    buttonText: { fontSize: Math.max(14, Math.min(16 * scale, 18)) },
-    hintText: { fontSize: Math.max(12, Math.min(13 * scale, 14)) },
-    successTitle: { fontSize: Math.max(18, Math.min(20 * scale, 22)) },
-    successText: { fontSize: Math.max(13, Math.min(14 * scale, 16)) },
-    linkText: { fontSize: Math.max(13, Math.min(14 * scale, 15)) },
-    formPadding: Math.max(16, Math.min(20 * scale, 24)),
-    inputPadding: Math.max(12, Math.min(14 * scale, 16)),
-    buttonPadding: Math.max(14, Math.min(16 * scale, 18)),
-  };
+
 
   // Success state
   if (submitted) {
@@ -119,36 +105,36 @@ export default function ForgotPasswordScreen({
                   styles.formContainer,
                   styles.successContainer,
                   {
-                    padding: responsiveStyles.formPadding,
                     maxWidth: isLargeScreen ? 430 : '100%',
+                    padding: 20,
                   },
                 ]}
               >
                 <View style={styles.successIconContainer}>
                   <CheckCircle size={48 * scale} color="#4CAF50" />
                 </View>
-                <Text style={[styles.successTitle, responsiveStyles.successTitle]}>
+                <Text style={[styles.successTitle, responsiveTextStyles.h3]}>
                   Check Your Email
                 </Text>
-                <Text style={[styles.successText, responsiveStyles.successText, { marginTop: 8 }]}>
+                <Text style={[styles.successText, responsiveTextStyles.body, { marginTop: 8 }]}>
                   We've sent a password reset link to
                 </Text>
-                <Text style={[styles.successEmail, responsiveStyles.successText, { marginTop: 8, marginBottom: 16 }]}>
+                <Text style={[styles.successEmail, responsiveTextStyles.body, { marginTop: 8, marginBottom: 16 }]}>
                   {email}
                 </Text>
-                <Text style={[styles.successText, responsiveStyles.successText, { marginBottom: 24 }]}>
+                <Text style={[styles.successText, responsiveTextStyles.body, { marginBottom: 24 }]}>
                   Click the link in the email to reset your password. If you don't see it, check your spam folder.
                 </Text>
                 <Pressable
                   style={[
                     styles.primaryButton,
-                    { paddingVertical: responsiveStyles.buttonPadding },
+                    { paddingVertical: 14 },
                     isLoading && styles.primaryButtonDisabled,
                   ]}
                   onPress={onBackToLogin}
                   disabled={isLoading}
                 >
-                  <Text style={[styles.primaryButtonText, responsiveStyles.buttonText]}>
+                  <Text style={[styles.primaryButtonText, responsiveTextStyles.button]}>
                     Back to Login
                   </Text>
                 </Pressable>
@@ -156,7 +142,7 @@ export default function ForgotPasswordScreen({
                   style={styles.tryAgainButton}
                   onPress={() => setSubmitted(false)}
                 >
-                  <Text style={[styles.tryAgainText, responsiveStyles.linkText]}>
+                  <Text style={[styles.tryAgainText, responsiveTextStyles.bodySmall]}>
                     Didn't receive the email? Try again
                   </Text>
                 </Pressable>
@@ -195,13 +181,13 @@ export default function ForgotPasswordScreen({
             <View style={styles.logoContainer}>
               <Image
                 source={require('../../assets/logo-dark.png')}
-                style={responsiveStyles.logo}
+                style={{ width: 80 * scale, height: 80 * scale }}
                 resizeMode="contain"
               />
               <Text style={[styles.headerTitle, responsiveTextStyles.h3]}>
                 Forgot Password?
               </Text>
-              <Text style={[styles.headerSubtitle, responsiveStyles.headerSubtitle]}>
+              <Text style={[styles.headerSubtitle, responsiveTextStyles.body]}>
                 No worries, we'll send you reset instructions
               </Text>
             </View>
@@ -211,14 +197,14 @@ export default function ForgotPasswordScreen({
               style={[
                 styles.formContainer,
                 {
-                  padding: responsiveStyles.formPadding,
+                  padding: 20,
                   maxWidth: isLargeScreen ? 430 : '100%',
                 },
               ]}
             >
               {/* Email Field */}
               <View style={styles.inputContainer}>
-                <Text style={[styles.label, responsiveStyles.label]}>Email Address</Text>
+                <Text style={[styles.label, responsiveTextStyles.label]}>Email Address</Text>
                 <View style={styles.inputWrapper}>
                   <Mail
                     size={Math.max(18, Math.min(20 * scale, 22))}
@@ -228,8 +214,8 @@ export default function ForgotPasswordScreen({
                   <TextInput
                     style={[
                       styles.input,
-                      responsiveStyles.input,
-                      { paddingVertical: responsiveStyles.inputPadding },
+                      responsiveTextStyles.body,
+                      { paddingVertical: 14 },
                       errors.email && styles.inputError,
                     ]}
                     placeholder="you@example.com"
@@ -245,11 +231,11 @@ export default function ForgotPasswordScreen({
                   />
                 </View>
                 {errors.email && (
-                  <Text style={[styles.errorText, responsiveStyles.errorText]}>
+                  <Text style={[styles.errorText, responsiveTextStyles.caption]}>
                     {errors.email}
                   </Text>
                 )}
-                <Text style={[styles.hintText, responsiveStyles.hintText, { marginTop: 4 }]}>
+                <Text style={[styles.hintText, responsiveTextStyles.caption, { marginTop: 4 }]}>
                   Enter the email address associated with your account
                 </Text>
               </View>
@@ -258,13 +244,13 @@ export default function ForgotPasswordScreen({
               <Pressable
                 style={[
                   styles.primaryButton,
-                  { paddingVertical: responsiveStyles.buttonPadding },
+                  { paddingVertical: 14 },
                   isLoading && styles.primaryButtonDisabled,
                 ]}
                 onPress={handleSubmit}
                 disabled={isLoading}
               >
-                <Text style={[styles.primaryButtonText, responsiveStyles.buttonText]}>
+                <Text style={[styles.primaryButtonText, responsiveTextStyles.button]}>
                   {isLoading ? 'Sending...' : 'Send Reset Link'}
                 </Text>
               </Pressable>
@@ -279,14 +265,14 @@ export default function ForgotPasswordScreen({
                   color="#03A9F4"
                   style={{ marginRight: 8 }}
                 />
-                <Text style={[styles.backButtonText, responsiveStyles.buttonText]}>
+                <Text style={[styles.backButtonText, responsiveTextStyles.button]}>
                   Back to Login
                 </Text>
               </Pressable>
             </View>
 
             {/* Footer */}
-            <Text style={[styles.footerText, responsiveStyles.hintText]}>
+            <Text style={[styles.footerText, responsiveTextStyles.caption]}>
               Track. Save. Grow. © 2024 Spendly
             </Text>
           </ScrollView>
@@ -317,12 +303,13 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   headerTitle: {
-    fontWeight: 'bold',
+    ...textStyles.h3,
     color: '#fff',
     marginTop: 8,
     marginBottom: 4,
   },
   headerSubtitle: {
+    ...textStyles.body,
     color: 'rgba(255, 255, 255, 0.9)',
   },
   formContainer: {
@@ -335,6 +322,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 5,
+    padding: 24,
   },
   successContainer: {
     alignItems: 'center',
@@ -349,16 +337,18 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   successTitle: {
-    fontWeight: 'bold',
+    ...textStyles.h3,
     color: '#212121',
     textAlign: 'center',
   },
   successText: {
+    ...textStyles.body,
     color: '#666',
     textAlign: 'center',
     lineHeight: 20,
   },
   successEmail: {
+    ...textStyles.body,
     color: '#212121',
     fontWeight: '600',
     textAlign: 'center',
@@ -375,6 +365,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   label: {
+    ...textStyles.label,
     fontWeight: '600',
     color: '#333',
     marginBottom: 8,
@@ -382,6 +373,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     paddingHorizontal: 40,
+    ...textStyles.body,
     color: '#333',
   },
   inputIcon: {
@@ -393,9 +385,11 @@ const styles = StyleSheet.create({
   },
   errorText: {
     marginTop: 4,
+    ...textStyles.caption,
     color: '#FF5252',
   },
   hintText: {
+    ...textStyles.caption,
     color: '#666',
   },
   primaryButton: {
@@ -414,7 +408,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
+    ...textStyles.button,
   },
   backButton: {
     flexDirection: 'row',
@@ -424,7 +418,7 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     color: '#03A9F4',
-    fontWeight: '600',
+    ...textStyles.button,
   },
   tryAgainButton: {
     marginTop: 16,
@@ -432,12 +426,13 @@ const styles = StyleSheet.create({
   tryAgainText: {
     color: '#03A9F4',
     textAlign: 'center',
-    fontWeight: '600',
+    ...textStyles.bodySmall,
   },
   footerText: {
     marginTop: 24,
     textAlign: 'center',
     color: 'rgba(255,255,255,0.9)',
+    ...textStyles.caption,
   },
 });
 

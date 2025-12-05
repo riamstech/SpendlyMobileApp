@@ -17,7 +17,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useTranslation } from 'react-i18next';
-import * as ImagePicker from 'expo-image-picker';
+import {
+  requestCameraPermissionsAsync,
+  requestMediaLibraryPermissionsAsync,
+  launchCameraAsync,
+  launchImageLibraryAsync,
+  MediaTypeOptions,
+  isImagePickerAvailable,
+} from '../utils/imagePicker';
 import { fonts, textStyles, createResponsiveTextStyles } from '../constants/fonts';
 import {
   Camera,
@@ -117,11 +124,7 @@ export default function ReceiptsScreen({ onBack }: ReceiptsScreenProps) {
 
   const responsiveTextStyles = createResponsiveTextStyles(width);
   
-  const responsiveStyles = {
-    sectionTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    cardTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    cardValue: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-  };
+
 
   useEffect(() => {
     loadInitialData();
@@ -174,14 +177,27 @@ export default function ReceiptsScreen({ onBack }: ReceiptsScreenProps) {
 
   const requestPermissions = async () => {
     if (Platform.OS !== 'web') {
-      const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
-      const libraryPermission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      
-      if (cameraPermission.status !== 'granted' || libraryPermission.status !== 'granted') {
+      if (!isImagePickerAvailable()) {
         Alert.alert(
-          'Permissions needed',
-          'Camera and photo library permissions are required to upload receipts.'
+          'Feature Unavailable',
+          'Image picker is not available. Please wait for the app rebuild to complete, or rebuild the app manually.'
         );
+        return false;
+      }
+
+      try {
+        const cameraPermission = await requestCameraPermissionsAsync();
+        const libraryPermission = await requestMediaLibraryPermissionsAsync();
+        
+        if (cameraPermission.status !== 'granted' || libraryPermission.status !== 'granted') {
+          Alert.alert(
+            'Permissions needed',
+            'Camera and photo library permissions are required to upload receipts.'
+          );
+          return false;
+        }
+      } catch (error: any) {
+        Alert.alert('Error', error.message || 'Failed to request permissions');
         return false;
       }
     }
@@ -189,34 +205,58 @@ export default function ReceiptsScreen({ onBack }: ReceiptsScreenProps) {
   };
 
   const pickFromCamera = async () => {
+    if (!isImagePickerAvailable()) {
+      Alert.alert(
+        'Feature Unavailable',
+        'Image picker is not available. Please wait for the app rebuild to complete.'
+      );
+      return;
+    }
+
     const hasPermissions = await requestPermissions();
     if (!hasPermissions) return;
 
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 0.8,
-    });
+    try {
+      const result = await launchCameraAsync({
+        mediaTypes: MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 0.8,
+      });
 
-    if (!result.canceled && result.assets[0]) {
-      setSelectedImage(result.assets[0].uri);
-      setShowUploadModal(true);
+      if (!result.canceled && result.assets[0]) {
+        setSelectedImage(result.assets[0].uri);
+        setShowUploadModal(true);
+      }
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to open camera');
     }
   };
 
   const pickFromGallery = async () => {
+    if (!isImagePickerAvailable()) {
+      Alert.alert(
+        'Feature Unavailable',
+        'Image picker is not available. Please wait for the app rebuild to complete.'
+      );
+      return;
+    }
+
     const hasPermissions = await requestPermissions();
     if (!hasPermissions) return;
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 0.8,
-    });
+    try {
+      const result = await launchImageLibraryAsync({
+        mediaTypes: MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 0.8,
+      });
 
-    if (!result.canceled && result.assets[0]) {
-      setSelectedImage(result.assets[0].uri);
-      setShowUploadModal(true);
+      if (!result.canceled && result.assets[0]) {
+        setSelectedImage(result.assets[0].uri);
+        setShowUploadModal(true);
+      }
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to open gallery');
     }
   };
 
@@ -357,7 +397,7 @@ export default function ReceiptsScreen({ onBack }: ReceiptsScreenProps) {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <Text style={[styles.sectionTitle, themedStyles.text, responsiveStyles.sectionTitle]}>
+        <Text style={[styles.sectionTitle, themedStyles.text, responsiveTextStyles.h3]}>
           {t('receipts.myReceipts') || 'My Receipts'}
         </Text>
 
@@ -794,9 +834,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   uploadButtonText: {
-    fontFamily: fonts.sans,
+    ...textStyles.button,
     fontWeight: '600',
-    fontSize: 16,
     color: '#fff',
   },
   content: {
@@ -804,9 +843,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   sectionTitle: {
-    fontFamily: fonts.sans,
+    ...textStyles.h3,
     fontWeight: '700',
-    fontSize: 16,
     marginBottom: 16,
   },
   loadingContainer: {
@@ -815,8 +853,7 @@ const styles = StyleSheet.create({
     paddingVertical: 48,
   },
   loadingText: {
-    fontFamily: fonts.sans,
-    fontSize: 14,
+    ...textStyles.body,
     marginTop: 12,
   },
   emptyCard: {
@@ -825,14 +862,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyTitle: {
-    fontFamily: fonts.sans,
+    ...textStyles.h3,
     fontWeight: '600',
-    fontSize: 16,
     marginTop: 16,
   },
   emptySubtitle: {
-    fontFamily: fonts.sans,
-    fontSize: 14,
+    ...textStyles.body,
     marginTop: 8,
     textAlign: 'center',
   },
@@ -867,19 +902,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   receiptMerchant: {
-    fontFamily: fonts.sans,
+    ...textStyles.h3,
     fontWeight: '600',
-    fontSize: 16,
   },
   receiptDate: {
-    fontFamily: fonts.sans,
-    fontSize: 13,
+    ...textStyles.caption,
     marginTop: 2,
   },
   receiptAmount: {
-    fontFamily: fonts.sans,
+    ...textStyles.h3,
     fontWeight: '700',
-    fontSize: 16,
+    fontFamily: fonts.mono,
     color: '#4CAF50',
   },
   ocrPreview: {
@@ -890,13 +923,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   ocrLabel: {
-    fontFamily: fonts.sans,
-    fontSize: 11,
+    ...textStyles.labelSmall,
     marginBottom: 4,
   },
   ocrText: {
+    ...textStyles.caption,
     fontFamily: fonts.mono,
-    fontSize: 12,
   },
   receiptMeta: {
     marginBottom: 12,
@@ -912,8 +944,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   categoryBadgeText: {
-    fontFamily: fonts.sans,
-    fontSize: 12,
+    ...textStyles.caption,
     color: '#03A9F4',
   },
   receiptActions: {
@@ -929,9 +960,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   actionButtonText: {
-    fontFamily: fonts.sans,
+    ...textStyles.button,
     fontWeight: '500',
-    fontSize: 13,
   },
   // Modal
   modalOverlay: {
@@ -958,9 +988,8 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   modalTitle: {
-    fontFamily: fonts.sans,
+    ...textStyles.h3,
     fontWeight: '700',
-    fontSize: 16,
   },
   modalBody: {
     padding: 20,
@@ -985,16 +1014,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   formLabel: {
-    fontFamily: fonts.sans,
+    ...textStyles.label,
     fontWeight: '500',
-    fontSize: 14,
   },
   formInput: {
     borderWidth: 1,
     borderRadius: 12,
     padding: 14,
-    fontFamily: fonts.sans,
-    fontSize: 16,
+    ...textStyles.body,
   },
   selectButton: {
     flexDirection: 'row',
@@ -1023,9 +1050,8 @@ const styles = StyleSheet.create({
   },
   modalButtonPrimaryText: {
     color: '#fff',
-    fontFamily: fonts.sans,
+    ...textStyles.button,
     fontWeight: '600',
-    fontSize: 16,
   },
   // Category Modal
   categoryOption: {
@@ -1039,8 +1065,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF3E0',
   },
   categoryOptionText: {
-    fontFamily: fonts.sans,
-    fontSize: 16,
+    ...textStyles.body,
   },
   checkmark: {
     color: '#FF9800',
@@ -1065,14 +1090,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   detailLabel: {
-    fontFamily: fonts.sans,
-    fontSize: 12,
+    ...textStyles.caption,
     marginBottom: 2,
   },
   detailValue: {
-    fontFamily: fonts.sans,
+    ...textStyles.body,
     fontWeight: '600',
-    fontSize: 16,
   },
   ocrSection: {
     marginTop: 20,
@@ -1082,14 +1105,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.02)',
   },
   ocrSectionTitle: {
-    fontFamily: fonts.sans,
+    ...textStyles.label,
     fontWeight: '600',
-    fontSize: 14,
     marginBottom: 8,
   },
   ocrFullText: {
+    ...textStyles.caption,
     fontFamily: fonts.mono,
-    fontSize: 13,
     lineHeight: 20,
   },
 });

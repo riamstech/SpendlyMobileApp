@@ -167,24 +167,7 @@ export default function SignupScreen({
   };
 
   // Responsive styles
-  const responsiveStyles = {
-    logo: { width: 80 * scale, height: 80 * scale },
-    headerSubtitle: { fontSize: Math.max(12, Math.min(14 * scale, 16)) },
-    label: { fontSize: Math.max(13, Math.min(14 * scale, 15)) },
-    input: { fontSize: Math.max(14, Math.min(16 * scale, 16)) },
-    errorText: { fontSize: Math.max(11, Math.min(12 * scale, 13)) },
-    buttonText: { fontSize: Math.max(14, Math.min(16 * scale, 16)) },
-    dividerText: { fontSize: Math.max(12, Math.min(13 * scale, 14)) },
-    googleButtonText: { fontSize: Math.max(14, Math.min(15 * scale, 16)) },
-    linkText: { fontSize: Math.max(13, Math.min(14 * scale, 15)) },
-    footerText: { fontSize: Math.max(11, Math.min(13 * scale, 14)) },
-    termsText: { fontSize: Math.max(12, Math.min(13 * scale, 14)) },
-    passwordStrengthText: { fontSize: Math.max(11, Math.min(12 * scale, 13)) },
-    referralHint: { fontSize: Math.max(11, Math.min(12 * scale, 13)) },
-    formPadding: Math.max(16, Math.min(20 * scale, 24)),
-    inputPadding: Math.max(12, Math.min(14 * scale, 16)),
-    buttonPadding: Math.max(14, Math.min(16 * scale, 18)),
-  };
+  const responsiveTextStyles = createResponsiveTextStyles(width);
 
   return (
     <LinearGradient
@@ -212,11 +195,11 @@ export default function SignupScreen({
             <View style={styles.logoContainer}>
               <Image
                 source={require('../../assets/logo-dark.png')}
-                style={responsiveStyles.logo}
+                style={{ width: 80 * scale, height: 80 * scale }}
                 resizeMode="contain"
               />
               <Text style={[styles.headerTitle, responsiveTextStyles.h3]}>Create Account</Text>
-              <Text style={[styles.headerSubtitle, responsiveStyles.headerSubtitle]}>Start tracking your finances today</Text>
+              <Text style={[styles.headerSubtitle, responsiveTextStyles.body]}>Start tracking your finances today</Text>
             </View>
 
             {/* Signup Form */}
@@ -224,14 +207,13 @@ export default function SignupScreen({
               style={[
                 styles.formContainer,
                 {
-                  padding: responsiveStyles.formPadding,
                   maxWidth: isLargeScreen ? 430 : '100%',
                 },
               ]}
             >
               {/* Name Field */}
               <View style={styles.inputContainer}>
-                <Text style={[styles.label, responsiveStyles.label]}>Full Name</Text>
+                <Text style={[styles.label, responsiveTextStyles.label]}>Full Name</Text>
                 <View style={styles.inputWrapper}>
                   <User
                     size={Math.max(18, Math.min(20 * scale, 22))}
@@ -241,8 +223,8 @@ export default function SignupScreen({
                   <TextInput
                     style={[
                       styles.input,
-                      responsiveStyles.input,
-                      { paddingVertical: responsiveStyles.inputPadding },
+                      responsiveTextStyles.body,
+                      { paddingVertical: 14 },
                       errors.name && styles.inputError,
                     ]}
                     placeholder="John Doe"
@@ -255,12 +237,12 @@ export default function SignupScreen({
                     autoCapitalize="words"
                   />
                 </View>
-                {errors.name && <Text style={[styles.errorText, responsiveStyles.errorText]}>{errors.name}</Text>}
+                {errors.name && <Text style={[styles.errorText, responsiveTextStyles.caption]}>{errors.name}</Text>}
               </View>
 
               {/* Email Field */}
               <View style={styles.inputContainer}>
-                <Text style={[styles.label, responsiveStyles.label]}>Email Address</Text>
+                <Text style={[styles.label, responsiveTextStyles.label]}>Email Address</Text>
                 <View style={styles.inputWrapper}>
                   <Mail
                     size={Math.max(18, Math.min(20 * scale, 22))}
@@ -270,8 +252,8 @@ export default function SignupScreen({
                   <TextInput
                     style={[
                       styles.input,
-                      responsiveStyles.input,
-                      { paddingVertical: responsiveStyles.inputPadding },
+                      responsiveTextStyles.body,
+                      { paddingVertical: 14 },
                       errors.email && styles.inputError,
                     ]}
                     placeholder="you@example.com"
@@ -286,12 +268,12 @@ export default function SignupScreen({
                     autoComplete="email"
                   />
                 </View>
-                {errors.email && <Text style={[styles.errorText, responsiveStyles.errorText]}>{errors.email}</Text>}
+                {errors.email && <Text style={[styles.errorText, responsiveTextStyles.caption]}>{errors.email}</Text>}
               </View>
 
               {/* Password Field */}
               <View style={styles.inputContainer}>
-                <Text style={[styles.label, responsiveStyles.label]}>Password</Text>
+                <Text style={[styles.label, responsiveTextStyles.label]}>Password</Text>
                 <View style={styles.inputWrapper}>
                   <Lock
                     size={Math.max(18, Math.min(20 * scale, 22))}
@@ -301,8 +283,8 @@ export default function SignupScreen({
                   <TextInput
                     style={[
                       styles.input,
-                      responsiveStyles.input,
-                      { paddingVertical: responsiveStyles.inputPadding },
+                      responsiveTextStyles.body,
+                      { paddingVertical: 14 },
                       errors.password && styles.inputError,
                     ]}
                     placeholder="Create a strong password"
@@ -345,17 +327,17 @@ export default function SignupScreen({
                         ]}
                       />
                     </View>
-                    <Text style={[styles.passwordStrengthText, responsiveStyles.passwordStrengthText, { color: getStrengthColor() }]}>
+                    <Text style={[styles.passwordStrengthText, responsiveTextStyles.caption, { color: getStrengthColor() }]}>
                       {getStrengthText()}
                     </Text>
                   </View>
                 )}
-                {errors.password && <Text style={[styles.errorText, responsiveStyles.errorText]}>{errors.password}</Text>}
+                {errors.password && <Text style={[styles.errorText, responsiveTextStyles.caption]}>{errors.password}</Text>}
               </View>
 
               {/* Confirm Password Field */}
               <View style={styles.inputContainer}>
-                <Text style={[styles.label, responsiveStyles.label]}>Confirm Password</Text>
+                <Text style={[styles.label, responsiveTextStyles.label]}>Confirm Password</Text>
                 <View style={styles.inputWrapper}>
                   <Lock
                     size={Math.max(18, Math.min(20 * scale, 22))}
@@ -365,8 +347,8 @@ export default function SignupScreen({
                   <TextInput
                     style={[
                       styles.input,
-                      responsiveStyles.input,
-                      { paddingVertical: responsiveStyles.inputPadding },
+                      responsiveTextStyles.body,
+                      { paddingVertical: 14 },
                       errors.confirmPassword && styles.inputError,
                     ]}
                     placeholder="Re-enter your password"
@@ -397,14 +379,14 @@ export default function SignupScreen({
                   </Pressable>
                 </View>
                 {errors.confirmPassword && (
-                  <Text style={[styles.errorText, responsiveStyles.errorText]}>{errors.confirmPassword}</Text>
+                  <Text style={[styles.errorText, responsiveTextStyles.caption]}>{errors.confirmPassword}</Text>
                 )}
               </View>
 
               {/* Referral Code Field */}
               <View style={styles.inputContainer}>
-                <Text style={[styles.label, responsiveStyles.label]}>
-                  Referral Code <Text style={[styles.optionalText, { fontSize: responsiveStyles.label.fontSize * 0.85 }]}>(Optional)</Text>
+                <Text style={[styles.label, responsiveTextStyles.label]}>
+                  Referral Code <Text style={[styles.optionalText, responsiveTextStyles.small]}>(Optional)</Text>
                 </Text>
                 <View style={styles.inputWrapper}>
                   <Gift
@@ -415,8 +397,8 @@ export default function SignupScreen({
                   <TextInput
                     style={[
                       styles.input,
-                      responsiveStyles.input,
-                      { paddingVertical: responsiveStyles.inputPadding },
+                      responsiveTextStyles.body,
+                      { paddingVertical: 14 },
                     ]}
                     placeholder="Enter referral code"
                     placeholderTextColor="#9CA3AF"
@@ -427,7 +409,7 @@ export default function SignupScreen({
                   />
                 </View>
                 {referralCode && (
-                  <Text style={[styles.referralHint, responsiveStyles.referralHint]}>
+                  <Text style={[styles.referralHint, responsiveTextStyles.caption]}>
                     You'll both get 1 month of Pro free!
                   </Text>
                 )}
@@ -447,25 +429,25 @@ export default function SignupScreen({
                 >
                   {acceptedTerms && <Check size={14} color="#fff" />}
                 </Pressable>
-                <Text style={[styles.termsText, responsiveStyles.termsText]}>
+                <Text style={[styles.termsText, responsiveTextStyles.caption]}>
                   I agree to the{' '}
                   <Text style={styles.termsLink}>Terms of Service</Text> and{' '}
                   <Text style={styles.termsLink}>Privacy Policy</Text>
                 </Text>
               </View>
-              {errors.terms && <Text style={[styles.errorText, responsiveStyles.errorText]}>{errors.terms}</Text>}
+              {errors.terms && <Text style={[styles.errorText, responsiveTextStyles.caption]}>{errors.terms}</Text>}
 
               {/* Signup Button */}
               <Pressable
                 style={[
                   styles.signupButton,
-                  { paddingVertical: responsiveStyles.buttonPadding },
+                  { paddingVertical: 14 },
                   isLoading && styles.signupButtonDisabled,
                 ]}
                 onPress={handleSignup}
                 disabled={isLoading}
               >
-                <Text style={[styles.signupButtonText, responsiveStyles.buttonText]}>
+                <Text style={[styles.signupButtonText, responsiveTextStyles.button]}>
                   {isLoading ? 'Creating Account...' : 'Create Account'}
                 </Text>
               </Pressable>
@@ -473,7 +455,7 @@ export default function SignupScreen({
               {/* Divider */}
               <View style={styles.dividerRow}>
                 <View style={styles.dividerLine} />
-                <Text style={[styles.dividerText, responsiveStyles.dividerText]}>or continue with</Text>
+                <Text style={[styles.dividerText, responsiveTextStyles.caption]}>or continue with</Text>
                 <View style={styles.dividerLine} />
               </View>
 
@@ -481,27 +463,27 @@ export default function SignupScreen({
               <Pressable
                 style={[
                   styles.googleButton,
-                  { paddingVertical: responsiveStyles.inputPadding },
+                  { paddingVertical: 14 },
                 ]}
                 onPress={handleGoogleSignup}
               >
                 <View style={styles.googleIconCircle}>
                   <Text style={styles.googleIconText}>G</Text>
                 </View>
-                <Text style={[styles.googleButtonText, responsiveStyles.googleButtonText]}>Continue with Google</Text>
+                <Text style={[styles.googleButtonText, responsiveTextStyles.button]}>Continue with Google</Text>
               </Pressable>
 
               {/* Login Link */}
               <View style={styles.loginLinkContainer}>
-                <Text style={[styles.loginLinkText, responsiveStyles.linkText]}>Already have an account? </Text>
+                <Text style={[styles.loginLinkText, responsiveTextStyles.body]}>Already have an account? </Text>
                 <Pressable onPress={onLoginClick}>
-                  <Text style={[styles.loginLink, responsiveStyles.linkText]}>Sign In</Text>
+                  <Text style={[styles.loginLink, responsiveTextStyles.body]}>Sign In</Text>
                 </Pressable>
               </View>
             </View>
 
             {/* Footer */}
-            <Text style={[styles.footerText, responsiveStyles.footerText]}>
+            <Text style={[styles.footerText, responsiveTextStyles.caption]}>
               Track. Save. Grow. © 2024 Spendly
             </Text>
           </ScrollView>
@@ -539,7 +521,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   headerSubtitle: {
-    fontSize: 14,
+    ...textStyles.body,
     color: 'rgba(255, 255, 255, 0.9)',
   },
   formContainer: {
@@ -552,6 +534,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 5,
+    padding: 24,
   },
   inputContainer: {
     marginBottom: 16,
@@ -565,20 +548,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   label: {
-    fontSize: 14,
+    ...textStyles.label,
     fontWeight: '600',
     color: '#333',
     marginBottom: 8,
   },
   optionalText: {
-    fontSize: 12,
+    ...textStyles.small,
     color: '#999',
     fontWeight: '400',
   },
   input: {
     flex: 1,
     paddingHorizontal: 40,
-    fontSize: 16,
+    ...textStyles.body,
     color: '#333',
   },
   inputIcon: {
@@ -594,7 +577,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     marginTop: 4,
-    fontSize: 12,
+    ...textStyles.caption,
     color: '#FF5252',
   },
   passwordStrengthContainer: {
@@ -615,11 +598,11 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   passwordStrengthText: {
-    fontSize: 12,
+    ...textStyles.caption,
     fontWeight: '600',
   },
   referralHint: {
-    fontSize: 12,
+    ...textStyles.caption,
     color: '#666',
     marginTop: 4,
   },
@@ -645,7 +628,7 @@ const styles = StyleSheet.create({
   },
   termsText: {
     flex: 1,
-    fontSize: 13,
+    ...textStyles.caption,
     color: '#666',
     lineHeight: 20,
   },
@@ -669,7 +652,7 @@ const styles = StyleSheet.create({
   },
   signupButtonText: {
     color: '#fff',
-    fontSize: 16,
+    ...textStyles.button,
     fontWeight: 'bold',
   },
   dividerRow: {
@@ -684,7 +667,7 @@ const styles = StyleSheet.create({
   },
   dividerText: {
     marginHorizontal: 12,
-    fontSize: 13,
+    ...textStyles.caption,
     color: '#9CA3AF',
   },
   googleButton: {
@@ -712,7 +695,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   googleButtonText: {
-    fontSize: 15,
+    ...textStyles.button,
     color: '#111827',
     fontWeight: '500',
   },
@@ -722,17 +705,16 @@ const styles = StyleSheet.create({
   },
   loginLinkText: {
     color: '#666',
-    fontSize: 14,
+    ...textStyles.body,
   },
   loginLink: {
     color: '#03A9F4',
-    fontSize: 14,
+    ...textStyles.body,
     fontWeight: 'bold',
   },
   footerText: {
     marginTop: 24,
     textAlign: 'center',
-    fontSize: 13,
     color: 'rgba(255,255,255,0.9)',
   },
 });

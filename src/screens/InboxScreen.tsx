@@ -196,15 +196,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
 
   const responsiveTextStyles = createResponsiveTextStyles(width);
   
-  const responsiveStyles = {
-    headerSubtitle: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    tabText: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    notificationTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    notificationMessage: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    notificationTime: { fontSize: Math.max(10, Math.min(11 * (width / 375), 12)) },
-    emptyTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    emptyText: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-  };
+
 
   if (loading && !refreshing) {
     return (
@@ -238,7 +230,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
               {t('inbox.title')}
             </Text>
             {unreadCount > 0 && (
-              <Text style={[styles.headerSubtitle, responsiveStyles.headerSubtitle, { color: colors.mutedForeground }]}>
+              <Text style={[styles.headerSubtitle, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>
                 {t('inbox.unreadCount', { count: unreadCount })}
               </Text>
             )}
@@ -271,7 +263,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
             <Text
               style={[
                 styles.filterTabText,
-                responsiveStyles.tabText,
+                responsiveTextStyles.bodySmall,
                 { color: filter === 'all' ? colors.primary : colors.mutedForeground },
               ]}
             >
@@ -289,7 +281,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
             <Text
               style={[
                 styles.filterTabText,
-                responsiveStyles.tabText,
+                responsiveTextStyles.bodySmall,
                 { color: filter === 'unread' ? colors.primary : colors.mutedForeground },
               ]}
             >
@@ -307,7 +299,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
             <Text
               style={[
                 styles.filterTabText,
-                responsiveStyles.tabText,
+                responsiveTextStyles.bodySmall,
                 { color: filter === 'read' ? colors.primary : colors.mutedForeground },
               ]}
             >
@@ -322,14 +314,14 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
             <View style={[styles.emptyIconContainer, { backgroundColor: colors.muted }]}>
               <Bell size={32} color={colors.mutedForeground} />
             </View>
-            <Text style={[styles.emptyTitle, responsiveStyles.emptyTitle, { color: colors.foreground }]}>
+            <Text style={[styles.emptyTitle, responsiveTextStyles.h4, { color: colors.foreground }]}>
               {filter === 'unread'
                 ? t('inbox.noUnreadNotifications')
                 : filter === 'read'
                   ? t('inbox.noReadNotifications')
                   : t('inbox.noNotifications')}
             </Text>
-            <Text style={[styles.emptyText, responsiveStyles.emptyText, { color: colors.mutedForeground }]}>
+            <Text style={[styles.emptyText, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>
               {t('inbox.noNotificationsDescription')}
             </Text>
           </View>
@@ -363,7 +355,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
                       <Text
                         style={[
                           styles.notificationTitle,
-                          responsiveStyles.notificationTitle,
+                          responsiveTextStyles.body,
                           { color: colors.foreground },
                         ]}
                       >
@@ -376,7 +368,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
                     <Text
                       style={[
                         styles.notificationMessage,
-                        responsiveStyles.notificationMessage,
+                        responsiveTextStyles.bodySmall,
                         { color: colors.mutedForeground },
                       ]}
                     >
@@ -386,7 +378,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
                       <Text
                         style={[
                           styles.notificationTime,
-                          responsiveStyles.notificationTime,
+                          responsiveTextStyles.caption,
                           { color: colors.mutedForeground },
                         ]}
                       >
@@ -406,7 +398,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
                             <Text
                               style={[
                                 styles.actionButtonText,
-                                responsiveStyles.notificationTime,
+                                responsiveTextStyles.caption,
                                 { color: colors.primary },
                               ]}
                             >
@@ -427,7 +419,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
                           <Text
                             style={[
                               styles.actionButtonText,
-                              responsiveStyles.notificationTime,
+                              responsiveTextStyles.caption,
                               { color: colors.destructive },
                             ]}
                           >

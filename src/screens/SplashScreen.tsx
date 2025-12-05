@@ -1,7 +1,9 @@
+
 import React, { useEffect, useRef } from 'react';
 import { View, Text, Image, StyleSheet, Animated, Easing, useWindowDimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
+import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
 
 type Props = {
   onFinish: () => void;
@@ -20,12 +22,8 @@ export default function SplashScreen({ onFinish }: Props) {
   const dotsOpacity = useRef(new Animated.Value(0)).current;
 
   const { width } = useWindowDimensions();
-  
-  const responsiveStyles = {
-    logo: { width: Math.max(120, Math.min(140 * (width / 375), 160)), height: Math.max(120, Math.min(140 * (width / 375), 160)) },
-    tagline: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    dot: { width: Math.max(6, Math.min(8 * (width / 375), 10)), height: Math.max(6, Math.min(8 * (width / 375), 10)) },
-  };
+  const responsiveTextStyles = createResponsiveTextStyles(width);
+  const scale = width / 375;
 
   useEffect(() => {
     Animated.timing(logoOpacity, {
@@ -74,18 +72,29 @@ export default function SplashScreen({ onFinish }: Props) {
         >
           <Image
             source={require('../../assets/logo-dark.png')}
-            style={[styles.logo, responsiveStyles.logo]}
+            style={{
+              width: Math.max(120, Math.min(140 * scale, 160)),
+              height: Math.max(120, Math.min(140 * scale, 160)),
+            }}
             resizeMode="contain"
           />
         </Animated.View>
 
-        <Animated.Text style={[styles.tagline, responsiveStyles.tagline, { opacity: taglineOpacity }]}>
+        <Animated.Text style={[styles.tagline, responsiveTextStyles.h4, { opacity: taglineOpacity }]}>
           {t('footer.tagline', { defaultValue: 'Track. Save. Grow.' })}
         </Animated.Text>
 
         <Animated.View style={[styles.dotsContainer, { opacity: dotsOpacity }]}>
           {[0, 1, 2].map((i) => (
-            <View key={i} style={[styles.dot, responsiveStyles.dot]} />
+            <View
+              key={i}
+              style={{
+                width: Math.max(6, Math.min(8 * scale, 10)),
+                height: Math.max(6, Math.min(8 * scale, 10)),
+                borderRadius: Math.max(3, Math.min(4 * scale, 5)),
+                backgroundColor: 'rgba(255, 255, 255, 0.5)',
+              }}
+            />
           ))}
         </Animated.View>
       </View>
@@ -99,31 +108,19 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 24,
-  },
-  logo: {
-    width: 140,
-    height: 140,
-    marginBottom: 32,
+    alignItems: 'center',
   },
   tagline: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.95)',
+    marginTop: 24,
+    color: '#fff',
+    fontWeight: '600',
     letterSpacing: 0.5,
   },
   dotsContainer: {
     flexDirection: 'row',
-    marginTop: 24,
+    marginTop: 32,
     gap: 8,
   },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#ffffff',
-  },
 });
-
 

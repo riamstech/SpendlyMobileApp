@@ -101,17 +101,7 @@ export default function ReportsScreen() {
 
   const responsiveTextStyles = createResponsiveTextStyles(width);
 
-  const responsiveStyles = {
-    headerSubtitle: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    tabText: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    summaryLabel: { fontSize: Math.max(10, Math.min(12 * (width / 375), 14)) },
-    summaryValue: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    chartTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    categoryTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    categoryName: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    categoryValue: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    categoryPercentage: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-  };
+
 
   useEffect(() => {
     loadInitialData();
@@ -705,7 +695,7 @@ export default function ReportsScreen() {
       {/* Header */}
       <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
         <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>{t('reports.reportsAnalytics') || 'Reports & Analytics'}</Text>
-        <Text style={[styles.headerSubtitle, responsiveStyles.headerSubtitle, { color: colors.mutedForeground }]}>{t('reports.trackFinancialTrends') || 'Track your financial trends'}</Text>
+        <Text style={[styles.headerSubtitle, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>{t('reports.trackFinancialTrends') || 'Track your financial trends'}</Text>
       </View>
 
       {/* Tabs */}
@@ -714,7 +704,7 @@ export default function ReportsScreen() {
           style={[styles.tab, activeTab === 'reports' && [styles.tabActive, { borderBottomColor: colors.primary }]]}
           onPress={() => setActiveTab('reports')}
         >
-          <Text style={[styles.tabText, responsiveStyles.tabText, { color: colors.mutedForeground }, activeTab === 'reports' && [styles.tabTextActive, { color: colors.primary }]]}>
+          <Text style={[styles.tabText, responsiveTextStyles.body, { color: colors.mutedForeground }, activeTab === 'reports' && [styles.tabTextActive, { color: colors.primary }]]}>
             {t('reports.reports')}
           </Text>
         </Pressable>
@@ -722,7 +712,7 @@ export default function ReportsScreen() {
           style={[styles.tab, activeTab === 'analytics' && [styles.tabActive, { borderBottomColor: colors.primary }]]}
           onPress={() => setActiveTab('analytics')}
         >
-          <Text style={[styles.tabText, responsiveStyles.tabText, { color: colors.mutedForeground }, activeTab === 'analytics' && [styles.tabTextActive, { color: colors.primary }]]}>
+          <Text style={[styles.tabText, responsiveTextStyles.body, { color: colors.mutedForeground }, activeTab === 'analytics' && [styles.tabTextActive, { color: colors.primary }]]}>
             {t('reports.analytics')}
           </Text>
         </Pressable>
@@ -839,10 +829,10 @@ export default function ReportsScreen() {
             backgroundColor: isDark ? 'rgba(76, 175, 80, 0.15)' : '#E8F5E9' 
           }]}>
             <TrendingUp size={24} color="#4CAF50" />
-            <Text style={[styles.summaryLabel, responsiveStyles.summaryLabel, { 
+            <Text style={[styles.summaryLabel, responsiveTextStyles.caption, { 
               color: isDark ? colors.foreground : '#666' 
             }]}>{t('reports.totalIncome')}</Text>
-            <Text style={[styles.summaryValue, responsiveStyles.summaryValue, { color: '#4CAF50' }]}>
+            <Text style={[styles.summaryValue, responsiveTextStyles.h3, { color: '#4CAF50' }]}>
               {displayCurrency} {formatValue(totalIncome)}
             </Text>
           </View>
@@ -850,10 +840,10 @@ export default function ReportsScreen() {
             backgroundColor: isDark ? 'rgba(255, 82, 82, 0.15)' : '#FFEBEE' 
           }]}>
             <TrendingDown size={24} color="#FF5252" />
-            <Text style={[styles.summaryLabel, responsiveStyles.summaryLabel, { 
+            <Text style={[styles.summaryLabel, responsiveTextStyles.caption, { 
               color: isDark ? colors.foreground : '#666' 
             }]}>{t('reports.totalExpenses')}</Text>
-            <Text style={[styles.summaryValue, responsiveStyles.summaryValue, { color: '#FF5252' }]}>
+            <Text style={[styles.summaryValue, responsiveTextStyles.h3, { color: '#FF5252' }]}>
               {displayCurrency} {formatValue(totalExpenses)}
             </Text>
           </View>
@@ -863,10 +853,10 @@ export default function ReportsScreen() {
           backgroundColor: isDark ? 'rgba(3, 169, 244, 0.15)' : '#E3F2FD' 
         }]}>
           <DollarSign size={24} color="#03A9F4" />
-          <Text style={[styles.summaryLabel, responsiveStyles.summaryLabel, { 
+          <Text style={[styles.summaryLabel, responsiveTextStyles.caption, { 
             color: isDark ? colors.foreground : '#666' 
           }]}>{t('reports.netSavings')}</Text>
-          <Text style={[styles.summaryValue, responsiveStyles.summaryValue, { color: '#03A9F4' }]}>
+          <Text style={[styles.summaryValue, responsiveTextStyles.h3, { color: '#03A9F4' }]}>
             {displayCurrency} {formatValue(totalSavings)}
           </Text>
         </View>
@@ -874,7 +864,7 @@ export default function ReportsScreen() {
         {/* Income vs Expenses Bar Chart */}
         {monthlyData.length > 0 && (
           <View style={[styles.chartCard, { backgroundColor: colors.card }]}>
-            <Text style={[styles.chartTitle, responsiveStyles.chartTitle, { color: colors.foreground }]}>{t('reports.incomeVsExpensesOverTime')}</Text>
+            <Text style={[styles.chartTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>{t('reports.incomeVsExpensesOverTime')}</Text>
             <View style={styles.chartLegend}>
               <View style={styles.legendItem}>
                 <View style={[styles.legendDot, { backgroundColor: '#4CAF50' }]} />
@@ -903,7 +893,7 @@ export default function ReportsScreen() {
         {/* Savings Trend Line Chart */}
         {monthlyData.length > 0 && (
           <View style={[styles.chartCard, { backgroundColor: colors.card }]}>
-            <Text style={[styles.chartTitle, responsiveStyles.chartTitle, { color: colors.foreground }]}>{t('reports.savingsTrend')}</Text>
+            <Text style={[styles.chartTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>{t('reports.savingsTrend')}</Text>
             <View style={styles.chartLegend}>
               <View style={styles.legendItem}>
                 <View style={[styles.legendDot, { backgroundColor: '#03A9F4' }]} />
@@ -924,7 +914,7 @@ export default function ReportsScreen() {
         {/* Category-wise Spending Pie Chart */}
         {categoryData.length > 0 && (
           <View style={[styles.chartCard, { backgroundColor: colors.card }]}>
-            <Text style={[styles.chartTitle, responsiveStyles.chartTitle, { color: colors.foreground }]}>{t('reports.spendingByCategory')}</Text>
+            <Text style={[styles.chartTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>{t('reports.spendingByCategory')}</Text>
             <PieChart
               data={pieChartData}
               width={width - 64}
@@ -941,19 +931,19 @@ export default function ReportsScreen() {
         {/* Category Breakdown List */}
         {categoryData.length > 0 && (
           <View style={[styles.categoryCard, { backgroundColor: colors.card }]}>
-            <Text style={[styles.categoryTitle, responsiveStyles.categoryTitle, { color: colors.foreground }]}>{t('reports.categoryBreakdown')}</Text>
+            <Text style={[styles.categoryTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>{t('reports.categoryBreakdown')}</Text>
             {categoryData.map((cat, index) => (
               <View key={index} style={[styles.categoryItem, { borderBottomColor: colors.border }]}>
                 <View style={styles.categoryItemLeft}>
                   <View style={[styles.categoryColorDot, { backgroundColor: cat.color }]} />
                   <View style={styles.categoryItemInfo}>
-                    <Text style={[styles.categoryItemName, responsiveStyles.categoryName, { color: colors.foreground }]}>{cat.name}</Text>
-                    <Text style={[styles.categoryItemPercentage, responsiveStyles.categoryPercentage, { color: colors.mutedForeground }]}>
+                    <Text style={[styles.categoryItemName, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>{cat.name}</Text>
+                    <Text style={[styles.categoryItemPercentage, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
                       {cat.percentage.toFixed(1)}%
                     </Text>
                   </View>
                 </View>
-                <Text style={[styles.categoryItemValue, responsiveStyles.categoryValue, { color: colors.foreground, fontFamily: fonts.mono }]}>
+                <Text style={[styles.categoryItemValue, responsiveTextStyles.bodySmall, { color: colors.foreground, fontFamily: fonts.mono }]}>
                   {displayCurrency} {formatValue(cat.value)}
                 </Text>
               </View>
@@ -964,7 +954,7 @@ export default function ReportsScreen() {
         {/* Transactions List */}
         <View style={[styles.categoryCard, { backgroundColor: colors.card }]}>
           <View style={styles.transactionsHeader}>
-            <Text style={[styles.categoryTitle, responsiveStyles.categoryTitle, { color: colors.foreground }]}>
+            <Text style={[styles.categoryTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>
               {t('reports.transactions') || 'Transactions'}
             </Text>
             {transactions.length > 0 && (
@@ -1038,7 +1028,7 @@ export default function ReportsScreen() {
         {/* Investments List */}
         <View style={[styles.categoryCard, { backgroundColor: colors.card }]}>
           <View style={styles.transactionsHeader}>
-            <Text style={[styles.categoryTitle, responsiveStyles.categoryTitle, { color: colors.foreground }]}>
+            <Text style={[styles.categoryTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>
               {t('reports.investments') || 'Investments'} ({investments.length})
             </Text>
           </View>
@@ -1320,7 +1310,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   downloadButtonText: {
-    fontSize: 14,
+    ...textStyles.button,
     fontWeight: '500',
     color: '#666',
   },
@@ -1339,11 +1329,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   customDateLabel: {
-    fontSize: 14,
+    ...textStyles.label,
     fontWeight: '600',
     color: '#333',
     marginBottom: 8,
-    fontFamily: fonts.sans,
   },
   customDateInput: {
     flexDirection: 'row',
@@ -1357,9 +1346,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   dateInputText: {
-    fontSize: 14,
+    ...textStyles.body,
     color: '#333',
-    fontFamily: fonts.sans,
   },
   scrollView: {
     flex: 1,
@@ -1384,13 +1372,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   summaryLabel: {
-    fontSize: 12,
+    ...textStyles.caption,
     color: '#666',
     marginTop: 8,
     marginBottom: 4,
   },
   summaryValue: {
-    fontSize: 16,
+    ...textStyles.h3,
     fontWeight: 'bold',
     fontFamily: fonts.mono,
   },
@@ -1406,7 +1394,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   chartTitle: {
-    fontSize: 16,
+    ...textStyles.h3,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 12,
@@ -1428,7 +1416,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   legendText: {
-    fontSize: 13,
+    ...textStyles.caption,
     color: '#666',
   },
   chart: {
@@ -1447,7 +1435,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   categoryTitle: {
-    fontSize: 16,
+    ...textStyles.h3,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 16,
@@ -1475,17 +1463,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   categoryItemName: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     fontWeight: '600',
     color: '#333',
     marginBottom: 2,
   },
   categoryItemPercentage: {
-    fontSize: 12,
+    ...textStyles.caption,
     color: '#666',
   },
   categoryItemValue: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     fontWeight: '600',
     color: '#333',
     fontFamily: fonts.mono,
@@ -1495,7 +1483,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyStateText: {
-    fontSize: 14,
+    ...textStyles.body,
     color: '#999',
     textAlign: 'center',
   },
@@ -1521,7 +1509,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e0e0e0',
   },
   modalTitle: {
-    fontSize: 16,
+    ...textStyles.h3,
     fontWeight: 'bold',
     color: '#333',
   },
@@ -1535,7 +1523,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#f0f0f0',
   },
   modalItemText: {
-    fontSize: 16,
+    ...textStyles.body,
     color: '#333',
   },
   modalItemTextActive: {
@@ -1553,7 +1541,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    fontSize: 14,
+    ...textStyles.body,
     color: '#333',
     backgroundColor: '#f9f9f9',
   },
@@ -1564,7 +1552,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   transactionCount: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
   },
   transactionItem: {
     flexDirection: 'row',
@@ -1591,7 +1579,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   transactionDescription: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     fontWeight: '600',
     marginBottom: 4,
   },
@@ -1602,24 +1590,24 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   transactionMetaText: {
-    fontSize: 12,
+    ...textStyles.caption,
   },
   transactionMetaDot: {
-    fontSize: 12,
+    ...textStyles.caption,
   },
   transactionRight: {
     alignItems: 'flex-end',
   },
   transactionAmount: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     fontWeight: '600',
   },
   investmentProfitLoss: {
-    fontSize: 12,
+    ...textStyles.caption,
     marginTop: 4,
   },
   investmentProfitLossPercent: {
-    fontSize: 11,
+    ...textStyles.small,
   },
 });
 

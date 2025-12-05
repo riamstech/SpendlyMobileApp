@@ -109,16 +109,7 @@ export default function InvestmentsScreen() {
 
   const responsiveTextStyles = createResponsiveTextStyles(width);
   
-  const responsiveStyles = {
-    headerSubtitle: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    summaryLabel: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    summaryValue: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    sectionTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    investmentName: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    investmentAmount: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    investmentGain: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    chartTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-  };
+
 
   const investmentTypes = [
     { key: 'long-term', label: t('investments.typeLongTerm') },
@@ -938,7 +929,7 @@ export default function InvestmentsScreen() {
       <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
         <View>
           <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>{t('investments.title')}</Text>
-          <Text style={[styles.headerSubtitle, responsiveStyles.headerSubtitle, { color: colors.mutedForeground }]}>{t('investments.subtitle')}</Text>
+        <Text style={[styles.headerSubtitle, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>{t('investments.subtitle')}</Text>
         </View>
         <Pressable
           style={[styles.addButton, { backgroundColor: colors.primary }]}
@@ -1599,7 +1590,7 @@ const styles = StyleSheet.create({
   },
   filterButtonText: {
     flex: 1,
-    fontSize: 14,
+    ...textStyles.body,
     color: '#333',
   },
   customDateContainer: {
@@ -1617,11 +1608,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   customDateLabel: {
-    fontSize: 14,
+    ...textStyles.label,
     fontWeight: '600',
     color: '#333',
     marginBottom: 8,
-    fontFamily: fonts.sans,
   },
   customDateInput: {
     flexDirection: 'row',
@@ -1635,9 +1625,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   dateInputText: {
-    fontSize: 14,
+    ...textStyles.body,
     color: '#333',
-    fontFamily: fonts.sans,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -1662,11 +1651,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   summaryLabel: {
-    fontSize: 12,
+    ...textStyles.caption,
     color: '#666',
   },
   summaryValue: {
-    fontSize: 16,
+    ...textStyles.h3,
     fontWeight: 'bold',
     color: '#333',
     fontFamily: fonts.mono,
@@ -1678,7 +1667,7 @@ const styles = StyleSheet.create({
     color: '#FF5252',
   },
   summaryPercentage: {
-    fontSize: 12,
+    ...textStyles.caption,
     marginTop: 4,
     color: '#666',
   },
@@ -1700,7 +1689,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   chartTitle: {
-    fontSize: 16,
+    ...textStyles.h3,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 16,
@@ -1713,7 +1702,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 16,
+    ...textStyles.h3,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 16,
@@ -1725,7 +1714,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   emptyStateText: {
-    fontSize: 14,
+    ...textStyles.body,
     color: '#999',
     textAlign: 'center',
     marginTop: 12,
@@ -1739,7 +1728,7 @@ const styles = StyleSheet.create({
   },
   emptyStateButtonText: {
     color: '#fff',
-    fontSize: 14,
+    ...textStyles.button,
     fontWeight: '600',
   },
   investmentCard: {
@@ -1775,7 +1764,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   investmentName: {
-    fontSize: 16,
+    ...textStyles.h3,
     fontWeight: '600',
     color: '#333',
     marginBottom: 4,
@@ -1788,11 +1777,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   investmentMetaText: {
-    fontSize: 12,
+    ...textStyles.caption,
     color: '#666',
   },
   investmentMetaDot: {
-    fontSize: 12,
+    ...textStyles.caption,
     color: '#666',
   },
   recurringBadge: {
@@ -1802,7 +1791,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   recurringBadgeText: {
-    fontSize: 10,
+    ...textStyles.small,
     color: '#03A9F4',
   },
   investmentAmounts: {
@@ -1811,12 +1800,12 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   investmentAmountLabel: {
-    fontSize: 11,
+    ...textStyles.labelSmall,
     color: '#666',
     marginBottom: 2,
   },
   investmentAmountValue: {
-    fontSize: 13,
+    ...textStyles.bodySmall,
     color: '#333',
     fontFamily: fonts.mono,
   },
@@ -1825,7 +1814,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   investmentGainLoss: {
-    fontSize: 14,
+    ...textStyles.body,
     fontWeight: 'bold',
     fontFamily: fonts.mono,
   },
@@ -1836,7 +1825,7 @@ const styles = StyleSheet.create({
     color: '#FF5252',
   },
   investmentGainLossPercent: {
-    fontSize: 12,
+    ...textStyles.caption,
   },
   investmentGainLossPercentPositive: {
     color: '#4CAF50',
@@ -1867,7 +1856,7 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   formHeaderTitle: {
-    fontSize: 16,
+    ...textStyles.h3,
     fontWeight: 'bold',
     color: '#333',
   },
@@ -1883,7 +1872,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   formLabel: {
-    fontSize: 14,
+    ...textStyles.label,
     fontWeight: '600',
     color: '#333',
     marginBottom: 8,
@@ -1895,7 +1884,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#e0e0e0',
-    fontSize: 14,
+    ...textStyles.body,
     color: '#333',
   },
   textArea: {
@@ -1915,7 +1904,7 @@ const styles = StyleSheet.create({
   },
   selectButtonText: {
     flex: 1,
-    fontSize: 14,
+    ...textStyles.body,
     color: '#333',
   },
   selectButtonPlaceholder: {
@@ -1948,7 +1937,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   categoryButtonText: {
-    fontSize: 11,
+    ...textStyles.labelSmall,
     color: '#666',
     textAlign: 'center',
   },
@@ -1961,7 +1950,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   showMoreText: {
-    fontSize: 14,
+    ...textStyles.body,
     color: '#03A9F4',
   },
   emptyCategories: {
@@ -1969,7 +1958,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyCategoriesText: {
-    fontSize: 14,
+    ...textStyles.body,
     color: '#999',
   },
   formCard: {
@@ -1984,7 +1973,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   recurringSubtitle: {
-    fontSize: 12,
+    ...textStyles.caption,
     color: '#666',
     marginTop: 4,
   },
@@ -2003,7 +1992,7 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     color: '#fff',
-    fontSize: 16,
+    ...textStyles.button,
     fontWeight: '600',
   },
   // Modal styles
@@ -2029,12 +2018,12 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e0e0e0',
   },
   modalTitle: {
-    fontSize: 16,
+    ...textStyles.h3,
     fontWeight: 'bold',
     color: '#333',
   },
   modalDescription: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     color: '#666',
     paddingHorizontal: 20,
     paddingVertical: 16,
@@ -2049,7 +2038,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#f0f0f0',
   },
   modalItemText: {
-    fontSize: 16,
+    ...textStyles.body,
     color: '#333',
   },
   modalItemTextActive: {

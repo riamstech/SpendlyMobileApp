@@ -519,7 +519,7 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
                   <Text style={[styles.transactionDescription, { color: colors.foreground }]}>
                     {transaction.description}
                   </Text>
-                  <Text style={[styles.transactionMeta, responsiveTextStyles.captionSmall, { color: colors.mutedForeground }]}>
+                  <Text style={[styles.transactionMeta, responsiveTextStyles.small, { color: colors.mutedForeground }]}>
                     {transaction.category} • {transaction.date}
                   </Text>
                 </View>
@@ -528,8 +528,8 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
                   <Text
                     style={[
                       styles.transactionAmount,
-                        responsiveTextStyles.caption,
-                        { color: transaction.type === 'income' ? '#4CAF50' : '#FF5252', fontFamily: fonts.mono },
+                        responsiveTextStyles.body,
+                        { color: transaction.type === 'income' ? '#4CAF50' : '#FF5252', fontFamily: fonts.mono, fontWeight: '600' },
                     ]}
                   >
                       {transaction.type === 'income' ? '+' : '-'} {transaction.currency} {formatValue(transaction.amount)}
@@ -540,7 +540,7 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
                         <Text
                           style={[
                             styles.conversionAmount,
-                            responsiveTextStyles.captionSmall,
+                            responsiveTextStyles.small,
                             { color: colors.mutedForeground },
                           ]}
                         >
@@ -735,7 +735,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
+    ...textStyles.bodySmall,
     color: '#333',
     paddingVertical: 10,
   },
@@ -755,8 +755,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   filterLabel: {
-    fontSize: 14,
-    fontWeight: '600',
+    ...textStyles.label,
     color: '#333',
     marginBottom: 8,
   },
@@ -776,7 +775,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#03A9F4',
   },
   filterButtonText: {
-    fontSize: 13,
+    ...textStyles.caption,
     color: '#666',
     fontWeight: '500',
   },
@@ -792,7 +791,7 @@ const styles = StyleSheet.create({
     borderColor: '#e0e0e0',
   },
   categoryButtonText: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     color: '#333',
   },
   clearFiltersButton: {
@@ -801,7 +800,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   clearFiltersText: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     color: '#03A9F4',
     fontWeight: '600',
   },
@@ -858,13 +857,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   transactionDescription: {
-    fontFamily: fonts.header, // -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif
-    fontSize: 13.76,
+    ...textStyles.body,
     fontWeight: '600',
     marginBottom: 4,
   },
   transactionMeta: {
-    ...textStyles.captionSmall,
+    ...textStyles.small,
   },
   transactionActions: {
     alignItems: 'flex-end',
@@ -878,7 +876,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   conversionAmount: {
-    ...textStyles.captionSmall,
+    ...textStyles.small,
     marginTop: 2,
   },
   actionButtons: {

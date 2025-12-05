@@ -125,6 +125,16 @@ function AppContent() {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#666',
+  },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -153,6 +163,15 @@ const styles = StyleSheet.create({
 export default function App() {
   React.useEffect(() => {
     console.log('App component mounted');
+    
+    // Set up global error handlers for React Native
+    const originalErrorHandler = ErrorUtils.getGlobalHandler();
+    ErrorUtils.setGlobalHandler((error, isFatal) => {
+      console.error('Global error handler:', error, 'isFatal:', isFatal);
+      if (originalErrorHandler) {
+        originalErrorHandler(error, isFatal);
+      }
+    });
   }, []);
 
   return (

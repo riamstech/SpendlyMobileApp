@@ -44,6 +44,8 @@ export default function EditTransactionScreen({
   const { t } = useTranslation('common');
   const { width } = useWindowDimensions();
   const { isDark, colors } = useTheme();
+  const responsiveTextStyles = createResponsiveTextStyles(width);
+
   const [transactionType, setTransactionType] = useState<'income' | 'expense'>(
     transaction.type
   );
@@ -319,7 +321,7 @@ export default function EditTransactionScreen({
               <TextInput
                 style={[
                   styles.amountInput,
-                  { fontSize: Math.max(14, Math.min(16 * scale, 16)) },
+                  responsiveTextStyles.body,
                 ]}
                 placeholder="0.00"
                 placeholderTextColor="#9CA3AF"
@@ -409,7 +411,7 @@ export default function EditTransactionScreen({
         <Card style={{ marginBottom: 16 }}>
           <Text style={styles.label}>{t('addTransaction.notes')}</Text>
           <TextInput
-            style={[styles.notesInput, { fontSize: Math.max(14, 16 * scale) }]}
+            style={[styles.notesInput, responsiveTextStyles.body]}
             placeholder={t('addTransaction.notesPlaceholder')}
             placeholderTextColor="#9CA3AF"
             value={notes}
@@ -551,7 +553,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   label: {
-    fontSize: 14,
+    ...textStyles.label,
     fontWeight: '600',
     color: '#333',
     marginBottom: 8,
@@ -575,7 +577,7 @@ const styles = StyleSheet.create({
     // Active styling handled inline
   },
   typeButtonText: {
-    fontSize: 15,
+    ...textStyles.button,
     fontWeight: '600',
   },
   amountRow: {
@@ -612,7 +614,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   selectButtonText: {
-    fontSize: 15,
+    ...textStyles.body,
     color: '#333',
   },
   selectedCategoryContainer: {
@@ -631,13 +633,13 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   loadingText: {
-    fontSize: 14,
+    ...textStyles.body,
   },
   emptyText: {
     color: '#999',
     textAlign: 'center',
     paddingVertical: 20,
-    fontSize: 14,
+    ...textStyles.body,
   },
   notesInput: {
     borderWidth: 1,
@@ -674,7 +676,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   categoryItemText: {
-    fontSize: 12,
+    ...textStyles.caption,
     color: '#666',
     textAlign: 'center',
   },
@@ -704,17 +706,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   currencyCode: {
-    fontSize: 16,
+    ...textStyles.h3,
     fontWeight: '600',
     color: '#212121',
     marginBottom: 2,
   },
   currencyName: {
-    fontSize: 13,
+    ...textStyles.caption,
     color: '#666',
   },
   checkmark: {
-    fontSize: 16,
+    ...textStyles.body,
     color: '#03A9F4',
     fontWeight: 'bold',
   },

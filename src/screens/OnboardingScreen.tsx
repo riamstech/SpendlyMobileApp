@@ -138,13 +138,7 @@ export default function OnboardingScreen({
   };
 
   // Responsive styles
-  const responsiveStyles = {
-    logo: { width: 80 * scale, height: 80 * scale },
-    headerSubtitle: { fontSize: Math.max(12, Math.min(14 * scale, 16)) },
-    buttonText: { fontSize: Math.max(14, Math.min(16 * scale, 16)) },
-    formPadding: Math.max(16, Math.min(20 * scale, 24)),
-    buttonPadding: Math.max(14, Math.min(16 * scale, 18)),
-  };
+
 
   // Splash Screen
   if (step === 'splash') {
@@ -155,11 +149,11 @@ export default function OnboardingScreen({
           <View style={styles.splashContainer}>
             <Image
               source={require('../../assets/logo-dark.png')}
-              style={responsiveStyles.logo}
+              style={{ width: 80 * scale, height: 80 * scale }}
               resizeMode="contain"
             />
             <Text style={[styles.splashTitle, responsiveTextStyles.h3]}>Spendly</Text>
-            <Text style={[styles.splashSubtitle, responsiveStyles.headerSubtitle]}>
+            <Text style={[styles.splashSubtitle, responsiveTextStyles.body]}>
               Track. Save. Grow.
             </Text>
           </View>
@@ -188,12 +182,12 @@ export default function OnboardingScreen({
               <Text style={[styles.headerTitle, responsiveTextStyles.h3]}>
                 Welcome to Spendly
               </Text>
-              <Text style={[styles.headerSubtitle, responsiveStyles.headerSubtitle]}>
+              <Text style={[styles.headerSubtitle, responsiveTextStyles.body]}>
                 Your personal finance companion
               </Text>
             </View>
 
-            <View style={[styles.card, { padding: responsiveStyles.formPadding }]}>
+            <View style={[styles.card, { padding: 20 }]}>
               <Text style={styles.cardTitle}>Take control of your finances</Text>
               <Text style={styles.cardText}>
                 Track expenses, manage investments, and achieve your financial goals with ease.
@@ -208,11 +202,11 @@ export default function OnboardingScreen({
             <Pressable
               style={[
                 styles.primaryButton,
-                { paddingVertical: responsiveStyles.buttonPadding },
+                { paddingVertical: 14 },
               ]}
               onPress={() => setStep('features')}
             >
-              <Text style={[styles.primaryButtonText, responsiveStyles.buttonText]}>
+              <Text style={[styles.primaryButtonText, responsiveTextStyles.button]}>
                 Get Started
               </Text>
               <ChevronRight size={20 * scale} color="#fff" style={{ marginLeft: 8 }} />
@@ -253,7 +247,7 @@ export default function OnboardingScreen({
             </View>
 
             <View style={styles.featuresContainer}>
-              <View style={[styles.featureCard, { padding: responsiveStyles.formPadding }]}>
+              <View style={[styles.featureCard, { padding: 16 }]}>
                 <View style={styles.featureIconContainer}>
                   <Wallet size={20 * scale} color="#4CAF50" />
                 </View>
@@ -265,7 +259,7 @@ export default function OnboardingScreen({
                 </View>
               </View>
 
-              <View style={[styles.featureCard, { padding: responsiveStyles.formPadding }]}>
+              <View style={[styles.featureCard, { padding: 16 }]}>
                 <View style={[styles.featureIconContainer, { backgroundColor: 'rgba(3, 169, 244, 0.1)' }]}>
                   <PieChart size={20 * scale} color="#03A9F4" />
                 </View>
@@ -277,7 +271,7 @@ export default function OnboardingScreen({
                 </View>
               </View>
 
-              <View style={[styles.featureCard, { padding: responsiveStyles.formPadding }]}>
+              <View style={[styles.featureCard, { padding: 16 }]}>
                 <View style={[styles.featureIconContainer, { backgroundColor: 'rgba(255, 193, 7, 0.1)' }]}>
                   <BarChart3 size={20 * scale} color="#FFC107" />
                 </View>
@@ -299,11 +293,11 @@ export default function OnboardingScreen({
             <Pressable
               style={[
                 styles.primaryButton,
-                { paddingVertical: responsiveStyles.buttonPadding },
+                { paddingVertical: 14 },
               ]}
               onPress={() => setStep('currency')}
             >
-              <Text style={[styles.primaryButtonText, responsiveStyles.buttonText]}>
+              <Text style={[styles.primaryButtonText, responsiveTextStyles.button]}>
                 Continue
               </Text>
               <ChevronRight size={20 * scale} color="#fff" style={{ marginLeft: 8 }} />
@@ -334,12 +328,12 @@ export default function OnboardingScreen({
               <Text style={[styles.headerTitle, responsiveTextStyles.h3]}>
                 Almost Done!
               </Text>
-              <Text style={[styles.headerSubtitle, responsiveStyles.headerSubtitle]}>
+              <Text style={[styles.headerSubtitle, responsiveTextStyles.body]}>
                 Select your default currency
               </Text>
             </View>
 
-            <View style={[styles.card, { padding: responsiveStyles.formPadding }]}>
+            <View style={[styles.card, { padding: 20 }]}>
               <Text style={styles.label}>Default Currency</Text>
               {loadingCurrencies ? (
                 <View style={styles.loadingContainer}>
@@ -379,13 +373,13 @@ export default function OnboardingScreen({
             <Pressable
               style={[
                 styles.primaryButton,
-                { paddingVertical: responsiveStyles.buttonPadding },
+                { paddingVertical: 14 },
                 !currency && styles.primaryButtonDisabled,
               ]}
               onPress={() => setStep('location')}
               disabled={!currency}
             >
-              <Text style={[styles.primaryButtonText, responsiveStyles.buttonText]}>
+              <Text style={[styles.primaryButtonText, responsiveTextStyles.button]}>
                 Continue
               </Text>
               <ChevronRight size={20 * scale} color="#fff" style={{ marginLeft: 8 }} />
@@ -419,12 +413,12 @@ export default function OnboardingScreen({
               <Text style={[styles.headerTitle, responsiveTextStyles.h3]}>
                 Share Your Location
               </Text>
-              <Text style={[styles.headerSubtitle, responsiveStyles.headerSubtitle]}>
+              <Text style={[styles.headerSubtitle, responsiveTextStyles.body]}>
                 Help us personalize your experience
               </Text>
             </View>
 
-            <View style={[styles.card, { padding: responsiveStyles.formPadding }]}>
+            <View style={[styles.card, { padding: 20 }]}>
               <Text style={styles.label}>Country</Text>
               <ScrollView style={styles.countryList} nestedScrollEnabled>
                 {countries.map((c) => (
@@ -483,13 +477,13 @@ export default function OnboardingScreen({
             <Pressable
               style={[
                 styles.primaryButton,
-                { paddingVertical: responsiveStyles.buttonPadding },
+                { paddingVertical: 14 },
                 !country && styles.primaryButtonDisabled,
               ]}
               onPress={handleComplete}
               disabled={!country}
             >
-              <Text style={[styles.primaryButtonText, responsiveStyles.buttonText]}>
+              <Text style={[styles.primaryButtonText, responsiveTextStyles.button]}>
                 Complete Setup
               </Text>
               <Check size={20 * scale} color="#fff" style={{ marginLeft: 8 }} />
@@ -566,14 +560,13 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   cardTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    ...textStyles.h3,
     color: '#212121',
     marginBottom: 8,
     textAlign: 'center',
   },
   cardText: {
-    fontSize: 14,
+    ...textStyles.body,
     color: '#666',
     textAlign: 'center',
     marginBottom: 16,
@@ -610,7 +603,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#03A9F4',
-    fontWeight: 'bold',
+    ...textStyles.button,
   },
   skipButton: {
     alignItems: 'center',
@@ -647,19 +640,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   featureTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...textStyles.h4,
     color: '#212121',
     marginBottom: 4,
   },
   featureText: {
-    fontSize: 13,
+    ...textStyles.bodySmall,
     color: '#666',
     lineHeight: 18,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '600',
+    ...textStyles.label,
     color: '#333',
     marginBottom: 12,
   },
@@ -696,17 +687,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   currencyName: {
-    fontSize: 15,
+    ...textStyles.body,
     fontWeight: '600',
     color: '#212121',
     marginBottom: 2,
   },
   currencyCode: {
-    fontSize: 12,
+    ...textStyles.caption,
     color: '#666',
   },
   hintText: {
-    fontSize: 12,
+    ...textStyles.caption,
     color: '#666',
     marginTop: 8,
   },
@@ -727,7 +718,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(3, 169, 244, 0.1)',
   },
   countryName: {
-    fontSize: 15,
+    ...textStyles.body,
     color: '#212121',
   },
   input: {
@@ -737,7 +728,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: '#f5f5f5',
-    fontSize: 15,
+    ...textStyles.body,
     color: '#333',
     marginBottom: 16,
   },
@@ -757,12 +748,11 @@ const styles = StyleSheet.create({
   },
   locationButtonText: {
     color: '#03A9F4',
-    fontSize: 14,
-    fontWeight: '600',
+    ...textStyles.button,
   },
   errorText: {
     color: '#FF5252',
-    fontSize: 12,
+    ...textStyles.caption,
     marginTop: 8,
   },
 });

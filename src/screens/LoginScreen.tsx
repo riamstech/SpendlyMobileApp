@@ -92,23 +92,7 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
   };
 
   // Responsive styles
-  const responsiveStyles = {
-    logo: { width: 80 * scale, height: 80 * scale },
-    appName: { fontSize: Math.max(14, Math.min(16 * scale, 16)) },
-    tagline: { fontSize: Math.max(13, Math.min(15 * scale, 16)) },
-    label: { fontSize: Math.max(13, Math.min(14 * scale, 15)) },
-    input: { fontSize: Math.max(14, Math.min(16 * scale, 16)) },
-    errorText: { fontSize: Math.max(11, Math.min(12 * scale, 13)) },
-    forgotPasswordText: { fontSize: Math.max(13, Math.min(14 * scale, 15)) },
-    buttonText: { fontSize: Math.max(14, Math.min(16 * scale, 16)) },
-    dividerText: { fontSize: Math.max(12, Math.min(13 * scale, 14)) },
-    googleButtonText: { fontSize: Math.max(14, Math.min(15 * scale, 16)) },
-    signupText: { fontSize: Math.max(13, Math.min(14 * scale, 15)) },
-    footerText: { fontSize: Math.max(12, Math.min(13 * scale, 14)) },
-    formPadding: Math.max(16, Math.min(20 * scale, 24)),
-    inputPadding: Math.max(12, Math.min(14 * scale, 16)),
-    buttonPadding: Math.max(14, Math.min(16 * scale, 18)),
-  };
+  const responsiveTextStyles = createResponsiveTextStyles(width);
 
   return (
     <LinearGradient
@@ -133,18 +117,17 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
           <View style={styles.logoContainer}>
             <Image
               source={require('../../assets/logo-dark.png')}
-              style={responsiveStyles.logo}
+              style={{ width: 80 * scale, height: 80 * scale, marginBottom: 16 }}
               resizeMode="contain"
             />
-            <Text style={[styles.appName, responsiveStyles.appName]}>{t('auth.welcomeBack')}</Text>
-            <Text style={[styles.tagline, responsiveStyles.tagline]}>{t('auth.loginSubtitle')}</Text>
+            <Text style={[styles.appName, responsiveTextStyles.h2]}>{t('auth.welcomeBack')}</Text>
+            <Text style={[styles.tagline, responsiveTextStyles.body]}>{t('auth.loginSubtitle')}</Text>
           </View>
 
           {/* Login Form */}
           <View style={[
             styles.formContainer,
             {
-              padding: responsiveStyles.formPadding,
               maxWidth: isLargeScreen ? 430 : '100%',
               width: isSmallScreen ? '100%' : '100%',
               backgroundColor: colors.card,
@@ -152,14 +135,14 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
           ]}>
             {/* Email Address */}
             <View style={styles.inputContainer}>
-              <Text style={[styles.label, responsiveStyles.label, { color: colors.foreground }]}>{t('auth.email')}</Text>
+              <Text style={[styles.label, responsiveTextStyles.label, { color: colors.foreground }]}>{t('auth.email')}</Text>
               <View style={[styles.inputWrapper, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
                 <Mail size={Math.max(18, Math.min(20 * scale, 22))} color={colors.mutedForeground} style={styles.inputIcon} />
                 <TextInput
                   style={[
                     styles.input,
-                    responsiveStyles.input,
-                    { paddingVertical: responsiveStyles.inputPadding, color: colors.foreground },
+                    responsiveTextStyles.body,
+                    { paddingVertical: 14, color: colors.foreground },
                     errors.email && styles.inputError
                   ]}
                   placeholder="you@example.com"
@@ -174,19 +157,19 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
                   autoComplete="email"
                 />
               </View>
-              {errors.email && <Text style={[styles.errorText, responsiveStyles.errorText, { color: colors.destructive }]}>{errors.email}</Text>}
+              {errors.email && <Text style={[styles.errorText, responsiveTextStyles.caption, { color: colors.destructive }]}>{errors.email}</Text>}
             </View>
 
             {/* Password */}
             <View style={styles.inputContainer}>
-              <Text style={[styles.label, responsiveStyles.label, { color: colors.foreground }]}>{t('auth.password')}</Text>
+              <Text style={[styles.label, responsiveTextStyles.label, { color: colors.foreground }]}>{t('auth.password')}</Text>
               <View style={[styles.inputWrapper, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
                 <Lock size={Math.max(18, Math.min(20 * scale, 22))} color={colors.mutedForeground} style={styles.inputIcon} />
                 <TextInput
                   style={[
                     styles.input,
-                    responsiveStyles.input,
-                    { paddingVertical: responsiveStyles.inputPadding, color: colors.foreground },
+                    responsiveTextStyles.body,
+                    { paddingVertical: 14, color: colors.foreground },
                     errors.password && styles.inputError
                   ]}
                   placeholder="Enter your password"
@@ -211,26 +194,26 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
                 </Pressable>
               </View>
               {errors.password && (
-                <Text style={[styles.errorText, responsiveStyles.errorText, { color: colors.destructive }]}>{errors.password}</Text>
+                <Text style={[styles.errorText, responsiveTextStyles.caption, { color: colors.destructive }]}>{errors.password}</Text>
               )}
             </View>
 
             {/* Forgot Password link */}
             <Pressable style={styles.forgotPassword} onPress={onForgotPasswordClick}>
-              <Text style={[styles.forgotPasswordText, responsiveStyles.forgotPasswordText, { color: colors.primary }]}>{t('auth.forgotPassword')}</Text>
+              <Text style={[styles.forgotPasswordText, responsiveTextStyles.bodySmall, { color: colors.primary }]}>{t('auth.forgotPassword')}</Text>
             </Pressable>
 
             {/* Sign In button */}
             <Pressable
               style={[
                 styles.loginButton,
-                { paddingVertical: responsiveStyles.buttonPadding },
+                { paddingVertical: 14 },
                 isLoading && styles.loginButtonDisabled
               ]}
               onPress={handleLogin}
               disabled={isLoading}
             >
-              <Text style={[styles.loginButtonText, responsiveStyles.buttonText]}>
+              <Text style={[styles.loginButtonText, responsiveTextStyles.button]}>
                 {isLoading ? 'Signing in...' : 'Sign In'}
               </Text>
             </Pressable>
@@ -238,7 +221,7 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
             {/* Divider: or continue with */}
             <View style={styles.dividerRow}>
               <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
-              <Text style={[styles.dividerText, responsiveStyles.dividerText, { color: colors.mutedForeground }]}>or continue with</Text>
+              <Text style={[styles.dividerText, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>or continue with</Text>
               <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
             </View>
 
@@ -246,27 +229,27 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
             <Pressable
               style={[
                 styles.googleButton,
-                { paddingVertical: responsiveStyles.inputPadding, backgroundColor: colors.inputBackground, borderColor: colors.border }
+                { paddingVertical: 14, backgroundColor: colors.inputBackground, borderColor: colors.border }
               ]}
               onPress={handleGoogleLogin}
             >
               <View style={styles.googleIconCircle}>
                 <Text style={styles.googleIconText}>G</Text>
               </View>
-              <Text style={[styles.googleButtonText, responsiveStyles.googleButtonText, { color: colors.foreground }]}>Continue with Google</Text>
+              <Text style={[styles.googleButtonText, responsiveTextStyles.button, { color: colors.foreground }]}>Continue with Google</Text>
             </Pressable>
 
             {/* Sign Up Link */}
             <View style={styles.signupContainer}>
-              <Text style={[styles.signupText, responsiveStyles.signupText]}>{t('auth.noAccount')} </Text>
+              <Text style={[styles.signupText, responsiveTextStyles.bodySmall]}>{t('auth.noAccount')} </Text>
               <Pressable onPress={onSignupClick}>
-                <Text style={[styles.signupLink, responsiveStyles.signupText]}>{t('auth.signUp')}</Text>
+                <Text style={[styles.signupLink, responsiveTextStyles.bodySmall]}>{t('auth.signUp')}</Text>
               </Pressable>
             </View>
           </View>
 
           {/* Footer tagline */}
-          <Text style={[styles.footerText, responsiveStyles.footerText]}>
+          <Text style={[styles.footerText, responsiveTextStyles.caption]}>
             Track. Save. Grow. © 2024 Spendly
           </Text>
         </ScrollView>
@@ -302,12 +285,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   appName: {
-    ...textStyles.h3,
+    ...textStyles.h2,
     color: '#fff',
     marginBottom: 4,
   },
   tagline: {
-    ...textStyles.bodySmall,
+    ...textStyles.body,
     color: 'rgba(255, 255, 255, 0.9)',
     letterSpacing: 0.5,
   },
@@ -321,6 +304,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 5,
+    padding: 24,
   },
   inputContainer: {
     marginBottom: 16,
@@ -450,7 +434,6 @@ const styles = StyleSheet.create({
   footerText: {
     marginTop: 32,
     textAlign: 'center',
-    fontSize: 13,
     color: 'rgba(255,255,255,0.9)',
   },
 });

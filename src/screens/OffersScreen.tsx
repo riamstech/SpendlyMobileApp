@@ -43,14 +43,7 @@ export default function OffersScreen() {
   const [locationLoaded, setLocationLoaded] = useState(false);
   const [promotionsLoaded, setPromotionsLoaded] = useState(false);
 
-  const responsiveStyles = {
-    headerSubtitle: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    promotionTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    promotionDescription: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    buttonText: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    emptyText: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    emptySubtext: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-  };
+
 
   useEffect(() => {
     const loadData = async () => {
@@ -196,7 +189,7 @@ export default function OffersScreen() {
             <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>
               {t('nav.offers') || 'Offers'}
             </Text>
-            <Text style={[styles.headerSubtitle, responsiveStyles.headerSubtitle, { color: colors.mutedForeground }]}>
+            <Text style={[styles.headerSubtitle, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>
               {t('offers.subtitle') || 'Exclusive deals and promotions'}
             </Text>
           </View>
@@ -206,10 +199,10 @@ export default function OffersScreen() {
         {filteredPromotions.length === 0 ? (
           <View style={[styles.emptyCard, { backgroundColor: colors.card }]}>
             <Gift size={48} color={colors.mutedForeground} />
-            <Text style={[styles.emptyText, responsiveStyles.emptyText, { color: colors.mutedForeground }]}>
+            <Text style={[styles.emptyText, responsiveTextStyles.h3, { color: colors.mutedForeground }]}>
               {t('offers.noOffers') || 'No offers available at the moment'}
             </Text>
-            <Text style={[styles.emptySubtext, responsiveStyles.emptySubtext, { color: colors.mutedForeground }]}>
+            <Text style={[styles.emptySubtext, responsiveTextStyles.body, { color: colors.mutedForeground }]}>
               {t('offers.checkBackLater') || 'Check back later for new promotions!'}
             </Text>
           </View>
@@ -248,7 +241,7 @@ export default function OffersScreen() {
                           <IconComponent size={20} color="#fff" />
                         </LinearGradient>
                         <View style={styles.promotionTitleWrapper}>
-                          <Text style={[styles.promotionTitle, responsiveStyles.promotionTitle, { color: colors.foreground }]}>
+                          <Text style={[styles.promotionTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>
                             {promo.title}
                           </Text>
                           <Text style={[styles.promotionType, { color: colors.mutedForeground }]}>
@@ -259,7 +252,7 @@ export default function OffersScreen() {
                     </View>
                     
                     {promo.description && (
-                      <Text style={[styles.promotionDescription, responsiveStyles.promotionDescription, { color: colors.mutedForeground }]}>
+                      <Text style={[styles.promotionDescription, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>
                         {promo.description}
                       </Text>
                     )}
@@ -271,7 +264,7 @@ export default function OffersScreen() {
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 0 }}
                       >
-                        <Text style={[styles.promotionButtonText, responsiveStyles.buttonText]}>
+                        <Text style={[styles.promotionButtonText, responsiveTextStyles.button]}>
                           {t('offers.learnMore') || 'Learn More'}
                         </Text>
                         <ExternalLink size={16} color="#fff" />
@@ -305,7 +298,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 12,
-    fontSize: 14,
+    ...textStyles.body,
   },
   header: {
     paddingBottom: 16,
@@ -320,7 +313,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   headerSubtitle: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
   },
   promotionsList: {
     gap: 16,
@@ -350,13 +343,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   promotionTitle: {
-    fontSize: 16,
+    ...textStyles.h3,
     fontWeight: 'bold',
     flex: 1,
     marginRight: 8,
   },
   promotionType: {
-    fontSize: 12,
+    ...textStyles.labelSmall,
     textTransform: 'uppercase',
     marginTop: 2,
   },
@@ -367,11 +360,11 @@ const styles = StyleSheet.create({
   },
   discountText: {
     color: '#fff',
-    fontSize: 12,
+    ...textStyles.labelSmall,
     fontWeight: 'bold',
   },
   promotionDescription: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     lineHeight: 20,
     marginBottom: 12,
   },
@@ -383,11 +376,11 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   codeLabel: {
-    fontSize: 12,
+    ...textStyles.labelSmall,
     marginRight: 8,
   },
   codeValue: {
-    fontSize: 14,
+    ...textStyles.body,
     fontWeight: '600',
     fontFamily: fonts.mono,
   },
@@ -420,11 +413,11 @@ const styles = StyleSheet.create({
   },
   promotionButtonText: {
     color: '#fff',
-    fontSize: 14,
+    ...textStyles.button,
     fontWeight: '600',
   },
   linkText: {
-    fontSize: 14,
+    ...textStyles.button,
     fontWeight: '600',
   },
   emptyCard: {
@@ -435,13 +428,13 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     marginTop: 16,
-    fontSize: 16,
+    ...textStyles.h3,
     fontWeight: '600',
     textAlign: 'center',
   },
   emptySubtext: {
     marginTop: 8,
-    fontSize: 14,
+    ...textStyles.body,
     textAlign: 'center',
   },
 });

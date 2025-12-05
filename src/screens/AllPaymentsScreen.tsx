@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 12,
-    fontSize: 14,
+    ...textStyles.body,
   },
   header: {
     flexDirection: 'row',
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
     marginBottom: 4, // mt-1 (4px)
   },
   headerSubtitle: {
-    fontSize: 14, // text-sm
+    ...textStyles.bodySmall,
     color: '#717182', // text-muted-foreground
   },
   summaryCard: {
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
     marginBottom: 24, // space-y-6 (24px)
   },
   summaryLabel: {
-    fontSize: 14, // text-sm
+    ...textStyles.bodySmall,
     marginBottom: 4, // mb-1 (4px)
   },
   summaryAmountContainer: {
@@ -291,12 +291,12 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono,
   },
   summaryCurrency: {
-    fontSize: 13, // text-[13px]
+    ...textStyles.caption,
     marginRight: 4, // mr-1 (4px)
     fontFamily: fonts.mono,
   },
   summaryAmount: {
-    fontSize: 16, // Match base text size like Cordova
+    ...textStyles.body,
     fontWeight: 'normal',
     fontFamily: fonts.mono,
   },
@@ -326,8 +326,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   paymentName: {
-    fontSize: 16, // text-base
-    fontWeight: '600',
+    ...textStyles.h3,
     color: '#212121', // text-foreground
     marginBottom: 4, // mt-1 (4px)
   },
@@ -338,13 +337,13 @@ const styles = StyleSheet.create({
     marginTop: 4, // mt-1 (4px)
   },
   paymentCategory: {
-    fontSize: 14, // text-sm
+    ...textStyles.caption,
   },
   paymentSeparator: {
-    fontSize: 14, // text-sm
+    ...textStyles.caption,
   },
   paymentDate: {
-    fontSize: 14, // text-sm
+    ...textStyles.caption,
     color: '#FFC107',
   },
   paymentAmount: {
@@ -357,12 +356,12 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono,
   },
   paymentCurrency: {
-    fontSize: 13, // text-[13px]
+    ...textStyles.caption,
     marginRight: 4, // mr-1 (4px)
     fontFamily: fonts.mono,
   },
   paymentAmountText: {
-    fontSize: 16, // text-base
+    ...textStyles.body,
     fontWeight: '600',
     fontFamily: fonts.mono,
   },
@@ -373,7 +372,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   emptyText: {
-    fontSize: 14, // text-sm
+    ...textStyles.body,
     textAlign: 'center',
   },
 });

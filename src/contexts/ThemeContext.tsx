@@ -109,33 +109,41 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
           setThemeModeState(stored as ThemeMode);
           
           // Then try to sync with backend in the background (non-blocking)
-          try {
-            const settings = await usersService.getUserSettings();
-            if (settings.settings?.darkMode !== undefined) {
-              const backendMode = settings.settings.darkMode ? 'dark' : 'light';
-              if (backendMode !== stored && stored !== 'system') {
-                // Backend has different preference, update local storage
-                await AsyncStorage.setItem(THEME_STORAGE_KEY, backendMode);
-                setThemeModeState(backendMode);
+          // Use setTimeout to ensure this doesn't block initial render
+          setTimeout(async () => {
+            try {
+              const settings = await usersService.getUserSettings();
+              if (settings.settings?.darkMode !== undefined) {
+                const backendMode = settings.settings.darkMode ? 'dark' : 'light';
+                if (backendMode !== stored && stored !== 'system') {
+                  // Backend has different preference, update local storage
+                  await AsyncStorage.setItem(THEME_STORAGE_KEY, backendMode);
+                  setThemeModeState(backendMode);
+                }
               }
+            } catch (error) {
+              // Silently fail - we already have a theme from local storage
+              // This is expected if user is not logged in
             }
-          } catch (error) {
-            // Silently fail - we already have a theme from local storage
-            // This is expected if user is not logged in
-          }
+          }, 100);
         } else {
-          // No local storage, try to load from user settings (non-blocking)
-          try {
-            const settings = await usersService.getUserSettings();
-            if (settings.settings?.darkMode !== undefined) {
-              const mode = settings.settings.darkMode ? 'dark' : 'light';
-              setThemeModeState(mode);
-              await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
+          // No local storage, use system theme immediately
+          setThemeModeState('system');
+          
+          // Try to load from user settings in background (non-blocking)
+          setTimeout(async () => {
+            try {
+              const settings = await usersService.getUserSettings();
+              if (settings.settings?.darkMode !== undefined) {
+                const mode = settings.settings.darkMode ? 'dark' : 'light';
+                setThemeModeState(mode);
+                await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
+              }
+            } catch (error) {
+              // If API fails (e.g., user not logged in), use system theme as fallback
+              // This is expected and not an error - keep system theme
             }
-          } catch (error) {
-            // If API fails (e.g., user not logged in), use system theme as fallback
-            // This is expected and not an error
-          }
+          }, 100);
         }
       } catch (error) {
         // Fallback to system theme - app will still render

@@ -14,7 +14,12 @@ import {
   Image,
   Platform,
 } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
+import {
+  requestMediaLibraryPermissionsAsync,
+  launchImageLibraryAsync,
+  MediaTypeOptions,
+  isImagePickerAvailable,
+} from '../utils/imagePicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useTranslation } from 'react-i18next';
@@ -89,13 +94,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
 
   const responsiveTextStyles = createResponsiveTextStyles(width);
   
-  const responsiveStyles = {
-    sectionTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    itemTitle: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    itemSubtitle: { fontSize: Math.max(12, Math.min(14 * (width / 375), 16)) },
-    valueText: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-    buttonText: { fontSize: Math.max(14, Math.min(16 * (width / 375), 16)) },
-  };
+
   
   // Expanded sections
   const [expandedSections, setExpandedSections] = useState({
@@ -153,10 +152,18 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
   const [savingBudgetCycle, setSavingBudgetCycle] = useState(false);
   const [savingLanguage, setSavingLanguage] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarLoadError, setAvatarLoadError] = useState(false);
 
   useEffect(() => {
     loadInitialData();
   }, []);
+
+  // Reset avatar load error when user changes
+  useEffect(() => {
+    if (user) {
+      setAvatarLoadError(false);
+    }
+  }, [user?.avatar, (user as any)?.avatar_url]);
 
   const loadInitialData = async () => {
     try {
@@ -439,16 +446,25 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
 
   const handleUploadAvatar = async () => {
     try {
+      // Check if ImagePicker is available
+      if (!isImagePickerAvailable()) {
+        Alert.alert(
+          t('settings.featureUnavailable') || 'Feature Unavailable',
+          'Image picker is not available. Please wait for the app rebuild to complete, or rebuild the app manually.'
+        );
+        return;
+      }
+
       // Request permission
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } = await requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert(t('settings.permissionDenied'), t('settings.permissionDeniedMessage'));
         return;
       }
 
       // Launch image picker
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      const result = await launchImageLibraryAsync({
+        mediaTypes: MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.8,
@@ -480,6 +496,8 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
         avatar_url: response.avatar_url || response.avatar,
       };
       setUser(updatedUser);
+      // Reset avatar load error to show new image
+      setAvatarLoadError(false);
       
       Alert.alert(t('settings.success'), t('settings.successProfilePhotoUpdated'));
     } catch (error: any) {
@@ -520,7 +538,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       
       {/* Header */}
       <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
-        <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>{t('nav.settings')}</Text>
+        <Text style={[styles.headerTitle, responsiveTextStyles.h2, { color: colors.foreground }]}>{t('nav.settings')}</Text>
         <Text style={[styles.headerSubtitle, { color: colors.mutedForeground }]}>{t('settings.subtitle')}</Text>
       </View>
 
@@ -537,7 +555,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
           >
             <View style={styles.sectionHeaderLeft}>
               <User size={20} color={colors.primary} />
-              <Text style={[styles.sectionTitle, responsiveStyles.sectionTitle, { color: colors.foreground }]}>{t('settings.profile')}</Text>
+              <Text style={[styles.sectionTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>{t('settings.profile')}</Text>
             </View>
             {expandedSections.profile ? (
               <ChevronUp size={20} color={colors.mutedForeground} />
@@ -550,13 +568,18 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
             <View style={styles.sectionContent}>
               <View style={styles.profileHeader}>
                 <View style={styles.avatarContainer}>
-                  {getAvatarUrl(user.avatar || (user as any)?.avatar_url) ? (
+                  {getAvatarUrl(user.avatar || (user as any)?.avatar_url) && !avatarLoadError ? (
                     <Image 
                       source={{ uri: getAvatarUrl(user.avatar || (user as any)?.avatar_url) || '' }} 
                       style={styles.avatar}
-                      onError={() => {
+                      onError={(error) => {
                         // Fallback to placeholder if image fails to load
-                        console.log('Avatar image failed to load');
+                        console.log('Avatar image failed to load:', error);
+                        setAvatarLoadError(true);
+                      }}
+                      onLoad={() => {
+                        // Reset error state if image loads successfully
+                        setAvatarLoadError(false);
                       }}
                     />
                   ) : (
@@ -1040,7 +1063,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
           onPress={handleLogout}
         >
           <LogOut size={20} color={colors.destructive} />
-          <Text style={[styles.logoutText, responsiveStyles.buttonText, { color: colors.destructive }]}>{t('settings.logout')}</Text>
+          <Text style={[styles.logoutText, responsiveTextStyles.button, { color: colors.destructive }]}>{t('settings.logout')}</Text>
         </Pressable>
       </ScrollView>
 
@@ -1515,11 +1538,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   headerTitle: {
-    ...textStyles.h3,
+    ...textStyles.h2,
     marginBottom: 4,
   },
   headerSubtitle: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
   },
   scrollView: {
     flex: 1,
@@ -1541,8 +1564,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...textStyles.h3,
   },
   sectionContent: {
     padding: 16,
@@ -1588,16 +1610,15 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   profileName: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...textStyles.h3,
     marginBottom: 4,
   },
   profileEmail: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     marginBottom: 4,
   },
   profileLocation: {
-    fontSize: 12,
+    ...textStyles.caption,
   },
   changePhotoButton: {
     marginTop: 12,
@@ -1608,7 +1629,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   changePhotoButtonText: {
-    fontSize: 12,
+    ...textStyles.labelSmall,
     fontWeight: '500',
   },
   form: {
@@ -1682,15 +1703,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   settingItemLabel: {
-    fontSize: 14,
+    ...textStyles.body,
     fontWeight: '500',
     marginBottom: 2,
   },
   settingItemValue: {
-    fontSize: 12,
+    ...textStyles.bodySmall,
   },
   settingItemDescription: {
-    fontSize: 12,
+    ...textStyles.caption,
   },
   dangerItem: {
     borderBottomWidth: 0,
@@ -1719,12 +1740,12 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   subscriptionTitle: {
-    fontSize: 16,
+    ...textStyles.h3,
     fontWeight: 'bold',
     color: '#1F2937',
   },
   subscriptionStatus: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     color: '#6B7280',
   },
   subscriptionDateRow: {
@@ -1734,7 +1755,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   subscriptionDate: {
-    fontSize: 13,
+    ...textStyles.labelSmall,
     color: '#10B981',
   },
   upgradeButton: {
@@ -1745,7 +1766,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   upgradeButtonText: {
-    fontSize: 14,
+    ...textStyles.button,
     fontWeight: 'bold',
   },
   sectionHeaderLeft: {
@@ -1767,11 +1788,11 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   logoutButtonText: {
-    fontSize: 16,
+    ...textStyles.button,
     fontWeight: '600',
   },
   logoutText: {
-    fontSize: 16,
+    ...textStyles.button,
     fontWeight: '600',
   },
   // Modal styles
@@ -1795,11 +1816,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   modalTitle: {
-    fontSize: 16,
+    ...textStyles.h3,
     fontWeight: 'bold',
   },
   modalClose: {
-    fontSize: 16,
+    ...textStyles.h3,
   },
   modalBody: {
     padding: 20,
@@ -1820,13 +1841,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   modalItemText: {
-    fontSize: 16,
+    ...textStyles.body,
   },
   modalItemTextActive: {
     fontWeight: '600',
   },
   modalDescription: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     padding: 20,
   },
   dangerButton: {
@@ -1834,7 +1855,7 @@ const styles = StyleSheet.create({
   },
   dangerButtonText: {
     color: '#fff',
-    fontSize: 14,
+    ...textStyles.button,
     fontWeight: '600',
   },
   currencySearchContainer: {
@@ -1843,7 +1864,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   currencySearchInput: {
-    fontSize: 14,
+    ...textStyles.body,
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 12,
@@ -1863,7 +1884,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   currencySymbol: {
-    fontSize: 12,
+    ...textStyles.labelSmall,
     marginTop: 2,
   },
   checkmark: {

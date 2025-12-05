@@ -23,7 +23,7 @@ import { analyticsService, Insight, CategoryBreakdownItem, SpendingTrend, Health
 import { translateCategoryName } from '../utils/categoryTranslator';
 import { CategoryIcon } from './CategoryIcon';
 import { useTheme } from '../contexts/ThemeContext';
-import { fonts } from '../constants/fonts';
+import { fonts, textStyles } from '../constants/fonts';
 
 export default function Analytics() {
   const { t } = useTranslation('common');
@@ -621,8 +621,7 @@ const styles = StyleSheet.create({
     paddingBottom: 120, // extra space so last tile isn't hidden behind bottom tab bar
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    ...textStyles.h2,
     color: '#1a1a1a',
     marginBottom: 16,
     marginTop: 0,
@@ -645,14 +644,12 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   insightTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...textStyles.h3,
     marginBottom: 6,
     flexWrap: 'wrap',
   },
   insightMessage: {
-    fontSize: 14,
-    lineHeight: 20,
+    ...textStyles.body,
     flexWrap: 'wrap',
   },
   chartCard: {
@@ -668,8 +665,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   chartTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...textStyles.h2,
     color: '#333',
     marginBottom: 16,
     textAlign: 'center',
@@ -714,26 +710,24 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   categoryItemName: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...textStyles.h4,
     color: '#333',
     marginBottom: 4,
   },
   categoryItemCount: {
-    fontSize: 12,
+    ...textStyles.caption,
     color: '#666',
   },
   categoryItemRight: {
     alignItems: 'flex-end',
   },
   categoryItemAmount: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...textStyles.h4,
     color: '#333',
     marginBottom: 4,
   },
   categoryItemPercentage: {
-    fontSize: 12,
+    ...textStyles.caption,
     color: '#666',
   },
   trendsList: {
@@ -757,8 +751,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   trendLabel: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...textStyles.h3,
     color: '#333',
   },
   trendValues: {
@@ -770,20 +763,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   trendValueLabel: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     color: '#333',
   },
   trendValueAmount: {
+    ...textStyles.monoMedium,
     fontSize: 14,
     fontWeight: '600',
-    fontFamily: fonts.mono,
   },
   trendValueDivider: {
     height: 1,
     marginVertical: 4,
   },
   trendValue: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     color: '#666',
   },
   trendNet: {
@@ -791,7 +784,7 @@ const styles = StyleSheet.create({
     color: '#03A9F4',
   },
   trendSavingsRate: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     fontWeight: '600',
   },
   healthScoreCard: {

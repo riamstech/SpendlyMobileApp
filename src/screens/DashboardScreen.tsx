@@ -19,7 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
-import { fonts, textStyles as baseTextStyles } from '../constants/fonts';
+import { fonts, textStyles as baseTextStyles, createResponsiveTextStyles } from '../constants/fonts';
 import {
   Wallet,
   TrendingUp,
@@ -49,7 +49,6 @@ import { formatDateForDisplay } from '../api/utils/dateUtils';
 import { translateCategoryName } from '../utils/categoryTranslator';
 import { useTheme } from '../contexts/ThemeContext';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
-import { createResponsiveTextStyles } from '../constants/fonts';
 
 interface Transaction {
   id: string;
@@ -102,7 +101,7 @@ export default function DashboardScreen({
   const { t, i18n } = useTranslation('common');
   const { width } = useWindowDimensions();
   const { isDark, colors } = useTheme();
-  const textStyles = createResponsiveTextStyles(width);
+  const responsiveTextStyles = createResponsiveTextStyles(width);
   const [valuesHidden, setValuesHidden] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -503,66 +502,7 @@ export default function DashboardScreen({
     ]).start();
   }, [incomeBarHeight, expenseBarHeight]);
   // Responsive typography styles using the centralized typography system
-  const responsiveStyles = {
-    // Headers
-    headerTitle: textStyles.h3, // 14px - Main page title (system font stack)
-    headerSubtitle: textStyles.caption, // 12px - Subtitle
-    sectionTitle: textStyles.h4, // 13px - Section headers
-    
-    // License Banner
-    licenseBannerText: textStyles.caption, // 12px
-    renewButtonText: textStyles.captionSmall, // 10px
-    
-    // Balance Section
-    balanceLabel: textStyles.caption, // 12px
-    balanceCurrency: textStyles.caption, // 12px
-    balanceAmount: textStyles.displaySmall, // 20px - Large numbers
-    balanceStatLabel: textStyles.caption, // 12px
-    balanceStatCurrency: textStyles.caption, // 12px
-    balanceStatValue: textStyles.bodySmall, // 14px
-    
-    // Stats
-    statLabel: textStyles.caption, // 12px
-    statCurrency: textStyles.caption, // 12px
-    statValue: textStyles.bodySmall, // 14px
-    statRatioText: textStyles.caption, // 12px
-    
-    // Charts
-    chartTitle: textStyles.h4, // 16px
-    chartBarLabel: textStyles.caption, // 12px
-    chartBarValue: textStyles.captionSmall, // 10px
-    
-    // Budget
-    budgetLabel: textStyles.caption, // 12px
-    budgetCurrency: textStyles.caption, // 12px
-    budgetTotal: textStyles.bodySmall, // 14px
-    budgetSpentLabel: textStyles.caption, // 12px
-    budgetSpentValue: textStyles.bodySmall, // 14px
-    budgetPercentage: textStyles.caption, // 12px
-    budgetRemaining: textStyles.caption, // 12px
-    
-    // Links
-    sectionLink: textStyles.caption, // 12px
-    
-    // Payments
-    paymentName: textStyles.caption, // 12px
-    paymentMeta: textStyles.captionSmall, // 10px
-    paymentAmount: textStyles.caption, // 12px
-    paymentCurrency: textStyles.captionSmall, // 10px
-    
-    // Transactions
-    transactionDescription: textStyles.caption, // 12px
-    transactionMeta: textStyles.captionSmall, // 10px
-    transactionAmount: textStyles.caption, // 12px
-    transactionCurrency: textStyles.captionSmall, // 10px
-    
-    // Assets
-    assetLabel: textStyles.caption, // 12px
-    assetValue: textStyles.h4, // 16px
-    
-    // Financial Health
-    financialHealthTitle: textStyles.h4, // 16px
-  };
+
 
   if (loading) {
     return (
@@ -603,7 +543,7 @@ export default function DashboardScreen({
           ]}>
             <Text style={[
               styles.licenseBannerText,
-              responsiveStyles.licenseBannerText,
+              responsiveTextStyles.caption,
               { 
                 color: licenseStatus === 'expired' 
                   ? colors.destructive 
@@ -623,7 +563,7 @@ export default function DashboardScreen({
             >
               <Text style={[
                 styles.renewButtonText,
-                responsiveStyles.renewButtonText,
+                responsiveTextStyles.small,
                 { 
                   color: licenseStatus === 'expired' 
                     ? colors.destructive 
@@ -644,7 +584,7 @@ export default function DashboardScreen({
               style={styles.headerLogo}
               resizeMode="contain"
             />
-            <Text style={[styles.headerSubtitle, responsiveStyles.headerSubtitle, { color: colors.mutedForeground }]}>
+            <Text style={[styles.headerSubtitle, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
               {t('footer.tagline') || 'Track. Save. Grow.'}
             </Text>
           </View>
@@ -688,17 +628,17 @@ export default function DashboardScreen({
         >
           <View style={styles.balanceHeader}>
             <Wallet size={16} color="rgba(255,255,255,0.9)" />
-            <Text style={[styles.balanceLabel, responsiveStyles.balanceLabel]}>
+            <Text style={[styles.balanceLabel, responsiveTextStyles.caption]}>
               {t('dashboard.totalBalance') || 'Total Balance'}
             </Text>
           </View>
           <View style={styles.balanceAmountContainer}>
             {!valuesHidden && (
-              <Text style={[styles.balanceCurrency, responsiveStyles.balanceCurrency]}>
-                {currency}
+              <Text style={[styles.balanceCurrency, responsiveTextStyles.caption]}>
+                {currency}{' '}
               </Text>
             )}
-            <Text style={[styles.balanceAmount, responsiveStyles.balanceAmount]}>
+            <Text style={[styles.balanceAmount, responsiveTextStyles.displaySmall]}>
               {formatValue(totalBalance)}
             </Text>
           </View>
@@ -706,17 +646,17 @@ export default function DashboardScreen({
             <View style={styles.balanceStatItem}>
               <View style={styles.balanceStatHeader}>
                 <ArrowUpRight size={14} color="rgba(255,255,255,0.9)" />
-                <Text style={[styles.balanceStatLabel, responsiveStyles.balanceStatLabel]}>
+                <Text style={[styles.balanceStatLabel, responsiveTextStyles.caption]}>
                   {t('dashboard.income') || 'Income'}
                 </Text>
               </View>
               <View style={styles.balanceStatValueContainer}>
                 {!valuesHidden && (
-                  <Text style={[styles.balanceStatCurrency, responsiveStyles.balanceStatCurrency]}>
+                  <Text style={[styles.balanceStatCurrency, responsiveTextStyles.caption]}>
                     {currency}{' '}
                   </Text>
                 )}
-                <Text style={[styles.balanceStatValue, responsiveStyles.balanceStatValue]}>
+                <Text style={[styles.balanceStatValue, responsiveTextStyles.bodySmall]}>
                   {formatValue(totalIncome)}
                 </Text>
               </View>
@@ -724,17 +664,17 @@ export default function DashboardScreen({
             <View style={styles.balanceStatItem}>
               <View style={styles.balanceStatHeader}>
                 <ArrowDownRight size={14} color="rgba(255,255,255,0.9)" />
-                <Text style={[styles.balanceStatLabel, responsiveStyles.balanceStatLabel]}>
+                <Text style={[styles.balanceStatLabel, responsiveTextStyles.caption]}>
                   {t('dashboard.expenses') || 'Expenses'}
                 </Text>
               </View>
               <View style={styles.balanceStatValueContainer}>
                 {!valuesHidden && (
-                  <Text style={[styles.balanceStatCurrency, responsiveStyles.balanceStatCurrency]}>
+                  <Text style={[styles.balanceStatCurrency, responsiveTextStyles.caption]}>
                     {currency}{' '}
                   </Text>
                 )}
-                <Text style={[styles.balanceStatValue, responsiveStyles.balanceStatValue]}>
+                <Text style={[styles.balanceStatValue, responsiveTextStyles.bodySmall]}>
                   {formatValue(totalExpenses)}
                 </Text>
               </View>
@@ -746,7 +686,7 @@ export default function DashboardScreen({
         {financialSummary && (
           <View style={[styles.financialHealthCard, { backgroundColor: colors.card }]}>
             <View style={styles.financialHealthHeader}>
-              <Text style={[styles.financialHealthTitle, { color: colors.foreground }]}>
+              <Text style={[responsiveTextStyles.h4, { color: colors.foreground }]}>
                 {t('dashboard.financialHealth') || 'Financial Health'}
               </Text>
               <View style={[
@@ -781,7 +721,7 @@ export default function DashboardScreen({
                   </View>
                   <Text style={[
                     styles.assetLabel,
-                    responsiveStyles.assetLabel,
+                    responsiveTextStyles.caption,
                     {
                       color: isDark ? '#A7F3D0' : '#064E3B', // emerald-200 / emerald-900
                     }
@@ -791,7 +731,7 @@ export default function DashboardScreen({
                 </View>
                 <Text style={[
                   styles.assetValue,
-                  responsiveStyles.assetValue,
+                  responsiveTextStyles.h4,
                   {
                     color: isDark ? '#6EE7B7' : '#047857', // emerald-300 / emerald-700
                   }
@@ -819,7 +759,7 @@ export default function DashboardScreen({
                   </View>
                   <Text style={[
                     styles.assetLabel,
-                    responsiveStyles.assetLabel,
+                    responsiveTextStyles.caption,
                     {
                       color: isDark ? '#FECDD3' : '#9F1239', // rose-200 / rose-900
                     }
@@ -829,7 +769,7 @@ export default function DashboardScreen({
                 </View>
                 <Text style={[
                   styles.assetValue,
-                  responsiveStyles.assetValue,
+                  responsiveTextStyles.h4,
                   {
                     color: isDark ? '#FDA4AF' : '#BE123C', // rose-300 / rose-700
                   }
@@ -904,33 +844,33 @@ export default function DashboardScreen({
           <View style={[styles.budgetCard, { backgroundColor: colors.card }]}>
             <View style={styles.budgetHeader}>
               <View>
-                <Text style={[styles.budgetLabel, responsiveStyles.budgetLabel, { color: colors.mutedForeground }]}>
+                <Text style={[styles.budgetLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
                   {periodLabel}
                 </Text>
                 <View style={styles.budgetTotalContainer}>
                   {!valuesHidden && (
-                    <Text style={[styles.budgetCurrency, responsiveStyles.budgetCurrency, { color: colors.mutedForeground }]}>
+                    <Text style={[styles.budgetCurrency, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
                       {currency}{' '}
                     </Text>
                   )}
-                  <Text style={[styles.budgetTotal, responsiveStyles.budgetTotal, { color: colors.foreground }]}>
+                  <Text style={[styles.budgetTotal, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>
                     {formatValue(monthlyBudgetTotal)}
                   </Text>
                 </View>
               </View>
               <View style={styles.budgetSpent}>
-                <Text style={[styles.budgetSpentLabel, responsiveStyles.budgetSpentLabel, { color: colors.mutedForeground }]}>
+                <Text style={[styles.budgetSpentLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
                   {t('dashboard.spentThisPeriod') || 'Spent This Period'}
                 </Text>
                 <View style={styles.budgetSpentValueContainer}>
                   {!valuesHidden && (
-                    <Text style={[styles.budgetCurrency, responsiveStyles.budgetCurrency, { color: colors.mutedForeground }]}>
+                    <Text style={[styles.budgetCurrency, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
                       {currency}{' '}
                     </Text>
                   )}
                   <Text style={[
                     styles.budgetSpentValue,
-                    responsiveStyles.budgetSpentValue,
+                    responsiveTextStyles.bodySmall,
                     { color: isOverBudget ? colors.destructive : colors.foreground }
                   ]}>
                     {formatValue(monthlyBudgetSpent)}
@@ -950,10 +890,10 @@ export default function DashboardScreen({
               />
             </View>
             <View style={styles.budgetFooter}>
-              <Text style={[styles.budgetPercentage, responsiveStyles.budgetPercentage, { color: colors.mutedForeground }]}>
+              <Text style={[styles.budgetPercentage, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
                 {budgetUsedPercentage.toFixed(1)}% {t('dashboard.used') || 'used'}
               </Text>
-              <Text style={[styles.budgetRemaining, responsiveStyles.budgetRemaining, { color: colors.mutedForeground }]}>
+              <Text style={[styles.budgetRemaining, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
                 {valuesHidden ? '••••' : (
                   isOverBudget
                     ? `${t('dashboard.overBy') || 'Over by'} ${currency} ${formatValue(monthlyBudgetSpent - monthlyBudgetTotal)}`
@@ -968,25 +908,25 @@ export default function DashboardScreen({
         <View style={styles.statsRow}>
           <View style={[styles.statCard, { backgroundColor: colors.card }]}>
             <View style={styles.statHeader}>
-              <Text style={[styles.statLabel, responsiveStyles.statLabel, { color: colors.mutedForeground }]}>
+              <Text style={[styles.statLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
                 {t('dashboard.savings') || 'Savings'}
               </Text>
               <TrendingUp size={16} color="#4CAF50" />
             </View>
             <View style={styles.statValueContainer}>
               {!valuesHidden && (
-                <Text style={[styles.statCurrency, responsiveStyles.statCurrency, { color: colors.mutedForeground }]}>
+                <Text style={[styles.statCurrency, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
                   {currency}
                 </Text>
               )}
-              <Text style={[styles.statValue, responsiveStyles.statValue, { color: colors.foreground }]}>
+              <Text style={[styles.statValue, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>
                 {formatValue(savings)}
               </Text>
             </View>
           </View>
           <View style={[styles.statCard, { backgroundColor: colors.card }]}>
             <View style={styles.statHeader}>
-              <Text style={[styles.statLabel, responsiveStyles.statLabel, { color: colors.mutedForeground }]}>
+              <Text style={[styles.statLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
                 {t('dashboard.spendingRatio') || 'Spending Ratio'}
               </Text>
               <TrendingDown size={16} color={spendingRatioColor} />
@@ -994,17 +934,17 @@ export default function DashboardScreen({
             <View style={styles.statValueContainer}>
               {totalIncome > 0 ? (
                 <>
-                  <Text style={[styles.statValue, responsiveStyles.statValue, { color: spendingRatioColor }]}>
+                  <Text style={[styles.statValue, responsiveTextStyles.bodySmall, { color: spendingRatioColor }]}>
                     {spendingRatio.toFixed(1)}%
                   </Text>
                   {!valuesHidden && (
-                    <Text style={[styles.statRatioText, responsiveStyles.statRatioText, { color: colors.mutedForeground }]}>
+                    <Text style={[styles.statRatioText, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
                       {t('dashboard.ofIncome') || 'of income'}
                     </Text>
                   )}
                 </>
               ) : (
-                <Text style={[styles.statValue, responsiveStyles.statValue, { color: colors.mutedForeground }]}>
+                <Text style={[styles.statValue, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>
                   N/A
                 </Text>
               )}
@@ -1029,7 +969,7 @@ export default function DashboardScreen({
         {/* Income vs Expense Chart */}
         <View style={[styles.chartCard, { backgroundColor: colors.card }]}>
           <View style={styles.chartTitleContainer}>
-            <Text style={[styles.chartTitle, responsiveStyles.chartTitle, { color: colors.foreground }]}>
+            <Text style={[styles.chartTitle, responsiveTextStyles.h4, { color: colors.foreground }]}>
               {t('dashboard.incomeVsExpenses') || 'Income vs Expenses'}
             </Text>
           </View>
@@ -1107,12 +1047,12 @@ export default function DashboardScreen({
         {upcomingPayments.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={[styles.sectionTitle, responsiveStyles.sectionTitle, { color: colors.foreground }]}>
+              <Text style={[styles.sectionTitle, responsiveTextStyles.h4, { color: colors.foreground }]}>
                 {t('dashboard.upcomingPayments') || 'Upcoming Payments'}
               </Text>
               {onViewAllPayments && (
                 <Pressable onPress={onViewAllPayments}>
-                  <Text style={[styles.sectionLink, responsiveStyles.sectionLink, { color: colors.primary }]}>
+                  <Text style={[styles.sectionLink, responsiveTextStyles.caption, { color: colors.primary }]}>
                     {t('dashboard.viewAll') || 'View All'}
                   </Text>
                 </Pressable>
@@ -1149,7 +1089,7 @@ export default function DashboardScreen({
                       )}
                     </View>
                     <View style={styles.paymentInfo}>
-                      <Text style={[styles.paymentName, responsiveStyles.paymentName, { color: colors.foreground }]}>
+                      <Text style={[styles.paymentName, responsiveTextStyles.caption, { color: colors.foreground }]}>
                         {payment.name}
                       </Text>
                       <View style={styles.paymentMetaRow}>
@@ -1166,13 +1106,13 @@ export default function DashboardScreen({
                             {payment.type === 'income' ? t('dashboard.income') : t('dashboard.expense')}
                           </Text>
                         </View>
-                        <Text style={[styles.paymentMetaText, responsiveStyles.paymentMeta, { color: colors.mutedForeground }]}>
+                        <Text style={[styles.paymentMetaText, responsiveTextStyles.small, { color: colors.mutedForeground }]}>
                           {translateCategoryName(payment.category, t)}
                         </Text>
                         <Text style={[styles.paymentMetaDot, { color: colors.mutedForeground }]}>•</Text>
                         <Text style={[
                           styles.paymentMetaText,
-                          responsiveStyles.paymentMeta,
+                          responsiveTextStyles.small,
                           { color: payment.type === 'income' ? '#4CAF50' : '#FFC107' }
                         ]}>
                           {formatDateForDisplay(payment.dueDate, i18n.language)}
@@ -1184,7 +1124,7 @@ export default function DashboardScreen({
                       <Text
                         style={[
                           styles.paymentAmount,
-                          responsiveStyles.paymentAmount,
+                          responsiveTextStyles.caption,
                           { color: payment.type === 'income' ? '#4CAF50' : colors.foreground },
                         ]}
                       >
@@ -1196,7 +1136,7 @@ export default function DashboardScreen({
                           <Text
                             style={[
                               styles.paymentCurrency,
-                              responsiveStyles.paymentCurrency,
+                              responsiveTextStyles.small,
                               {
                                 color: colors.mutedForeground,
                                 fontWeight: '500',
@@ -1218,12 +1158,12 @@ export default function DashboardScreen({
         {/* Recent Transactions */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, responsiveStyles.sectionTitle, { color: colors.foreground }]}>
+            <Text style={[styles.sectionTitle, responsiveTextStyles.h4, { color: colors.foreground }]}>
               {t('dashboard.recentTransactions') || 'Recent Transactions'}
             </Text>
             {onViewAllTransactions && (
               <Pressable onPress={onViewAllTransactions}>
-                <Text style={[styles.sectionLink, responsiveStyles.sectionLink, { color: colors.primary }]}>
+                <Text style={[styles.sectionLink, responsiveTextStyles.caption, { color: colors.primary }]}>
                   {t('dashboard.viewAll')}
                 </Text>
               </Pressable>
@@ -1269,15 +1209,15 @@ export default function DashboardScreen({
                       )}
                     </View>
                     <View style={styles.transactionInfo}>
-                      <Text style={[styles.transactionDescription, responsiveStyles.transactionDescription, { color: colors.foreground }]}>
+                      <Text style={[styles.transactionDescription, responsiveTextStyles.caption, { color: colors.foreground }]}>
                         {transaction.description}
                       </Text>
                       <View style={styles.transactionMetaRow}>
-                        <Text style={[styles.transactionMetaText, responsiveStyles.transactionMeta, { color: colors.mutedForeground }]}>
+                        <Text style={[styles.transactionMetaText, responsiveTextStyles.small, { color: colors.mutedForeground }]}>
                           {translateCategoryName(transaction.category, t)}
                         </Text>
                         <Text style={[styles.transactionMetaDot, { color: colors.mutedForeground }]}>•</Text>
-                        <Text style={[styles.transactionMetaText, responsiveStyles.transactionMeta, { color: colors.mutedForeground }]}>
+                        <Text style={[styles.transactionMetaText, responsiveTextStyles.small, { color: colors.mutedForeground }]}>
                           {formatDateForDisplay(transaction.date, i18n.language)}
                         </Text>
                       </View>
@@ -1287,7 +1227,7 @@ export default function DashboardScreen({
                         <Text
                           style={[
                             styles.transactionAmount,
-                            responsiveStyles.transactionAmount,
+                            responsiveTextStyles.caption,
                             { color: transaction.type === 'income' ? '#4CAF50' : '#FF5252' },
                           ]}
                         >
@@ -1301,7 +1241,7 @@ export default function DashboardScreen({
                           <Text
                             style={[
                               styles.transactionCurrency,
-                              responsiveStyles.transactionCurrency,
+                              responsiveTextStyles.small,
                               {
                                 color: colors.mutedForeground,
                                 fontWeight: '500',
@@ -1551,7 +1491,7 @@ const styles = StyleSheet.create({
   balanceAmount: {
     ...baseTextStyles.displaySmall,
     color: '#fff',
-    fontFamily: fonts.header, // Use system font stack like headers
+    fontFamily: fonts.mono, // Monospace like web version
   },
   balanceStats: {
     flexDirection: 'row',

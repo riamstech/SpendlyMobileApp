@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Lock, Zap, TrendingUp, PieChart, Calendar } from 'lucide-react-native';
-import { fonts } from '../constants/fonts';
+import { fonts, textStyles } from '../constants/fonts';
 import { useTheme } from '../contexts/ThemeContext';
 import Button from './ui/Button';
 
@@ -198,13 +198,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 16,
+    ...textStyles.h3,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 8,
   },
   description: {
-    fontSize: 14,
+    ...textStyles.body,
     textAlign: 'center',
     marginBottom: 24,
     lineHeight: 20,
@@ -231,12 +231,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   featureTitle: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     fontWeight: '600',
     marginBottom: 4,
   },
   featureDescription: {
-    fontSize: 12,
+    ...textStyles.caption,
     lineHeight: 16,
   },
   priceCard: {
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   priceLabel: {
-    fontSize: 14,
+    ...textStyles.h3,
     fontWeight: '600',
     marginBottom: 8,
   },
@@ -257,20 +257,20 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   priceSymbol: {
-    fontSize: 16,
+    ...textStyles.h2,
     marginRight: 2,
   },
   priceAmount: {
-    fontSize: 16,
+    ...textStyles.h2,
     fontWeight: 'bold',
     fontFamily: fonts.mono,
   },
   pricePeriod: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     marginLeft: 4,
   },
   priceNote: {
-    fontSize: 12,
+    ...textStyles.caption,
   },
   buttonContainer: {
     width: '100%',
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   },
   upgradeButtonText: {
     color: '#fff',
-    fontSize: 16,
+    ...textStyles.button,
     fontWeight: '600',
   },
   continueButton: {
@@ -292,10 +292,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   continueButtonText: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
   },
   footerNote: {
-    fontSize: 11,
+    ...textStyles.caption,
     textAlign: 'center',
     marginTop: 16,
     paddingHorizontal: 16,

@@ -78,8 +78,25 @@ const styles = StyleSheet.create({
 
 ## Font Families
 
-- **regular**: `fonts.sans` - Main font (Roboto on Android, System on iOS)
-- **mono**: `fonts.mono` - Monospace font (Roboto Mono on Android, Courier on iOS)
+**Spendly now uses professional custom fonts:**
+
+- **sans**: `Inter` - Modern, highly readable sans-serif font family
+  - `Inter_400Regular` - Regular weight for body text
+  - `Inter_500Medium` - Medium weight for emphasis
+  - `Inter_600SemiBold` - Semibold weight for headers
+  - `Inter_700Bold` - Bold weight for strong emphasis
+  
+- **mono**: `JetBrains Mono` - Professional monospace font for numbers and financial data
+  - `JetBrainsMono_400Regular` - Regular weight for amounts
+  - `JetBrainsMono_500Medium` - Medium weight for emphasis
+  - `JetBrainsMono_700Bold` - Bold weight for highlighted numbers
+
+**Why these fonts?**
+- ✅ Used by fintech companies like Stripe and GitHub
+- ✅ Exceptional readability at all sizes
+- ✅ Professional, trustworthy appearance
+- ✅ Clear distinction between similar characters (0 vs O, 1 vs l)
+- ✅ Consistent appearance across all platforms
 
 ## Font Weights
 

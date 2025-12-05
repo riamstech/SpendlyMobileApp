@@ -115,21 +115,7 @@ export default function ResetPasswordScreen({
   };
 
   // Responsive styles
-  const responsiveStyles = {
-    logo: { width: 80 * scale, height: 80 * scale },
-    headerSubtitle: { fontSize: Math.max(12, Math.min(14 * scale, 16)) },
-    label: { fontSize: Math.max(13, Math.min(14 * scale, 15)) },
-    input: { fontSize: Math.max(14, Math.min(16 * scale, 18)) },
-    errorText: { fontSize: Math.max(11, Math.min(12 * scale, 13)) },
-    buttonText: { fontSize: Math.max(14, Math.min(16 * scale, 18)) },
-    hintText: { fontSize: Math.max(12, Math.min(13 * scale, 14)) },
-    successTitle: { fontSize: Math.max(18, Math.min(20 * scale, 22)) },
-    successText: { fontSize: Math.max(13, Math.min(14 * scale, 16)) },
-    emailDisplay: { fontSize: Math.max(13, Math.min(14 * scale, 16)) },
-    formPadding: Math.max(16, Math.min(20 * scale, 24)),
-    inputPadding: Math.max(12, Math.min(14 * scale, 16)),
-    buttonPadding: Math.max(14, Math.min(16 * scale, 18)),
-  };
+
 
   // Success state
   if (submitted) {
@@ -160,33 +146,33 @@ export default function ResetPasswordScreen({
                   styles.formContainer,
                   styles.successContainer,
                   {
-                    padding: responsiveStyles.formPadding,
                     maxWidth: isLargeScreen ? 430 : '100%',
+                    padding: 20,
                   },
                 ]}
               >
                 <View style={styles.successIconContainer}>
                   <CheckCircle size={48 * scale} color="#4CAF50" />
                 </View>
-                <Text style={[styles.successTitle, responsiveStyles.successTitle]}>
+                <Text style={[styles.successTitle, responsiveTextStyles.h3]}>
                   Password Reset Successful!
                 </Text>
-                <Text style={[styles.successText, responsiveStyles.successText, { marginTop: 8, marginBottom: 8 }]}>
+                <Text style={[styles.successText, responsiveTextStyles.body, { marginTop: 8, marginBottom: 8 }]}>
                   Your password has been reset successfully.
                 </Text>
-                <Text style={[styles.successText, responsiveStyles.successText, { marginBottom: 24 }]}>
+                <Text style={[styles.successText, responsiveTextStyles.body, { marginBottom: 24 }]}>
                   You can now log in with your new password.
                 </Text>
                 <Pressable
                   style={[
                     styles.primaryButton,
-                    { paddingVertical: responsiveStyles.buttonPadding },
+                    { paddingVertical: 14 },
                     isLoading && styles.primaryButtonDisabled,
                   ]}
                   onPress={onBackToLogin}
                   disabled={isLoading}
                 >
-                  <Text style={[styles.primaryButtonText, responsiveStyles.buttonText]}>
+                  <Text style={[styles.primaryButtonText, responsiveTextStyles.button]}>
                     Back to Login
                   </Text>
                 </Pressable>
@@ -225,13 +211,13 @@ export default function ResetPasswordScreen({
             <View style={styles.logoContainer}>
               <Image
                 source={require('../../assets/logo-dark.png')}
-                style={responsiveStyles.logo}
+                style={{ width: 80 * scale, height: 80 * scale }}
                 resizeMode="contain"
               />
               <Text style={[styles.headerTitle, responsiveTextStyles.h3]}>
                 Reset Password
               </Text>
-              <Text style={[styles.headerSubtitle, responsiveStyles.headerSubtitle]}>
+              <Text style={[styles.headerSubtitle, responsiveTextStyles.body]}>
                 Enter your new password below
               </Text>
             </View>
@@ -241,16 +227,16 @@ export default function ResetPasswordScreen({
               style={[
                 styles.formContainer,
                 {
-                  padding: responsiveStyles.formPadding,
                   maxWidth: isLargeScreen ? 430 : '100%',
+                  padding: 20,
                 },
               ]}
             >
               {/* Email Display (read-only) */}
               <View style={styles.inputContainer}>
-                <Text style={[styles.label, responsiveStyles.label]}>Email Address</Text>
+                <Text style={[styles.label, responsiveTextStyles.label]}>Email Address</Text>
                 <View style={styles.emailDisplayContainer}>
-                  <Text style={[styles.emailDisplay, responsiveStyles.emailDisplay]}>
+                  <Text style={[styles.emailDisplay, responsiveTextStyles.body]}>
                     {email || 'Not provided'}
                   </Text>
                 </View>
@@ -258,7 +244,7 @@ export default function ResetPasswordScreen({
 
               {/* New Password Field */}
               <View style={styles.inputContainer}>
-                <Text style={[styles.label, responsiveStyles.label]}>New Password</Text>
+                <Text style={[styles.label, responsiveTextStyles.label]}>New Password</Text>
                 <View style={styles.inputWrapper}>
                   <Lock
                     size={Math.max(18, Math.min(20 * scale, 22))}
@@ -268,8 +254,8 @@ export default function ResetPasswordScreen({
                   <TextInput
                     style={[
                       styles.input,
-                      responsiveStyles.input,
-                      { paddingVertical: responsiveStyles.inputPadding },
+                      responsiveTextStyles.body,
+                      { paddingVertical: 14 },
                       errors.password && styles.inputError,
                     ]}
                     placeholder="Enter new password"
@@ -300,18 +286,18 @@ export default function ResetPasswordScreen({
                   </Pressable>
                 </View>
                 {errors.password && (
-                  <Text style={[styles.errorText, responsiveStyles.errorText]}>
+                  <Text style={[styles.errorText, responsiveTextStyles.caption]}>
                     {errors.password}
                   </Text>
                 )}
-                <Text style={[styles.hintText, responsiveStyles.hintText, { marginTop: 4 }]}>
+                <Text style={[styles.hintText, responsiveTextStyles.caption, { marginTop: 4 }]}>
                   Must be at least 8 characters
                 </Text>
               </View>
 
               {/* Confirm Password Field */}
               <View style={styles.inputContainer}>
-                <Text style={[styles.label, responsiveStyles.label]}>Confirm Password</Text>
+                <Text style={[styles.label, responsiveTextStyles.label]}>Confirm Password</Text>
                 <View style={styles.inputWrapper}>
                   <Lock
                     size={Math.max(18, Math.min(20 * scale, 22))}
@@ -321,8 +307,8 @@ export default function ResetPasswordScreen({
                   <TextInput
                     style={[
                       styles.input,
-                      responsiveStyles.input,
-                      { paddingVertical: responsiveStyles.inputPadding },
+                      responsiveTextStyles.body,
+                      { paddingVertical: 14 },
                       errors.passwordConfirmation && styles.inputError,
                     ]}
                     placeholder="Confirm new password"
@@ -353,7 +339,7 @@ export default function ResetPasswordScreen({
                   </Pressable>
                 </View>
                 {errors.passwordConfirmation && (
-                  <Text style={[styles.errorText, responsiveStyles.errorText]}>
+                  <Text style={[styles.errorText, responsiveTextStyles.caption]}>
                     {errors.passwordConfirmation}
                   </Text>
                 )}
@@ -363,13 +349,13 @@ export default function ResetPasswordScreen({
               <Pressable
                 style={[
                   styles.primaryButton,
-                  { paddingVertical: responsiveStyles.buttonPadding },
+                  { paddingVertical: 14 },
                   isLoading && styles.primaryButtonDisabled,
                 ]}
                 onPress={handleSubmit}
                 disabled={isLoading || !token || !email}
               >
-                <Text style={[styles.primaryButtonText, responsiveStyles.buttonText]}>
+                <Text style={[styles.primaryButtonText, responsiveTextStyles.button]}>
                   {isLoading ? 'Resetting...' : 'Reset Password'}
                 </Text>
               </Pressable>
@@ -379,14 +365,14 @@ export default function ResetPasswordScreen({
                 style={styles.backButton}
                 onPress={onBackToLogin}
               >
-                <Text style={[styles.backButtonText, responsiveStyles.buttonText]}>
+                <Text style={[styles.backButtonText, responsiveTextStyles.button]}>
                   Back to Login
                 </Text>
               </Pressable>
             </View>
 
             {/* Footer */}
-            <Text style={[styles.footerText, responsiveStyles.hintText]}>
+            <Text style={[styles.footerText, responsiveTextStyles.caption]}>
               Track. Save. Grow. © 2024 Spendly
             </Text>
           </ScrollView>
@@ -417,12 +403,13 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   headerTitle: {
-    fontWeight: 'bold',
+    ...textStyles.h3,
     color: '#fff',
     marginTop: 16,
     marginBottom: 4,
   },
   headerSubtitle: {
+    ...textStyles.body,
     color: 'rgba(255, 255, 255, 0.9)',
   },
   formContainer: {
@@ -435,6 +422,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 5,
+    padding: 24,
   },
   successContainer: {
     alignItems: 'center',
@@ -449,11 +437,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   successTitle: {
-    fontWeight: 'bold',
+    ...textStyles.h3,
     color: '#212121',
     textAlign: 'center',
   },
   successText: {
+    ...textStyles.body,
     color: '#666',
     textAlign: 'center',
     lineHeight: 20,
@@ -470,6 +459,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   label: {
+    ...textStyles.label,
     fontWeight: '600',
     color: '#333',
     marginBottom: 8,
@@ -483,11 +473,13 @@ const styles = StyleSheet.create({
     borderColor: '#e0e0e0',
   },
   emailDisplay: {
+    ...textStyles.body,
     color: '#666',
   },
   input: {
     flex: 1,
     paddingHorizontal: 40,
+    ...textStyles.body,
     color: '#333',
   },
   inputIcon: {
@@ -503,9 +495,11 @@ const styles = StyleSheet.create({
   },
   errorText: {
     marginTop: 4,
+    ...textStyles.caption,
     color: '#FF5252',
   },
   hintText: {
+    ...textStyles.caption,
     color: '#666',
   },
   primaryButton: {
@@ -524,7 +518,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
+    ...textStyles.button,
   },
   backButton: {
     alignItems: 'center',
@@ -532,12 +526,13 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     color: '#03A9F4',
-    fontWeight: '600',
+    ...textStyles.button,
   },
   footerText: {
     marginTop: 24,
     textAlign: 'center',
     color: 'rgba(255,255,255,0.9)',
+    ...textStyles.caption,
   },
 });
 
