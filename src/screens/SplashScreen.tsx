@@ -80,7 +80,7 @@ export default function SplashScreen({ onFinish }: Props) {
         </Animated.View>
 
         <Animated.Text style={[styles.tagline, responsiveStyles.tagline, { opacity: taglineOpacity }]}>
-          {t('footer.tagline')}
+          {t('footer.tagline', { defaultValue: 'Track. Save. Grow.' })}
         </Animated.Text>
 
         <Animated.View style={[styles.dotsContainer, { opacity: dotsOpacity }]}>
