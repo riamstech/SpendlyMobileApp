@@ -161,15 +161,17 @@ export default function AllPaymentsScreen({ onBack }: AllPaymentsScreenProps) {
           </View>
         </View>
 
-        {/* Summary Card */}
-        <View style={[styles.summaryCard, { backgroundColor: colors.card }]}>
-          <Text style={[styles.summaryLabel, { color: colors.mutedForeground }]}>Total Amount Due</Text>
-          <View style={styles.summaryAmountContainer}>
-            <Text style={[styles.summaryCurrency, { color: colors.foreground }]}>{currency}</Text>
-            <Text style={[styles.summaryAmount, { color: colors.foreground }]}>
-              {formatAmount(totalAmount)}
-            </Text>
-          </View>
+        {/* Summary Card - Dark Layout */}
+        <View style={styles.statsGrid}>
+            <View style={[styles.statsCard, styles.dueStatsCard]}>
+               <View style={{ marginBottom: 8 }}>
+                 <Calendar size={24} color="#FF5252" />
+               </View>
+               <Text style={[styles.statsLabel, textStyles.body]}>Total Amount Due</Text>
+               <Text style={[styles.statsValue, textStyles.h3, { color: '#FF5252' }]}>
+                 {currency} {formatAmount(totalAmount)}
+               </Text>
+            </View>
         </View>
 
         {/* Payments List */}
@@ -288,17 +290,17 @@ const styles = StyleSheet.create({
   summaryAmountContainer: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    fontFamily: fonts.mono,
+    // fontFamily: fonts.mono,
   },
   summaryCurrency: {
     ...textStyles.caption,
     marginRight: 4, // mr-1 (4px)
-    fontFamily: fonts.mono,
+    // fontFamily: fonts.mono,
   },
   summaryAmount: {
     ...textStyles.body,
     fontWeight: 'normal',
-    fontFamily: fonts.mono,
+    // fontFamily: fonts.mono,
   },
   paymentsList: {
     gap: 12, // space-y-3 (12px)
@@ -353,17 +355,17 @@ const styles = StyleSheet.create({
   paymentAmountContainer: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    fontFamily: fonts.mono,
+    // fontFamily: fonts.mono,
   },
   paymentCurrency: {
     ...textStyles.caption,
     marginRight: 4, // mr-1 (4px)
-    fontFamily: fonts.mono,
+    // fontFamily: fonts.mono,
   },
   paymentAmountText: {
     ...textStyles.body,
     fontWeight: '600',
-    fontFamily: fonts.mono,
+    // fontFamily: fonts.mono,
   },
   emptyCard: {
     padding: 32, // p-8 (32px)
@@ -373,6 +375,35 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     ...textStyles.body,
+    textAlign: 'center',
+  },
+  statsGrid: {
+    marginBottom: 24,
+  },
+  statsCard: {
+    width: '100%',
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 140,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  dueStatsCard: {
+    backgroundColor: '#362020', // Dark Red
+  },
+  statsLabel: {
+    textAlign: 'center',
+    marginBottom: 4,
+    color: '#fff',
+    opacity: 0.9,
+  },
+  statsValue: {
+    fontWeight: 'bold',
     textAlign: 'center',
   },
 });

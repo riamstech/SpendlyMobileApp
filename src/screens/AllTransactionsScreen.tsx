@@ -453,23 +453,30 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
         </View>
       </View>
 
-      {/* Summary Cards */}
-      <View style={styles.summaryRow}>
-        <View style={[styles.summaryCard, { backgroundColor: isDark ? 'rgba(76, 175, 80, 0.15)' : 'rgba(76, 175, 80, 0.1)' }]}>
-          <Text style={[styles.summaryLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-            {t('dashboard.totalIncome')}
-          </Text>
-          <Text style={[styles.summaryValue, responsiveTextStyles.bodySmall, { color: '#4CAF50', fontFamily: fonts.mono }]}>
-            {defaultCurrency} {formatValue(totalIncome)}
-          </Text>
-        </View>
-        <View style={[styles.summaryCard, { backgroundColor: isDark ? 'rgba(255, 82, 82, 0.15)' : 'rgba(255, 82, 82, 0.1)' }]}>
-          <Text style={[styles.summaryLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-            {t('dashboard.totalExpenses')}
-          </Text>
-          <Text style={[styles.summaryValue, responsiveTextStyles.bodySmall, { color: '#FF5252', fontFamily: fonts.mono }]}>
-            {defaultCurrency} {formatValue(totalExpenses)}
-          </Text>
+      {/* Summary Grid - Dark Layout */}
+      <View style={styles.statsGrid}>
+        <View style={styles.statsRow}>
+          {/* Total Income */}
+          <View style={[styles.statsCard, styles.incomeStatsCard]}>
+             <View style={{ marginBottom: 8 }}>
+               <ArrowUpRight size={24} color="#4CAF50" />
+             </View>
+             <Text style={[styles.statsLabel, responsiveTextStyles.body]}>{t('dashboard.totalIncome')}</Text>
+             <Text style={[styles.statsValue, responsiveTextStyles.h3, { color: '#4CAF50' }]} numberOfLines={1} adjustsFontSizeToFit>
+               {defaultCurrency} {formatValue(totalIncome)}
+             </Text>
+          </View>
+
+          {/* Total Expenses */}
+          <View style={[styles.statsCard, styles.expenseStatsCard]}>
+             <View style={{ marginBottom: 8 }}>
+               <ArrowDownRight size={24} color="#FF5252" />
+             </View>
+             <Text style={[styles.statsLabel, responsiveTextStyles.body]}>{t('dashboard.totalExpenses')}</Text>
+             <Text style={[styles.statsValue, responsiveTextStyles.h3, { color: '#FF5252' }]} numberOfLines={1} adjustsFontSizeToFit>
+               {defaultCurrency} {formatValue(totalExpenses)}
+             </Text>
+          </View>
         </View>
       </View>
 
@@ -529,8 +536,8 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
                     style={[
                       styles.transactionAmount,
                         responsiveTextStyles.body,
-                        { color: transaction.type === 'income' ? '#4CAF50' : '#FF5252', fontFamily: fonts.mono, fontWeight: '600' },
-                    ]}
+                      { color: transaction.type === 'income' ? '#4CAF50' : '#FF5252', fontWeight: '600' },
+                  ]}
                   >
                       {transaction.type === 'income' ? '+' : '-'} {transaction.currency} {formatValue(transaction.amount)}
                   </Text>
@@ -932,6 +939,45 @@ const styles = StyleSheet.create({
   modalItemTextActive: {
     color: '#03A9F4',
     fontWeight: '600',
+  },
+  statsGrid: {
+    gap: 12,
+    marginTop: 12,
+    marginBottom: 24,
+    marginHorizontal: 16,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  statsCard: {
+    flex: 1,
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 140,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  incomeStatsCard: {
+    backgroundColor: '#1E3324', // Dark Green
+  },
+  expenseStatsCard: {
+    backgroundColor: '#362020', // Dark Red
+  },
+  statsLabel: {
+    textAlign: 'center',
+    marginBottom: 4,
+    color: '#fff',
+    opacity: 0.9,
+  },
+  statsValue: {
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 
