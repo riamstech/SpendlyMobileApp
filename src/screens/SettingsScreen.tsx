@@ -984,8 +984,8 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
 
           {expandedSections.features && (
             <View style={styles.sectionContent}>
-              {/* Savings Goals */}
-              <Pressable
+              {/* Temporarily disabled - Savings Goals */}
+              {/* <Pressable
                 style={[styles.settingItem, { borderBottomColor: colors.border }]}
                 onPress={() => onViewGoals?.()}
               >
@@ -1001,10 +1001,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                   </View>
                 </View>
                 <ChevronRight size={18} color={colors.mutedForeground} />
-              </Pressable>
+              </Pressable> */}
 
-              {/* Analytics */}
-              <Pressable
+              {/* Temporarily disabled - Analytics */}
+              {/* <Pressable
                 style={[styles.settingItem, { borderBottomColor: colors.border }]}
                 onPress={() => onViewAnalytics?.()}
               >
@@ -1020,10 +1020,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                   </View>
                 </View>
                 <ChevronRight size={18} color={colors.mutedForeground} />
-              </Pressable>
+              </Pressable> */}
 
-              {/* Receipts & OCR */}
-              <Pressable
+              {/* Temporarily disabled - Receipts & OCR */}
+              {/* <Pressable
                 style={[styles.settingItem, { borderBottomColor: colors.border }]}
                 onPress={() => onViewReceipts?.()}
               >
@@ -1039,7 +1039,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                   </View>
                 </View>
                 <ChevronRight size={18} color={colors.mutedForeground} />
-              </Pressable>
+              </Pressable> */}
 
               {/* Refer & Earn */}
               <Pressable
