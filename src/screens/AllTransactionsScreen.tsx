@@ -453,26 +453,26 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
         </View>
       </View>
 
-      {/* Summary Grid - Dark Layout */}
+      {/* Summary Grid */}
       <View style={styles.statsGrid}>
         <View style={styles.statsRow}>
           {/* Total Income */}
-          <View style={[styles.statsCard, styles.incomeStatsCard]}>
+          <View style={[styles.statsCard, { backgroundColor: isDark ? '#1E3324' : '#E8F5E9' }]}>
              <View style={{ marginBottom: 8 }}>
                <ArrowUpRight size={24} color="#4CAF50" />
              </View>
-             <Text style={[styles.statsLabel, responsiveTextStyles.body]}>{t('dashboard.totalIncome')}</Text>
+             <Text style={[styles.statsLabel, responsiveTextStyles.body, { color: isDark ? '#fff' : colors.foreground }]}>{t('dashboard.totalIncome')}</Text>
              <Text style={[styles.statsValue, responsiveTextStyles.h3, { color: '#4CAF50' }]} numberOfLines={1} adjustsFontSizeToFit>
                {defaultCurrency} {formatValue(totalIncome)}
              </Text>
           </View>
 
           {/* Total Expenses */}
-          <View style={[styles.statsCard, styles.expenseStatsCard]}>
+          <View style={[styles.statsCard, { backgroundColor: isDark ? '#362020' : '#FFF5F5' }]}>
              <View style={{ marginBottom: 8 }}>
                <ArrowDownRight size={24} color="#FF5252" />
              </View>
-             <Text style={[styles.statsLabel, responsiveTextStyles.body]}>{t('dashboard.totalExpenses')}</Text>
+             <Text style={[styles.statsLabel, responsiveTextStyles.body, { color: isDark ? '#fff' : colors.foreground }]}>{t('dashboard.totalExpenses')}</Text>
              <Text style={[styles.statsValue, responsiveTextStyles.h3, { color: '#FF5252' }]} numberOfLines={1} adjustsFontSizeToFit>
                {defaultCurrency} {formatValue(totalExpenses)}
              </Text>
@@ -963,17 +963,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  incomeStatsCard: {
-    backgroundColor: '#1E3324', // Dark Green
-  },
-  expenseStatsCard: {
-    backgroundColor: '#362020', // Dark Red
-  },
   statsLabel: {
     textAlign: 'center',
     marginBottom: 4,
-    color: '#fff',
-    opacity: 0.9,
   },
   statsValue: {
     fontWeight: 'bold',
