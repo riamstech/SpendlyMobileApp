@@ -49,6 +49,7 @@ import {
   Gift,
   BarChart3,
   FileText,
+  RefreshCw,
 } from 'lucide-react-native';
 import { authService } from '../api/services/auth';
 import { usersService } from '../api/services/users';
@@ -81,9 +82,10 @@ interface SettingsScreenProps {
   onViewGoals?: () => void;
   onViewAnalytics?: () => void;
   onViewReceipts?: () => void;
+  onRenewLicense?: () => void;
 }
 
-export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, onViewAnalytics, onViewReceipts }: SettingsScreenProps) {
+export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, onViewAnalytics, onViewReceipts, onRenewLicense }: SettingsScreenProps) {
   const { t, i18n } = useTranslation('common');
   const { width } = useWindowDimensions();
   const { isDark, colors, toggleTheme } = useTheme();
@@ -1102,6 +1104,17 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                         </Text>
                       </View>
                     )}
+                    
+                    {/* Renew Button */}
+                    <Pressable
+                      style={[styles.renewSubscriptionButton, { backgroundColor: colors.primary }]}
+                      onPress={onRenewLicense}
+                    >
+                      <RefreshCw size={16} color="#FFFFFF" />
+                      <Text style={styles.renewSubscriptionButtonText}>
+                        {t('settings.renewSubscription') || 'Renew Subscription'}
+                      </Text>
+                    </Pressable>
                   </View>
                 </View>
               </View>
@@ -1847,6 +1860,21 @@ const styles = StyleSheet.create({
   subscriptionDate: {
     ...textStyles.labelSmall,
     color: '#10B981',
+  },
+  renewSubscriptionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  renewSubscriptionButtonText: {
+    ...textStyles.button,
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
   upgradeButton: {
     marginTop: 12,
