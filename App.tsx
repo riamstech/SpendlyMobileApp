@@ -79,7 +79,7 @@ function AppContent() {
 
   const initializeNotifications = async () => {
     try {
-      console.log('🔥 Initializing Firebase push notifications...');
+      console.log('🔔 Initializing Expo push notifications...');
       
       // Set up notification categories with actions
       await notificationService.setNotificationCategories([
@@ -110,24 +110,15 @@ function AppContent() {
 
       console.log('✅ Notification permissions granted');
 
-      // Get FCM token (Firebase)
-      const fcmToken = await notificationService.getFCMToken();
+      // Get Expo push token (works with Firebase via Expo's push service)
+      const pushToken = await notificationService.getExpoPushToken();
       
-      if (!fcmToken) {
-        console.log('⚠️ Failed to get FCM token, trying Expo token...');
-        // Fallback to Expo token if Firebase not configured yet
-        const expoPushToken = await notificationService.getExpoPushToken();
-        if (!expoPushToken) {
-          console.log('⚠️ Failed to get push token');
-          return;
-        }
-        console.log('✅ Using Expo push token');
-      } else {
-        console.log('✅ FCM token obtained:', fcmToken.substring(0, 20) + '...');
+      if (!pushToken) {
+        console.log('⚠️ Failed to get push token');
+        return;
       }
 
-      const pushToken = fcmToken || await notificationService.getExpoPushToken();
-      if (!pushToken) return;
+      console.log('✅ Push token obtained:', pushToken.substring(0, 20) + '...');
 
       // Get device UUID
       const deviceUUID = await notificationService.getDeviceUUID();
@@ -141,36 +132,17 @@ function AppContent() {
         console.error('❌ Failed to register device:', error);
       }
 
-      // Set up Firebase listeners
-      const unsubscribe = notificationService.setupFirebaseListeners(
-        (message) => {
-          console.log('🔔 Firebase message received (foreground):', message);
-          // Increment badge count
-          notificationService.incrementBadgeCount();
-          // You can show an in-app alert here
-        },
-        (message) => {
-          console.log('👆 Notification tapped:', message);
-          // Clear badge when notification is opened
-          notificationService.clearBadgeCount();
-          // Handle navigation based on notification data
-          const data = message.data;
-          console.log('Notification data:', data);
-          // Example: if (data?.screen === 'transactions') navigate to transactions
-        }
-      );
-
-      // Set up Expo notification listeners (for local notifications)
+      // Set up notification listeners
       notificationListener.current = notificationService.addNotificationReceivedListener(
         (notification) => {
-          console.log('🔔 Local notification received:', notification);
+          console.log('🔔 Notification received (foreground):', notification);
           notificationService.incrementBadgeCount();
         }
       );
 
       responseListener.current = notificationService.addNotificationResponseReceivedListener(
         (response) => {
-          console.log('👆 Local notification tapped:', response);
+          console.log('👆 Notification tapped:', response);
           notificationService.clearBadgeCount();
           const data = response.notification.request.content.data;
           const actionIdentifier = response.actionIdentifier;
@@ -179,18 +151,12 @@ function AppContent() {
           
           // Handle different actions
           if (actionIdentifier === 'VIEW') {
-            // Navigate to relevant screen
             console.log('User wants to view details');
           } else if (actionIdentifier === 'DISMISS') {
-            // Just dismiss
             console.log('User dismissed notification');
           }
         }
       );
-
-      // Subscribe to topics (optional)
-      await notificationService.subscribeToTopic('all-users');
-      await notificationService.subscribeToTopic('transactions');
 
       console.log('✅ Notification listeners and categories set up');
     } catch (error) {

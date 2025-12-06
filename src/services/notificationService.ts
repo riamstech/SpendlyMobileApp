@@ -2,7 +2,6 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
-import messaging from '@react-native-firebase/messaging';
 
 // Configure how notifications are handled when app is in foreground
 Notifications.setNotificationHandler({
@@ -42,17 +41,6 @@ export const notificationService = {
    */
   async requestPermissions(): Promise<NotificationPermissionStatus> {
     try {
-      // For Firebase, request permission
-      const authStatus = await messaging().requestPermission();
-      const enabled =
-        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
-      if (enabled) {
-        console.log('✅ Firebase authorization status:', authStatus);
-      }
-
-      // Also request Expo permissions for local notifications
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
       
@@ -62,7 +50,7 @@ export const notificationService = {
       }
       
       return {
-        granted: enabled && finalStatus === 'granted',
+        granted: finalStatus === 'granted',
         canAskAgain: finalStatus !== 'denied',
         status: finalStatus,
       };
@@ -77,9 +65,10 @@ export const notificationService = {
   },
 
   /**
-   * Get the Firebase Cloud Messaging (FCM) token
+   * Get the Expo push token for this device
+   * This works with Firebase Cloud Messaging via Expo's push service
    */
-  async getFCMToken(): Promise<string | null> {
+  async getExpoPushToken(): Promise<string | null> {
     try {
       // Check if running on a physical device
       if (!Device.isDevice) {
@@ -87,32 +76,14 @@ export const notificationService = {
         return null;
       }
 
-      // Get FCM token
-      const token = await messaging().getToken();
-      console.log('✅ FCM Token obtained:', token.substring(0, 20) + '...');
-      return token;
-    } catch (error) {
-      console.error('Error getting FCM token:', error);
-      return null;
-    }
-  },
-
-  /**
-   * Get the Expo push token (fallback for Expo Go)
-   */
-  async getExpoPushToken(): Promise<string | null> {
-    try {
-      if (!Device.isDevice) {
-        console.warn('Push notifications only work on physical devices');
-        return null;
-      }
-
+      // Request permissions first
       const { granted } = await this.requestPermissions();
       if (!granted) {
         console.warn('Notification permissions not granted');
         return null;
       }
 
+      // Get the Expo push token
       const projectId = Constants.expoConfig?.extra?.eas?.projectId;
       
       if (!projectId) {
@@ -124,7 +95,7 @@ export const notificationService = {
         projectId,
       });
 
-      console.log('Expo Push Token:', token.data);
+      console.log('✅ Expo Push Token:', token.data);
       return token.data;
     } catch (error) {
       console.error('Error getting Expo push token:', error);
@@ -146,39 +117,7 @@ export const notificationService = {
   },
 
   /**
-   * Set up Firebase message listeners
-   */
-  setupFirebaseListeners(
-    onMessageReceived: (message: any) => void,
-    onNotificationOpened: (message: any) => void
-  ) {
-    // Handle foreground messages
-    const unsubscribeForeground = messaging().onMessage(async (remoteMessage) => {
-      console.log('🔔 Firebase message received (foreground):', remoteMessage);
-      onMessageReceived(remoteMessage);
-    });
-
-    // Handle notification opened (app in background/quit)
-    messaging().onNotificationOpenedApp((remoteMessage) => {
-      console.log('👆 Notification opened app from background:', remoteMessage);
-      onNotificationOpened(remoteMessage);
-    });
-
-    // Handle notification opened (app was quit)
-    messaging()
-      .getInitialNotification()
-      .then((remoteMessage) => {
-        if (remoteMessage) {
-          console.log('👆 Notification opened app from quit state:', remoteMessage);
-          onNotificationOpened(remoteMessage);
-        }
-      });
-
-    return unsubscribeForeground;
-  },
-
-  /**
-   * Add notification received listener (Expo - for local notifications)
+   * Add notification received listener (when app is in foreground)
    */
   addNotificationReceivedListener(
     callback: (notification: Notifications.Notification) => void
@@ -187,7 +126,7 @@ export const notificationService = {
   },
 
   /**
-   * Add notification response listener (Expo - for local notifications)
+   * Add notification response listener (when user taps on notification)
    */
   addNotificationResponseReceivedListener(
     callback: (response: Notifications.NotificationResponse) => void
@@ -200,18 +139,20 @@ export const notificationService = {
    */
   async setNotificationCategories(categories: NotificationCategory[]): Promise<void> {
     try {
-      await Notifications.setNotificationCategoryAsync(
-        categories[0].identifier,
-        categories[0].actions.map(action => ({
-          identifier: action.identifier,
-          buttonTitle: action.title,
-          options: {
-            opensAppToForeground: action.options?.foreground ?? true,
-            isDestructive: action.options?.destructive ?? false,
-            isAuthenticationRequired: action.options?.authenticationRequired ?? false,
-          },
-        }))
-      );
+      for (const category of categories) {
+        await Notifications.setNotificationCategoryAsync(
+          category.identifier,
+          category.actions.map(action => ({
+            identifier: action.identifier,
+            buttonTitle: action.title,
+            options: {
+              opensAppToForeground: action.options?.foreground ?? true,
+              isDestructive: action.options?.destructive ?? false,
+              isAuthenticationRequired: action.options?.authenticationRequired ?? false,
+            },
+          }))
+        );
+      }
       console.log('✅ Notification categories set');
     } catch (error) {
       console.error('Error setting notification categories:', error);
@@ -303,30 +244,6 @@ export const notificationService = {
       await this.setBadgeCount(0);
     } catch (error) {
       console.error('Error clearing badge count:', error);
-    }
-  },
-
-  /**
-   * Subscribe to a topic (Firebase)
-   */
-  async subscribeToTopic(topic: string): Promise<void> {
-    try {
-      await messaging().subscribeToTopic(topic);
-      console.log(`✅ Subscribed to topic: ${topic}`);
-    } catch (error) {
-      console.error(`Error subscribing to topic ${topic}:`, error);
-    }
-  },
-
-  /**
-   * Unsubscribe from a topic (Firebase)
-   */
-  async unsubscribeFromTopic(topic: string): Promise<void> {
-    try {
-      await messaging().unsubscribeFromTopic(topic);
-      console.log(`✅ Unsubscribed from topic: ${topic}`);
-    } catch (error) {
-      console.error(`Error unsubscribing from topic ${topic}:`, error);
     }
   },
 
