@@ -450,103 +450,41 @@ export default function ReportsScreen() {
   const handleDownloadCSV = async () => {
     try {
       console.log('Starting CSV download...');
-      const rows: string[] = [];
+      
+      // Get date range
+      let from: string, to: string;
+      if (dateRange === 'custom') {
+        if (!customDateFrom || !customDateTo) {
+          Alert.alert(
+            t('common.error') || 'Error',
+            t('reports.selectDateRange') || 'Please select a date range'
+          );
+          return;
+        }
+        from = customDateFrom;
+        to = customDateTo;
+      } else {
+        const dateRangeResult = getDateRangeFromString(dateRange);
+        from = dateRangeResult.from;
+        to = dateRangeResult.to;
+      }
 
-      rows.push(t('reports.financialReport') || 'Financial Report');
-      rows.push(`${t('reports.generatedOn') || 'Generated on'} ${new Date().toLocaleDateString()}`);
-      rows.push('');
+      console.log('Date range:', { from, to });
 
-      rows.push(t('reports.summary') || 'Summary');
-      rows.push([t('reports.totalIncome') || 'Total Income', `${displayCurrency} ${totalIncome.toLocaleString()}`].join(','));
-      rows.push([t('reports.totalExpenses') || 'Total Expenses', `${displayCurrency} ${totalExpenses.toLocaleString()}`].join(','));
-      rows.push([t('reports.netSavings') || 'Net Savings', `${displayCurrency} ${totalSavings.toLocaleString()}`].join(','));
-      rows.push('');
+      // Determine API currency filter
+      const apiCurrencyFilter = selectedCurrency === 'ALL' ? undefined : selectedCurrency;
 
-      rows.push(t('reports.categoryBreakdown') || 'Category Breakdown');
-      rows.push([
-        t('reports.category') || 'Category',
-        t('reports.amount') || 'Amount',
-        t('reports.percentage') || 'Percentage',
-      ].join(','));
-      categoryData.forEach(cat => {
-        const percentage = totalExpenses > 0 ? ((cat.value / totalExpenses) * 100).toFixed(1) : '0.0';
-        rows.push([
-          cat.name,
-          `${displayCurrency} ${cat.value.toLocaleString()}`,
-          `${percentage}%`,
-        ].join(','));
-      });
-      rows.push('');
-
-      // Transactions section
-      rows.push(t('reports.transactions') || 'Transactions');
-      rows.push([
-        t('reports.transaction') || 'Transaction',
-        t('reports.category') || 'Category',
-        t('reports.date') || 'Date',
-        t('reports.amount') || 'Amount',
-        'Type',
-      ].join(','));
-      transactions.forEach(transaction => {
-        const description = transaction.description || transaction.notes || 'Transaction';
-        const category = translateCategoryName(transaction.category, t);
-        const date = transaction.date || '';
-        const amount = `${transaction.currency || displayCurrency} ${transaction.amount.toLocaleString()}`;
-        const type = transaction.type === 'income' ? 'Income' : 'Expense';
-        rows.push([
-          `"${description}"`,
-          `"${category}"`,
-          date,
-          amount,
-          type,
-        ].join(','));
-      });
-      rows.push('');
-
-      // Investments section
-      rows.push(t('reports.investments') || 'Investments');
-      rows.push([
-        'Name',
-        t('reports.category') || 'Category',
-        t('reports.date') || 'Date',
-        'Invested Amount',
-        'Current Value',
-        'Profit/Loss',
-        'Profit/Loss %',
-      ].join(','));
-      investments.forEach(investment => {
-        const name = investment.name || t('reports.investment') || 'Investment';
-        const category = translateCategoryName(investment.category, t);
-        const date = investment.startDate || '';
-        const investedAmount = `${investment.currency || displayCurrency} ${(investment.investedAmount || 0).toLocaleString()}`;
-        const currentValue = `${investment.currency || displayCurrency} ${(investment.currentValue || 0).toLocaleString()}`;
-        const profitLoss = investment.profitLoss !== undefined 
-          ? `${investment.currency || displayCurrency} ${investment.profitLoss >= 0 ? '+' : ''}${investment.profitLoss.toLocaleString()}`
-          : 'N/A';
-        const profitLossPercent = investment.profitLossPercent !== undefined 
-          ? `${investment.profitLossPercent >= 0 ? '+' : ''}${investment.profitLossPercent.toFixed(1)}%`
-          : 'N/A';
-        rows.push([
-          `"${name}"`,
-          `"${category}"`,
-          date,
-          investedAmount,
-          currentValue,
-          profitLoss,
-          profitLossPercent,
-        ].join(','));
-      });
-
-      const csvContent = rows.join('\n');
-      const fileName = `financial_report_${new Date().toISOString().split('T')[0]}.csv`;
-
-      console.log('CSV content generated, length:', csvContent.length);
+      console.log('Fetching CSV from API...');
+      // Call backend API to get CSV content
+      const csvContent = await reportsService.exportCsv(from, to, apiCurrencyFilter);
+      console.log('CSV content received, length:', csvContent?.length);
 
       if (Platform.OS === 'web') {
         // Web-specific download logic
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         if (link.download !== undefined) {
+          const fileName = `financial_report_${from}_to_${to}.csv`;
           const url = URL.createObjectURL(blob);
           link.setAttribute('href', url);
           link.setAttribute('download', fileName);
@@ -558,22 +496,20 @@ export default function ReportsScreen() {
         return;
       }
 
-      console.log('Platform:', Platform.OS);
+      // Native logic - save to file and share
       console.log('FileSystem available:', !!FileSystem);
       console.log('Sharing available:', !!Sharing);
-      console.log('FileSystem.cacheDirectory:', (FileSystem as any).cacheDirectory);
-      console.log('FileSystem.documentDirectory:', (FileSystem as any).documentDirectory);
 
-      // Use documentDirectory as fallback if cacheDirectory is not available
       const cacheDir = (FileSystem as any).cacheDirectory || (FileSystem as any).documentDirectory;
       if (!cacheDir) {
         throw new Error('FileSystem directories are not available. The app may need to be rebuilt.');
       }
 
+      const fileName = `financial_report_${from}_to_${to}.csv`;
       const fileUri = `${cacheDir}${fileName}`;
       console.log('Writing to:', fileUri);
 
-      await FileSystem.writeAsStringAsync(fileUri, csvContent);
+      await (FileSystem as any).writeAsStringAsync(fileUri, csvContent);
       console.log('File written successfully');
 
       const canShare = await Sharing.isAvailableAsync();

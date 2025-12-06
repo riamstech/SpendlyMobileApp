@@ -64,5 +64,42 @@ export const reportsService = {
     
     return await response.text();
   },
+
+  /**
+   * Export CSV report from backend
+   * Returns CSV string
+   */
+  async exportCsv(fromDate?: string, toDate?: string, currency?: string): Promise<string> {
+    const params: Record<string, string> = {};
+    if (fromDate) params.from_date = fromDate;
+    if (toDate) params.to_date = toDate;
+    if (currency) params.currency = currency;
+    
+    // Use fetch directly to get CSV response
+    const token = await apiClient.getTokenAsync();
+    
+    const queryString = new URLSearchParams(params).toString();
+    const url = `${config.apiBaseUrl}/reports/export/csv${queryString ? `?${queryString}` : ''}`;
+    
+    console.log('CSV export URL:', url);
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'text/csv',
+      },
+    });
+    
+    console.log('CSV response status:', response.status, response.statusText);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('CSV error response:', errorText);
+      throw new Error(`Failed to fetch CSV (${response.status}): ${errorText || response.statusText}`);
+    }
+    
+    return await response.text();
+  },
 };
 
