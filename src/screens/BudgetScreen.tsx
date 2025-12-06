@@ -328,7 +328,7 @@ export default function BudgetScreen() {
       name: translateCategoryName(cat.name, t),
       value: cat.spent,
       color: cat.color,
-      legendFontColor: '#333',
+      legendFontColor: colors.foreground,
       legendFontSize: 12,
     }));
 
@@ -526,12 +526,12 @@ export default function BudgetScreen() {
               width={width - 64}
               height={220}
               chartConfig={{
-                backgroundColor: '#ffffff',
-                backgroundGradientFrom: '#ffffff',
-                backgroundGradientTo: '#ffffff',
+                backgroundColor: colors.card,
+                backgroundGradientFrom: colors.card,
+                backgroundGradientTo: colors.card,
                 decimalPlaces: 0,
-                color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
+                labelColor: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity * 0.9})` : `rgba(0, 0, 0, ${opacity})`,
               }}
               accessor="value"
               backgroundColor="transparent"
