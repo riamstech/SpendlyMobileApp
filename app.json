@@ -29,7 +29,8 @@
           }
         ]
       },
-      "appleTeamId": "ENLJM2DLPF"
+      "appleTeamId": "ENLJM2DLPF",
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "package": "com.spendly.money",
