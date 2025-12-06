@@ -44,6 +44,8 @@ export const reportsService = {
     const queryString = new URLSearchParams(params).toString();
     const url = `${config.apiBaseUrl}/reports/export/pdf${queryString ? `?${queryString}` : ''}`;
     
+    console.log('PDF export URL:', url);
+    
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -52,8 +54,12 @@ export const reportsService = {
       },
     });
     
+    console.log('PDF response status:', response.status, response.statusText);
+    
     if (!response.ok) {
-      throw new Error(`Failed to fetch PDF: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('PDF error response:', errorText);
+      throw new Error(`Failed to fetch PDF (${response.status}): ${errorText || response.statusText}`);
     }
     
     return await response.text();

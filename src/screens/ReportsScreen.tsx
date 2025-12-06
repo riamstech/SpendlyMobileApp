@@ -561,10 +561,13 @@ export default function ReportsScreen() {
       console.log('Platform:', Platform.OS);
       console.log('FileSystem available:', !!FileSystem);
       console.log('Sharing available:', !!Sharing);
+      console.log('FileSystem.cacheDirectory:', (FileSystem as any).cacheDirectory);
+      console.log('FileSystem.documentDirectory:', (FileSystem as any).documentDirectory);
 
-      const cacheDir = FileSystem.cacheDirectory;
+      // Use documentDirectory as fallback if cacheDirectory is not available
+      const cacheDir = (FileSystem as any).cacheDirectory || (FileSystem as any).documentDirectory;
       if (!cacheDir) {
-        throw new Error('FileSystem.cacheDirectory is not available. The app may need to be rebuilt.');
+        throw new Error('FileSystem directories are not available. The app may need to be rebuilt.');
       }
 
       const fileUri = `${cacheDir}${fileName}`;
