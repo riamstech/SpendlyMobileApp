@@ -39,3 +39,7 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Firebase config files (contain sensitive keys)
+GoogleService-Info.plist
+google-services.json
