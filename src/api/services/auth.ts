@@ -74,5 +74,19 @@ export const authService = {
   async changePassword(data: ChangePasswordRequest): Promise<{ message: string }> {
     return apiClient.post<{ message: string }>('/auth/change-password', data);
   },
+  /**
+ * Login with Google
+ */
+async googleLogin(data: { token: string; device_name: string }): Promise<AuthResponse> {
+  const response = await apiClient.post<AuthResponse>('/auth/social/verify', {
+    provider: 'google',
+    token: data.token,
+    device_name: data.device_name
+  });
+  // Store token after successful login
+  if (response.token) {
+    apiClient.setToken(response.token);
+  }
+  return response;
+  }
 };
-

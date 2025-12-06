@@ -17,6 +17,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { authService } from '../api/services/auth';
 import { Mail, Lock, User, Eye, EyeOff, Check, Gift } from 'lucide-react-native';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
 import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
@@ -207,28 +208,42 @@ export default function SignupScreen({
     }
   };
 
-  const handleGoogleSignup = () => {
+  const handleGoogleSignup = async () => {
     if (Platform.OS === 'web') {
       if (onSignupSuccess) onSignupSuccess();
       return;
     }
 
-    Alert.alert(
-      'Google Sign Up',
-      'By continuing you agree to sign up with Google.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Continue', 
-          onPress: () => {
-            // Simulate successful signup
-            setTimeout(() => {
-              if (onSignupSuccess) onSignupSuccess();
-            }, 500);
-          }
-        }
-      ]
-    );
+    try {
+      setIsLoading(true);
+      
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      const tokens = await GoogleSignin.getTokens();
+      
+      // Send token to backend
+      const deviceName = `${Platform.OS} ${Platform.Version} - React Native`;
+      await authService.googleLogin({
+        token: tokens.idToken,
+        device_name: deviceName
+      });
+
+      if (onSignupSuccess) onSignupSuccess();
+    } catch (error: any) {
+      console.error('Google Sign-Up error:', error);
+      
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        // User cancelled
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        Alert.alert('Error', 'Sign in already in progress');
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        Alert.alert('Error', 'Google Play Services not available');
+      } else {
+        Alert.alert('Google Sign-Up Failed', error.message || 'An error occurred during Google Sign-Up');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Responsive styles

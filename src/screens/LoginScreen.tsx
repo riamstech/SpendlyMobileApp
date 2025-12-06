@@ -20,6 +20,7 @@ import { Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
 import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 
 interface LoginScreenProps {
   onLoginSuccess?: () => void;
@@ -87,37 +88,92 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
     }
   };
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
+    console.log('handleGoogleLogin called, Platform:', Platform.OS);
+    
     if (Platform.OS === 'web') {
+      // Web implementation or redirect
+      console.log('Web platform detected, skipping Google Sign-In');
       if (onLoginSuccess) onLoginSuccess();
       return;
     }
 
-    Alert.alert(
-      'Google Sign In',
-      'By continuing you agree to sign in with Google.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Continue', 
-          onPress: () => {
-            // Simulate successful login
-            setTimeout(() => {
-              if (onLoginSuccess) onLoginSuccess();
-            }, 500);
-          }
-        }
-      ]
-    );
+    try {
+      console.log('Starting Google Sign-In flow...');
+      setIsLoading(true);
+      
+      console.log('Checking Play Services...');
+      await GoogleSignin.hasPlayServices();
+      
+      console.log('Initiating Google Sign-In...');
+      const userInfo = await GoogleSignin.signIn();
+      console.log('Google Sign-In successful, user:', userInfo.data?.user?.email);
+      
+      console.log('Getting tokens...');
+      const tokens = await GoogleSignin.getTokens();
+      console.log('Tokens received, idToken length:', tokens.idToken?.length);
+      
+      // Send token to backend
+      const deviceName = `${Platform.OS} ${Platform.Version} - React Native`;
+      console.log('Sending token to backend...');
+      await authService.googleLogin({
+        token: tokens.idToken,
+        device_name: deviceName
+      });
+      console.log('Backend authentication successful');
+
+      if (onLoginSuccess) onLoginSuccess();
+    } catch (error: any) {
+      console.error('Google Sign-In error:', error);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        console.log('User cancelled the login flow');
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        console.log('Sign in already in progress');
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        Alert.alert('Error', 'Google Play Services not available');
+      } else {
+        Alert.alert('Google Sign-In Failed', error.message || 'An error occurred during Google Sign-In');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  React.useEffect(() => {
+    if (Platform.OS !== 'web') {
+      GoogleSignin.configure({
+        // Original iOS Client ID
+        iosClientId: '913299133500-c6hjl99i7q14h40ne17mm2e2jrh2q9pu.apps.googleusercontent.com',
+        // New Web Client ID for server-side validation
+        webClientId: '913299133500-pn633h3t96sht7ama46r8736jjfann5v.apps.googleusercontent.com',
+        scopes: ['email', 'profile'],
+      });
+    }
+  }, []);
 
   // Responsive styles
   const responsiveTextStyles = createResponsiveTextStyles(width);
 
   // Dynamic gradient colors based on theme
-  const gradientColors = isDark 
+  const gradientColors = (isDark 
     ? ['#1a1a1a', '#2a2a2a'] 
-    : ['#03A9F4', '#0288D1'];
+    : ['#03A9F4', '#0288D1']) as [string, string, ...string[]];
+
+  React.useEffect(() => {
+    if (Platform.OS !== 'web') {
+      GoogleSignin.configure({
+        // Web Client ID (Required for idToken generation) - From google-services.json type 3
+        webClientId: '913299133500-pn633h3t96sht7ama46r8736jjfann5v.apps.googleusercontent.com', 
+        // iOS Client ID - User provided
+        iosClientId: '913299133500-c6hjl99i7q14h40ne17mm2e2jrh2q9pu.apps.googleusercontent.com',
+        // Android Client ID is handled automatically by google-services.json
+        offlineAccess: true,
+      });
+    }
+  }, []);
 
   return (
     <LinearGradient

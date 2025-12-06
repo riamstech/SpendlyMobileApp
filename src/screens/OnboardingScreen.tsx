@@ -143,11 +143,16 @@ export default function OnboardingScreen({
   // Responsive styles
 
 
+  // Dynamic gradient colors
+  const gradientColors = (isDark 
+    ? ['#1a1a1a', '#2a2a2a'] 
+    : ['#03A9F4', '#0288D1']) as [string, string, ...string[]];
+
   // Splash Screen
   if (step === 'splash') {
     return (
-      <LinearGradient colors={['#03A9F4', '#0288D1']} style={styles.gradient}>
-        <StatusBar style="light" />
+      <LinearGradient colors={gradientColors} style={styles.gradient}>
+        <StatusBar style={isDark ? "light" : "dark"} />
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.splashContainer}>
             <Image
@@ -155,8 +160,8 @@ export default function OnboardingScreen({
               style={{ width: 80 * scale, height: 80 * scale }}
               resizeMode="contain"
             />
-            <Text style={[styles.splashTitle, responsiveTextStyles.h3]}>Spendly</Text>
-            <Text style={[styles.splashSubtitle, responsiveTextStyles.body]}>
+            <Text style={[styles.splashTitle, responsiveTextStyles.h3, { color: isDark ? '#fff' : '#fff' }]}>Spendly</Text>
+            <Text style={[styles.splashSubtitle, responsiveTextStyles.body, { color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.9)' }]}>
               Track. Save. Grow.
             </Text>
           </View>
@@ -168,8 +173,8 @@ export default function OnboardingScreen({
   // Welcome Screen
   if (step === 'welcome') {
     return (
-      <LinearGradient colors={['#03A9F4', '#0288D1']} style={styles.gradient}>
-        <StatusBar style="light" />
+      <LinearGradient colors={gradientColors} style={styles.gradient}>
+        <StatusBar style={isDark ? "light" : "dark"} />
         <SafeAreaView style={styles.safeArea}>
           <ScrollView
             contentContainerStyle={[
@@ -179,47 +184,47 @@ export default function OnboardingScreen({
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.logoContainer}>
-              <View style={styles.iconCircle}>
+              <View style={[styles.iconCircle, { backgroundColor: isDark ? colors.card : '#fff' }]}>
                 <Wallet size={40 * scale} color="#03A9F4" />
               </View>
-              <Text style={[styles.headerTitle, responsiveTextStyles.h3]}>
+              <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: isDark ? '#fff' : '#fff' }]}>
                 Welcome to Spendly
               </Text>
-              <Text style={[styles.headerSubtitle, responsiveTextStyles.body]}>
+              <Text style={[styles.headerSubtitle, responsiveTextStyles.body, { color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.9)' }]}>
                 Your personal finance companion
               </Text>
             </View>
 
-            <View style={[styles.card, { padding: 20 }]}>
-              <Text style={styles.cardTitle}>Take control of your finances</Text>
-              <Text style={styles.cardText}>
+            <View style={[styles.card, { padding: 20, backgroundColor: colors.card }]}>
+              <Text style={[styles.cardTitle, { color: colors.foreground }]}>Take control of your finances</Text>
+              <Text style={[styles.cardText, { color: colors.mutedForeground }]}>
                 Track expenses, manage investments, and achieve your financial goals with ease.
               </Text>
               <View style={styles.progressDots}>
-                <View style={[styles.dot, styles.dotActive]} />
-                <View style={styles.dot} />
-                <View style={styles.dot} />
+                <View style={[styles.dot, styles.dotActive, { backgroundColor: colors.primary }]} />
+                <View style={[styles.dot, { backgroundColor: colors.border }]} />
+                <View style={[styles.dot, { backgroundColor: colors.border }]} />
               </View>
             </View>
 
             <Pressable
               style={[
                 styles.primaryButton,
-                { paddingVertical: 14 },
+                { paddingVertical: 14, backgroundColor: isDark ? colors.primary : '#fff' },
               ]}
               onPress={() => setStep('features')}
             >
-              <Text style={[styles.primaryButtonText, responsiveTextStyles.button]}>
+              <Text style={[styles.primaryButtonText, responsiveTextStyles.button, { color: isDark ? '#fff' : '#03A9F4' }]}>
                 Get Started
               </Text>
-              <ChevronRight size={20 * scale} color="#fff" style={{ marginLeft: 8 }} />
+              <ChevronRight size={20 * scale} color={isDark ? '#fff' : '#03A9F4'} style={{ marginLeft: 8 }} />
             </Pressable>
 
             <Pressable
               style={styles.skipButton}
               onPress={() => setStep(isAuthenticated ? 'currency' : 'currency')}
             >
-              <Text style={styles.skipButtonText}>Skip</Text>
+              <Text style={[styles.skipButtonText, { color: isDark ? 'rgba(255, 255, 255, 0.7)' : '#fff' }]}>Skip</Text>
             </Pressable>
           </ScrollView>
         </SafeAreaView>
@@ -230,8 +235,8 @@ export default function OnboardingScreen({
   // Features Screen
   if (step === 'features') {
     return (
-      <LinearGradient colors={['#03A9F4', '#0288D1']} style={styles.gradient}>
-        <StatusBar style="light" />
+      <LinearGradient colors={gradientColors} style={styles.gradient}>
+        <StatusBar style={isDark ? "light" : "dark"} />
         <SafeAreaView style={styles.safeArea}>
           <ScrollView
             contentContainerStyle={[
@@ -241,46 +246,46 @@ export default function OnboardingScreen({
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.logoContainer}>
-              <View style={styles.iconCircle}>
+              <View style={[styles.iconCircle, { backgroundColor: isDark ? colors.card : '#fff' }]}>
                 <TrendingUp size={40 * scale} color="#03A9F4" />
               </View>
-              <Text style={[styles.headerTitle, responsiveTextStyles.h3]}>
+              <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: isDark ? '#fff' : '#fff' }]}>
                 Powerful Features
               </Text>
             </View>
 
             <View style={styles.featuresContainer}>
-              <View style={[styles.featureCard, { padding: 16 }]}>
+              <View style={[styles.featureCard, { padding: 16, backgroundColor: colors.card }]}>
                 <View style={styles.featureIconContainer}>
                   <Wallet size={20 * scale} color="#4CAF50" />
                 </View>
                 <View style={styles.featureContent}>
-                  <Text style={styles.featureTitle}>Track Expenses</Text>
-                  <Text style={styles.featureText}>
+                  <Text style={[styles.featureTitle, { color: colors.foreground }]}>Track Expenses</Text>
+                  <Text style={[styles.featureText, { color: colors.mutedForeground }]}>
                     Monitor your daily spending and categorize transactions
                   </Text>
                 </View>
               </View>
 
-              <View style={[styles.featureCard, { padding: 16 }]}>
+              <View style={[styles.featureCard, { padding: 16, backgroundColor: colors.card }]}>
                 <View style={[styles.featureIconContainer, { backgroundColor: 'rgba(3, 169, 244, 0.1)' }]}>
                   <PieChart size={20 * scale} color="#03A9F4" />
                 </View>
                 <View style={styles.featureContent}>
-                  <Text style={styles.featureTitle}>Budget Management</Text>
-                  <Text style={styles.featureText}>
+                  <Text style={[styles.featureTitle, { color: colors.foreground }]}>Budget Management</Text>
+                  <Text style={[styles.featureText, { color: colors.mutedForeground }]}>
                     Set budget limits and get alerts when approaching them
                   </Text>
                 </View>
               </View>
 
-              <View style={[styles.featureCard, { padding: 16 }]}>
+              <View style={[styles.featureCard, { padding: 16, backgroundColor: colors.card }]}>
                 <View style={[styles.featureIconContainer, { backgroundColor: 'rgba(255, 193, 7, 0.1)' }]}>
                   <BarChart3 size={20 * scale} color="#FFC107" />
                 </View>
                 <View style={styles.featureContent}>
-                  <Text style={styles.featureTitle}>Investment Tracking</Text>
-                  <Text style={styles.featureText}>
+                  <Text style={[styles.featureTitle, { color: colors.foreground }]}>Investment Tracking</Text>
+                  <Text style={[styles.featureText, { color: colors.mutedForeground }]}>
                     Track your investment portfolio and monitor growth
                   </Text>
                 </View>
@@ -288,22 +293,22 @@ export default function OnboardingScreen({
             </View>
 
             <View style={styles.progressDots}>
-              <View style={styles.dot} />
-              <View style={[styles.dot, styles.dotActive]} />
-              <View style={styles.dot} />
+              <View style={[styles.dot, { backgroundColor: colors.border }]} />
+              <View style={[styles.dot, styles.dotActive, { backgroundColor: colors.primary }]} />
+              <View style={[styles.dot, { backgroundColor: colors.border }]} />
             </View>
 
             <Pressable
               style={[
                 styles.primaryButton,
-                { paddingVertical: 14 },
+                { paddingVertical: 14, backgroundColor: isDark ? colors.primary : '#fff' },
               ]}
               onPress={() => setStep('currency')}
             >
-              <Text style={[styles.primaryButtonText, responsiveTextStyles.button]}>
+              <Text style={[styles.primaryButtonText, responsiveTextStyles.button, { color: isDark ? '#fff' : '#03A9F4' }]}>
                 Continue
               </Text>
-              <ChevronRight size={20 * scale} color="#fff" style={{ marginLeft: 8 }} />
+              <ChevronRight size={20 * scale} color={isDark ? '#fff' : '#03A9F4'} style={{ marginLeft: 8 }} />
             </Pressable>
           </ScrollView>
         </SafeAreaView>
@@ -324,8 +329,8 @@ export default function OnboardingScreen({
     });
 
     return (
-      <LinearGradient colors={['#03A9F4', '#0288D1']} style={styles.gradient}>
-        <StatusBar style="light" />
+      <LinearGradient colors={gradientColors} style={styles.gradient}>
+        <StatusBar style={isDark ? "light" : "dark"} />
         <SafeAreaView style={styles.safeArea}>
           <ScrollView
             contentContainerStyle={[
@@ -338,10 +343,10 @@ export default function OnboardingScreen({
               <View style={[styles.iconCircle, { backgroundColor: '#4CAF50' }]}>
                 <Check size={40 * scale} color="#fff" />
               </View>
-              <Text style={[styles.headerTitle, responsiveTextStyles.h3]}>
+              <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: isDark ? '#fff' : '#fff' }]}>
                 Almost Done!
               </Text>
-              <Text style={[styles.headerSubtitle, responsiveTextStyles.body]}>
+              <Text style={[styles.headerSubtitle, responsiveTextStyles.body, { color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.9)' }]}>
                 Select your default currency
               </Text>
             </View>
@@ -409,16 +414,16 @@ export default function OnboardingScreen({
             <Pressable
               style={[
                 styles.primaryButton,
-                { paddingVertical: 14 },
+                { paddingVertical: 14, backgroundColor: isDark ? colors.primary : '#fff' },
                 !currency && styles.primaryButtonDisabled,
               ]}
               onPress={() => setStep('location')}
               disabled={!currency}
             >
-              <Text style={[styles.primaryButtonText, responsiveTextStyles.button]}>
+              <Text style={[styles.primaryButtonText, responsiveTextStyles.button, { color: isDark ? '#fff' : '#03A9F4' }]}>
                 Continue
               </Text>
-              <ChevronRight size={20 * scale} color="#fff" style={{ marginLeft: 8 }} />
+              <ChevronRight size={20 * scale} color={isDark ? '#fff' : '#03A9F4'} style={{ marginLeft: 8 }} />
             </Pressable>
           </ScrollView>
         </SafeAreaView>
@@ -441,8 +446,8 @@ export default function OnboardingScreen({
     });
 
     return (
-      <LinearGradient colors={['#03A9F4', '#0288D1']} style={styles.gradient}>
-        <StatusBar style="light" />
+      <LinearGradient colors={gradientColors} style={styles.gradient}>
+        <StatusBar style={isDark ? "light" : "dark"} />
         <SafeAreaView style={styles.safeArea}>
           <ScrollView
             contentContainerStyle={[
@@ -455,7 +460,7 @@ export default function OnboardingScreen({
               <View style={[styles.iconCircle, { backgroundColor: '#4CAF50' }]}>
                 <MapPin size={40 * scale} color="#fff" />
               </View>
-              <Text style={[styles.headerTitle, responsiveTextStyles.h3]}>
+              <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: isDark ? '#fff' : '#fff' }]}>
                 Share Your Location
               </Text>
               <Text style={[styles.headerSubtitle, responsiveTextStyles.body]}>
@@ -544,16 +549,16 @@ export default function OnboardingScreen({
             <Pressable
               style={[
                 styles.primaryButton,
-                { paddingVertical: 14 },
+                { paddingVertical: 14, backgroundColor: isDark ? colors.primary : '#fff' },
                 !country && styles.primaryButtonDisabled,
               ]}
               onPress={handleComplete}
               disabled={!country}
             >
-              <Text style={[styles.primaryButtonText, responsiveTextStyles.button]}>
+              <Text style={[styles.primaryButtonText, responsiveTextStyles.button, { color: isDark ? '#fff' : '#03A9F4' }]}>
                 Complete Setup
               </Text>
-              <Check size={20 * scale} color="#fff" style={{ marginLeft: 8 }} />
+              <Check size={20 * scale} color={isDark ? '#fff' : '#03A9F4'} style={{ marginLeft: 8 }} />
             </Pressable>
           </ScrollView>
         </SafeAreaView>

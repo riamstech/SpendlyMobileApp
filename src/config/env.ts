@@ -5,7 +5,7 @@ export const config = {
   apiTimeout: 30000,
   // Storage URL for serving uploaded files (avatars, receipts, etc.)
   // Remove /api suffix to get base URL
-  storageUrl: 'https://api.spendly.money',
+  storageUrl: 'https://api.spendly.money/storage',
 };
 
 

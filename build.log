@@ -1,0 +1,52 @@
+› Planning build
+    Run script build phase '[CP-User] [Hermes] Replace Hermes for the right configuration, if needed' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'hermes-engine' from project 'Pods')
+› Executing react-native Pods/hermes-engine » [CP-User] [Hermes] Replace Hermes for the right configuration, if needed
+› Executing react-native Pods/ReactNativeDependencies » [CP-User] [RNDeps] Replace React Native Dependencies for the right configuration, if needed
+› Preparing Pods/FirebaseAuth-FirebaseAuth_Privacy » ResourceBundle-FirebaseAuth_Privacy-FirebaseAuth-Info.plist
+› Preparing Pods/expo-dev-menu-EXDevMenu » ResourceBundle-EXDevMenu-expo-dev-menu-Info.plist
+› Preparing Pods/EXConstants-ExpoConstants_privacy » ResourceBundle-ExpoConstants_privacy-EXConstants-Info.plist
+› Preparing Pods/FirebaseCore-FirebaseCore_Privacy » ResourceBundle-FirebaseCore_Privacy-FirebaseCore-Info.plist
+› Preparing Pods/RNSVG-RNSVGFilters » ResourceBundle-RNSVGFilters-RNSVG-Info.plist
+› Preparing Pods/RNCAsyncStorage-RNCAsyncStorage_resources » ResourceBundle-RNCAsyncStorage_resources-RNCAsyncStorage-Info.plist
+› Preparing Pods/GoogleDataTransport-GoogleDataTransport_Privacy » ResourceBundle-GoogleDataTransport_Privacy-GoogleDataTransport-Info.plist
+› Preparing Pods/GTMAppAuth-GTMAppAuth_Privacy » ResourceBundle-GTMAppAuth_Privacy-GTMAppAuth-Info.plist
+› Preparing Pods/React-cxxreact-React-cxxreact_privacy » ResourceBundle-React-cxxreact_privacy-React-cxxreact-Info.plist
+› Preparing Pods/React-Core-React-Core_privacy » ResourceBundle-React-Core_privacy-React-Core-Info.plist
+› Preparing Pods/nanopb-nanopb_Privacy » ResourceBundle-nanopb_Privacy-nanopb-Info.plist
+› Preparing Pods/RNDeviceInfo-RNDeviceInfoPrivacyInfo » ResourceBundle-RNDeviceInfoPrivacyInfo-RNDeviceInfo-Info.plist
+› Preparing Pods/GoogleUtilities-GoogleUtilities_Privacy » ResourceBundle-GoogleUtilities_Privacy-GoogleUtilities-Info.plist
+› Preparing Pods/GTMSessionFetcher-GTMSessionFetcher_Core_Privacy » ResourceBundle-GTMSessionFetcher_Core_Privacy-GTMSessionFetcher-Info.plist
+› Preparing Pods/FirebaseCoreInternal-FirebaseCoreInternal_Privacy » ResourceBundle-FirebaseCoreInternal_Privacy-FirebaseCoreInternal-Info.plist
+› Preparing Pods/FirebaseCoreExtension-FirebaseCoreExtension_Privacy » ResourceBundle-FirebaseCoreExtension_Privacy-FirebaseCoreExtension-Info.plist
+› Preparing Pods/ExpoLocalization-ExpoLocalization_privacy » ResourceBundle-ExpoLocalization_privacy-ExpoLocalization-Info.plist
+› Preparing Pods/ExpoFileSystem-ExpoFileSystem_privacy » ResourceBundle-ExpoFileSystem_privacy-ExpoFileSystem-Info.plist
+› Preparing Pods/PromisesObjC-FBLPromises_Privacy » ResourceBundle-FBLPromises_Privacy-PromisesObjC-Info.plist
+› Preparing @react-native-google-signin/google-signin Pods/GoogleSignIn-GoogleSignIn » ResourceBundle-GoogleSignIn-GoogleSignIn-Info.plist
+› Preparing expo-constants Pods/EXConstants-EXConstants » ResourceBundle-EXConstants-EXConstants-Info.plist
+› Preparing Pods/FirebaseInstallations-FirebaseInstallations_Privacy » ResourceBundle-FirebaseInstallations_Privacy-FirebaseInstallations-Info.plist
+› Preparing Pods/FirebaseMessaging-FirebaseMessaging_Privacy » ResourceBundle-FirebaseMessaging_Privacy-FirebaseMessaging-Info.plist
+› Preparing Pods/AppAuth-AppAuthCore_Privacy » ResourceBundle-AppAuthCore_Privacy-AppAuth-Info.plist
+› Executing react-native Pods/React-Core-prebuilt » [CP-User] [RNDeps] Replace React Native Core for the right configuration, if needed
+› Preparing Pods/expo-dev-launcher-EXDevLauncher » ResourceBundle-EXDevLauncher-expo-dev-launcher-Info.plist
+› Executing react-native Pods/React-RCTFBReactNativeSpec » [CP-User] [RN]Check FBReactNativeSpec
+❌  Pods/RNFBMessaging: 'FirebaseAuth/FirebaseAuth-Swift.h' file not found
+   └─/Users/mahammadrasheed/WebstormProjects/SpendlyMobileApp/ios/Pods/Headers/Private/Firebase/Firebase.h:40:15
+❌  Pods/RNFBMessaging: 'FirebaseAuth/FirebaseAuth-Swift.h' file not found
+   └─/Users/mahammadrasheed/WebstormProjects/SpendlyMobileApp/ios/Pods/Headers/Private/Firebase/Firebase.h:40:15
+❌  Pods/RNFBMessaging: 'FirebaseAuth/FirebaseAuth-Swift.h' file not found
+   └─/Users/mahammadrasheed/WebstormProjects/SpendlyMobileApp/ios/Pods/Headers/Private/Firebase/Firebase.h:40:15
+❌  Pods/RNFBMessaging: 'FirebaseAuth/FirebaseAuth-Swift.h' file not found
+   └─/Users/mahammadrasheed/WebstormProjects/SpendlyMobileApp/ios/Pods/Headers/Private/Firebase/Firebase.h:40:15
+❌  Pods/RNFBMessaging: 'FirebaseAuth/FirebaseAuth-Swift.h' file not found
+   └─/Users/mahammadrasheed/WebstormProjects/SpendlyMobileApp/ios/Pods/Headers/Private/Firebase/Firebase.h:40:15
+❌  Pods/RNFBAuth: 'FirebaseAuth/FirebaseAuth-Swift.h' file not found
+   └─/Users/mahammadrasheed/WebstormProjects/SpendlyMobileApp/ios/Pods/Headers/Private/Firebase/Firebase.h:40:15
+❌  Pods/RNFBMessaging: 'FirebaseAuth/FirebaseAuth-Swift.h' file not found
+   └─/Users/mahammadrasheed/WebstormProjects/SpendlyMobileApp/ios/Pods/Headers/Private/Firebase/Firebase.h:40:15
+❌  Pods/RNFBApp: 'FirebaseAuth/FirebaseAuth-Swift.h' file not found
+   └─/Users/mahammadrasheed/WebstormProjects/SpendlyMobileApp/ios/Pods/Headers/Private/Firebase/Firebase.h:40:15
+    Run script build phase '[CP-User] [RNFB] Core Configuration' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'Spendly' from project 'Spendly')
+
+› 8 error(s), and 2 warning(s)
+
+CommandError: Failed to build iOS project. "xcodebuild" exited with error code 65.

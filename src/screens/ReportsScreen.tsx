@@ -556,8 +556,7 @@ export default function ReportsScreen() {
       }
 
       // Native logic
-      const file = new FileSystem.File(FileSystem.Paths.cache, fileName);
-      const fileUri = file.uri;
+      const fileUri = `${FileSystem.cacheDirectory}${fileName}`;
 
       await FileSystem.writeAsStringAsync(fileUri, csvContent);
 
