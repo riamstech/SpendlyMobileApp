@@ -1,0 +1,185 @@
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import Constants from 'expo-constants';
+import { Platform } from 'react-native';
+
+// Configure how notifications are handled when app is in foreground
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
+
+export interface NotificationPermissionStatus {
+  granted: boolean;
+  canAskAgain: boolean;
+  status: string;
+}
+
+export const notificationService = {
+  /**
+   * Request notification permissions from the user
+   */
+  async requestPermissions(): Promise<NotificationPermissionStatus> {
+    try {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      
+      return {
+        granted: finalStatus === 'granted',
+        canAskAgain: finalStatus !== 'denied',
+        status: finalStatus,
+      };
+    } catch (error) {
+      console.error('Error requesting notification permissions:', error);
+      return {
+        granted: false,
+        canAskAgain: false,
+        status: 'error',
+      };
+    }
+  },
+
+  /**
+   * Get the Expo push token for this device
+   */
+  async getExpoPushToken(): Promise<string | null> {
+    try {
+      // Check if running on a physical device
+      if (!Device.isDevice) {
+        console.warn('Push notifications only work on physical devices');
+        return null;
+      }
+
+      // Request permissions first
+      const { granted } = await this.requestPermissions();
+      if (!granted) {
+        console.warn('Notification permissions not granted');
+        return null;
+      }
+
+      // Get the Expo push token
+      const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+      
+      if (!projectId) {
+        console.error('Project ID not found in app config');
+        return null;
+      }
+
+      const token = await Notifications.getExpoPushTokenAsync({
+        projectId,
+      });
+
+      console.log('Expo Push Token:', token.data);
+      return token.data;
+    } catch (error) {
+      console.error('Error getting Expo push token:', error);
+      return null;
+    }
+  },
+
+  /**
+   * Get device UUID for registration
+   */
+  async getDeviceUUID(): Promise<string> {
+    try {
+      // For iOS, we can use a combination of device info
+      // For production, you might want to use a more robust solution
+      const deviceId = Constants.sessionId || `${Platform.OS}-${Date.now()}`;
+      return deviceId;
+    } catch (error) {
+      console.error('Error getting device UUID:', error);
+      return `${Platform.OS}-${Date.now()}`;
+    }
+  },
+
+  /**
+   * Add notification received listener (when app is in foreground)
+   */
+  addNotificationReceivedListener(
+    callback: (notification: Notifications.Notification) => void
+  ): Notifications.Subscription {
+    return Notifications.addNotificationReceivedListener(callback);
+  },
+
+  /**
+   * Add notification response listener (when user taps on notification)
+   */
+  addNotificationResponseReceivedListener(
+    callback: (response: Notifications.NotificationResponse) => void
+  ): Notifications.Subscription {
+    return Notifications.addNotificationResponseReceivedListener(callback);
+  },
+
+  /**
+   * Schedule a local notification (for testing)
+   */
+  async scheduleLocalNotification(
+    title: string,
+    body: string,
+    data?: Record<string, any>,
+    seconds: number = 1
+  ): Promise<string> {
+    try {
+      const id = await Notifications.scheduleNotificationAsync({
+        content: {
+          title,
+          body,
+          data,
+          sound: true,
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+          seconds,
+        } as Notifications.TimeIntervalTriggerInput,
+      });
+      return id;
+    } catch (error) {
+      console.error('Error scheduling notification:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Cancel all scheduled notifications
+   */
+  async cancelAllNotifications(): Promise<void> {
+    try {
+      await Notifications.cancelAllScheduledNotificationsAsync();
+    } catch (error) {
+      console.error('Error canceling notifications:', error);
+    }
+  },
+
+  /**
+   * Get badge count
+   */
+  async getBadgeCount(): Promise<number> {
+    try {
+      return await Notifications.getBadgeCountAsync();
+    } catch (error) {
+      console.error('Error getting badge count:', error);
+      return 0;
+    }
+  },
+
+  /**
+   * Set badge count
+   */
+  async setBadgeCount(count: number): Promise<void> {
+    try {
+      await Notifications.setBadgeCountAsync(count);
+    } catch (error) {
+      console.error('Error setting badge count:', error);
+    }
+  },
+};
