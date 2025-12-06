@@ -44,13 +44,6 @@
       ],
       "googleServicesFile": "./google-services.json"
     },
-    "notification": {
-      "icon": "./assets/notification-icon.png",
-      "color": "#03A9F4",
-      "iosDisplayInForeground": true,
-      "androidMode": "default",
-      "androidCollapsedTitle": "Spendly"
-    },
     "web": {
       "favicon": "./assets/favicon.png"
     },
