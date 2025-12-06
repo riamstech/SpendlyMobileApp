@@ -207,11 +207,21 @@ class ApiClient {
 
   // For file uploads (multipart/form-data)
   async postFormData<T>(url: string, formData: FormData, config?: any): Promise<T> {
+    // For React Native, we need to let axios automatically set Content-Type with boundary
+    // Don't manually set 'Content-Type': 'multipart/form-data' as it breaks the upload
+    const headers: any = { ...config?.headers };
+    
+    // Remove Content-Type if it was set, so axios can set it automatically with boundary
+    if (headers['Content-Type']) {
+      delete headers['Content-Type'];
+    }
+    
     const response = await this.client.post<T>(url, formData, {
       ...config,
-      headers: {
-        ...config?.headers,
-        'Content-Type': 'multipart/form-data',
+      headers,
+      transformRequest: (data) => {
+        // Return FormData as-is - don't transform it
+        return data;
       },
     });
     return response.data;

@@ -187,25 +187,80 @@ export default function OffersScreen() {
         <View style={[styles.header, { borderBottomColor: colors.border }]}>
           <View style={styles.headerContent}>
             <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>
-              {t('nav.offers') || 'Offers'}
+              {t('offers.title') || 'Partner Offers'}
             </Text>
             <Text style={[styles.headerSubtitle, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>
-              {t('offers.subtitle') || 'Exclusive deals and promotions'}
+              {t('offers.subtitle') || 'Exclusive deals curated for you'}
             </Text>
           </View>
         </View>
 
         {/* Promotions List */}
         {filteredPromotions.length === 0 ? (
-          <View style={[styles.emptyCard, { backgroundColor: colors.card }]}>
-            <Gift size={48} color={colors.mutedForeground} />
-            <Text style={[styles.emptyText, responsiveTextStyles.h3, { color: colors.mutedForeground }]}>
-              {t('offers.noOffers') || 'No offers available at the moment'}
-            </Text>
-            <Text style={[styles.emptySubtext, responsiveTextStyles.body, { color: colors.mutedForeground }]}>
-              {t('offers.checkBackLater') || 'Check back later for new promotions!'}
-            </Text>
-          </View>
+          <>
+            {/* Empty State Card */}
+            <View style={[styles.emptyCard, { backgroundColor: colors.card }]}>
+              <Gift size={48} color={colors.mutedForeground} />
+              <Text style={[styles.emptyText, responsiveTextStyles.h3, { color: colors.foreground }]}>
+                {t('offers.noOffersAvailable') || 'No offers available'}
+              </Text>
+              <Text style={[styles.emptySubtext, responsiveTextStyles.body, { color: colors.mutedForeground }]}>
+                {t('offers.checkBackLater') || 'Check back later for exclusive deals'}
+              </Text>
+            </View>
+
+            <View style={styles.infoCardsContainer}>
+              {/* Location-Based Offers Card */}
+              <View style={[styles.locationCard, { 
+                backgroundColor: isDark ? 'rgba(3, 169, 244, 0.1)' : '#E6F3FA' 
+              }]}>
+                <View style={styles.locationCardContent}>
+                  <View style={styles.locationIconContainer}>
+                    <LinearGradient
+                      colors={['#03A9F4', '#0288D1']}
+                      style={styles.locationIconGradient}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                    >
+                      <Gift size={24} color="#fff" />
+                    </LinearGradient>
+                  </View>
+                  <View style={styles.locationCardText}>
+                    <Text style={[styles.locationCardTitle, responsiveTextStyles.h4, { color: colors.foreground }]}>
+                      {t('offers.locationBasedOffers') || 'Location-Based Offers'}
+                    </Text>
+                    <Text style={[styles.locationCardDescription, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>
+                      {t('offers.locationBasedDescription') || 'We show you exclusive deals available in your area'}
+                      {userCountry && (() => {
+                        const country = COUNTRIES.find(c => c.code === userCountry);
+                        return country ? (
+                          <Text style={{ color: '#03A9F4', fontWeight: '600' }}> ({country.name})</Text>
+                        ) : null;
+                      })()}
+                      <Text>{t('offers.updateLocationMessage') || '. Update your location in Settings to see offers from different regions.'}</Text>
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Disclaimer Card */}
+              <View style={[styles.disclaimerCard, { 
+                backgroundColor: isDark ? 'rgba(255, 193, 7, 0.1)' : '#FFFBE6',
+                borderLeftColor: '#FFC107',
+                borderLeftWidth: 4,
+              }]}>
+                <View style={styles.disclaimerContent}>
+                  <Shield size={20} color="#FFC107" style={styles.disclaimerIcon} />
+                  <View style={styles.disclaimerText}>
+                    <Text style={[styles.disclaimerTextContent, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>
+                      <Text style={{ fontWeight: '600' }}>{t('offers.partnerOffersLabel') || 'Partner Offers:'}</Text>{' '}
+                      {t('offers.disclaimer') || 'All offers are provided by our trusted partners. Terms and conditions apply to each offer. Please review the details before proceeding.'}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </>
         ) : (
           <View style={styles.promotionsList}>
             {filteredPromotions.map((promo) => {
@@ -425,6 +480,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   emptyText: {
     marginTop: 16,
@@ -436,6 +496,76 @@ const styles = StyleSheet.create({
     marginTop: 8,
     ...textStyles.body,
     textAlign: 'center',
+  },
+  infoCardsContainer: {
+    marginTop: 24,
+    gap: 16,
+  },
+  locationCard: {
+    borderRadius: 12,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  locationCardContent: {
+    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  locationIconContainer: {
+    marginRight: 16,
+  },
+  locationIconGradient: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#03A9F4',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  locationCardText: {
+    flex: 1,
+  },
+  locationCardTitle: {
+    ...textStyles.h4,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  locationCardDescription: {
+    ...textStyles.bodySmall,
+    lineHeight: 20,
+  },
+  disclaimerCard: {
+    borderRadius: 12,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  disclaimerContent: {
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  disclaimerIcon: {
+    marginRight: 12,
+    marginTop: 2,
+  },
+  disclaimerText: {
+    flex: 1,
+  },
+  disclaimerTextContent: {
+    ...textStyles.bodySmall,
+    lineHeight: 20,
   },
 });
 

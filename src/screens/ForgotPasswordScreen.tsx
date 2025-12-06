@@ -74,16 +74,18 @@ export default function ForgotPasswordScreen({
   };
 
   // Responsive styles
-
+  const gradientColors: [string, string] = isDark 
+    ? ['#1a1a1a', '#2a2a2a'] 
+    : ['#03A9F4', '#0288D1'];
 
   // Success state
   if (submitted) {
     return (
       <LinearGradient
-        colors={['#03A9F4', '#0288D1']}
+        colors={gradientColors}
         style={styles.gradient}
       >
-        <StatusBar style="light" />
+        <StatusBar style={isDark ? "dark" : "light"} />
         <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -107,22 +109,23 @@ export default function ForgotPasswordScreen({
                   {
                     maxWidth: isLargeScreen ? 430 : '100%',
                     padding: 20,
+                    backgroundColor: colors.card,
                   },
                 ]}
               >
-                <View style={styles.successIconContainer}>
+                <View style={[styles.successIconContainer, { backgroundColor: isDark ? 'rgba(76, 175, 80, 0.2)' : 'rgba(76, 175, 80, 0.1)' }]}>
                   <CheckCircle size={48 * scale} color="#4CAF50" />
                 </View>
-                <Text style={[styles.successTitle, responsiveTextStyles.h3]}>
+                <Text style={[styles.successTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>
                   Check Your Email
                 </Text>
-                <Text style={[styles.successText, responsiveTextStyles.body, { marginTop: 8 }]}>
+                <Text style={[styles.successText, responsiveTextStyles.body, { marginTop: 8, color: colors.mutedForeground }]}>
                   We've sent a password reset link to
                 </Text>
-                <Text style={[styles.successEmail, responsiveTextStyles.body, { marginTop: 8, marginBottom: 16 }]}>
+                <Text style={[styles.successEmail, responsiveTextStyles.body, { marginTop: 8, marginBottom: 16, color: colors.foreground }]}>
                   {email}
                 </Text>
-                <Text style={[styles.successText, responsiveTextStyles.body, { marginBottom: 24 }]}>
+                <Text style={[styles.successText, responsiveTextStyles.body, { marginBottom: 24, color: colors.mutedForeground }]}>
                   Click the link in the email to reset your password. If you don't see it, check your spam folder.
                 </Text>
                 <Pressable
@@ -142,7 +145,7 @@ export default function ForgotPasswordScreen({
                   style={styles.tryAgainButton}
                   onPress={() => setSubmitted(false)}
                 >
-                  <Text style={[styles.tryAgainText, responsiveTextStyles.bodySmall]}>
+                  <Text style={[styles.tryAgainText, responsiveTextStyles.bodySmall, { color: colors.primary }]}>
                     Didn't receive the email? Try again
                   </Text>
                 </Pressable>
@@ -157,10 +160,10 @@ export default function ForgotPasswordScreen({
   // Form state
   return (
     <LinearGradient
-      colors={['#03A9F4', '#0288D1']}
+      colors={gradientColors}
       style={styles.gradient}
     >
-      <StatusBar style="light" />
+      <StatusBar style={isDark ? "dark" : "light"} />
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -184,10 +187,10 @@ export default function ForgotPasswordScreen({
                 style={{ width: 80 * scale, height: 80 * scale }}
                 resizeMode="contain"
               />
-              <Text style={[styles.headerTitle, responsiveTextStyles.h3]}>
+              <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: isDark ? colors.foreground : '#fff' }]}>
                 Forgot Password?
               </Text>
-              <Text style={[styles.headerSubtitle, responsiveTextStyles.body]}>
+              <Text style={[styles.headerSubtitle, responsiveTextStyles.body, { color: isDark ? colors.mutedForeground : 'rgba(255, 255, 255, 0.9)' }]}>
                 No worries, we'll send you reset instructions
               </Text>
             </View>
@@ -199,27 +202,28 @@ export default function ForgotPasswordScreen({
                 {
                   padding: 20,
                   maxWidth: isLargeScreen ? 430 : '100%',
+                  backgroundColor: colors.card,
                 },
               ]}
             >
               {/* Email Field */}
               <View style={styles.inputContainer}>
-                <Text style={[styles.label, responsiveTextStyles.label]}>Email Address</Text>
-                <View style={styles.inputWrapper}>
+                <Text style={[styles.label, responsiveTextStyles.label, { color: colors.foreground }]}>Email Address</Text>
+                <View style={[styles.inputWrapper, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
                   <Mail
                     size={Math.max(18, Math.min(20 * scale, 22))}
-                    color="#9CA3AF"
+                    color={colors.mutedForeground}
                     style={styles.inputIcon}
                   />
                   <TextInput
                     style={[
                       styles.input,
                       responsiveTextStyles.body,
-                      { paddingVertical: 14 },
+                      { paddingVertical: 14, color: colors.foreground },
                       errors.email && styles.inputError,
                     ]}
                     placeholder="you@example.com"
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor={colors.mutedForeground}
                     value={email}
                     onChangeText={(text) => {
                       setEmail(text);
@@ -231,11 +235,11 @@ export default function ForgotPasswordScreen({
                   />
                 </View>
                 {errors.email && (
-                  <Text style={[styles.errorText, responsiveTextStyles.caption]}>
+                  <Text style={[styles.errorText, responsiveTextStyles.caption, { color: colors.destructive }]}>
                     {errors.email}
                   </Text>
                 )}
-                <Text style={[styles.hintText, responsiveTextStyles.caption, { marginTop: 4 }]}>
+                <Text style={[styles.hintText, responsiveTextStyles.caption, { marginTop: 4, color: colors.mutedForeground }]}>
                   Enter the email address associated with your account
                 </Text>
               </View>
@@ -262,17 +266,17 @@ export default function ForgotPasswordScreen({
               >
                 <ArrowLeft
                   size={Math.max(16, Math.min(18 * scale, 20))}
-                  color="#03A9F4"
+                  color={colors.primary}
                   style={{ marginRight: 8 }}
                 />
-                <Text style={[styles.backButtonText, responsiveTextStyles.button]}>
+                <Text style={[styles.backButtonText, responsiveTextStyles.button, { color: colors.primary }]}>
                   Back to Login
                 </Text>
               </Pressable>
             </View>
 
             {/* Footer */}
-            <Text style={[styles.footerText, responsiveTextStyles.caption]}>
+            <Text style={[styles.footerText, responsiveTextStyles.caption, { color: isDark ? colors.mutedForeground : 'rgba(255,255,255,0.9)' }]}>
               Track. Save. Grow. © 2024 Spendly
             </Text>
           </ScrollView>
@@ -304,16 +308,13 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     ...textStyles.h3,
-    color: '#fff',
     marginTop: 8,
     marginBottom: 4,
   },
   headerSubtitle: {
     ...textStyles.body,
-    color: 'rgba(255, 255, 255, 0.9)',
   },
   formContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 20,
     width: '100%',
     alignSelf: 'center',
@@ -331,25 +332,21 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: 'rgba(76, 175, 80, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
   },
   successTitle: {
     ...textStyles.h3,
-    color: '#212121',
     textAlign: 'center',
   },
   successText: {
     ...textStyles.body,
-    color: '#666',
     textAlign: 'center',
     lineHeight: 20,
   },
   successEmail: {
     ...textStyles.body,
-    color: '#212121',
     fontWeight: '600',
     textAlign: 'center',
   },
@@ -361,20 +358,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    backgroundColor: '#f5f5f5',
   },
   label: {
     ...textStyles.label,
     fontWeight: '600',
-    color: '#333',
     marginBottom: 8,
   },
   input: {
     flex: 1,
     paddingHorizontal: 40,
     ...textStyles.body,
-    color: '#333',
   },
   inputIcon: {
     position: 'absolute',
@@ -386,11 +379,9 @@ const styles = StyleSheet.create({
   errorText: {
     marginTop: 4,
     ...textStyles.caption,
-    color: '#FF5252',
   },
   hintText: {
     ...textStyles.caption,
-    color: '#666',
   },
   primaryButton: {
     backgroundColor: '#03A9F4',
@@ -417,21 +408,18 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   backButtonText: {
-    color: '#03A9F4',
     ...textStyles.button,
   },
   tryAgainButton: {
     marginTop: 16,
   },
   tryAgainText: {
-    color: '#03A9F4',
     textAlign: 'center',
     ...textStyles.bodySmall,
   },
   footerText: {
     marginTop: 24,
     textAlign: 'center',
-    color: 'rgba(255,255,255,0.9)',
     ...textStyles.caption,
   },
 });

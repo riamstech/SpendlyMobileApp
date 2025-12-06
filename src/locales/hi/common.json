@@ -50,7 +50,8 @@
     "totalAssets": "कुल संपत्ति",
     "netWorth": "शुद्ध मूल्य:",
     "remaining": "शेष",
-    "overBy": "से अधिक"
+    "overBy": "से अधिक",
+    "noTransactions": "अभी तक कोई लेनदेन नहीं"
   },
   "reports": {
     "reportsAnalytics": "रिपोर्ट और विश्लेषण",
@@ -88,6 +89,7 @@
     "trends": "रुझान",
     "health": "स्वास्थ्य",
     "smartInsights": "स्मार्ट अंतर्दृष्टि",
+    "noInsights": "कोई अंतर्दृष्टि उपलब्ध नहीं है। स्मार्ट अंतर्दृष्टि देखने के लिए लेनदेन जोड़ना शुरू करें।",
     "spendingByCategory": "श्रेणी के अनुसार खर्च",
     "categoryDistribution": "श्रेणी वितरण",
     "transactions": "लेनदेन",
@@ -480,8 +482,9 @@
     "title": "पार्टनर ऑफर्स",
     "subtitle": "आपके लिए चुने गए विशेष सौदे",
     "loading": "ऑफर्स लोड हो रहे हैं...",
+    "noOffers": "इस समय कोई ऑफर उपलब्ध नहीं है",
     "noOffersAvailable": "कोई ऑफर उपलब्ध नहीं",
-    "checkBackLater": "विशेष सौदों के लिए बाद में देखें",
+    "checkBackLater": "नए प्रचारों के लिए बाद में देखें!",
     "locationBasedOffers": "स्थान-आधारित ऑफर्स",
     "locationBasedDescription": "हम आपको आपके क्षेत्र में उपलब्ध विशेष सौदे दिखाते हैं",
     "updateLocationMessage": ". विभिन्न क्षेत्रों से ऑफर्स देखने के लिए सेटिंग्स में अपना स्थान अपडेट करें।",

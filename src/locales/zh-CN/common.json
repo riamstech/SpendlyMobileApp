@@ -50,7 +50,8 @@
     "totalAssets": "总资产",
     "netWorth": "净资产：",
     "remaining": "剩余",
-    "overBy": "超出"
+    "overBy": "超出",
+    "noTransactions": "还没有交易"
   },
   "reports": {
     "reportsAnalytics": "报表与分析",
@@ -88,6 +89,7 @@
     "trends": "趋势",
     "health": "健康",
     "smartInsights": "智能洞察",
+    "noInsights": "暂无可用洞察。开始添加交易以查看智能洞察。",
     "spendingByCategory": "按类别支出",
     "categoryDistribution": "类别分布",
     "transactions": "笔交易",
@@ -480,8 +482,9 @@
     "title": "合作伙伴优惠",
     "subtitle": "为您精选的独家优惠",
     "loading": "正在加载优惠...",
+    "noOffers": "目前暂无优惠",
     "noOffersAvailable": "暂无优惠",
-    "checkBackLater": "稍后再查看独家优惠",
+    "checkBackLater": "稍后再查看新促销活动！",
     "locationBasedOffers": "基于位置的优惠",
     "locationBasedDescription": "我们为您显示您所在地区的独家优惠",
     "updateLocationMessage": "。在设置中更新您的位置以查看不同地区的优惠。",

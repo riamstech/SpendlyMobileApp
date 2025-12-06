@@ -193,33 +193,41 @@ export default function Analytics() {
         {activeTab === 'insights' && (
           <>
             <Text style={[styles.sectionTitle, { color: colors.foreground }]}>{t('analytics.smartInsights')}</Text>
-            {insights.map((insight, index) => {
-              const sentimentColors = getSentimentColor(insight.sentiment);
-              return (
-                <View
-                  key={index}
-                  style={[
-                    styles.insightCard,
-                    {
-                      backgroundColor: sentimentColors.bg,
-                      borderColor: sentimentColors.border,
-                    },
-                  ]}
-                >
-                  <View style={styles.insightHeader}>
-                    {getInsightIcon(insight.icon, insight.sentiment)}
-                    <View style={styles.insightContent}>
-                      <Text style={[styles.insightTitle, { color: sentimentColors.text }]}>
-                        {translateInsightTitle(insight.title)}
-                      </Text>
-                      <Text style={[styles.insightMessage, { color: isDark ? colors.mutedForeground : sentimentColors.text }]}>
-                        {translateInsightMessage(insight.message)}
-                      </Text>
+            {insights.length > 0 ? (
+              insights.map((insight, index) => {
+                const sentimentColors = getSentimentColor(insight.sentiment);
+                return (
+                  <View
+                    key={index}
+                    style={[
+                      styles.insightCard,
+                      {
+                        backgroundColor: sentimentColors.bg,
+                        borderColor: sentimentColors.border,
+                      },
+                    ]}
+                  >
+                    <View style={styles.insightHeader}>
+                      {getInsightIcon(insight.icon, insight.sentiment)}
+                      <View style={styles.insightContent}>
+                        <Text style={[styles.insightTitle, { color: sentimentColors.text }]}>
+                          {translateInsightTitle(insight.title)}
+                        </Text>
+                        <Text style={[styles.insightMessage, { color: isDark ? colors.mutedForeground : sentimentColors.text }]}>
+                          {translateInsightMessage(insight.message)}
+                        </Text>
+                      </View>
                     </View>
                   </View>
-                </View>
-              );
-            })}
+                );
+              })
+            ) : (
+              <View style={styles.emptyState}>
+                <Text style={[styles.emptyStateText, { color: colors.mutedForeground }]}>
+                  {t('analytics.noInsights') || 'No insights available. Start adding transactions to see smart insights.'}
+                </Text>
+              </View>
+            )}
           </>
         )}
 

@@ -462,26 +462,33 @@ export default function BudgetScreen() {
         )}
 
         {/* Summary Cards */}
-        {/* Summary Grid - Dark Layout */}
         <View style={styles.statsGrid}>
           <View style={styles.statsRow}>
             {/* Total Budget */}
-            <View style={[styles.statsCard, styles.budgetStatsCard]}>
+            <View style={[styles.statsCard, { 
+              backgroundColor: isDark ? 'rgba(3, 169, 244, 0.15)' : '#E3F2FD' 
+            }]}>
                <View style={{ marginBottom: 8 }}>
                  <DollarSign size={24} color="#03A9F4" />
                </View>
-               <Text style={[styles.statsLabel, responsiveTextStyles.body]}>{t('budget.totalBudget') || 'Total Budget'}</Text>
+               <Text style={[styles.statsLabel, responsiveTextStyles.body, { 
+                 color: isDark ? colors.foreground : '#666' 
+               }]}>{t('budget.totalBudget') || 'Total Budget'}</Text>
                <Text style={[styles.statsValue, responsiveTextStyles.h3, { color: '#03A9F4' }]} numberOfLines={1} adjustsFontSizeToFit>
                  {currency} {formatValue(totalBudget)}
                </Text>
             </View>
 
             {/* Total Spent */}
-            <View style={[styles.statsCard, styles.spentStatsCard]}>
+            <View style={[styles.statsCard, { 
+              backgroundColor: isDark ? 'rgba(255, 82, 82, 0.15)' : '#FFEBEE' 
+            }]}>
                <View style={{ marginBottom: 8 }}>
                  <TrendingDown size={24} color="#FF5252" />
                </View>
-               <Text style={[styles.statsLabel, responsiveTextStyles.body]}>{t('budget.totalSpent') || 'Total Spent'}</Text>
+               <Text style={[styles.statsLabel, responsiveTextStyles.body, { 
+                 color: isDark ? colors.foreground : '#666' 
+               }]}>{t('budget.totalSpent') || 'Total Spent'}</Text>
                <Text style={[styles.statsValue, responsiveTextStyles.h3, { color: '#FF5252' }]} numberOfLines={1} adjustsFontSizeToFit>
                  {currency} {formatValue(totalSpent)}
                </Text>
@@ -1248,21 +1255,13 @@ const styles = StyleSheet.create({
     minHeight: 140,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  budgetStatsCard: {
-    backgroundColor: '#1C2936', // Dark Blue
-  },
-  spentStatsCard: {
-    backgroundColor: '#362020', // Dark Red
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   statsLabel: {
     textAlign: 'center',
     marginBottom: 4,
-    color: '#fff',
-    opacity: 0.9,
   },
   statsValue: {
     fontWeight: 'bold',

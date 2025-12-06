@@ -158,10 +158,50 @@ export default function SignupScreen({
       ]);
     } catch (error: any) {
       console.error('Signup failed', error);
-      const message =
-        error?.response?.data?.message ||
-        'Signup failed. Please try again.';
-      Alert.alert('Signup failed', message);
+      
+      // Handle Laravel validation errors
+      const errorData = error?.response?.data;
+      const validationErrors = errorData?.errors || {};
+      
+      // Set field-specific errors
+      const newErrors: {
+        name?: string;
+        email?: string;
+        password?: string;
+        confirmPassword?: string;
+        terms?: string;
+      } = {};
+      
+      if (validationErrors.email && Array.isArray(validationErrors.email) && validationErrors.email.length > 0) {
+        newErrors.email = validationErrors.email[0];
+      }
+      if (validationErrors.password && Array.isArray(validationErrors.password) && validationErrors.password.length > 0) {
+        newErrors.password = validationErrors.password[0];
+      }
+      if (validationErrors.name && Array.isArray(validationErrors.name) && validationErrors.name.length > 0) {
+        newErrors.name = validationErrors.name[0];
+      }
+      
+      // Set errors in state to display them in the form
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+      }
+      
+      // Get the error message to display in alert
+      let errorMessage = 'Signup failed. Please try again.';
+      
+      // Prioritize field-specific errors
+      if (newErrors.email) {
+        errorMessage = newErrors.email;
+      } else if (newErrors.password) {
+        errorMessage = newErrors.password;
+      } else if (newErrors.name) {
+        errorMessage = newErrors.name;
+      } else if (errorData?.message) {
+        errorMessage = errorData.message;
+      }
+      
+      Alert.alert('Signup failed', errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -194,12 +234,17 @@ export default function SignupScreen({
   // Responsive styles
   const responsiveTextStyles = createResponsiveTextStyles(width);
 
+  // Dynamic gradient colors based on theme
+  const gradientColors = isDark 
+    ? ['#1a1a1a', '#2a2a2a'] 
+    : ['#03A9F4', '#0288D1'];
+
   return (
     <LinearGradient
-      colors={['#03A9F4', '#0288D1']}
+      colors={gradientColors}
       style={styles.gradient}
     >
-      <StatusBar style="light" />
+      <StatusBar style={isDark ? "dark" : "light"} />
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -223,8 +268,8 @@ export default function SignupScreen({
                 style={{ width: 80 * scale, height: 80 * scale }}
                 resizeMode="contain"
               />
-              <Text style={[styles.headerTitle, responsiveTextStyles.h3]}>Create Account</Text>
-              <Text style={[styles.headerSubtitle, responsiveTextStyles.body]}>Start tracking your finances today</Text>
+              <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: isDark ? colors.foreground : '#fff' }]}>Create Account</Text>
+              <Text style={[styles.headerSubtitle, responsiveTextStyles.body, { color: isDark ? colors.mutedForeground : 'rgba(255, 255, 255, 0.9)' }]}>Start tracking your finances today</Text>
             </View>
 
             {/* Signup Form */}
@@ -233,27 +278,28 @@ export default function SignupScreen({
                 styles.formContainer,
                 {
                   maxWidth: isLargeScreen ? 430 : '100%',
+                  backgroundColor: colors.card,
                 },
               ]}
             >
               {/* Name Field */}
               <View style={styles.inputContainer}>
-                <Text style={[styles.label, responsiveTextStyles.label]}>Full Name</Text>
-                <View style={styles.inputWrapper}>
+                <Text style={[styles.label, responsiveTextStyles.label, { color: colors.foreground }]}>Full Name</Text>
+                <View style={[styles.inputWrapper, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
                   <User
                     size={Math.max(18, Math.min(20 * scale, 22))}
-                    color="#9CA3AF"
+                    color={colors.mutedForeground}
                     style={styles.inputIcon}
                   />
                   <TextInput
                     style={[
                       styles.input,
                       responsiveTextStyles.body,
-                      { paddingVertical: 14 },
+                      { paddingVertical: 14, color: colors.foreground },
                       errors.name && styles.inputError,
                     ]}
                     placeholder="John Doe"
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor={colors.mutedForeground}
                     value={name}
                     onChangeText={(text) => {
                       setName(text);
@@ -262,27 +308,27 @@ export default function SignupScreen({
                     autoCapitalize="words"
                   />
                 </View>
-                {errors.name && <Text style={[styles.errorText, responsiveTextStyles.caption]}>{errors.name}</Text>}
+                {errors.name && <Text style={[styles.errorText, responsiveTextStyles.caption, { color: colors.destructive }]}>{errors.name}</Text>}
               </View>
 
               {/* Email Field */}
               <View style={styles.inputContainer}>
-                <Text style={[styles.label, responsiveTextStyles.label]}>Email Address</Text>
-                <View style={styles.inputWrapper}>
+                <Text style={[styles.label, responsiveTextStyles.label, { color: colors.foreground }]}>Email Address</Text>
+                <View style={[styles.inputWrapper, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
                   <Mail
                     size={Math.max(18, Math.min(20 * scale, 22))}
-                    color="#9CA3AF"
+                    color={colors.mutedForeground}
                     style={styles.inputIcon}
                   />
                   <TextInput
                     style={[
                       styles.input,
                       responsiveTextStyles.body,
-                      { paddingVertical: 14 },
+                      { paddingVertical: 14, color: colors.foreground },
                       errors.email && styles.inputError,
                     ]}
                     placeholder="you@example.com"
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor={colors.mutedForeground}
                     value={email}
                     onChangeText={(text) => {
                       setEmail(text);
@@ -293,27 +339,27 @@ export default function SignupScreen({
                     autoComplete="email"
                   />
                 </View>
-                {errors.email && <Text style={[styles.errorText, responsiveTextStyles.caption]}>{errors.email}</Text>}
+                {errors.email && <Text style={[styles.errorText, responsiveTextStyles.caption, { color: colors.destructive }]}>{errors.email}</Text>}
               </View>
 
               {/* Password Field */}
               <View style={styles.inputContainer}>
-                <Text style={[styles.label, responsiveTextStyles.label]}>Password</Text>
-                <View style={styles.inputWrapper}>
+                <Text style={[styles.label, responsiveTextStyles.label, { color: colors.foreground }]}>Password</Text>
+                <View style={[styles.inputWrapper, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
                   <Lock
                     size={Math.max(18, Math.min(20 * scale, 22))}
-                    color="#9CA3AF"
+                    color={colors.mutedForeground}
                     style={styles.inputIcon}
                   />
                   <TextInput
                     style={[
                       styles.input,
                       responsiveTextStyles.body,
-                      { paddingVertical: 14 },
+                      { paddingVertical: 14, color: colors.foreground },
                       errors.password && styles.inputError,
                     ]}
                     placeholder="Create a strong password"
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor={colors.mutedForeground}
                     value={password}
                     onChangeText={(text) => {
                       setPassword(text);
@@ -329,19 +375,19 @@ export default function SignupScreen({
                     {showPassword ? (
                       <EyeOff
                         size={Math.max(18, Math.min(20 * scale, 22))}
-                        color="#9CA3AF"
+                        color={colors.mutedForeground}
                       />
                     ) : (
                       <Eye
                         size={Math.max(18, Math.min(20 * scale, 22))}
-                        color="#9CA3AF"
+                        color={colors.mutedForeground}
                       />
                     )}
                   </Pressable>
                 </View>
                 {password && (
                   <View style={styles.passwordStrengthContainer}>
-                    <View style={styles.passwordStrengthBar}>
+                    <View style={[styles.passwordStrengthBar, { backgroundColor: colors.border }]}>
                       <View
                         style={[
                           styles.passwordStrengthFill,
@@ -357,27 +403,27 @@ export default function SignupScreen({
                     </Text>
                   </View>
                 )}
-                {errors.password && <Text style={[styles.errorText, responsiveTextStyles.caption]}>{errors.password}</Text>}
+                {errors.password && <Text style={[styles.errorText, responsiveTextStyles.caption, { color: colors.destructive }]}>{errors.password}</Text>}
               </View>
 
               {/* Confirm Password Field */}
               <View style={styles.inputContainer}>
-                <Text style={[styles.label, responsiveTextStyles.label]}>Confirm Password</Text>
-                <View style={styles.inputWrapper}>
+                <Text style={[styles.label, responsiveTextStyles.label, { color: colors.foreground }]}>Confirm Password</Text>
+                <View style={[styles.inputWrapper, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
                   <Lock
                     size={Math.max(18, Math.min(20 * scale, 22))}
-                    color="#9CA3AF"
+                    color={colors.mutedForeground}
                     style={styles.inputIcon}
                   />
                   <TextInput
                     style={[
                       styles.input,
                       responsiveTextStyles.body,
-                      { paddingVertical: 14 },
+                      { paddingVertical: 14, color: colors.foreground },
                       errors.confirmPassword && styles.inputError,
                     ]}
                     placeholder="Re-enter your password"
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor={colors.mutedForeground}
                     value={confirmPassword}
                     onChangeText={(text) => {
                       setConfirmPassword(text);
@@ -393,40 +439,40 @@ export default function SignupScreen({
                     {showConfirmPassword ? (
                       <EyeOff
                         size={Math.max(18, Math.min(20 * scale, 22))}
-                        color="#9CA3AF"
+                        color={colors.mutedForeground}
                       />
                     ) : (
                       <Eye
                         size={Math.max(18, Math.min(20 * scale, 22))}
-                        color="#9CA3AF"
+                        color={colors.mutedForeground}
                       />
                     )}
                   </Pressable>
                 </View>
                 {errors.confirmPassword && (
-                  <Text style={[styles.errorText, responsiveTextStyles.caption]}>{errors.confirmPassword}</Text>
+                  <Text style={[styles.errorText, responsiveTextStyles.caption, { color: colors.destructive }]}>{errors.confirmPassword}</Text>
                 )}
               </View>
 
               {/* Referral Code Field */}
               <View style={styles.inputContainer}>
-                <Text style={[styles.label, responsiveTextStyles.label]}>
-                  Referral Code <Text style={[styles.optionalText, responsiveTextStyles.small]}>(Optional)</Text>
+                <Text style={[styles.label, responsiveTextStyles.label, { color: colors.foreground }]}>
+                  Referral Code <Text style={[styles.optionalText, responsiveTextStyles.small, { color: colors.mutedForeground }]}>(Optional)</Text>
                 </Text>
-                <View style={styles.inputWrapper}>
+                <View style={[styles.inputWrapper, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
                   <Gift
                     size={Math.max(18, Math.min(20 * scale, 22))}
-                    color="#9CA3AF"
+                    color={colors.mutedForeground}
                     style={styles.inputIcon}
                   />
                   <TextInput
                     style={[
                       styles.input,
                       responsiveTextStyles.body,
-                      { paddingVertical: 14 },
+                      { paddingVertical: 14, color: colors.foreground },
                     ]}
                     placeholder="Enter referral code"
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor={colors.mutedForeground}
                     value={referralCode}
                     onChangeText={(text) => setReferralCode(text.toUpperCase())}
                     autoCapitalize="characters"
@@ -434,7 +480,7 @@ export default function SignupScreen({
                   />
                 </View>
                 {referralCode && (
-                  <Text style={[styles.referralHint, responsiveTextStyles.caption]}>
+                  <Text style={[styles.referralHint, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
                     You'll both get 1 month of Pro free!
                   </Text>
                 )}
@@ -449,18 +495,19 @@ export default function SignupScreen({
                   }}
                   style={[
                     styles.checkbox,
-                    acceptedTerms && styles.checkboxChecked,
+                    { borderColor: colors.border },
+                    acceptedTerms && [styles.checkboxChecked, { backgroundColor: colors.primary, borderColor: colors.primary }],
                   ]}
                 >
                   {acceptedTerms && <Check size={14} color="#fff" />}
                 </Pressable>
-                <Text style={[styles.termsText, responsiveTextStyles.caption]}>
+                <Text style={[styles.termsText, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
                   I agree to the{' '}
-                  <Text style={styles.termsLink}>Terms of Service</Text> and{' '}
-                  <Text style={styles.termsLink}>Privacy Policy</Text>
+                  <Text style={[styles.termsLink, { color: colors.primary }]}>Terms of Service</Text> and{' '}
+                  <Text style={[styles.termsLink, { color: colors.primary }]}>Privacy Policy</Text>
                 </Text>
               </View>
-              {errors.terms && <Text style={[styles.errorText, responsiveTextStyles.caption]}>{errors.terms}</Text>}
+              {errors.terms && <Text style={[styles.errorText, responsiveTextStyles.caption, { color: colors.destructive }]}>{errors.terms}</Text>}
 
               {/* Signup Button */}
               <Pressable
@@ -479,36 +526,36 @@ export default function SignupScreen({
 
               {/* Divider */}
               <View style={styles.dividerRow}>
-                <View style={styles.dividerLine} />
-                <Text style={[styles.dividerText, responsiveTextStyles.caption]}>or continue with</Text>
-                <View style={styles.dividerLine} />
+                <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+                <Text style={[styles.dividerText, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>or continue with</Text>
+                <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
               </View>
 
               {/* Google Button */}
               <Pressable
                 style={[
                   styles.googleButton,
-                  { paddingVertical: 14 },
+                  { paddingVertical: 14, backgroundColor: colors.inputBackground, borderColor: colors.border },
                 ]}
                 onPress={handleGoogleSignup}
               >
                 <View style={styles.googleIconCircle}>
                   <Text style={styles.googleIconText}>G</Text>
                 </View>
-                <Text style={[styles.googleButtonText, responsiveTextStyles.button]}>Continue with Google</Text>
+                <Text style={[styles.googleButtonText, responsiveTextStyles.button, { color: colors.foreground }]}>Continue with Google</Text>
               </Pressable>
 
               {/* Login Link */}
               <View style={styles.loginLinkContainer}>
-                <Text style={[styles.loginLinkText, responsiveTextStyles.body]}>Already have an account? </Text>
+                <Text style={[styles.loginLinkText, responsiveTextStyles.body, { color: colors.mutedForeground }]}>Already have an account? </Text>
                 <Pressable onPress={onLoginClick}>
-                  <Text style={[styles.loginLink, responsiveTextStyles.body]}>Sign In</Text>
+                  <Text style={[styles.loginLink, responsiveTextStyles.body, { color: colors.primary }]}>Sign In</Text>
                 </Pressable>
               </View>
             </View>
 
             {/* Footer */}
-            <Text style={[styles.footerText, responsiveTextStyles.caption]}>
+            <Text style={[styles.footerText, responsiveTextStyles.caption, { color: isDark ? colors.mutedForeground : 'rgba(255,255,255,0.9)' }]}>
               Track. Save. Grow. © 2024 Spendly
             </Text>
           </ScrollView>
@@ -541,16 +588,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     ...textStyles.h2,
     fontWeight: 'bold',
-    color: '#fff',
     marginTop: 16,
     marginBottom: 4,
   },
   headerSubtitle: {
     ...textStyles.body,
-    color: 'rgba(255, 255, 255, 0.9)',
   },
   formContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 20,
     width: '100%',
     alignSelf: 'center',
@@ -569,25 +613,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    backgroundColor: '#f5f5f5',
   },
   label: {
     ...textStyles.label,
     fontWeight: '600',
-    color: '#333',
     marginBottom: 8,
   },
   optionalText: {
     ...textStyles.small,
-    color: '#999',
     fontWeight: '400',
   },
   input: {
     flex: 1,
     paddingHorizontal: 40,
     ...textStyles.body,
-    color: '#333',
   },
   inputIcon: {
     position: 'absolute',
@@ -603,7 +642,6 @@ const styles = StyleSheet.create({
   errorText: {
     marginTop: 4,
     ...textStyles.caption,
-    color: '#FF5252',
   },
   passwordStrengthContainer: {
     flexDirection: 'row',
@@ -614,7 +652,6 @@ const styles = StyleSheet.create({
   passwordStrengthBar: {
     flex: 1,
     height: 4,
-    backgroundColor: '#e0e0e0',
     borderRadius: 2,
     overflow: 'hidden',
   },
@@ -628,7 +665,6 @@ const styles = StyleSheet.create({
   },
   referralHint: {
     ...textStyles.caption,
-    color: '#666',
     marginTop: 4,
   },
   termsContainer: {
@@ -642,23 +678,18 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 4,
     borderWidth: 2,
-    borderColor: '#e0e0e0',
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 2,
   },
   checkboxChecked: {
-    backgroundColor: '#03A9F4',
-    borderColor: '#03A9F4',
   },
   termsText: {
     flex: 1,
     ...textStyles.caption,
-    color: '#666',
     lineHeight: 20,
   },
   termsLink: {
-    color: '#03A9F4',
     fontWeight: '600',
   },
   signupButton: {
@@ -688,21 +719,17 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#E5E7EB',
   },
   dividerText: {
     marginHorizontal: 12,
     ...textStyles.caption,
-    color: '#9CA3AF',
   },
   googleButton: {
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
     paddingHorizontal: 16,
-    backgroundColor: '#ffffff',
     marginBottom: 16,
   },
   googleIconCircle: {
@@ -721,7 +748,6 @@ const styles = StyleSheet.create({
   },
   googleButtonText: {
     ...textStyles.button,
-    color: '#111827',
     fontWeight: '500',
   },
   loginLinkContainer: {
@@ -729,18 +755,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   loginLinkText: {
-    color: '#666',
     ...textStyles.body,
   },
   loginLink: {
-    color: '#03A9F4',
     ...textStyles.body,
     fontWeight: 'bold',
   },
   footerText: {
     marginTop: 24,
     textAlign: 'center',
-    color: 'rgba(255,255,255,0.9)',
   },
 });
 

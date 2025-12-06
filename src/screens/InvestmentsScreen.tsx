@@ -1033,26 +1033,33 @@ export default function InvestmentsScreen() {
         )}
 
         {/* Summary Cards */}
-        {/* Summary Grid - Dark Layout */}
         <View style={styles.overviewGrid}>
           <View style={styles.overviewRow}>
             {/* Invested */}
-            <View style={[styles.overviewCard, styles.investedCard]}>
+            <View style={[styles.overviewCard, { 
+              backgroundColor: isDark ? 'rgba(3, 169, 244, 0.15)' : '#E3F2FD' 
+            }]}>
                <View style={{ marginBottom: 8 }}>
                  <DollarSign size={24} color="#03A9F4" />
                </View>
-               <Text style={[styles.overviewLabel, responsiveTextStyles.body]}>{t('investments.invested')}</Text>
+               <Text style={[styles.overviewLabel, responsiveTextStyles.body, { 
+                 color: isDark ? colors.foreground : '#666' 
+               }]}>{t('investments.invested')}</Text>
                <Text style={[styles.overviewValue, responsiveTextStyles.h3, { color: '#03A9F4' }]} numberOfLines={1} adjustsFontSizeToFit>
                  {displayCurrency !== 'ALL' ? displayCurrency : currency} {formatValue(totalInvested)}
                </Text>
             </View>
 
             {/* Current Value */}
-            <View style={[styles.overviewCard, styles.currentCard]}>
+            <View style={[styles.overviewCard, { 
+              backgroundColor: isDark ? 'rgba(76, 175, 80, 0.15)' : '#E8F5E9' 
+            }]}>
                <View style={{ marginBottom: 8 }}>
                  <TrendingUp size={24} color="#4CAF50" />
                </View>
-               <Text style={[styles.overviewLabel, responsiveTextStyles.body]}>{t('investments.currentValue')}</Text>
+               <Text style={[styles.overviewLabel, responsiveTextStyles.body, { 
+                 color: isDark ? colors.foreground : '#666' 
+               }]}>{t('investments.currentValue')}</Text>
                <Text style={[styles.overviewValue, responsiveTextStyles.h3, { color: '#4CAF50' }]} numberOfLines={1} adjustsFontSizeToFit>
                  {displayCurrency !== 'ALL' ? displayCurrency : currency} {formatValue(totalCurrent)}
                </Text>
@@ -1060,7 +1067,11 @@ export default function InvestmentsScreen() {
           </View>
 
           {/* Net Gain/Loss */}
-          <View style={[styles.overviewCard, styles.netCardBase, totalGainLoss >= 0 ? styles.netCardPositive : styles.netCardNegative]}>
+          <View style={[styles.overviewCard, styles.netCardBase, { 
+            backgroundColor: totalGainLoss >= 0 
+              ? (isDark ? 'rgba(76, 175, 80, 0.15)' : '#E8F5E9')
+              : (isDark ? 'rgba(255, 82, 82, 0.15)' : '#FFEBEE')
+          }]}>
              <View style={{ marginBottom: 8 }}>
                  {totalGainLoss >= 0 ? (
                    <TrendingUp size={32} color="#4CAF50" />
@@ -1068,11 +1079,15 @@ export default function InvestmentsScreen() {
                    <TrendingDown size={32} color="#FF5252" />
                  )}
              </View>
-             <Text style={[styles.overviewLabel, responsiveTextStyles.body]}>{t('analytics.net')}</Text>
+             <Text style={[styles.overviewLabel, responsiveTextStyles.body, { 
+               color: isDark ? colors.foreground : '#666' 
+             }]}>{t('analytics.net')}</Text>
              <Text style={[styles.overviewValueLarge, responsiveTextStyles.h2, { color: totalGainLoss >= 0 ? '#4CAF50' : '#FF5252' }]} numberOfLines={1} adjustsFontSizeToFit>
                {totalGainLoss >= 0 ? '+' : ''}{displayCurrency !== 'ALL' ? displayCurrency : currency} {formatValue(Math.abs(totalGainLoss))}
              </Text>
-             <Text style={[styles.overviewPercentage, responsiveTextStyles.caption, { color: totalGainLoss >= 0 ? '#81C784' : '#E57373' }]}>
+             <Text style={[styles.overviewPercentage, responsiveTextStyles.caption, { 
+               color: totalGainLoss >= 0 ? '#81C784' : '#E57373' 
+             }]}>
                {totalGainLoss >= 0 ? '+' : ''}{gainLossPercentage.toFixed(2)}%
              </Text>
           </View>
@@ -2128,30 +2143,16 @@ const styles = StyleSheet.create({
     minHeight: 140,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  investedCard: {
-    backgroundColor: '#1C2936', // Dark Blue
-  },
-  currentCard: {
-    backgroundColor: '#1E3324', // Dark Green
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   netCardBase: {
     width: '100%',
   },
-  netCardPositive: {
-    backgroundColor: '#1E3324', // Dark Green
-  },
-  netCardNegative: {
-    backgroundColor: '#362020', // Dark Red
-  },
   overviewLabel: {
     textAlign: 'center',
     marginBottom: 4,
-    color: '#fff',
-    opacity: 0.9,
   },
   overviewValue: {
     fontWeight: 'bold',

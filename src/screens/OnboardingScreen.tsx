@@ -25,6 +25,7 @@ import {
   ChevronRight,
   Check,
   MapPin,
+  Search,
 } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
@@ -55,6 +56,8 @@ export default function OnboardingScreen({
   const [loadingCurrencies, setLoadingCurrencies] = useState(true);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [currencySearchQuery, setCurrencySearchQuery] = useState('');
+  const [countrySearchQuery, setCountrySearchQuery] = useState('');
 
   // Responsive scaling
   const scale = Math.min(width / 375, height / 812);
@@ -310,6 +313,16 @@ export default function OnboardingScreen({
 
   // Currency Selection Screen
   if (step === 'currency') {
+    // Filter currencies based on search query
+    const filteredCurrencies = currencies.filter((curr) => {
+      const query = currencySearchQuery.toLowerCase();
+      return (
+        curr.name.toLowerCase().includes(query) ||
+        curr.code.toLowerCase().includes(query) ||
+        curr.symbol.toLowerCase().includes(query)
+      );
+    });
+
     return (
       <LinearGradient colors={['#03A9F4', '#0288D1']} style={styles.gradient}>
         <StatusBar style="light" />
@@ -333,39 +346,62 @@ export default function OnboardingScreen({
               </Text>
             </View>
 
-            <View style={[styles.card, { padding: 20 }]}>
-              <Text style={styles.label}>Default Currency</Text>
+            <View style={[styles.card, { padding: 20, backgroundColor: colors.card }]}>
+              <Text style={[styles.label, { color: colors.foreground }]}>Default Currency</Text>
+              
+              {/* Search Input */}
+              <View style={[styles.searchContainer, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
+                <Search size={18 * scale} color={colors.mutedForeground} style={styles.searchIcon} />
+                <TextInput
+                  style={[styles.searchInput, responsiveTextStyles.body, { color: colors.foreground }]}
+                  placeholder="Search currency..."
+                  placeholderTextColor={colors.mutedForeground}
+                  value={currencySearchQuery}
+                  onChangeText={setCurrencySearchQuery}
+                />
+              </View>
+
               {loadingCurrencies ? (
                 <View style={styles.loadingContainer}>
                   <ActivityIndicator size="small" color={colors.primary} />
                   <Text style={[styles.loadingText, { color: colors.foreground }]}>Loading currencies...</Text>
                 </View>
               ) : (
-                <ScrollView style={styles.currencyList} nestedScrollEnabled>
-                  {currencies.map((curr) => (
-                    <Pressable
-                      key={curr.code}
-                      style={[
-                        styles.currencyItem,
-                        currency === curr.code && styles.currencyItemSelected,
-                      ]}
-                      onPress={() => setCurrency(curr.code)}
-                    >
-                      <Text style={styles.currencyFlag}>{curr.flag}</Text>
-                      <View style={styles.currencyInfo}>
-                        <Text style={styles.currencyName}>{curr.name}</Text>
-                        <Text style={styles.currencyCode}>
-                          {curr.code} ({curr.symbol})
-                        </Text>
-                      </View>
-                      {currency === curr.code && (
-                        <Check size={20 * scale} color="#03A9F4" />
-                      )}
-                    </Pressable>
-                  ))}
-                </ScrollView>
+                <>
+                  {filteredCurrencies.length === 0 ? (
+                    <View style={styles.emptyContainer}>
+                      <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
+                        No currencies found matching "{currencySearchQuery}"
+                      </Text>
+                    </View>
+                  ) : (
+                    <ScrollView style={styles.currencyList} nestedScrollEnabled>
+                      {filteredCurrencies.map((curr) => (
+                        <Pressable
+                          key={curr.code}
+                          style={[
+                            styles.currencyItem,
+                            { backgroundColor: currency === curr.code ? colors.accent : 'transparent' },
+                          ]}
+                          onPress={() => setCurrency(curr.code)}
+                        >
+                          <Text style={styles.currencyFlag}>{curr.flag}</Text>
+                          <View style={styles.currencyInfo}>
+                            <Text style={[styles.currencyName, { color: colors.foreground }]}>{curr.name}</Text>
+                            <Text style={[styles.currencyCode, { color: colors.mutedForeground }]}>
+                              {curr.code} ({curr.symbol})
+                            </Text>
+                          </View>
+                          {currency === curr.code && (
+                            <Check size={20 * scale} color={colors.primary} />
+                          )}
+                        </Pressable>
+                      ))}
+                    </ScrollView>
+                  )}
+                </>
               )}
-              <Text style={styles.hintText}>
+              <Text style={[styles.hintText, { color: colors.mutedForeground }]}>
                 You can change this later in settings. You can also use multiple currencies for different transactions.
               </Text>
             </View>
@@ -393,7 +429,16 @@ export default function OnboardingScreen({
   // Location Selection Screen
   if (step === 'location') {
     const { COUNTRIES } = require('../constants/countries');
-    const countries = COUNTRIES.sort((a: any, b: any) => a.name.localeCompare(b.name));
+    const allCountries = COUNTRIES.sort((a: any, b: any) => a.name.localeCompare(b.name));
+    
+    // Filter countries based on search query
+    const filteredCountries = allCountries.filter((c: any) => {
+      const query = countrySearchQuery.toLowerCase();
+      return (
+        c.name.toLowerCase().includes(query) ||
+        c.code.toLowerCase().includes(query)
+      );
+    });
 
     return (
       <LinearGradient colors={['#03A9F4', '#0288D1']} style={styles.gradient}>
@@ -418,33 +463,54 @@ export default function OnboardingScreen({
               </Text>
             </View>
 
-            <View style={[styles.card, { padding: 20 }]}>
-              <Text style={styles.label}>Country</Text>
-              <ScrollView style={styles.countryList} nestedScrollEnabled>
-                {countries.map((c: any) => (
-                  <Pressable
-                    key={c.code}
-                    style={[
-                      styles.countryItem,
-                      country === c.code && styles.countryItemSelected,
-                    ]}
-                    onPress={() => setCountry(c.code)}
-                  >
-                    <Text style={styles.countryName}>{c.name}</Text>
-                    {country === c.code && (
-                      <Check size={20 * scale} color="#03A9F4" />
-                    )}
-                  </Pressable>
-                ))}
-              </ScrollView>
+            <View style={[styles.card, { padding: 20, backgroundColor: colors.card }]}>
+              <Text style={[styles.label, { color: colors.foreground }]}>Country</Text>
+              
+              {/* Search Input */}
+              <View style={[styles.searchContainer, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
+                <Search size={18 * scale} color={colors.mutedForeground} style={styles.searchIcon} />
+                <TextInput
+                  style={[styles.searchInput, responsiveTextStyles.body, { color: colors.foreground }]}
+                  placeholder="Search country..."
+                  placeholderTextColor={colors.mutedForeground}
+                  value={countrySearchQuery}
+                  onChangeText={setCountrySearchQuery}
+                />
+              </View>
 
-              <Text style={[styles.label, { marginTop: 16 }]}>
+              {filteredCountries.length === 0 ? (
+                <View style={styles.emptyContainer}>
+                  <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
+                    No countries found matching "{countrySearchQuery}"
+                  </Text>
+                </View>
+              ) : (
+                <ScrollView style={styles.countryList} nestedScrollEnabled>
+                  {filteredCountries.map((c: any) => (
+                    <Pressable
+                      key={c.code}
+                      style={[
+                        styles.countryItem,
+                        { backgroundColor: country === c.code ? colors.accent : 'transparent' },
+                      ]}
+                      onPress={() => setCountry(c.code)}
+                    >
+                      <Text style={[styles.countryName, { color: colors.foreground }]}>{c.name}</Text>
+                      {country === c.code && (
+                        <Check size={20 * scale} color={colors.primary} />
+                      )}
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              )}
+
+              <Text style={[styles.label, { marginTop: 16, color: colors.foreground }]}>
                 State/Province (Optional)
               </Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
                 placeholder="Enter your state or province"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={colors.mutedForeground}
                 value={state}
                 onChangeText={setState}
               />
@@ -452,6 +518,7 @@ export default function OnboardingScreen({
               <Pressable
                 style={[
                   styles.locationButton,
+                  { borderColor: colors.primary },
                   locationLoading && styles.locationButtonDisabled,
                 ]}
                 onPress={handleGetLocation}
@@ -459,18 +526,18 @@ export default function OnboardingScreen({
               >
                 {locationLoading ? (
                   <>
-                    <ActivityIndicator size="small" color="#03A9F4" />
-                    <Text style={styles.locationButtonText}>Getting location...</Text>
+                    <ActivityIndicator size="small" color={colors.primary} />
+                    <Text style={[styles.locationButtonText, { color: colors.primary }]}>Getting location...</Text>
                   </>
                 ) : (
                   <>
-                    <MapPin size={18 * scale} color="#03A9F4" />
-                    <Text style={styles.locationButtonText}>Use My Current Location</Text>
+                    <MapPin size={18 * scale} color={colors.primary} />
+                    <Text style={[styles.locationButtonText, { color: colors.primary }]}>Use My Current Location</Text>
                   </>
                 )}
               </Pressable>
               {locationError && (
-                <Text style={styles.errorText}>{locationError}</Text>
+                <Text style={[styles.errorText, { color: colors.destructive }]}>{locationError}</Text>
               )}
             </View>
 
@@ -653,8 +720,24 @@ const styles = StyleSheet.create({
   },
   label: {
     ...textStyles.label,
-    color: '#333',
     marginBottom: 12,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    ...textStyles.body,
+    paddingVertical: 4,
   },
   loadingContainer: {
     flexDirection: 'row',
@@ -665,6 +748,14 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     ...textStyles.body,
+  },
+  emptyContainer: {
+    paddingVertical: 20,
+    alignItems: 'center',
+  },
+  emptyText: {
+    ...textStyles.body,
+    textAlign: 'center',
   },
   currencyList: {
     maxHeight: 200,
@@ -678,9 +769,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 4,
   },
-  currencyItemSelected: {
-    backgroundColor: 'rgba(3, 169, 244, 0.1)',
-  },
   currencyFlag: {
     ...textStyles.body,
     marginRight: 12,
@@ -691,16 +779,13 @@ const styles = StyleSheet.create({
   currencyName: {
     ...textStyles.body,
     fontWeight: '600',
-    color: '#212121',
     marginBottom: 2,
   },
   currencyCode: {
     ...textStyles.caption,
-    color: '#666',
   },
   hintText: {
     ...textStyles.caption,
-    color: '#666',
     marginTop: 8,
   },
   countryList: {
@@ -716,22 +801,15 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 4,
   },
-  countryItemSelected: {
-    backgroundColor: 'rgba(3, 169, 244, 0.1)',
-  },
   countryName: {
     ...textStyles.body,
-    color: '#212121',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#e0e0e0',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#f5f5f5',
     ...textStyles.body,
-    color: '#333',
     marginBottom: 16,
   },
   locationButton: {
@@ -739,7 +817,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#03A9F4',
     borderRadius: 12,
     paddingVertical: 12,
     gap: 8,
@@ -749,11 +826,9 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   locationButtonText: {
-    color: '#03A9F4',
     ...textStyles.button,
   },
   errorText: {
-    color: '#FF5252',
     ...textStyles.caption,
     marginTop: 8,
   },

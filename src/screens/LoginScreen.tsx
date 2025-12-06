@@ -114,12 +114,17 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
   // Responsive styles
   const responsiveTextStyles = createResponsiveTextStyles(width);
 
+  // Dynamic gradient colors based on theme
+  const gradientColors = isDark 
+    ? ['#1a1a1a', '#2a2a2a'] 
+    : ['#03A9F4', '#0288D1'];
+
   return (
     <LinearGradient
-      colors={['#03A9F4', '#0288D1']}
+      colors={gradientColors}
       style={styles.gradient}
     >
-      <StatusBar style="light" />
+      <StatusBar style={isDark ? "dark" : "light"} />
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -140,8 +145,8 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
               style={{ width: 80 * scale, height: 80 * scale, marginBottom: 16 }}
               resizeMode="contain"
             />
-            <Text style={[styles.appName, responsiveTextStyles.h2]}>{t('auth.welcomeBack')}</Text>
-            <Text style={[styles.tagline, responsiveTextStyles.body]}>{t('auth.loginSubtitle')}</Text>
+            <Text style={[styles.appName, responsiveTextStyles.h2, { color: isDark ? colors.foreground : '#fff' }]}>{t('auth.welcomeBack')}</Text>
+            <Text style={[styles.tagline, responsiveTextStyles.body, { color: isDark ? colors.mutedForeground : 'rgba(255, 255, 255, 0.9)' }]}>{t('auth.loginSubtitle')}</Text>
           </View>
 
           {/* Login Form */}
@@ -261,15 +266,15 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
 
             {/* Sign Up Link */}
             <View style={styles.signupContainer}>
-              <Text style={[styles.signupText, responsiveTextStyles.bodySmall]}>{t('auth.noAccount')} </Text>
+              <Text style={[styles.signupText, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>{t('auth.noAccount')} </Text>
               <Pressable onPress={onSignupClick}>
-                <Text style={[styles.signupLink, responsiveTextStyles.bodySmall]}>{t('auth.signUp')}</Text>
+                <Text style={[styles.signupLink, responsiveTextStyles.bodySmall, { color: colors.primary }]}>{t('auth.signUp')}</Text>
               </Pressable>
             </View>
           </View>
 
           {/* Footer tagline */}
-          <Text style={[styles.footerText, responsiveTextStyles.caption]}>
+          <Text style={[styles.footerText, responsiveTextStyles.caption, { color: isDark ? colors.mutedForeground : 'rgba(255,255,255,0.9)' }]}>
             Track. Save. Grow. © 2024 Spendly
           </Text>
         </ScrollView>
@@ -306,12 +311,10 @@ const styles = StyleSheet.create({
   },
   appName: {
     ...textStyles.h2,
-    color: '#fff',
     marginBottom: 4,
   },
   tagline: {
     ...textStyles.body,
-    color: 'rgba(255, 255, 255, 0.9)',
     letterSpacing: 0.5,
   },
   formContainer: {
@@ -400,11 +403,9 @@ const styles = StyleSheet.create({
   },
   signupText: {
     ...textStyles.bodySmall,
-    color: '#666',
   },
   signupLink: {
     ...textStyles.bodySmall,
-    color: '#03A9F4',
     fontWeight: 'bold',
   },
   dividerRow: {
@@ -454,7 +455,6 @@ const styles = StyleSheet.create({
   footerText: {
     marginTop: 32,
     textAlign: 'center',
-    color: 'rgba(255,255,255,0.9)',
   },
 });
 

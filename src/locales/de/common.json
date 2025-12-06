@@ -50,7 +50,8 @@
     "totalAssets": "Gesamtvermögen",
     "netWorth": "Nettovermögen:",
     "remaining": "verbleibend",
-    "overBy": "Überschritten um"
+    "overBy": "Überschritten um",
+    "noTransactions": "Noch keine Transaktionen"
   },
   "reports": {
     "reportsAnalytics": "Berichte & Analysen",
@@ -88,6 +89,7 @@
     "trends": "Trends",
     "health": "Gesundheit",
     "smartInsights": "Intelligente Erkenntnisse",
+    "noInsights": "Keine Erkenntnisse verfügbar. Beginnen Sie mit dem Hinzufügen von Transaktionen, um intelligente Erkenntnisse zu sehen.",
     "spendingByCategory": "Ausgaben nach Kategorie",
     "categoryDistribution": "Kategorieverteilung",
     "transactions": "Transaktionen",
@@ -344,8 +346,9 @@
     "title": "Partner-Angebote",
     "subtitle": "Exklusive Angebote, die für Sie ausgewählt wurden",
     "loading": "Angebote werden geladen...",
+    "noOffers": "Derzeit keine Angebote verfügbar",
     "noOffersAvailable": "Keine Angebote verfügbar",
-    "checkBackLater": "Kommen Sie später für exklusive Angebote zurück",
+    "checkBackLater": "Kommen Sie später für neue Aktionen zurück!",
     "locationBasedOffers": "Standortbasierte Angebote",
     "locationBasedDescription": "Wir zeigen Ihnen exklusive Angebote, die in Ihrer Region verfügbar sind",
     "updateLocationMessage": ". Aktualisieren Sie Ihren Standort in den Einstellungen, um Angebote aus verschiedenen Regionen zu sehen.",

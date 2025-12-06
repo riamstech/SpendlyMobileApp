@@ -50,7 +50,8 @@
     "totalAssets": "إجمالي الأصول",
     "netWorth": "صافي القيمة:",
     "remaining": "المتبقي",
-    "overBy": "تجاوز بمقدار"
+    "overBy": "تجاوز بمقدار",
+    "noTransactions": "لا توجد معاملات حتى الآن"
   },
   "reports": {
     "reportsAnalytics": "التقارير والتحليلات",
@@ -88,6 +89,7 @@
     "trends": "الاتجاهات",
     "health": "الصحة",
     "smartInsights": "رؤى ذكية",
+    "noInsights": "لا توجد رؤى متاحة. ابدأ بإضافة المعاملات لرؤية الرؤى الذكية.",
     "spendingByCategory": "الإنفاق حسب الفئة",
     "categoryDistribution": "توزيع الفئات",
     "transactions": "معاملات",
@@ -345,8 +347,9 @@
     "title": "عروض الشركاء",
     "subtitle": "عروض حصرية مختارة لك",
     "loading": "جاري تحميل العروض...",
+    "noOffers": "لا توجد عروض متاحة في الوقت الحالي",
     "noOffersAvailable": "لا توجد عروض متاحة",
-    "checkBackLater": "ارجع لاحقًا للعروض الحصرية",
+    "checkBackLater": "ارجع لاحقًا للعروض الجديدة!",
     "locationBasedOffers": "عروض مبنية على الموقع",
     "locationBasedDescription": "نعرض لك عروضًا حصرية متاحة في منطقتك",
     "updateLocationMessage": ". قم بتحديث موقعك في الإعدادات لرؤية العروض من مناطق مختلفة.",

@@ -474,17 +474,40 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
         return;
       }
 
-      const imageUri = result.assets[0].uri;
-      const imageName = imageUri.split('/').pop() || 'avatar.jpg';
-      const imageType = `image/${imageName.split('.').pop() || 'jpeg'}`;
+      const imageAsset = result.assets[0];
+      const imageUri = imageAsset.uri;
+      
+      // Get file extension from URI or use default
+      const uriParts = imageUri.split('.');
+      const fileExtension = uriParts[uriParts.length - 1] || 'jpg';
+      const imageName = `avatar_${Date.now()}.${fileExtension}`;
+      
+      // Determine MIME type based on extension
+      let imageType = 'image/jpeg';
+      if (fileExtension === 'png') {
+        imageType = 'image/png';
+      } else if (fileExtension === 'gif') {
+        imageType = 'image/gif';
+      } else if (fileExtension === 'webp') {
+        imageType = 'image/webp';
+      }
 
       // Create FormData for React Native
+      // React Native FormData requires this specific format
       const formData = new FormData();
       formData.append('avatar', {
         uri: imageUri,
         type: imageType,
         name: imageName,
       } as any);
+
+      console.log('Uploading avatar:', { 
+        imageUri, 
+        imageName, 
+        imageType, 
+        platform: Platform.OS,
+        formDataKeys: Object.keys(formData)
+      });
 
       setUploadingAvatar(true);
       const response = await usersService.uploadAvatar(formData as any);
@@ -502,9 +525,30 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       Alert.alert(t('settings.success'), t('settings.successProfilePhotoUpdated'));
     } catch (error: any) {
       console.error('Error uploading avatar:', error);
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+      });
+      
+      let errorMessage = t('settings.errorUploadProfilePhoto');
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.data?.errors) {
+        // Handle Laravel validation errors
+        const errors = error.response.data.errors;
+        if (errors.avatar && Array.isArray(errors.avatar)) {
+          errorMessage = errors.avatar[0];
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       Alert.alert(
         t('settings.error'),
-        error.response?.data?.message || error.message || t('settings.errorUploadProfilePhoto')
+        errorMessage
       );
     } finally {
       setUploadingAvatar(false);

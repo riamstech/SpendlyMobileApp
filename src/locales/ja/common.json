@@ -50,7 +50,8 @@
     "totalAssets": "総資産",
     "netWorth": "純資産：",
     "remaining": "残り",
-    "overBy": "超過"
+    "overBy": "超過",
+    "noTransactions": "まだ取引がありません"
   },
   "reports": {
     "reportsAnalytics": "レポートと分析",
@@ -88,6 +89,7 @@
     "trends": "トレンド",
     "health": "健康",
     "smartInsights": "スマートインサイト",
+    "noInsights": "利用可能なインサイトがありません。スマートインサイトを表示するには、取引の追加を開始してください。",
     "spendingByCategory": "カテゴリ別支出",
     "categoryDistribution": "カテゴリ分布",
     "transactions": "取引",
@@ -345,8 +347,9 @@
     "title": "パートナーオファー",
     "subtitle": "あなたのために厳選された限定オファー",
     "loading": "オファーを読み込み中...",
+    "noOffers": "現在利用可能なオファーがありません",
     "noOffersAvailable": "利用可能なオファーがありません",
-    "checkBackLater": "限定オファーについては後で確認してください",
+    "checkBackLater": "新しいプロモーションについては後で確認してください！",
     "locationBasedOffers": "位置ベースのオファー",
     "locationBasedDescription": "お住まいの地域で利用可能な限定オファーを表示します",
     "updateLocationMessage": "。異なる地域のオファーを表示するには、設定で位置情報を更新してください。",

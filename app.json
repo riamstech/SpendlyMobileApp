@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "SpendlyMobileApp",
+    "name": "Spendly",
     "slug": "SpendlyMobileApp",
     "version": "1.0.0",
     "main": "index.ts",
@@ -18,12 +18,14 @@
       "buildNumber": "1",
       "deploymentTarget": "13.4",
       "icon": "./assets/icon.png",
+      "displayName": "Spendly Money",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
       "package": "com.spendly.money",
+      "label": "Spendly Money",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"

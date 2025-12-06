@@ -1157,7 +1157,7 @@ export default function DashboardScreen({
             <Text style={[styles.sectionTitle, responsiveTextStyles.h4, { color: colors.foreground }]}>
               {t('dashboard.recentTransactions') || 'Recent Transactions'}
             </Text>
-            {onViewAllTransactions && (
+            {onViewAllTransactions && recentTransactions.length > 0 && (
               <Pressable onPress={onViewAllTransactions}>
                 <Text style={[styles.sectionLink, responsiveTextStyles.caption, { color: colors.primary }]}>
                   {t('dashboard.viewAll')}

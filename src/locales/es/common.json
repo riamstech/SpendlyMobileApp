@@ -55,7 +55,8 @@
     "loan": "Préstamo",
     "ends": "Termina",
     "of": "de",
-    "paid": "Pagado"
+    "paid": "Pagado",
+    "noTransactions": "Aún no hay transacciones"
   },
   "reports": {
     "reportsAnalytics": "Informes y Análisis",
@@ -93,6 +94,7 @@
     "trends": "Tendencias",
     "health": "Salud",
     "smartInsights": "Perspectivas Inteligentes",
+    "noInsights": "No hay perspectivas disponibles. Comienza a agregar transacciones para ver perspectivas inteligentes.",
     "spendingByCategory": "Gastos por Categoría",
     "categoryDistribution": "Distribución por Categoría",
     "transactions": "transacciones",
@@ -493,8 +495,9 @@
     "title": "Ofertas de Socios",
     "subtitle": "Ofertas exclusivas seleccionadas para ti",
     "loading": "Cargando ofertas...",
+    "noOffers": "No hay ofertas disponibles en este momento",
     "noOffersAvailable": "No hay ofertas disponibles",
-    "checkBackLater": "Vuelve más tarde para ofertas exclusivas",
+    "checkBackLater": "¡Vuelve más tarde para nuevas promociones!",
     "locationBasedOffers": "Ofertas Basadas en Ubicación",
     "locationBasedDescription": "Te mostramos ofertas exclusivas disponibles en tu área",
     "updateLocationMessage": ". Actualiza tu ubicación en Configuración para ver ofertas de diferentes regiones.",
