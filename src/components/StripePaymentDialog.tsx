@@ -107,7 +107,7 @@ export default function StripePaymentDialog({
   const responsiveTextStyles = createResponsiveTextStyles(width);
 
   return (
-    <Modal isVisible={isOpen} onClose={onClose}>
+    <Modal visible={isOpen} onClose={onClose}>
       <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
         {/* Header */}
         <View style={[styles.header, { borderBottomColor: colors.border }]}>
@@ -266,10 +266,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   infoLabel: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
   },
   infoValue: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     fontWeight: '600',
   },
   errorCard: {
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     flex: 1,
-    fontSize: 13,
+    ...textStyles.caption,
     lineHeight: 18,
   },
   noteCard: {
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   noteText: {
-    fontSize: 12,
+    ...textStyles.caption,
     lineHeight: 16,
     textAlign: 'center',
   },

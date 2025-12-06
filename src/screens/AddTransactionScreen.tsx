@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   Platform,
   Modal as RNModal,
+  Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -469,6 +470,68 @@ export default function AddTransactionScreen({
           </View>
         </Card>
 
+        {/* Recurring Options */}
+        <Card style={{ marginBottom: 16, backgroundColor: colors.card }}>
+           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: isRecurring ? 16 : 0 }}>
+            <Text style={[styles.label, { color: colors.foreground, marginBottom: 0 }]}>{t('addTransaction.recurring')}</Text>
+            <Switch
+              value={isRecurring}
+              onValueChange={setIsRecurring}
+              trackColor={{ false: colors.border, true: colors.primary }}
+              thumbColor={Platform.OS === 'ios' ? '#fff' : isRecurring ? '#fff' : '#f4f3f4'}
+            />
+          </View>
+          
+          {isRecurring && (
+            <View>
+              <Text style={[styles.label, { color: colors.foreground }]}>{t('addTransaction.frequency')}</Text>
+              <View style={styles.frequencyContainer}>
+                {['daily', 'weekly', 'monthly', 'yearly'].map((freq) => (
+                  <Pressable
+                    key={freq}
+                    style={[
+                      styles.frequencyButton,
+                      frequency === freq && { backgroundColor: `${colors.primary}20`, borderColor: colors.primary },
+                      { borderColor: colors.border }
+                    ]}
+                    onPress={() => setFrequency(freq)}
+                  >
+                    <Text style={[
+                      styles.frequencyButtonText,
+                      { color: frequency === freq ? colors.primary : colors.mutedForeground }
+                    ]}>
+                      {t(`addTransaction.frequency.${freq}`) || freq.charAt(0).toUpperCase() + freq.slice(1)}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              <Text style={[styles.label, { color: colors.foreground, marginTop: 16 }]}>{t('addTransaction.reminderDays')}</Text>
+              <TextInput
+                style={[
+                  styles.amountInput, 
+                  { 
+                    backgroundColor: colors.inputBackground,
+                    borderColor: colors.border,
+                    color: colors.foreground,
+                    fontSize: responsiveTextStyles.body.fontSize,
+                    fontFamily: undefined,
+                    paddingVertical: 12
+                  }
+                ]}
+                placeholder="1"
+                placeholderTextColor={colors.mutedForeground}
+                value={reminderDays}
+                onChangeText={setReminderDays}
+                keyboardType="number-pad"
+              />
+              <Text style={[styles.hintTeat, { color: colors.mutedForeground, marginTop: 4, ...textStyles.caption }]}>
+                Days before due date to remind you
+              </Text>
+            </View>
+          )}
+        </Card>
+
         {/* Notes */}
         <Card style={{ marginBottom: 16, backgroundColor: colors.card }}>
           <Text style={[styles.label, { color: colors.foreground }]}>{t('addTransaction.notes')}</Text>
@@ -771,7 +834,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    marginTop: 8,
+    // marginTop: 8, // Removed to align with Amount Input
   },
   selectButtonText: {
     ...textStyles.bodySmall,
@@ -782,7 +845,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   categoryIcon: {
-    fontSize: 16,
+    ...textStyles.h3,
   },
   loadingContainer: {
     flexDirection: 'row',
@@ -825,7 +888,7 @@ const styles = StyleSheet.create({
     // Selected styling handled inline with theme colors
   },
   categoryItemIcon: {
-    fontSize: 24,
+    ...textStyles.h1,
     marginBottom: 8,
   },
   categoryItemText: {
@@ -861,7 +924,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   currencyFlag: {
-    fontSize: 16,
+    ...textStyles.body,
     marginRight: 12,
     width: 32,
     textAlign: 'center',
@@ -879,7 +942,7 @@ const styles = StyleSheet.create({
     ...textStyles.bodySmall,
   },
   checkmark: {
-    fontSize: 16,
+    ...textStyles.body,
     color: '#03A9F4',
     fontWeight: 'bold',
   },
@@ -950,5 +1013,25 @@ const styles = StyleSheet.create({
   modalItemText: {
     ...textStyles.body,
   },
+  frequencyContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  frequencyButton: {
+    flex: 1,
+    minWidth: '45%',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  frequencyButtonText: {
+    ...textStyles.bodySmall,
+    fontWeight: '500',
+  },
+  hintTeat: { // Typo fix in style name if needed, or just use caption
+    ...textStyles.caption,
+  }
 });
 

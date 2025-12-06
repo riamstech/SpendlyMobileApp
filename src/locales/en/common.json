@@ -117,7 +117,8 @@
     "category": "Category",
     "percentage": "Percentage",
     "selectCurrency": "Select Currency",
-    "selectDateRange": "Select Date Range"
+    "selectDateRange": "Select Date Range",
+    "searchCurrency": "Search currency..."
   },
   "analytics": {
     "insights": "Insights",
@@ -306,6 +307,7 @@
     "changePhoto": "Change photo",
     "preferences": "Preferences",
     "currency": "Currency",
+    "currencyDescription": "Choose your primary currency",
     "defaultCurrency": "Default Currency",
     "defaultCurrencySubtitle": "Choose your primary currency",
     "language": "Language",

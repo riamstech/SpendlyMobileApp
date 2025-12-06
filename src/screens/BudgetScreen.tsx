@@ -22,6 +22,8 @@ import {
   AlertCircle,
   X,
   ChevronDown,
+  DollarSign,
+  TrendingDown,
 } from 'lucide-react-native';
 import { PieChart } from 'react-native-chart-kit';
 import { budgetsService } from '../api/services/budgets';
@@ -212,7 +214,11 @@ export default function BudgetScreen() {
       setNewCategoryName('');
       setNewCategoryBudget('');
       setNewCategoryCurrency(currency);
-      Alert.alert('Success', 'Budget added successfully');
+      if (Platform.OS === 'web') {
+        window.alert('Budget added successfully');
+      } else {
+        Alert.alert('Success', 'Budget added successfully');
+      }
     } catch (error: any) {
       console.error('Error adding budget:', error);
       Alert.alert('Error', error.response?.data?.message || 'Failed to add budget. Please try again.');
@@ -456,18 +462,30 @@ export default function BudgetScreen() {
         )}
 
         {/* Summary Cards */}
-        <View style={styles.summaryRow}>
-          <View style={[styles.summaryCard, { backgroundColor: colors.card }]}>
-            <Text style={[styles.summaryLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>{t('budget.totalBudget') || 'Total Budget'}</Text>
-            <Text style={[styles.summaryValue, responsiveTextStyles.body, { color: colors.foreground, fontFamily: fonts.mono, fontWeight: '600' }]}>
-              {currency} {formatValue(totalBudget)}
-            </Text>
-          </View>
-          <View style={[styles.summaryCard, { backgroundColor: colors.card }]}>
-            <Text style={[styles.summaryLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>{t('budget.totalSpent') || 'Total Spent'}</Text>
-            <Text style={[styles.summaryValue, responsiveTextStyles.body, { color: totalSpent > totalBudget ? '#FF5252' : colors.foreground, fontFamily: fonts.mono, fontWeight: '600' }]}>
-              {currency} {formatValue(totalSpent)}
-            </Text>
+        {/* Summary Grid - Dark Layout */}
+        <View style={styles.statsGrid}>
+          <View style={styles.statsRow}>
+            {/* Total Budget */}
+            <View style={[styles.statsCard, styles.budgetStatsCard]}>
+               <View style={{ marginBottom: 8 }}>
+                 <DollarSign size={24} color="#03A9F4" />
+               </View>
+               <Text style={[styles.statsLabel, responsiveTextStyles.body]}>{t('budget.totalBudget') || 'Total Budget'}</Text>
+               <Text style={[styles.statsValue, responsiveTextStyles.h3, { color: '#03A9F4' }]} numberOfLines={1} adjustsFontSizeToFit>
+                 {currency} {formatValue(totalBudget)}
+               </Text>
+            </View>
+
+            {/* Total Spent */}
+            <View style={[styles.statsCard, styles.spentStatsCard]}>
+               <View style={{ marginBottom: 8 }}>
+                 <TrendingDown size={24} color="#FF5252" />
+               </View>
+               <Text style={[styles.statsLabel, responsiveTextStyles.body]}>{t('budget.totalSpent') || 'Total Spent'}</Text>
+               <Text style={[styles.statsValue, responsiveTextStyles.h3, { color: '#FF5252' }]} numberOfLines={1} adjustsFontSizeToFit>
+                 {currency} {formatValue(totalSpent)}
+               </Text>
+            </View>
           </View>
         </View>
         <View style={[styles.overviewCard, { backgroundColor: colors.card }]}>
@@ -876,7 +894,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#e0e0e0',
-    fontSize: 14, // Keep font size to match textStyles.bodySmall roughly for inputs
+    ...textStyles.bodySmall, // Keep font size to match textStyles.bodySmall roughly for inputs
     color: '#333',
   },
   formHelperText: {
@@ -898,7 +916,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   cancelButtonText: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     color: '#666',
   },
   saveButton: {
@@ -908,7 +926,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   saveButtonText: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     color: '#fff',
     fontWeight: '600',
   },
@@ -928,11 +946,11 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   summaryLabel: {
-    fontSize: 12,
+    ...textStyles.caption,
     marginBottom: 8,
   },
   summaryValue: {
-    fontSize: 16,
+    ...textStyles.h2,
     fontWeight: 'bold',
   },
   overviewCard: {
@@ -955,15 +973,15 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   overviewLabel: {
-    fontSize: 12,
+    ...textStyles.caption,
     color: '#666',
     marginBottom: 4,
   },
   overviewValue: {
-    fontSize: 16,
+    ...textStyles.h2,
     fontWeight: 'bold',
     color: '#333',
-    fontFamily: fonts.mono,
+    // fontFamily: fonts.mono, - Removed as per design guidelines
   },
   progressBar: {
     height: 8,
@@ -981,7 +999,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   overviewFooterText: {
-    fontSize: 12,
+    ...textStyles.caption,
     color: '#666',
   },
   chartCard: {
@@ -996,7 +1014,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   chartTitle: {
-    fontSize: 16,
+    ...textStyles.h2,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 16,
@@ -1009,7 +1027,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 16,
+    ...textStyles.h2,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 16,
@@ -1056,7 +1074,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   budgetName: {
-    fontSize: 16,
+    ...textStyles.h2,
     fontWeight: '600',
     color: '#333',
     marginBottom: 4,
@@ -1068,12 +1086,12 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   budgetAmount: {
-    fontSize: 13,
+    ...textStyles.bodySmall,
     color: '#666',
-    fontFamily: fonts.mono,
+    // fontFamily: fonts.mono, - Removed as per design guidelines
   },
   budgetCurrency: {
-    fontSize: 11,
+    ...textStyles.caption,
     color: '#999',
   },
   alertBadge: {
@@ -1086,7 +1104,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   alertText: {
-    fontSize: 11,
+    ...textStyles.caption,
     color: '#FF5252',
     fontWeight: '600',
   },
@@ -1108,7 +1126,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     borderWidth: 1,
     borderColor: '#e0e0e0',
-    fontSize: 14,
+    ...textStyles.bodySmall,
     color: '#333',
   },
   saveEditButton: {
@@ -1118,7 +1136,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   saveEditButtonText: {
-    fontSize: 12,
+    ...textStyles.caption,
     color: '#fff',
     fontWeight: '600',
   },
@@ -1131,7 +1149,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   budgetFooterText: {
-    fontSize: 11,
+    ...textStyles.caption,
     color: '#666',
   },
   emptyState: {
@@ -1139,7 +1157,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyStateText: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     color: '#999',
     textAlign: 'center',
   },
@@ -1165,7 +1183,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e0e0e0',
   },
   modalTitle: {
-    fontSize: 16,
+    ...textStyles.h2,
     fontWeight: 'bold',
     color: '#333',
   },
@@ -1181,7 +1199,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#e0e0e0',
-    fontSize: 14,
+    ...textStyles.bodySmall,
     color: '#333',
   },
   modalList: {
@@ -1206,12 +1224,49 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalItemText: {
-    fontSize: 16,
+    ...textStyles.h2,
     color: '#333',
   },
   modalItemTextActive: {
     color: '#03A9F4',
     fontWeight: '600',
+  },
+  statsGrid: {
+    gap: 12,
+    marginBottom: 24,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  statsCard: {
+    flex: 1,
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 140,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  budgetStatsCard: {
+    backgroundColor: '#1C2936', // Dark Blue
+  },
+  spentStatsCard: {
+    backgroundColor: '#362020', // Dark Red
+  },
+  statsLabel: {
+    textAlign: 'center',
+    marginBottom: 4,
+    color: '#fff',
+    opacity: 0.9,
+  },
+  statsValue: {
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 

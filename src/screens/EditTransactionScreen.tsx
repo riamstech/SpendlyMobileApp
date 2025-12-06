@@ -441,10 +441,10 @@ export default function EditTransactionScreen({
           loading={deleting}
           variant="outline"
           fullWidth
-          style={[
+          style={StyleSheet.flatten([
             styles.deleteButton,
             { borderColor: '#FF5252' },
-          ]}
+          ])}
           textStyle={{ color: '#FF5252' }}
         />
       </ScrollView>
@@ -623,7 +623,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   categoryIcon: {
-    fontSize: 16,
+    ...textStyles.body,
   },
   loadingContainer: {
     flexDirection: 'row',
@@ -672,7 +672,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(3, 169, 244, 0.1)',
   },
   categoryItemIcon: {
-    fontSize: 16,
+    ...textStyles.h3,
     marginBottom: 8,
   },
   categoryItemText: {
@@ -699,7 +699,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(3, 169, 244, 0.1)',
   },
   currencyFlag: {
-    fontSize: 16,
+    ...textStyles.h3,
     marginRight: 12,
   },
   currencyInfo: {

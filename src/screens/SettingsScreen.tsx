@@ -57,7 +57,7 @@ import { dashboardService } from '../api/services/dashboard';
 import { COUNTRIES, US_STATES, CA_PROVINCES } from '../constants/countries';
 import { SUPPORTED_LANGUAGES } from '../i18n';
 import { useTheme } from '../contexts/ThemeContext';
-import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
+import { textStyles, createResponsiveTextStyles, fonts } from '../constants/fonts';
 import StripePaymentDialog from '../components/StripePaymentDialog';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 
@@ -555,7 +555,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
           >
             <View style={styles.sectionHeaderLeft}>
               <User size={20} color={colors.primary} />
-              <Text style={[styles.sectionTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>{t('settings.profile')}</Text>
+              <Text style={[styles.sectionTitle, { color: colors.foreground }]}>{t('settings.profile')}</Text>
             </View>
             {expandedSections.profile ? (
               <ChevronUp size={20} color={colors.mutedForeground} />
@@ -698,49 +698,71 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                 style={[styles.settingItem, { borderBottomColor: colors.border }]}
                 onPress={() => setShowCurrencyModal(true)}
               >
-                <View style={styles.settingItemLeft}>
+                <View style={[styles.settingItemLeft, { flex: 1 }]}>
                   <DollarSign size={20} color={colors.primary} />
                   <View style={styles.settingItemInfo}>
-                    <Text style={[styles.settingItemLabel, { color: colors.foreground }]}>{t('settings.currency')}</Text>
-                    <Text style={[styles.settingItemValue, { color: colors.mutedForeground }]}>
-                      {(() => {
-                        const curr = currencies.find(c => c.code === selectedCurrency);
-                        return curr ? `${curr.flag || '💰'} ${curr.code}${curr.name ? ` - ${curr.name}` : ''}` : selectedCurrency;
-                      })()}
+                    <Text style={[styles.settingItemLabel, { color: colors.foreground }]}>
+                      {t('settings.defaultCurrency') || 'Default Currency'}
+                    </Text>
+                    <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
+                      {t('settings.currencyDescription') || 'Choose your primary currency'}
                     </Text>
                   </View>
                 </View>
-                <ChevronDown size={18} color={colors.mutedForeground} />
+                <Pressable
+                  style={styles.currencySelector}
+                  onPress={() => setShowCurrencyModal(true)}
+                >
+                  {(() => {
+                    const curr = currencies.find(c => c.code === selectedCurrency);
+                    return (
+                      <>
+                        <Text style={styles.currencyFlag}>{curr?.flag || '💰'}</Text>
+                        <Text style={[styles.currencyCode, { color: colors.foreground }]}>{selectedCurrency}</Text>
+                      </>
+                    );
+                  })()}
+                </Pressable>
               </Pressable>
 
               <Pressable
                 style={[styles.settingItem, { borderBottomColor: colors.border }]}
                 onPress={() => setShowLanguageModal(true)}
               >
-                <View style={styles.settingItemLeft}>
+                <View style={[styles.settingItemLeft, { flex: 1 }]}>
                   <Globe size={20} color={colors.primary} />
                   <View style={styles.settingItemInfo}>
                     <Text style={[styles.settingItemLabel, { color: colors.foreground }]}>{t('settings.language')}</Text>
-                    <Text style={[styles.settingItemValue, { color: colors.mutedForeground }]}>
-                      {LANGUAGE_FLAGS[preferredLocale] || '🌐'} {SUPPORTED_LANGUAGES.find(l => l.code === preferredLocale)?.name || preferredLocale}
+                    <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
+                      {t('settings.languageSubtitle') || 'Select your preferred language'}
                     </Text>
                   </View>
                 </View>
-                <ChevronDown size={18} color={colors.mutedForeground} />
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Text style={[styles.settingItemValue, { color: colors.mutedForeground }]}>
+                    {LANGUAGE_FLAGS[preferredLocale] || '🌐'} {SUPPORTED_LANGUAGES.find(l => l.code === preferredLocale)?.name || preferredLocale}
+                  </Text>
+                  <ChevronDown size={18} color={colors.mutedForeground} />
+                </View>
               </Pressable>
 
               <Pressable
                 style={[styles.settingItem, { borderBottomColor: colors.border }]}
                 onPress={() => setShowBudgetCycleModal(true)}
               >
-                <View style={styles.settingItemLeft}>
+                <View style={[styles.settingItemLeft, { flex: 1 }]}>
                   <Calendar size={20} color={colors.primary} />
                   <View style={styles.settingItemInfo}>
                     <Text style={[styles.settingItemLabel, { color: colors.foreground }]}>{t('settings.budgetCycleDay')}</Text>
-                    <Text style={[styles.settingItemValue, { color: colors.mutedForeground }]}>{budgetCycleDay}</Text>
+                    <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
+                      {t('settings.budgetCycleDaySubtitle') || 'Day of the month to reset budget'}
+                    </Text>
                   </View>
                 </View>
-                <ChevronDown size={18} color={colors.mutedForeground} />
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Text style={[styles.settingItemValue, { color: colors.mutedForeground }]}>{budgetCycleDay}</Text>
+                  <ChevronDown size={18} color={colors.mutedForeground} />
+                </View>
               </Pressable>
 
               <View style={styles.settingItem}>
@@ -798,9 +820,14 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                 style={[styles.settingItem, { borderBottomColor: colors.border }]}
                 onPress={() => setShowChangePassword(true)}
               >
-                <View style={styles.settingItemLeft}>
+                <View style={[styles.settingItemLeft, { flex: 1 }]}>
                   <Lock size={20} color={colors.primary} />
-                  <Text style={[styles.settingItemLabel, { color: colors.foreground }]}>{t('settings.changePassword')}</Text>
+                  <View style={styles.settingItemInfo}>
+                    <Text style={[styles.settingItemLabel, { color: colors.foreground }]}>{t('settings.changePassword')}</Text>
+                    <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
+                      {t('settings.changePasswordSubtitle') || 'Update your account password'}
+                    </Text>
+                  </View>
                 </View>
                 <ChevronDown size={18} color={colors.mutedForeground} />
               </Pressable>
@@ -847,8 +874,8 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                 <View style={styles.settingItemLeft}>
                   <MapPin size={20} color={colors.primary} />
                   <View style={styles.settingItemInfo}>
-                    <Text style={[styles.settingItemLabel, { color: colors.foreground }]}>{t('settings.country')}</Text>
-                    <Text style={[styles.settingItemValue, { color: colors.mutedForeground }]}>
+                    <Text style={[styles.settingItemLabel, textStyles.caption, { color: colors.foreground }]}>{t('settings.country')}</Text>
+                    <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
                       {country ? COUNTRIES.find(c => c.code === country)?.name : t('settings.notSpecified')}
                     </Text>
                   </View>
@@ -863,10 +890,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                 >
                   <View style={styles.settingItemLeft}>
                     <MapPin size={20} color={colors.primary} />
-                    <View style={styles.settingItemInfo}>
-                      <Text style={[styles.settingItemLabel, { color: colors.foreground }]}>{t('settings.state')}</Text>
-                      <Text style={[styles.settingItemValue, { color: colors.mutedForeground }]}>{state || t('settings.notSpecified')}</Text>
-                    </View>
+                  <View style={styles.settingItemInfo}>
+                    <Text style={[styles.settingItemLabel, textStyles.caption, { color: colors.foreground }]}>{t('settings.state')}</Text>
+                    <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>{state || t('settings.notSpecified')}</Text>
+                  </View>
                   </View>
                   <ChevronDown size={18} color={colors.mutedForeground} />
                 </Pressable>
@@ -901,10 +928,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                 <View style={styles.settingItemLeft}>
                   <Target size={20} color="#9C27B0" />
                   <View style={styles.settingItemInfo}>
-                    <Text style={[styles.settingItemLabel, { color: colors.foreground }]}>
+                    <Text style={[styles.settingItemLabel, textStyles.caption, { color: colors.foreground }]}>
                       {t('goals.title') || 'Savings Goals'}
                     </Text>
-                    <Text style={[styles.settingItemValue, { color: colors.mutedForeground }]}>
+                    <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
                       {t('settings.trackSavingsProgress')}
                     </Text>
                   </View>
@@ -920,10 +947,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                 <View style={styles.settingItemLeft}>
                   <BarChart3 size={20} color="#03A9F4" />
                   <View style={styles.settingItemInfo}>
-                    <Text style={[styles.settingItemLabel, { color: colors.foreground }]}>
+                    <Text style={[styles.settingItemLabel, textStyles.caption, { color: colors.foreground }]}>
                       {t('reports.analytics') || 'Analytics'}
                     </Text>
-                    <Text style={[styles.settingItemValue, { color: colors.mutedForeground }]}>
+                    <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
                       {t('settings.smartInsightsFinancialHealth')}
                     </Text>
                   </View>
@@ -939,10 +966,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                 <View style={styles.settingItemLeft}>
                   <FileText size={20} color="#FF9800" />
                   <View style={styles.settingItemInfo}>
-                    <Text style={[styles.settingItemLabel, { color: colors.foreground }]}>
+                    <Text style={[styles.settingItemLabel, textStyles.caption, { color: colors.foreground }]}>
                       {t('receipts.title') || 'Receipts & OCR'}
                     </Text>
-                    <Text style={[styles.settingItemValue, { color: colors.mutedForeground }]}>
+                    <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
                       {t('settings.scanOrganizeReceipts')}
                     </Text>
                   </View>
@@ -958,10 +985,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                 <View style={styles.settingItemLeft}>
                   <Gift size={20} color="#FF9800" />
                   <View style={styles.settingItemInfo}>
-                    <Text style={[styles.settingItemLabel, { color: colors.foreground }]}>
+                    <Text style={[styles.settingItemLabel, textStyles.caption, { color: colors.foreground }]}>
                       {t('settings.referAndEarn') || 'Refer & Earn'}
                     </Text>
-                    <Text style={[styles.settingItemValue, { color: colors.mutedForeground }]}>
+                    <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
                       {t('settings.referAndEarnSubtitle') || 'Invite friends and get Pro free'}
                     </Text>
                   </View>
@@ -1040,7 +1067,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
               >
                 <View style={styles.settingItemLeft}>
                   <Download size={20} color={colors.primary} />
-                  <Text style={[styles.settingItemLabel, { color: colors.foreground }]}>{t('settings.backupData')}</Text>
+                  <Text style={[styles.settingItemLabel, textStyles.caption, { color: colors.foreground }]}>{t('settings.backupData')}</Text>
                 </View>
               </Pressable>
 
@@ -1050,7 +1077,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
               >
                 <View style={styles.settingItemLeft}>
                   <Trash2 size={20} color={colors.destructive} />
-                  <Text style={[styles.settingItemLabel, styles.dangerText, { color: colors.destructive }]}>{t('settings.deleteAccount')}</Text>
+                  <Text style={[styles.settingItemLabel, textStyles.caption, styles.dangerText, { color: colors.destructive }]}>{t('settings.deleteAccount')}</Text>
                 </View>
               </Pressable>
             </View>
@@ -1529,7 +1556,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 12,
-    fontSize: 16,
+    ...textStyles.body,
     color: '#666',
   },
   header: {
@@ -1592,7 +1619,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatarText: {
-    fontSize: 16,
+    ...textStyles.body,
     fontWeight: 'bold',
     color: '#fff',
   },
@@ -1603,7 +1630,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   editButtonText: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     fontWeight: '600',
   },
   profileInfo: {
@@ -1675,21 +1702,21 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     color: '#fff',
-    fontSize: 14,
+    ...textStyles.button,
     fontWeight: '600',
   },
   cancelButton: {
     // backgroundColor set dynamically
   },
   cancelButtonText: {
-    fontSize: 14,
+    ...textStyles.button,
     fontWeight: '600',
   },
   settingItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: 'transparent', // Set dynamically
   },
@@ -1698,14 +1725,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     gap: 12,
+    marginRight: 12,
   },
   settingItemInfo: {
     flex: 1,
   },
+  settingItemLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
   settingItemLabel: {
     ...textStyles.body,
-    fontWeight: '500',
-    marginBottom: 2,
+    fontWeight: '600',
   },
   settingItemValue: {
     ...textStyles.bodySmall,
@@ -1875,11 +1907,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
-  currencyFlag: {
-    fontSize: 20,
-    width: 32,
-    textAlign: 'center',
-  },
   currencyItemInfo: {
     flex: 1,
   },
@@ -1887,8 +1914,27 @@ const styles = StyleSheet.create({
     ...textStyles.labelSmall,
     marginTop: 2,
   },
+  currencySelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    gap: 8,
+    minWidth: 90,
+    backgroundColor: 'transparent',
+  },
+  currencyFlag: {
+    fontSize: 20,
+  },
+  currencyCode: {
+    ...textStyles.caption,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
   checkmark: {
-    fontSize: 18,
+    fontSize: 10,
     fontWeight: 'bold',
     marginLeft: 8,
   },

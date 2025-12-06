@@ -8,6 +8,7 @@ import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
 import SplashScreen from './src/screens/SplashScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import SignupScreen from './src/screens/SignupScreen';
+import OnboardingScreen from './src/screens/OnboardingScreen';
 import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
 import ResetPasswordScreen from './src/screens/ResetPasswordScreen';
 import MainScreen from './src/screens/MainScreen';
@@ -44,7 +45,7 @@ class ErrorBoundary extends React.Component<
   }
 }
 
-type Screen = 'splash' | 'login' | 'signup' | 'forgot-password' | 'reset-password' | 'dashboard';
+type Screen = 'splash' | 'login' | 'signup' | 'forgot-password' | 'reset-password' | 'onboarding' | 'dashboard';
 
 function AppContent() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('splash');
@@ -63,6 +64,10 @@ function AppContent() {
   }, []);
 
   const handleSignupSuccess = useCallback(() => {
+    setCurrentScreen('onboarding');
+  }, []);
+
+  const handleOnboardingComplete = useCallback(() => {
     setCurrentScreen('dashboard');
   }, []);
 
@@ -102,6 +107,12 @@ function AppContent() {
           <SignupScreen
             onSignupSuccess={handleSignupSuccess}
             onLoginClick={handleLoginClick}
+          />
+        )}
+        {currentScreen === 'onboarding' && (
+          <OnboardingScreen
+            isAuthenticated={true}
+            onComplete={handleOnboardingComplete}
           />
         )}
         {currentScreen === 'forgot-password' && (

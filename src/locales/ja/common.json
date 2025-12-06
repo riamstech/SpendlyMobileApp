@@ -79,7 +79,8 @@
     "metric": "指標",
     "amount": "金額",
     "category": "カテゴリ",
-    "percentage": "パーセンテージ"
+    "percentage": "パーセンテージ",
+    "searchCurrency": "通貨を検索..."
   },
   "analytics": {
     "insights": "インサイト",
@@ -207,6 +208,7 @@
     "changePhoto": "写真を変更",
     "preferences": "設定",
     "currency": "通貨",
+    "currencyDescription": "主要通貨を選択してください",
     "defaultCurrency": "デフォルト通貨",
     "defaultCurrencySubtitle": "主要通貨を選択",
     "language": "言語",

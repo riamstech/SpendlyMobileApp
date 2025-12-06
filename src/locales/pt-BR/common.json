@@ -79,7 +79,8 @@
     "metric": "Métrica",
     "amount": "Valor",
     "category": "Categoria",
-    "percentage": "Porcentagem"
+    "percentage": "Porcentagem",
+    "searchCurrency": "Pesquisar moeda..."
   },
   "analytics": {
     "insights": "Insights",
@@ -207,6 +208,7 @@
     "changePhoto": "Alterar foto",
     "preferences": "Preferências",
     "currency": "Moeda",
+    "currencyDescription": "Escolha sua moeda principal",
     "defaultCurrency": "Moeda Padrão",
     "defaultCurrencySubtitle": "Escolha sua moeda principal",
     "language": "Idioma",

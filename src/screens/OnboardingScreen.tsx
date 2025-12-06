@@ -421,7 +421,7 @@ export default function OnboardingScreen({
             <View style={[styles.card, { padding: 20 }]}>
               <Text style={styles.label}>Country</Text>
               <ScrollView style={styles.countryList} nestedScrollEnabled>
-                {countries.map((c) => (
+                {countries.map((c: any) => (
                   <Pressable
                     key={c.code}
                     style={[
@@ -510,11 +510,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   splashTitle: {
-    fontWeight: 'bold',
+    ...textStyles.h2,
     color: '#fff',
     marginTop: 16,
   },
   splashSubtitle: {
+    ...textStyles.body,
     color: 'rgba(255, 255, 255, 0.9)',
     marginTop: 8,
   },
@@ -542,11 +543,12 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   headerTitle: {
-    fontWeight: 'bold',
+    ...textStyles.h2,
     color: '#fff',
     marginBottom: 4,
   },
   headerSubtitle: {
+    ...textStyles.body,
     color: 'rgba(255, 255, 255, 0.9)',
   },
   card: {
@@ -611,7 +613,7 @@ const styles = StyleSheet.create({
   },
   skipButtonText: {
     color: '#fff',
-    fontSize: 14,
+    ...textStyles.body,
   },
   featuresContainer: {
     gap: 12,
@@ -662,7 +664,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   loadingText: {
-    fontSize: 14,
+    ...textStyles.body,
   },
   currencyList: {
     maxHeight: 200,
@@ -680,7 +682,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(3, 169, 244, 0.1)',
   },
   currencyFlag: {
-    fontSize: 16,
+    ...textStyles.body,
     marginRight: 12,
   },
   currencyInfo: {

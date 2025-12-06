@@ -582,7 +582,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 12,
-    fontSize: 16,
+    ...textStyles.body,
     color: '#666',
   },
   tabsContainer: {
@@ -603,7 +603,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#2196F3',
   },
   tabText: {
-    fontSize: 15,
+    ...textStyles.body,
     color: '#666',
     fontWeight: '500',
   },
@@ -768,7 +768,6 @@ const styles = StyleSheet.create({
   },
   trendValueAmount: {
     ...textStyles.monoMedium,
-    fontSize: 14,
     fontWeight: '600',
   },
   trendValueDivider: {
@@ -804,18 +803,18 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   healthScoreValue: {
-    fontSize: 16,
+    ...textStyles.h2,
     fontWeight: 'bold',
     marginTop: 12,
     fontFamily: fonts.mono,
   },
   healthScoreGrade: {
-    fontSize: 16,
+    ...textStyles.h2,
     fontWeight: '600',
     marginTop: 8,
   },
   healthScoreLabel: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     marginTop: 8,
   },
   factorsList: {
@@ -841,18 +840,18 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   factorName: {
-    fontSize: 16,
+    ...textStyles.h3,
     fontWeight: '600',
     marginBottom: 4,
   },
   factorScore: {
-    fontSize: 16,
+    ...textStyles.h3,
     fontWeight: 'bold',
     marginBottom: 8,
     fontFamily: fonts.mono,
   },
   factorValue: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     marginTop: 4,
   },
   factorBadge: {
@@ -861,7 +860,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   factorBadgeText: {
-    fontSize: 12,
+    ...textStyles.caption,
     fontWeight: '600',
   },
   factorProgressBar: {
@@ -892,11 +891,11 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   recommendationsTitle: {
-    fontSize: 16,
+    ...textStyles.h3,
     fontWeight: 'bold',
   },
   recommendationItem: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     marginBottom: 8,
     lineHeight: 20,
   },
@@ -905,7 +904,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyStateText: {
-    fontSize: 14,
+    ...textStyles.body,
     color: '#999',
     textAlign: 'center',
   },

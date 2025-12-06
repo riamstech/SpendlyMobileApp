@@ -88,7 +88,27 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
   };
 
   const handleGoogleLogin = () => {
-    Alert.alert('Google login', 'Continue with Google will be wired here.');
+    if (Platform.OS === 'web') {
+      if (onLoginSuccess) onLoginSuccess();
+      return;
+    }
+
+    Alert.alert(
+      'Google Sign In',
+      'By continuing you agree to sign in with Google.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Continue', 
+          onPress: () => {
+            // Simulate successful login
+            setTimeout(() => {
+              if (onLoginSuccess) onLoginSuccess();
+            }, 500);
+          }
+        }
+      ]
+    );
   };
 
   // Responsive styles
@@ -422,9 +442,9 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   googleIconText: {
+    ...textStyles.bodySmall,
     color: '#ffffff',
     fontWeight: 'bold',
-    fontSize: 14,
   },
   googleButtonText: {
     ...textStyles.bodySmall,

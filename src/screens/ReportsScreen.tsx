@@ -119,7 +119,7 @@ export default function ReportsScreen() {
       const userData = await authService.getCurrentUser();
       const defaultCurrency = userData.defaultCurrency || 'USD';
       setCurrency(defaultCurrency);
-      setSelectedCurrency('ALL');
+      setSelectedCurrency(defaultCurrency);
       
       // Load currencies
       try {
@@ -537,9 +537,25 @@ export default function ReportsScreen() {
       });
 
       const csvContent = rows.join('\n');
-
-      // Write CSV to a temporary file and open share dialog
       const fileName = `financial_report_${new Date().toISOString().split('T')[0]}.csv`;
+
+      if (Platform.OS === 'web') {
+        // Web-specific download logic
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+          const url = URL.createObjectURL(blob);
+          link.setAttribute('href', url);
+          link.setAttribute('download', fileName);
+          link.style.visibility = 'hidden';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+        return;
+      }
+
+      // Native logic
       const file = new FileSystem.File(FileSystem.Paths.cache, fileName);
       const fileUri = file.uri;
 
@@ -672,6 +688,11 @@ export default function ReportsScreen() {
     propsForBackgroundLines: {
       strokeDasharray: '3, 3', // Dashed grid lines like Cordova
       stroke: isDark ? 'rgba(255, 255, 255, 0.1)' : '#e0e0e0',
+    },
+    propsForLabels: {
+      fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
+      fontSize: 9,
+      fontWeight: '400',
     },
   };
 
@@ -1238,7 +1259,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   headerSubtitle: {
-    fontSize: 12,
+    ...textStyles.caption,
     color: '#666',
   },
   tabsContainer: {
@@ -1258,7 +1279,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#03A9F4',
   },
   tabText: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     color: '#666',
     fontWeight: '500',
   },
@@ -1288,7 +1309,7 @@ const styles = StyleSheet.create({
   },
   filterButtonText: {
     flex: 1,
-    fontSize: 14,
+    ...textStyles.bodySmall,
     color: '#333',
   },
   downloadButtonsContainer: {

@@ -84,7 +84,8 @@
     "metric": "Métrica",
     "amount": "Monto",
     "category": "Categoría",
-    "percentage": "Porcentaje"
+    "percentage": "Porcentaje",
+    "searchCurrency": "Buscar moneda..."
   },
   "analytics": {
     "insights": "Perspectivas",
@@ -354,6 +355,7 @@
     "changePhoto": "Cambiar foto",
     "preferences": "Preferencias",
     "currency": "Moneda",
+    "currencyDescription": "Elige tu moneda principal",
     "defaultCurrency": "Moneda Predeterminada",
     "defaultCurrencySubtitle": "Elige tu moneda principal",
     "language": "Idioma",

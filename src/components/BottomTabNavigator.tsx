@@ -120,15 +120,15 @@ export default function BottomTabNavigator({
                   {
                     fontSize: labelSize,
                     color: isActive ? colors.primary : colors.mutedForeground,
+                    display: isSmallScreen ? 'none' : 'flex',
                   },
                 ]}
-                numberOfLines={2}
+                numberOfLines={1}
                 ellipsizeMode="tail"
-                adjustsFontSizeToFit={true}
-                minimumFontScale={0.8}
               >
                 {tab.label}
               </Text>
+
             </Pressable>
           );
         })}

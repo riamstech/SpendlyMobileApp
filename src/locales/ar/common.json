@@ -79,7 +79,8 @@
     "metric": "المقياس",
     "amount": "المبلغ",
     "category": "الفئة",
-    "percentage": "النسبة المئوية"
+    "percentage": "النسبة المئوية",
+    "searchCurrency": "البحث عن العملة..."
   },
   "analytics": {
     "insights": "الرؤى",
@@ -207,6 +208,7 @@
     "changePhoto": "تغيير الصورة",
     "preferences": "التفضيلات",
     "currency": "العملة",
+    "currencyDescription": "اختر عملتك الأساسية",
     "defaultCurrency": "العملة الافتراضية",
     "defaultCurrencySubtitle": "اختر عملتك الأساسية",
     "language": "اللغة",

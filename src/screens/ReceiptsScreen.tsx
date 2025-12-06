@@ -1069,7 +1069,7 @@ const styles = StyleSheet.create({
   },
   checkmark: {
     color: '#FF9800',
-    fontSize: 16,
+    ...textStyles.h2,
     fontWeight: '700',
   },
   // Preview Modal

@@ -79,7 +79,8 @@
     "metric": "Метрика",
     "amount": "Сумма",
     "category": "Категория",
-    "percentage": "Процент"
+    "percentage": "Процент",
+    "searchCurrency": "Поиск валюты..."
   },
   "analytics": {
     "insights": "Аналитика",
@@ -207,6 +208,7 @@
     "changePhoto": "Изменить фото",
     "preferences": "Предпочтения",
     "currency": "Валюта",
+    "currencyDescription": "Выберите основную валюту",
     "defaultCurrency": "Валюта по Умолчанию",
     "defaultCurrencySubtitle": "Выберите вашу основную валюту",
     "language": "Язык",

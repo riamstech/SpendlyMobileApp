@@ -164,27 +164,23 @@ export default function DashboardScreen({
       }));
       
       // Check license status
-      if (userData.proStatus || (userData as any).pro_status) {
-        const licenseEndDate = userData.licenseEndDate || (userData as any).license_end_date;
-        if (licenseEndDate) {
-          const end = new Date(licenseEndDate);
-          const now = new Date();
-          const diffTime = end.getTime() - now.getTime();
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          
-          if (diffDays < 0) {
-            setLicenseStatus('expired');
-          } else if (diffDays <= 30) {
-            setLicenseStatus('expiring');
-            setDaysRemaining(diffDays);
-          } else {
-            setLicenseStatus('active');
-          }
+      const licenseEndDate = userData.licenseEndDate || (userData as any).license_end_date;
+      if (licenseEndDate) {
+        const end = new Date(licenseEndDate);
+        const now = new Date();
+        const diffTime = end.getTime() - now.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays < 0) {
+          setLicenseStatus('expired');
+        } else if (diffDays <= 30) {
+          setLicenseStatus('expiring');
+          setDaysRemaining(diffDays);
         } else {
-          setLicenseStatus('active'); // Lifetime license
+          setLicenseStatus('active');
         }
       } else {
-        setLicenseStatus('active'); // Free user
+        setLicenseStatus('active');
       }
       
       // Fetch dashboard summary (includes canonical currency)
@@ -1452,9 +1448,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
   },
   badgeText: {
-    fontFamily: fonts.sans,
+    ...baseTextStyles.small,
     color: '#fff',
-    fontSize: 10,
     fontWeight: 'bold',
   },
   balanceCard: {
@@ -1486,12 +1481,11 @@ const styles = StyleSheet.create({
   balanceCurrency: {
     ...baseTextStyles.caption,
     color: 'rgba(255,255,255,0.8)',
-    fontFamily: fonts.mono, // Keep mono for currency code
   },
   balanceAmount: {
     ...baseTextStyles.displaySmall,
+    fontFamily: fonts.sans,
     color: '#fff',
-    fontFamily: fonts.mono, // Monospace like web version
   },
   balanceStats: {
     flexDirection: 'row',
@@ -1520,12 +1514,10 @@ const styles = StyleSheet.create({
   },
   balanceStatCurrency: {
     color: 'rgba(255,255,255,0.8)',
-    fontFamily: fonts.mono,
   },
   balanceStatValue: {
     fontWeight: '600',
     color: '#fff',
-    fontFamily: fonts.mono,
   },
   statsRow: {
     flexDirection: 'row',
@@ -1559,11 +1551,10 @@ const styles = StyleSheet.create({
   },
   statCurrency: {
     marginRight: 4,
-    fontFamily: fonts.mono,
+    color: '#333',
   },
   statValue: {
     fontWeight: 'bold',
-    fontFamily: fonts.mono,
   },
   statRatioText: {
     fontFamily: fonts.sans,
@@ -1642,16 +1633,14 @@ const styles = StyleSheet.create({
     borderRadius: 12, // rounded-full
   },
   paymentTypeBadgeText: {
-    fontFamily: fonts.sans,
-    fontSize: 10, // text-[10px] sm:text-xs (10px base, 12px larger)
+    ...baseTextStyles.small,
     fontWeight: '500',
   },
   paymentMetaText: {
-    fontFamily: fonts.sans,
-    fontSize: 10, // text-[10px] sm:text-xs (10px base, 12px larger)
+    ...baseTextStyles.small,
   },
   paymentMetaDot: {
-    fontSize: 10, // text-[10px] sm:text-xs (10px base, 12px larger)
+    ...baseTextStyles.small,
     marginHorizontal: 2,
   },
   paymentAmountContainer: {
@@ -1660,12 +1649,10 @@ const styles = StyleSheet.create({
   },
   paymentAmount: {
     fontWeight: '500',
-    fontFamily: fonts.mono,
     textAlign: 'right',
   },
   paymentCurrency: {
-    fontSize: 10, // text-[10px] sm:text-xs (10px base, 12px larger)
-    fontFamily: fonts.mono,
+    ...baseTextStyles.small,
     marginTop: 2, // mt-0.5 (2px)
     textAlign: 'right',
   },
@@ -1720,11 +1707,10 @@ const styles = StyleSheet.create({
     marginTop: 6, // mt-1.5 (6px)
   },
   transactionMetaText: {
-    fontFamily: fonts.sans,
-    fontSize: 10, // text-[10px] sm:text-xs (10px base, 12px larger)
+    ...baseTextStyles.small,
   },
   transactionMetaDot: {
-    fontSize: 10, // text-[10px] sm:text-xs (10px base, 12px larger)
+    ...baseTextStyles.small,
     marginHorizontal: 2,
   },
   transactionAmountContainer: {
@@ -1738,12 +1724,10 @@ const styles = StyleSheet.create({
   },
   transactionAmount: {
     fontWeight: '500',
-    fontFamily: fonts.mono,
     textAlign: 'right',
   },
   transactionCurrency: {
-    fontSize: 11, // slightly larger for better readability
-    fontFamily: fonts.mono,
+    ...baseTextStyles.small,
     marginTop: 2, // mt-0.5 (2px)
     textAlign: 'right',
   },
@@ -1768,8 +1752,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff', // Will be overridden by theme
   },
   emptyStateText: {
-    fontFamily: fonts.sans,
-    fontSize: 14,
+    ...baseTextStyles.bodySmall,
     textAlign: 'center',
   },
   financialHealthCard: {
@@ -1791,8 +1774,7 @@ const styles = StyleSheet.create({
     gap: 8, // gap-2 sm:gap-0 (8px base, 0px larger)
   },
   financialHealthTitle: {
-    fontFamily: fonts.sans,
-    fontSize: 14, // text-sm sm:text-base (14-16px)
+    ...baseTextStyles.h3,
     fontWeight: '600', // font-semibold
   },
   netWorthBadge: {
@@ -1801,8 +1783,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   netWorthText: {
-    fontFamily: fonts.sans,
-    fontSize: 12,
+    ...baseTextStyles.caption,
     fontWeight: '600',
   },
   assetsLiabilitiesRow: {
@@ -1835,14 +1816,12 @@ const styles = StyleSheet.create({
   },
   assetValue: {
     fontWeight: 'bold', // font-bold
-    fontFamily: fonts.mono,
   },
   loansSection: {
     marginTop: 16,
   },
   loansTitle: {
-    fontFamily: fonts.sans,
-    fontSize: 14, // text-sm sm:text-base (14-16px)
+    ...baseTextStyles.h3,
     fontWeight: '600', // font-semibold
     marginBottom: 12,
   },
@@ -1869,15 +1848,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   loanDescription: {
-    fontFamily: fonts.sans,
-    fontSize: 14,
+    ...baseTextStyles.h3,
     fontWeight: '600',
     color: '#333',
     marginBottom: 4,
   },
   loanMeta: {
-    fontFamily: fonts.sans,
-    fontSize: 11,
+    ...baseTextStyles.caption,
     color: '#666',
     textTransform: 'capitalize',
   },
@@ -1885,15 +1862,13 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   loanAmountText: {
-    fontSize: 14,
+    ...baseTextStyles.h3,
     fontWeight: '600',
     color: '#333',
-    fontFamily: fonts.mono,
   },
   loanAmountSubtext: {
-    fontSize: 10,
+    ...baseTextStyles.small,
     color: '#666',
-    fontFamily: fonts.mono,
   },
   loanProgress: {
     marginTop: 8,
@@ -1904,8 +1879,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   loanProgressText: {
-    fontFamily: fonts.sans,
-    fontSize: 10,
+    ...baseTextStyles.small,
     color: '#666',
   },
   loanProgressBar: {
@@ -1946,11 +1920,9 @@ const styles = StyleSheet.create({
     marginTop: 4, // mt-1 (4px)
   },
   budgetCurrency: {
-    fontFamily: fonts.mono,
   },
   budgetTotal: {
     fontWeight: 'bold',
-    fontFamily: fonts.mono,
     color: '#333',
   },
   budgetSpent: {
@@ -1967,7 +1939,8 @@ const styles = StyleSheet.create({
   },
   budgetSpentValue: {
     fontWeight: 'bold',
-    fontFamily: fonts.mono,
+    fontWeight: '600',
+    color: '#333',
   },
   budgetProgressBar: {
     height: 8,
@@ -1987,14 +1960,12 @@ const styles = StyleSheet.create({
     marginTop: 8, // mt-2 (8px)
   },
   budgetPercentage: {
-    fontFamily: fonts.sans,
-    fontSize: 12,
+    ...baseTextStyles.caption,
     color: '#666',
   },
   budgetRemaining: {
-    fontSize: 12,
+    ...baseTextStyles.caption,
     color: '#666',
-    fontFamily: fonts.mono,
   },
   chartCard: {
     borderRadius: 12,
@@ -2019,10 +1990,9 @@ const styles = StyleSheet.create({
     zIndex: 10, // Ensure title is above everything
   },
   chartTitle: {
-    fontFamily: fonts.sans,
+    ...baseTextStyles.h3,
     fontWeight: '600', // font-semibold
     lineHeight: 20, // Explicit line height
-    fontSize: 14, // Will be overridden by responsiveStyles
     width: '100%',
   },
   chartContainer: {
@@ -2060,8 +2030,7 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   yAxisLabel: {
-    fontSize: 10, // text-xs
-    fontFamily: fonts.mono,
+    ...baseTextStyles.small,
   },
   chartAreaContainer: {
     flex: 1,
@@ -2112,16 +2081,14 @@ const styles = StyleSheet.create({
     marginBottom: 8, // Space between bar and label
   },
   chartBarLabel: {
-    fontFamily: fonts.sans,
+    ...baseTextStyles.caption,
     fontWeight: '500',
     marginBottom: 4,
     textAlign: 'center',
-    fontSize: 12, // text-xs sm:text-sm
   },
   chartBarValue: {
-    fontFamily: fonts.mono,
+    ...baseTextStyles.small,
     textAlign: 'center',
-    fontSize: 10, // text-[10px] sm:text-xs
   },
   modalOverlay: {
     flex: 1,
@@ -2143,8 +2110,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   modalTitle: {
-    fontFamily: fonts.sans,
-    fontSize: 16,
+    ...baseTextStyles.h2,
     fontWeight: 'bold',
   },
   modalActions: {
@@ -2157,8 +2123,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   markAllText: {
-    fontFamily: fonts.sans,
-    fontSize: 14,
+    ...baseTextStyles.h3,
     fontWeight: '600',
   },
   closeButton: {
@@ -2168,8 +2133,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   closeButtonText: {
-    fontFamily: fonts.sans,
-    fontSize: 16,
+    ...baseTextStyles.h2,
   },
   notificationsList: {
     maxHeight: 500,
@@ -2191,20 +2155,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   notificationTitle: {
-    fontFamily: fonts.sans,
-    fontSize: 14,
+    ...baseTextStyles.h3,
     fontWeight: '600',
     marginBottom: 4,
   },
   notificationMessage: {
-    fontFamily: fonts.sans,
-    fontSize: 13,
+    ...baseTextStyles.bodySmall,
     lineHeight: 18,
     marginBottom: 4,
   },
   notificationTime: {
-    fontFamily: fonts.sans,
-    fontSize: 11,
+    ...baseTextStyles.caption,
   },
   notificationDot: {
     width: 8,
@@ -2218,8 +2179,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyNotificationsText: {
-    fontFamily: fonts.sans,
-    fontSize: 14,
+    ...baseTextStyles.bodySmall,
   },
 });
 

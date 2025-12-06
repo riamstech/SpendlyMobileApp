@@ -141,7 +141,12 @@ export default function SignupScreen({
         referral_code: referralCode || undefined,
       });
 
-      Alert.alert('Success', 'Account created successfully!', [
+      if (Platform.OS === 'web') {
+        if (onSignupSuccess) onSignupSuccess();
+        return;
+      }
+      
+      Alert.alert('Success', 'Account created successfully', [
         {
           text: 'OK',
           onPress: () => {
@@ -163,7 +168,27 @@ export default function SignupScreen({
   };
 
   const handleGoogleSignup = () => {
-    Alert.alert('Google Signup', 'Google signup will be implemented here.');
+    if (Platform.OS === 'web') {
+      if (onSignupSuccess) onSignupSuccess();
+      return;
+    }
+
+    Alert.alert(
+      'Google Sign Up',
+      'By continuing you agree to sign up with Google.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Continue', 
+          onPress: () => {
+            // Simulate successful signup
+            setTimeout(() => {
+              if (onSignupSuccess) onSignupSuccess();
+            }, 500);
+          }
+        }
+      ]
+    );
   };
 
   // Responsive styles
@@ -514,7 +539,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   headerTitle: {
-    fontSize: 16,
+    ...textStyles.h2,
     fontWeight: 'bold',
     color: '#fff',
     marginTop: 16,
@@ -690,9 +715,9 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   googleIconText: {
+    ...textStyles.button,
     color: '#ffffff',
     fontWeight: 'bold',
-    fontSize: 14,
   },
   googleButtonText: {
     ...textStyles.button,

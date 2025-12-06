@@ -18,24 +18,28 @@ export const fonts = {
   sans: Platform.select({
     ios: 'System', // SF Pro (explicitly use System)
     android: 'Roboto',
+    web: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
     default: 'System',
   }) as string | undefined,
   
   sansMedium: Platform.select({
     ios: 'System', // SF Pro Medium (weight handled separately)
     android: 'Roboto-Medium',
+    web: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
     default: 'System',
   }) as string | undefined,
   
   sansSemibold: Platform.select({
     ios: 'System', // SF Pro Semibold (weight handled separately)
     android: 'sans-serif-medium', // Roboto Medium (Android weight)
+    web: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
     default: 'System',
   }) as string | undefined,
   
   sansBold: Platform.select({
     ios: 'System', // SF Pro Bold (weight handled separately)
     android: 'Roboto-Bold',
+    web: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
     default: 'System',
   }) as string | undefined,
   
@@ -43,6 +47,7 @@ export const fonts = {
   header: Platform.select({
     ios: 'System', // SF Pro (explicitly use System)
     android: 'Roboto',
+    web: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
     default: 'System',
   }) as string | undefined,
   
@@ -239,13 +244,13 @@ export const textStyles = {
   
   // Display (for numbers)
   display: {
-    fontFamily: typography.fontFamily.mono,
+    fontFamily: typography.fontFamily.bold,
     fontSize: typography.fontSize.display,
     fontWeight: typography.fontWeight.bold,
     lineHeight: typography.fontSize.display * typography.lineHeight.tight,
   },
   displaySmall: {
-    fontFamily: typography.fontFamily.mono,
+    fontFamily: typography.fontFamily.semibold,
     fontSize: typography.fontSize.displaySmall,
     fontWeight: typography.fontWeight.semibold,
     lineHeight: typography.fontSize.displaySmall * typography.lineHeight.tight,

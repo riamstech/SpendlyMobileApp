@@ -730,7 +730,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   categoryEmoji: {
-    fontSize: 16,
+    ...textStyles.h2,
   },
   categoryInfo: {
     flex: 1,
@@ -906,7 +906,7 @@ const styles = StyleSheet.create({
   recommendationBullet: {
     color: '#03A9F4',
     marginRight: 8,
-    fontSize: 14,
+    ...textStyles.bodySmall,
   },
   recommendationText: {
     ...textStyles.bodySmall,

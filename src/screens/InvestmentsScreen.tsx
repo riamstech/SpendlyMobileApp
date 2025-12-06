@@ -201,6 +201,7 @@ export default function InvestmentsScreen() {
       const userData = await authService.getCurrentUser();
       const defaultCurrency = userData.defaultCurrency || 'USD';
       setCurrency(defaultCurrency);
+      setSelectedCurrency(defaultCurrency);
       setFormData(prev => ({ ...prev, currency: defaultCurrency }));
       
       // Load currencies
@@ -648,7 +649,7 @@ export default function InvestmentsScreen() {
             <View style={[styles.formSection, { flex: 2, marginRight: 8 }]}>
               <Text style={[styles.formLabel, { color: colors.foreground }]}>{t('investments.investedAmount')}</Text>
               <TextInput
-                style={[styles.formInput, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
+                style={[styles.amountInput, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
                 placeholder="0.00"
                 placeholderTextColor={colors.mutedForeground}
                 value={formData.investedAmount}
@@ -675,7 +676,7 @@ export default function InvestmentsScreen() {
           <View style={styles.formSection}>
             <Text style={[styles.formLabel, { color: colors.foreground }]}>{t('investments.currentValueOptional')}</Text>
             <TextInput
-              style={[styles.formInput, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
+              style={[styles.amountInput, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
               placeholder={t('investments.currentValuePlaceholder')}
               placeholderTextColor={colors.mutedForeground}
               value={formData.currentValue}
@@ -1032,42 +1033,48 @@ export default function InvestmentsScreen() {
         )}
 
         {/* Summary Cards */}
-        <View style={styles.summaryRow}>
-          <View style={[styles.summaryCard, { backgroundColor: colors.card }]}>
-            <View style={styles.summaryHeader}>
-              <Text style={[styles.summaryLabel, { color: colors.mutedForeground }]}>{t('investments.invested')}</Text>
-              <DollarSign size={20} color={colors.primary} />
+        {/* Summary Grid - Dark Layout */}
+        <View style={styles.overviewGrid}>
+          <View style={styles.overviewRow}>
+            {/* Invested */}
+            <View style={[styles.overviewCard, styles.investedCard]}>
+               <View style={{ marginBottom: 8 }}>
+                 <DollarSign size={24} color="#03A9F4" />
+               </View>
+               <Text style={[styles.overviewLabel, responsiveTextStyles.body]}>{t('investments.invested')}</Text>
+               <Text style={[styles.overviewValue, responsiveTextStyles.h3, { color: '#03A9F4' }]} numberOfLines={1} adjustsFontSizeToFit>
+                 {displayCurrency !== 'ALL' ? displayCurrency : currency} {formatValue(totalInvested)}
+               </Text>
             </View>
-            <Text style={[styles.summaryValue, { color: colors.foreground, fontFamily: fonts.mono }]}>
-              {displayCurrency} {formatValue(totalInvested)}
-            </Text>
+
+            {/* Current Value */}
+            <View style={[styles.overviewCard, styles.currentCard]}>
+               <View style={{ marginBottom: 8 }}>
+                 <TrendingUp size={24} color="#4CAF50" />
+               </View>
+               <Text style={[styles.overviewLabel, responsiveTextStyles.body]}>{t('investments.currentValue')}</Text>
+               <Text style={[styles.overviewValue, responsiveTextStyles.h3, { color: '#4CAF50' }]} numberOfLines={1} adjustsFontSizeToFit>
+                 {displayCurrency !== 'ALL' ? displayCurrency : currency} {formatValue(totalCurrent)}
+               </Text>
+            </View>
           </View>
 
-          <View style={[styles.summaryCard, { backgroundColor: colors.card }]}>
-            <View style={styles.summaryHeader}>
-              <Text style={[styles.summaryLabel, { color: colors.mutedForeground }]}>{t('investments.currentValue')}</Text>
-              <TrendingUp size={20} color={colors.success} />
-            </View>
-            <Text style={[styles.summaryValue, { color: colors.foreground, fontFamily: fonts.mono }]}>
-              {displayCurrency} {formatValue(totalCurrent)}
-            </Text>
-          </View>
-
-          <View style={[styles.summaryCard, { backgroundColor: colors.card }]}>
-            <View style={styles.summaryHeader}>
-              <Text style={[styles.summaryLabel, { color: colors.mutedForeground }]}>{t('analytics.net')}</Text>
-              {totalGainLoss >= 0 ? (
-                <TrendingUp size={20} color={colors.success} />
-              ) : (
-                <TrendingDown size={20} color={colors.destructive} />
-              )}
-            </View>
-            <Text style={[styles.summaryValue, totalGainLoss >= 0 ? styles.summaryValuePositive : styles.summaryValueNegative]}>
-              {totalGainLoss >= 0 ? '+' : ''}{displayCurrency} {formatValue(Math.abs(totalGainLoss))}
-            </Text>
-            <Text style={[styles.summaryPercentage, totalGainLoss >= 0 ? styles.summaryPercentagePositive : styles.summaryPercentageNegative]}>
-              {totalGainLoss >= 0 ? '+' : ''}{gainLossPercentage.toFixed(2)}%
-            </Text>
+          {/* Net Gain/Loss */}
+          <View style={[styles.overviewCard, styles.netCardBase, totalGainLoss >= 0 ? styles.netCardPositive : styles.netCardNegative]}>
+             <View style={{ marginBottom: 8 }}>
+                 {totalGainLoss >= 0 ? (
+                   <TrendingUp size={32} color="#4CAF50" />
+                 ) : (
+                   <TrendingDown size={32} color="#FF5252" />
+                 )}
+             </View>
+             <Text style={[styles.overviewLabel, responsiveTextStyles.body]}>{t('analytics.net')}</Text>
+             <Text style={[styles.overviewValueLarge, responsiveTextStyles.h2, { color: totalGainLoss >= 0 ? '#4CAF50' : '#FF5252' }]} numberOfLines={1} adjustsFontSizeToFit>
+               {totalGainLoss >= 0 ? '+' : ''}{displayCurrency !== 'ALL' ? displayCurrency : currency} {formatValue(Math.abs(totalGainLoss))}
+             </Text>
+             <Text style={[styles.overviewPercentage, responsiveTextStyles.caption, { color: totalGainLoss >= 0 ? '#81C784' : '#E57373' }]}>
+               {totalGainLoss >= 0 ? '+' : ''}{gainLossPercentage.toFixed(2)}%
+             </Text>
           </View>
         </View>
 
@@ -1108,6 +1115,11 @@ export default function InvestmentsScreen() {
                   strokeWidth: '2',
                   stroke: colors.primary,
                 },
+                propsForLabels: {
+                  fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
+                  fontSize: 9,
+                  fontWeight: '400',
+                },
               }}
               bezier
               style={styles.chart}
@@ -1133,6 +1145,11 @@ export default function InvestmentsScreen() {
                 decimalPlaces: 0,
                 color: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
                 labelColor: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
+                propsForLabels: {
+                  fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
+                  fontSize: 9,
+                  fontWeight: '400',
+                },
               }}
               accessor="value"
               backgroundColor="transparent"
@@ -1202,13 +1219,13 @@ export default function InvestmentsScreen() {
                         <View style={styles.investmentAmounts}>
                           <View>
                             <Text style={[styles.investmentAmountLabel, { color: colors.mutedForeground }]}>{t('investments.invested')}</Text>
-                            <Text style={[styles.investmentAmountValue, { color: colors.foreground, fontFamily: fonts.mono }]}>
+                            <Text style={[styles.investmentAmountValue, { color: colors.foreground }]}>
                               {investment.currency} {formatValue(investedAmountNum)}
                             </Text>
                           </View>
                           <View>
                             <Text style={[styles.investmentAmountLabel, { color: colors.mutedForeground }]}>{t('investments.currentValue')}</Text>
-                            <Text style={[styles.investmentAmountValue, { color: colors.foreground, fontFamily: fonts.mono }]}>
+                            <Text style={[styles.investmentAmountValue, { color: colors.foreground }]}>
                               {investment.currency} {formatValue(currentValueNum)}
                             </Text>
                           </View>
@@ -1216,7 +1233,7 @@ export default function InvestmentsScreen() {
                       </View>
                     </View>
                     <View style={styles.investmentRight}>
-                      <Text style={[styles.investmentGainLoss, { fontFamily: fonts.mono }, gainLoss >= 0 ? styles.investmentGainLossPositive : styles.investmentGainLossNegative]}>
+                      <Text style={[styles.investmentGainLoss, gainLoss >= 0 ? styles.investmentGainLossPositive : styles.investmentGainLossNegative]}>
                         {gainLoss >= 0 ? '+' : ''}{investment.currency} {formatValue(Math.abs(gainLoss))}
                       </Text>
                       <Text style={[styles.investmentGainLossPercent, gainLoss >= 0 ? styles.investmentGainLossPercentPositive : styles.investmentGainLossPercentNegative]}>
@@ -1545,7 +1562,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   headerSubtitle: {
-    fontSize: 14,
+    ...textStyles.bodySmall,
     color: '#666',
   },
   addButton: {
@@ -1559,7 +1576,7 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     color: '#fff',
-    fontSize: 14,
+    ...textStyles.button,
     fontWeight: '600',
   },
   scrollView: {
@@ -1630,12 +1647,13 @@ const styles = StyleSheet.create({
   },
   summaryRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 12,
     marginBottom: 16,
   },
   summaryCard: {
     flex: 1,
-    backgroundColor: '#fff',
+    minWidth: 100,
     borderRadius: 12,
     padding: 12,
     shadowColor: '#000',
@@ -1652,13 +1670,9 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     ...textStyles.caption,
-    color: '#666',
   },
   summaryValue: {
-    ...textStyles.h3,
     fontWeight: 'bold',
-    color: '#333',
-    fontFamily: fonts.mono,
   },
   summaryValuePositive: {
     color: '#4CAF50',
@@ -1678,7 +1692,6 @@ const styles = StyleSheet.create({
     color: '#FF5252',
   },
   chartCard: {
-    backgroundColor: '#fff',
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
@@ -1732,7 +1745,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   investmentCard: {
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -1807,7 +1819,6 @@ const styles = StyleSheet.create({
   investmentAmountValue: {
     ...textStyles.bodySmall,
     color: '#333',
-    fontFamily: fonts.mono,
   },
   investmentRight: {
     alignItems: 'flex-end',
@@ -1816,7 +1827,6 @@ const styles = StyleSheet.create({
   investmentGainLoss: {
     ...textStyles.body,
     fontWeight: 'bold',
-    fontFamily: fonts.mono,
   },
   investmentGainLossPositive: {
     color: '#4CAF50',
@@ -1878,6 +1888,16 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   formInput: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    ...textStyles.body,
+    color: '#333',
+  },
+  amountInput: {
     paddingVertical: 12,
     paddingHorizontal: 16,
     backgroundColor: '#f5f5f5',
@@ -2064,7 +2084,7 @@ const styles = StyleSheet.create({
   },
   modalButtonCancelText: {
     color: '#666',
-    fontSize: 14,
+    ...textStyles.button,
     fontWeight: '600',
   },
   modalButtonDelete: {
@@ -2072,7 +2092,7 @@ const styles = StyleSheet.create({
   },
   modalButtonDeleteText: {
     color: '#fff',
-    fontSize: 14,
+    ...textStyles.button,
     fontWeight: '600',
   },
   currencySearchContainer: {
@@ -2086,9 +2106,65 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    fontSize: 14,
+    ...textStyles.bodySmall,
     color: '#333',
     backgroundColor: '#f9f9f9',
+  },
+  overviewGrid: {
+    marginTop: 12,
+    gap: 12,
+    marginBottom: 24,
+  },
+  overviewRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  overviewCard: {
+    flex: 1,
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 140,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  investedCard: {
+    backgroundColor: '#1C2936', // Dark Blue
+  },
+  currentCard: {
+    backgroundColor: '#1E3324', // Dark Green
+  },
+  netCardBase: {
+    width: '100%',
+  },
+  netCardPositive: {
+    backgroundColor: '#1E3324', // Dark Green
+  },
+  netCardNegative: {
+    backgroundColor: '#362020', // Dark Red
+  },
+  overviewLabel: {
+    textAlign: 'center',
+    marginBottom: 4,
+    color: '#fff',
+    opacity: 0.9,
+  },
+  overviewValue: {
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  overviewValueLarge: {
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  overviewPercentage: {
+    marginTop: 4,
+    textAlign: 'center',
+    opacity: 0.9,
   },
 });
 

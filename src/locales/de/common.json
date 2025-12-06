@@ -79,7 +79,8 @@
     "metric": "Metrik",
     "amount": "Betrag",
     "category": "Kategorie",
-    "percentage": "Prozent"
+    "percentage": "Prozent",
+    "searchCurrency": "Währung suchen..."
   },
   "analytics": {
     "insights": "Erkenntnisse",
@@ -206,6 +207,7 @@
     "changePhoto": "Foto ändern",
     "preferences": "Einstellungen",
     "currency": "Währung",
+    "currencyDescription": "Wählen Sie Ihre Hauptwährung",
     "defaultCurrency": "Standardwährung",
     "defaultCurrencySubtitle": "Wählen Sie Ihre Hauptwährung",
     "language": "Sprache",

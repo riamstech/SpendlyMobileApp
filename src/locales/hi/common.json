@@ -79,7 +79,8 @@
     "metric": "मीट्रिक",
     "amount": "राशि",
     "category": "श्रेणी",
-    "percentage": "प्रतिशत"
+    "percentage": "प्रतिशत",
+    "searchCurrency": "मुद्रा खोजें..."
   },
   "analytics": {
     "insights": "अंतर्दृष्टि",
@@ -342,6 +343,7 @@
     "changePhoto": "फोटो बदलें",
     "preferences": "प्राथमिकताएं",
     "currency": "मुद्रा",
+    "currencyDescription": "अपनी प्राथमिक मुद्रा चुनें",
     "defaultCurrency": "डिफ़ॉल्ट मुद्रा",
     "defaultCurrencySubtitle": "अपनी प्राथमिक मुद्रा चुनें",
     "language": "भाषा",
