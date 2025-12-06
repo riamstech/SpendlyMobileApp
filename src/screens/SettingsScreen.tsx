@@ -255,6 +255,26 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
     }
   };
 
+  const handleUpdateCountry = async (newCountry: string, newState: string = '') => {
+    try {
+      setSaving(true);
+      await usersService.updateUser(user.id, {
+        country: newCountry || undefined,
+        state: newState || undefined,
+      });
+      
+      setCountry(newCountry);
+      setState(newState);
+      await loadInitialData();
+      Alert.alert(t('settings.success'), t('settings.successProfileUpdated'));
+    } catch (error: any) {
+      console.error('Error updating country:', error);
+      Alert.alert(t('settings.error'), error.response?.data?.message || t('settings.errorUpdateProfile'));
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
       Alert.alert(t('settings.error'), t('settings.errorFillPasswordFields'));
@@ -703,21 +723,19 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                       {user.state}
                     </Text>
                   )}
-                  {isImagePickerAvailable() && (
-                    <Pressable
-                      style={[styles.changePhotoButton, { borderColor: colors.border }]}
-                      onPress={handleUploadAvatar}
-                      disabled={uploadingAvatar}
-                    >
-                      {uploadingAvatar ? (
-                        <ActivityIndicator size="small" color={colors.primary} />
-                      ) : (
-                        <Text style={[styles.changePhotoButtonText, { color: colors.foreground }]}>
-                          {t('settings.changePhoto')}
-                        </Text>
-                      )}
-                    </Pressable>
-                  )}
+                  <Pressable
+                    style={[styles.changePhotoButton, { borderColor: colors.border }]}
+                    onPress={handleUploadAvatar}
+                    disabled={uploadingAvatar}
+                  >
+                    {uploadingAvatar ? (
+                      <ActivityIndicator size="small" color={colors.primary} />
+                    ) : (
+                      <Text style={[styles.changePhotoButtonText, { color: colors.foreground }]}>
+                        {t('settings.changePhoto')}
+                      </Text>
+                    )}
+                  </Pressable>
                 </View>
               )}
             </View>
@@ -1399,9 +1417,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                   !country && { backgroundColor: `${colors.primary}10` }
                 ]}
                 onPress={() => {
-                  setCountry('');
-                  setState('');
-                  handleSaveProfile();
+                  handleUpdateCountry('', '');
                   setShowCountryModal(false);
                   setCountrySearch('');
                 }}
@@ -1437,9 +1453,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                         isSelected && { backgroundColor: `${colors.primary}10` }
                       ]}
                       onPress={() => {
-                        setCountry(c.code);
-                        setState('');
-                        handleSaveProfile();
+                        handleUpdateCountry(c.code, '');
                         setShowCountryModal(false);
                         setCountrySearch('');
                       }}
@@ -1480,8 +1494,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                 <Pressable
                   style={[styles.modalItem, { borderBottomColor: colors.border }]}
                   onPress={() => {
-                    setState('');
-                    handleSaveProfile();
+                    handleUpdateCountry(country, '');
                     setShowStateModal(false);
                   }}
                 >
@@ -1498,8 +1511,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                     key={s}
                     style={[styles.modalItem, { borderBottomColor: colors.border }]}
                     onPress={() => {
-                      setState(s);
-                      handleSaveProfile();
+                      handleUpdateCountry(country, s);
                       setShowStateModal(false);
                     }}
                   >

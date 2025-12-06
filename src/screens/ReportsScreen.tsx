@@ -449,6 +449,7 @@ export default function ReportsScreen() {
 
   const handleDownloadCSV = async () => {
     try {
+      console.log('Starting CSV download...');
       const rows: string[] = [];
 
       rows.push(t('reports.financialReport') || 'Financial Report');
@@ -539,6 +540,8 @@ export default function ReportsScreen() {
       const csvContent = rows.join('\n');
       const fileName = `financial_report_${new Date().toISOString().split('T')[0]}.csv`;
 
+      console.log('CSV content generated, length:', csvContent.length);
+
       if (Platform.OS === 'web') {
         // Web-specific download logic
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -555,34 +558,54 @@ export default function ReportsScreen() {
         return;
       }
 
-      // Native logic
-      const fileUri = `${FileSystem.cacheDirectory}${fileName}`;
+      console.log('Platform:', Platform.OS);
+      console.log('FileSystem available:', !!FileSystem);
+      console.log('Sharing available:', !!Sharing);
+
+      const cacheDir = FileSystem.cacheDirectory;
+      if (!cacheDir) {
+        throw new Error('FileSystem.cacheDirectory is not available. The app may need to be rebuilt.');
+      }
+
+      const fileUri = `${cacheDir}${fileName}`;
+      console.log('Writing to:', fileUri);
 
       await FileSystem.writeAsStringAsync(fileUri, csvContent);
+      console.log('File written successfully');
 
       const canShare = await Sharing.isAvailableAsync();
+      console.log('Can share:', canShare);
+      
       if (canShare) {
         await Sharing.shareAsync(fileUri, {
           mimeType: 'text/csv',
           dialogTitle: t('reports.shareCsv') || 'Share CSV report',
         });
+        console.log('Share dialog opened');
       } else {
         Alert.alert(
           t('reports.csvReady') || 'CSV Ready',
-          t('reports.csvReadyDescription') || 'CSV file has been generated. Please check your files.',
+          t('reports.csvReadyDescription') || `CSV file has been generated at: ${fileUri}`,
         );
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to generate CSV export:', error);
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
       Alert.alert(
         t('common.error') || 'Error',
-        t('reports.csvError') || 'Failed to generate CSV report.',
+        error.message || t('reports.csvError') || 'Failed to generate CSV report.',
       );
     }
   };
 
   const handleDownloadPDF = async () => {
     try {
+      console.log('Starting PDF download...');
+      
       // Get date range
       let from: string, to: string;
       if (dateRange === 'custom') {
@@ -601,32 +624,51 @@ export default function ReportsScreen() {
         to = dateRangeResult.to;
       }
 
+      console.log('Date range:', { from, to });
+
       // Determine API currency filter
       const apiCurrencyFilter = selectedCurrency === 'ALL' ? undefined : selectedCurrency;
 
+      console.log('Fetching PDF HTML from API...');
       // Call backend API to get PDF HTML
       const htmlContent = await reportsService.exportPdf(from, to, apiCurrencyFilter);
+      console.log('HTML content received, length:', htmlContent?.length);
       
+      console.log('Print module available:', !!Print);
+      if (!Print || !Print.printToFileAsync) {
+        throw new Error('Print module is not available. The app may need to be rebuilt.');
+      }
+
+      console.log('Converting HTML to PDF...');
       // Convert HTML to PDF using expo-print
       const { uri } = await Print.printToFileAsync({ html: htmlContent });
+      console.log('PDF generated at:', uri);
 
       const canShare = await Sharing.isAvailableAsync();
+      console.log('Can share:', canShare);
+      
       if (canShare) {
         await Sharing.shareAsync(uri, {
           mimeType: 'application/pdf',
           dialogTitle: t('reports.sharePdf') || 'Share PDF report',
         });
+        console.log('Share dialog opened');
       } else {
         Alert.alert(
           t('reports.pdfReady') || 'PDF Ready',
-          t('reports.pdfReadyDescription') || 'PDF file has been generated. Please check your files.',
+          t('reports.pdfReadyDescription') || `PDF file has been generated at: ${uri}`,
         );
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to generate PDF export:', error);
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
       Alert.alert(
         t('common.error') || 'Error',
-        t('reports.pdfError') || 'Failed to generate PDF report.',
+        error.message || t('reports.pdfError') || 'Failed to generate PDF report.',
       );
     }
   };
