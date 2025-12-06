@@ -703,19 +703,21 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                       {user.state}
                     </Text>
                   )}
-                  <Pressable
-                    style={[styles.changePhotoButton, { borderColor: colors.border }]}
-                    onPress={handleUploadAvatar}
-                    disabled={uploadingAvatar}
-                  >
-                    {uploadingAvatar ? (
-                      <ActivityIndicator size="small" color={colors.primary} />
-                    ) : (
-                      <Text style={[styles.changePhotoButtonText, { color: colors.foreground }]}>
-                        {t('settings.changePhoto')}
-                      </Text>
-                    )}
-                  </Pressable>
+                  {isImagePickerAvailable() && (
+                    <Pressable
+                      style={[styles.changePhotoButton, { borderColor: colors.border }]}
+                      onPress={handleUploadAvatar}
+                      disabled={uploadingAvatar}
+                    >
+                      {uploadingAvatar ? (
+                        <ActivityIndicator size="small" color={colors.primary} />
+                      ) : (
+                        <Text style={[styles.changePhotoButtonText, { color: colors.foreground }]}>
+                          {t('settings.changePhoto')}
+                        </Text>
+                      )}
+                    </Pressable>
+                  )}
                 </View>
               )}
             </View>
