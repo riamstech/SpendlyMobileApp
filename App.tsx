@@ -1,9 +1,10 @@
 import "./src/i18n";
-import React, { useState, useCallback, ErrorInfo } from 'react';
+import React, { useState, useCallback, ErrorInfo, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
+import * as Notifications from 'expo-notifications';
 import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
 import SplashScreen from './src/screens/SplashScreen';
 import LoginScreen from './src/screens/LoginScreen';
@@ -12,6 +13,8 @@ import OnboardingScreen from './src/screens/OnboardingScreen';
 import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
 import ResetPasswordScreen from './src/screens/ResetPasswordScreen';
 import MainScreen from './src/screens/MainScreen';
+import { notificationService } from './src/services/notificationService';
+import { devicesService } from './src/api/services/devices';
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -50,6 +53,89 @@ type Screen = 'splash' | 'login' | 'signup' | 'forgot-password' | 'reset-passwor
 function AppContent() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('splash');
   const [resetPasswordParams, setResetPasswordParams] = useState<{ token?: string; email?: string }>({});
+  
+  // Notification listeners refs
+  const notificationListener = useRef<Notifications.Subscription | undefined>(undefined);
+  const responseListener = useRef<Notifications.Subscription | undefined>(undefined);
+  const notificationsInitialized = useRef(false);
+
+  // Initialize notifications when user reaches dashboard
+  useEffect(() => {
+    if (currentScreen === 'dashboard' && !notificationsInitialized.current) {
+      initializeNotifications();
+      notificationsInitialized.current = true;
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (notificationListener.current) {
+        notificationListener.current.remove();
+      }
+      if (responseListener.current) {
+        responseListener.current.remove();
+      }
+    };
+  }, [currentScreen]);
+
+  const initializeNotifications = async () => {
+    try {
+      console.log('🔔 Initializing push notifications...');
+      
+      // Request permissions
+      const { granted } = await notificationService.requestPermissions();
+      
+      if (!granted) {
+        console.log('⚠️ Notification permissions not granted');
+        return;
+      }
+
+      console.log('✅ Notification permissions granted');
+
+      // Get push token
+      const pushToken = await notificationService.getExpoPushToken();
+      
+      if (!pushToken) {
+        console.log('⚠️ Failed to get push token');
+        return;
+      }
+
+      console.log('✅ Push token obtained:', pushToken.substring(0, 20) + '...');
+
+      // Get device UUID
+      const deviceUUID = await notificationService.getDeviceUUID();
+      console.log('📱 Device UUID:', deviceUUID);
+
+      // Register device with backend
+      try {
+        await devicesService.registerDevice(deviceUUID, pushToken);
+        console.log('✅ Device registered for push notifications');
+      } catch (error) {
+        console.error('❌ Failed to register device:', error);
+      }
+
+      // Set up notification listeners
+      notificationListener.current = notificationService.addNotificationReceivedListener(
+        (notification) => {
+          console.log('🔔 Notification received (foreground):', notification);
+          // You can show an in-app alert or update UI here
+        }
+      );
+
+      responseListener.current = notificationService.addNotificationResponseReceivedListener(
+        (response) => {
+          console.log('👆 Notification tapped:', response);
+          const data = response.notification.request.content.data;
+          // Handle navigation based on notification data
+          // Example: if (data.screen === 'transactions') navigate to transactions
+          console.log('Notification data:', data);
+        }
+      );
+
+      console.log('✅ Notification listeners set up');
+    } catch (error) {
+      console.error('❌ Error initializing notifications:', error);
+    }
+  };
 
   React.useEffect(() => {
     console.log('AppContent mounted, currentScreen:', currentScreen);
