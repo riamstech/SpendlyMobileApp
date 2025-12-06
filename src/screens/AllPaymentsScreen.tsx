@@ -161,13 +161,13 @@ export default function AllPaymentsScreen({ onBack }: AllPaymentsScreenProps) {
           </View>
         </View>
 
-        {/* Summary Card - Dark Layout */}
+        {/* Summary Card */}
         <View style={styles.statsGrid}>
-            <View style={[styles.statsCard, styles.dueStatsCard]}>
+            <View style={[styles.statsCard, { backgroundColor: isDark ? '#362020' : '#FFF5F5' }]}>
                <View style={{ marginBottom: 8 }}>
                  <Calendar size={24} color="#FF5252" />
                </View>
-               <Text style={[styles.statsLabel, textStyles.body]}>Total Amount Due</Text>
+               <Text style={[styles.statsLabel, textStyles.body, { color: isDark ? '#fff' : colors.foreground }]}>Total Amount Due</Text>
                <Text style={[styles.statsValue, textStyles.h3, { color: '#FF5252' }]}>
                  {currency} {formatAmount(totalAmount)}
                </Text>
@@ -393,14 +393,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  dueStatsCard: {
-    backgroundColor: '#362020', // Dark Red
-  },
   statsLabel: {
     textAlign: 'center',
     marginBottom: 4,
-    color: '#fff',
-    opacity: 0.9,
   },
   statsValue: {
     fontWeight: 'bold',
