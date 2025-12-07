@@ -62,11 +62,14 @@ export default function StripePaymentDialog({
         // Uses createPaymentIntent to get a Razorpay Payment Link URL
         
         let amount = selectedPlan === 'monthly' ? monthlyAmount : yearlyAmount;
-        const currency = currencyCode;
+        let currency = currencyCode;
         
-        if (amount !== undefined && currency) {
-          amount = convertToSmallestUnit(amount, currency);
+        // Ensure amount and currency are provided (required for one-time payments)
+        if (!amount || !currency) {
+          throw new Error('Amount and currency are required for payment. Please try again.');
         }
+        
+        amount = convertToSmallestUnit(amount, currency);
 
         const intent = await subscriptionsService.createPaymentIntent(selectedPlan, 'upi', amount, currency);
         
@@ -89,11 +92,14 @@ export default function StripePaymentDialog({
          // Card Flow (Stripe)
          // Supports dynamic pricing if backend update is deployed
          let amount = selectedPlan === 'monthly' ? monthlyAmount : yearlyAmount;
-         const currency = currencyCode;
+         let currency = currencyCode;
          
-         if (amount !== undefined && currency) {
-           amount = convertToSmallestUnit(amount, currency);
+         // Ensure amount and currency are provided (required for one-time payments)
+         if (!amount || !currency) {
+           throw new Error('Amount and currency are required for payment. Please try again.');
          }
+         
+         amount = convertToSmallestUnit(amount, currency);
 
          const checkout = await subscriptionsService.checkout(selectedPlan, 'card', amount, currency);
          

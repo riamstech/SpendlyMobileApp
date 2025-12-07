@@ -207,11 +207,17 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
             onViewInbox={() => setShowInbox(true)}
             onRenewLicense={() => {
               // Show payment dialog instead of navigating to settings
-              setStripePaymentData({
-                planType: 'monthly',
-                paymentMethod: 'card',
-              });
-              setShowStripePayment(true);
+              // Only show if pricing data is available
+              if (pricingData) {
+                setStripePaymentData({
+                  planType: 'monthly',
+                  paymentMethod: 'card',
+                });
+                setShowStripePayment(true);
+              } else {
+                // If pricing not loaded yet, navigate to settings as fallback
+                setActiveTab('settings');
+              }
             }}
           />
         ) : (
