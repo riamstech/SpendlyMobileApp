@@ -42,6 +42,8 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
   } | null>(null);
   const [user, setUser] = useState<any>(null);
   const [currencies, setCurrencies] = useState<Currency[]>([]);
+  const [loadingPricing, setLoadingPricing] = useState(false);
+  const [pendingPaymentDialog, setPendingPaymentDialog] = useState(false);
 
   // Handle initial screen from notification
   React.useEffect(() => {
@@ -51,20 +53,26 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
   }, [initialScreen]);
 
   // Load user and currencies data for payment dialog
+  const loadUserAndCurrencies = async () => {
+    try {
+      setLoadingPricing(true);
+      const [userData, currenciesData] = await Promise.all([
+        usersService.getCurrentUser(),
+        currenciesService.getAll(),
+      ]);
+      setUser(userData);
+      setCurrencies(currenciesData);
+      return { userData, currenciesData };
+    } catch (error) {
+      console.error('Failed to load user/currencies:', error);
+      throw error;
+    } finally {
+      setLoadingPricing(false);
+    }
+  };
+
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [userData, currenciesData] = await Promise.all([
-          usersService.getCurrentUser(),
-          currenciesService.getAll(),
-        ]);
-        setUser(userData);
-        setCurrencies(currenciesData);
-      } catch (error) {
-        console.error('Failed to load user/currencies:', error);
-      }
-    };
-    loadData();
+    loadUserAndCurrencies();
   }, []);
 
   // Calculate pricing based on user's country/currency
@@ -87,6 +95,18 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
       currencyCode: userCurrencyCode
     };
   }, [user, currencies]);
+
+  // Show payment dialog when pricing data becomes available after loading
+  React.useEffect(() => {
+    if (pendingPaymentDialog && pricingData && !loadingPricing) {
+      setStripePaymentData({
+        planType: 'monthly',
+        paymentMethod: 'card',
+      });
+      setShowStripePayment(true);
+      setPendingPaymentDialog(false);
+    }
+  }, [pricingData, pendingPaymentDialog, loadingPricing]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -205,17 +225,31 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
             onViewAllTransactions={() => setShowAllTransactions(true)}
             onViewAllPayments={() => setShowAllPayments(true)}
             onViewInbox={() => setShowInbox(true)}
-            onRenewLicense={() => {
-              // Show payment dialog instead of navigating to settings
-              // Only show if pricing data is available
+            onRenewLicense={async () => {
+              // If pricing data is already available, show dialog immediately
               if (pricingData) {
                 setStripePaymentData({
                   planType: 'monthly',
                   paymentMethod: 'card',
                 });
                 setShowStripePayment(true);
+                return;
+              }
+
+              // Otherwise, load user and currencies data first
+              if (!user || currencies.length === 0) {
+                try {
+                  setPendingPaymentDialog(true);
+                  await loadUserAndCurrencies();
+                  // The useEffect will handle showing the dialog once pricingData is calculated
+                } catch (error) {
+                  console.error('Failed to load pricing data:', error);
+                  setPendingPaymentDialog(false);
+                  // Fallback to settings if loading fails
+                  setActiveTab('settings');
+                }
               } else {
-                // If pricing not loaded yet, navigate to settings as fallback
+                // User/currencies exist but pricingData is null - navigate to settings as fallback
                 setActiveTab('settings');
               }
             }}
