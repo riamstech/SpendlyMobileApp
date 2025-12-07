@@ -13,6 +13,7 @@ import {
   Switch,
   Image,
   Platform,
+  AppState,
 } from 'react-native';
 import {
   requestMediaLibraryPermissionsAsync,
@@ -188,6 +189,52 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
     loadInitialData();
   }, []);
 
+  // Listen for app state changes to refresh notification permission status
+  useEffect(() => {
+    const checkPermissionOnFocus = async () => {
+      try {
+        const status = await notificationService.getPermissionStatus();
+        setNotificationPermissionStatus(status);
+        
+        // If permission is now granted but toggle is off, enable it
+        if (status === 'granted' && !notifications) {
+          // User might have enabled in settings, sync with backend preference
+          try {
+            const settings = await usersService.getUserSettings();
+            const backendEnabled = settings.settings?.notificationsEnabled !== false;
+            setNotifications(backendEnabled);
+          } catch (error) {
+            console.error('Error checking backend settings:', error);
+          }
+        } else if (status !== 'granted' && notifications) {
+          // Permission revoked - disable toggle
+          setNotifications(false);
+          // Update backend
+          try {
+            await usersService.updateUserSettings({
+              notifications_enabled: false,
+            });
+          } catch (error) {
+            console.error('Error updating notification setting:', error);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking notification permission on focus:', error);
+      }
+    };
+
+    // Check when app comes to foreground (user returns from settings)
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState === 'active') {
+        checkPermissionOnFocus();
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [notifications]);
+
   // Reset avatar load error when user changes
   useEffect(() => {
     if (user) {
@@ -220,7 +267,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       // Load user settings
       try {
         const settings = await usersService.getUserSettings();
-        setNotifications(settings.settings?.notificationsEnabled !== false);
+        const backendNotificationsEnabled = settings.settings?.notificationsEnabled !== false;
         setBiometricLock(settings.settings?.biometricLockEnabled || false);
         setBudgetCycleDay(settings.settings?.budgetCycleDay || 1);
         
@@ -229,13 +276,31 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
           const status = await notificationService.getPermissionStatus();
           setNotificationPermissionStatus(status);
           
-          // If permission is granted but toggle is off, sync it
-          if (status === 'granted' && !notifications) {
-            setNotifications(true);
+          // Sync toggle with actual system permission status
+          // If system permission is not granted, toggle should be OFF regardless of backend setting
+          if (status === 'granted') {
+            // Permission granted - use backend preference
+            setNotifications(backendNotificationsEnabled);
+          } else {
+            // Permission denied or undetermined - toggle must be OFF
+            setNotifications(false);
+            // If backend says enabled but system permission is not granted, update backend
+            if (backendNotificationsEnabled) {
+              console.log('⚠️ Backend has notifications enabled but system permission is not granted. Syncing...');
+              try {
+                await usersService.updateUserSettings({
+                  notifications_enabled: false,
+                });
+              } catch (error) {
+                console.error('Error syncing notification setting:', error);
+              }
+            }
           }
         } catch (error) {
           console.error('Error checking notification permissions:', error);
           setNotificationPermissionStatus('undetermined');
+          // On error, default to backend setting but show as undetermined
+          setNotifications(backendNotificationsEnabled);
         }
       } catch (error) {
         console.error('Failed to load settings:', error);
@@ -470,50 +535,49 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
 
   const handleToggleNotifications = async (enabled: boolean) => {
     try {
+      // First check current permission status
+      const currentStatus = await notificationService.getPermissionStatus();
+      setNotificationPermissionStatus(currentStatus);
+      
+      // If permission is denied, always open settings (regardless of toggle direction)
+      if (currentStatus === 'denied') {
+        console.log('📱 Permission denied - opening device settings...');
+        Alert.alert(
+          t('settings.notificationPermissionDenied') || 'Notification Permission Required',
+          t('settings.notificationPermissionDeniedMessage') || 
+          'Notifications are disabled in device Settings. Please enable them to receive push notifications.',
+          [
+            { 
+              text: t('settings.cancel') || 'Cancel', 
+              style: 'cancel'
+            },
+            { 
+              text: t('settings.openSettings') || 'Open Settings', 
+              onPress: async () => {
+                try {
+                  // Open device settings
+                  await Linking.openSettings();
+                  console.log('✅ Opened device settings');
+                } catch (error) {
+                  console.error('Error opening settings:', error);
+                  Alert.alert(
+                    t('settings.error') || 'Error',
+                    t('settings.errorOpenSettings') || 'Could not open settings. Please go to Settings → Apps → Spendly Money → Notifications manually.'
+                  );
+                }
+              }
+            }
+          ]
+        );
+        // Keep toggle off since permission is denied
+        setNotifications(false);
+        return;
+      }
+      
       // If enabling notifications, request system permissions first
       if (enabled) {
         console.log('🔔 Enabling notifications - requesting system permissions...');
         setNotificationPermissionStatus('checking');
-        
-        // First check current permission status
-        const currentStatus = await notificationService.getPermissionStatus();
-        
-        // If permission is already denied, open settings directly
-        if (currentStatus === 'denied') {
-          console.log('📱 Permission denied - opening device settings...');
-          Alert.alert(
-            t('settings.notificationPermissionDenied') || 'Notification Permission Required',
-            t('settings.notificationPermissionDeniedMessage') || 
-            'To enable notifications, please enable them in your device settings.',
-            [
-              { 
-                text: t('settings.cancel') || 'Cancel', 
-                style: 'cancel', 
-                onPress: () => setNotifications(false) 
-              },
-              { 
-                text: t('settings.openSettings') || 'Open Settings', 
-                onPress: async () => {
-                  try {
-                    // Open device settings
-                    await Linking.openSettings();
-                    console.log('✅ Opened device settings');
-                    // Keep toggle off for now - user will need to come back and toggle again
-                    setNotifications(false);
-                  } catch (error) {
-                    console.error('Error opening settings:', error);
-                    Alert.alert(
-                      t('settings.error') || 'Error',
-                      t('settings.errorOpenSettings') || 'Could not open settings. Please go to Settings → Apps → Spendly Money → Notifications manually.'
-                    );
-                    setNotifications(false);
-                  }
-                }
-              }
-            ]
-          );
-          return;
-        }
         
         // Request permissions (will show dialog if undetermined)
         const permissionResult = await notificationService.requestPermissions();
@@ -1069,16 +1133,17 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                       {notificationPermissionStatus === 'granted' 
                         ? (t('settings.notificationsDescription') || 'Enable push notifications to stay updated')
                         : notificationPermissionStatus === 'denied'
-                        ? (t('settings.notificationsPermissionDenied') || 'Permission denied - enable in device Settings')
+                        ? (t('settings.notificationsPermissionDenied') || 'Disabled in device Settings - tap to enable')
                         : (t('settings.notificationsDescription') || 'Enable push notifications to stay updated')}
                     </Text>
                   </View>
                 </View>
                 <Switch
-                  value={notifications}
+                  value={notifications && notificationPermissionStatus === 'granted'}
                   onValueChange={handleToggleNotifications}
                   trackColor={{ false: '#ccc', true: colors.primary }}
                   thumbColor="#fff"
+                  disabled={notificationPermissionStatus === 'denied'}
                 />
               </View>
             </View>
