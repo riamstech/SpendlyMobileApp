@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import DashboardScreen from './DashboardScreen';
 import AddTransactionScreen from './AddTransactionScreen';
@@ -15,6 +15,10 @@ import GoalsScreen from './GoalsScreen';
 import AnalyticsScreen from './AnalyticsScreen';
 import ReceiptsScreen from './ReceiptsScreen';
 import BottomTabNavigator from '../components/BottomTabNavigator';
+import StripePaymentDialog from '../components/StripePaymentDialog';
+import { usersService } from '../api/services/users';
+import { currenciesService, Currency } from '../api/services/currencies';
+import { getCurrencyForCountry, convertUsdToCurrency, formatCurrencyAmount } from '../utils/currencyConverter';
 
 interface MainScreenProps {
   onLogout?: () => void;
@@ -36,6 +40,8 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
     planType: 'monthly' | 'yearly';
     paymentMethod: 'card' | 'upi';
   } | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const [currencies, setCurrencies] = useState<Currency[]>([]);
 
   // Handle initial screen from notification
   React.useEffect(() => {
@@ -43,6 +49,44 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
       setShowInbox(true);
     }
   }, [initialScreen]);
+
+  // Load user and currencies data for payment dialog
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [userData, currenciesData] = await Promise.all([
+          usersService.getCurrentUser(),
+          currenciesService.getAll(),
+        ]);
+        setUser(userData);
+        setCurrencies(currenciesData);
+      } catch (error) {
+        console.error('Failed to load user/currencies:', error);
+      }
+    };
+    loadData();
+  }, []);
+
+  // Calculate pricing based on user's country/currency
+  const pricingData = React.useMemo(() => {
+    if (!user) return null;
+    
+    // Default to USD if checking country fails or currencies not loaded
+    // Prioritize user's selected defaultCurrency if available, otherwise fallback to country-based currency
+    const userCurrencyCode = user.defaultCurrency || getCurrencyForCountry(user.country) || 'USD';
+    
+    // Use base prices from Web App logic: $2/mo and $10/yr
+    const monthlyPrice = convertUsdToCurrency(2, userCurrencyCode, currencies);
+    const yearlyPrice = convertUsdToCurrency(10, userCurrencyCode, currencies);
+    
+    return {
+      monthly: `${monthlyPrice.symbol}${formatCurrencyAmount(monthlyPrice.amount, monthlyPrice.symbol)}`,
+      yearly: `${yearlyPrice.symbol}${formatCurrencyAmount(yearlyPrice.amount, yearlyPrice.symbol)}`,
+      monthlyAmount: monthlyPrice.amount,
+      yearlyAmount: yearlyPrice.amount,
+      currencyCode: userCurrencyCode
+    };
+  }, [user, currencies]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -162,8 +206,12 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
             onViewAllPayments={() => setShowAllPayments(true)}
             onViewInbox={() => setShowInbox(true)}
             onRenewLicense={() => {
-              // Navigate to Settings subscription section
-              setActiveTab('settings');
+              // Show payment dialog instead of navigating to settings
+              setStripePaymentData({
+                planType: 'monthly',
+                paymentMethod: 'card',
+              });
+              setShowStripePayment(true);
             }}
           />
         ) : (
@@ -175,6 +223,24 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
         onTabChange={handleTabChange}
         onAddClick={handleAddClick}
       />
+      
+      {/* Payment Dialog */}
+      {stripePaymentData && (
+        <StripePaymentDialog
+          isOpen={showStripePayment}
+          onClose={() => {
+            setShowStripePayment(false);
+            setStripePaymentData(null);
+          }}
+          planType={stripePaymentData.planType}
+          paymentMethod={stripePaymentData.paymentMethod}
+          monthlyPrice={pricingData?.monthly}
+          yearlyPrice={pricingData?.yearly}
+          monthlyAmount={pricingData?.monthlyAmount}
+          yearlyAmount={pricingData?.yearlyAmount}
+          currencyCode={pricingData?.currencyCode}
+        />
+      )}
     </View>
   );
 }
