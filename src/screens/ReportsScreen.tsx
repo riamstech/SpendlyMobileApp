@@ -62,6 +62,7 @@ interface CategoryData {
   value: number;
   color: string;
   percentage: number;
+  currency?: string;
 }
 
 export default function ReportsScreen() {
@@ -172,21 +173,41 @@ export default function ReportsScreen() {
       const categoryReportData = Array.isArray(categoryReport.data) ? categoryReport.data : [];
       
       // Process category data
-      let calculatedTotalExpenses = 0;
+      // Filter by currency if a specific currency is selected (not ALL)
+      // When ALL is selected, the backend should return all currencies, but we need to handle it properly
       const processedCategoryData = categoryReportData
         .map((c: any) => {
-          calculatedTotalExpenses += c.total_spent || 0;
+          // If a specific currency is selected, only include categories in that currency
+          // When ALL is selected, include all (backend should handle currency grouping)
+          const categoryCurrency = c.currency || currency;
+          const shouldInclude = selectedCurrency === 'ALL' || categoryCurrency === selectedCurrency;
+          
           return {
             name: getCategoryDisplayName(c.category),
-            value: c.total_spent || 0,
+            value: shouldInclude ? (c.total_spent || 0) : 0,
             color: getCategoryColor(c.category),
             percentage: 0, // Will calculate after we have total
+            currency: categoryCurrency,
           };
         })
         .filter(cat => cat.value > 0)
         .sort((a, b) => b.value - a.value);
       
-      // Calculate percentages
+      // Calculate total expenses from category data (only in selected currency)
+      // When ALL is selected, we should use monthly report expenses for consistency
+      let calculatedTotalExpenses = 0;
+      if (selectedCurrency === 'ALL') {
+        // When ALL currencies selected, we'll calculate from monthly data for consistency
+        // This will be set after monthly data is loaded
+        calculatedTotalExpenses = processedCategoryData.reduce((sum, cat) => sum + cat.value, 0);
+      } else {
+        // When specific currency selected, sum only that currency
+        calculatedTotalExpenses = processedCategoryData
+          .filter(cat => cat.currency === selectedCurrency)
+          .reduce((sum, cat) => sum + cat.value, 0);
+      }
+      
+      // Calculate percentages based on total expenses
       processedCategoryData.forEach(cat => {
         cat.percentage = calculatedTotalExpenses > 0 
           ? (cat.value / calculatedTotalExpenses) * 100 
@@ -194,7 +215,6 @@ export default function ReportsScreen() {
       });
       
       setCategoryData(processedCategoryData);
-      setTotalExpenses(calculatedTotalExpenses);
       
       // Fetch monthly reports
       const fromDate = new Date(from + 'T00:00:00');
@@ -251,9 +271,21 @@ export default function ReportsScreen() {
       
       setMonthlyData(filteredMonthlyData);
       
-      // Calculate totals
-      const calculatedTotalIncome = filteredMonthlyData.reduce((sum, m) => sum + m.income, 0);
-      const calculatedTotalSavings = filteredMonthlyData.reduce((sum, m) => sum + m.savings, 0);
+      // Calculate totals from monthly data
+      // When ALL currencies is selected, the backend should return data grouped by currency
+      // For consistency, we use monthly report data for all totals
+      const calculatedTotalIncome = filteredMonthlyData.reduce((sum, m) => sum + (m.income || 0), 0);
+      const calculatedTotalExpensesFromMonthly = filteredMonthlyData.reduce((sum, m) => sum + (m.expenses || 0), 0);
+      const calculatedTotalSavings = filteredMonthlyData.reduce((sum, m) => sum + (m.savings || 0), 0);
+      
+      // Use monthly report expenses for total expenses when available (more accurate)
+      // This ensures consistency between income, expenses, and savings
+      if (calculatedTotalExpensesFromMonthly > 0 || selectedCurrency === 'ALL') {
+        setTotalExpenses(calculatedTotalExpensesFromMonthly);
+      } else {
+        // Fallback to category report total if monthly data is empty
+        setTotalExpenses(calculatedTotalExpenses);
+      }
       
       setTotalIncome(calculatedTotalIncome);
       setTotalSavings(calculatedTotalSavings);
