@@ -2,6 +2,7 @@
   "expo": {
     "name": "Spendly",
     "slug": "SpendlyMobileApp",
+    "scheme": "spendly",
     "version": "1.0.0",
     "main": "index.ts",
     "orientation": "portrait",
