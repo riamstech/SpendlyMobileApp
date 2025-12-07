@@ -264,13 +264,34 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
                 const loadedData = await loadUserAndCurrencies();
                 console.log('Data loaded - user:', !!loadedData.userData, 'currencies:', loadedData.currenciesData.length);
                 
-                // Wait a bit for pricingData to be recalculated by useMemo
-                // Then check if it's available
-                setTimeout(() => {
-                  // Force a re-check by accessing the current pricingData
-                  // The useEffect should handle showing the dialog
-                  console.log('Checking pricing data after load...');
-                }, 300);
+                // Calculate pricing directly from loaded data
+                if (loadedData.userData && loadedData.currenciesData.length > 0) {
+                  const userCurrencyCode = loadedData.userData.defaultCurrency || getCurrencyForCountry(loadedData.userData.country) || 'USD';
+                  const monthlyPrice = convertUsdToCurrency(2, userCurrencyCode, loadedData.currenciesData);
+                  const yearlyPrice = convertUsdToCurrency(10, userCurrencyCode, loadedData.currenciesData);
+                  
+                  const calculatedPricing = {
+                    monthly: `${monthlyPrice.symbol}${formatCurrencyAmount(monthlyPrice.amount, monthlyPrice.symbol)}`,
+                    yearly: `${yearlyPrice.symbol}${formatCurrencyAmount(yearlyPrice.amount, yearlyPrice.symbol)}`,
+                    monthlyAmount: monthlyPrice.amount,
+                    yearlyAmount: yearlyPrice.amount,
+                    currencyCode: userCurrencyCode
+                  };
+                  
+                  console.log('Calculated pricing directly:', calculatedPricing);
+                  
+                  // Show dialog with calculated pricing
+                  setStripePaymentData({
+                    planType: 'monthly',
+                    paymentMethod: 'card',
+                  });
+                  setShowStripePayment(true);
+                  setPendingPaymentDialog(false);
+                } else {
+                  console.log('User or currencies missing after load');
+                  setPendingPaymentDialog(false);
+                  setActiveTab('settings');
+                }
               } catch (error) {
                 console.error('Failed to load pricing data:', error);
                 setPendingPaymentDialog(false);
