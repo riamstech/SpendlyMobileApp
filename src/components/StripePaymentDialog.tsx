@@ -85,10 +85,16 @@ export default function StripePaymentDialog({
         }
 
       } else {
-         // Card / USD Flow (Stripe)
-         // Uses checkout endpoint (Stripe Hosted Page)
-         // Note: Backend determines price (USD). Frontend amounts are estimation.
-         const checkout = await subscriptionsService.checkout(selectedPlan, 'card');
+         // Card Flow (Stripe)
+         // Supports dynamic pricing if backend update is deployed
+         let amount = selectedPlan === 'monthly' ? monthlyAmount : yearlyAmount;
+         const currency = currencyCode;
+         
+         if (amount !== undefined && currency) {
+           amount = convertToSmallestUnit(amount, currency);
+         }
+
+         const checkout = await subscriptionsService.checkout(selectedPlan, 'card', amount, currency);
          
          if (checkout.checkout_url) {
            const canOpen = await Linking.canOpenURL(checkout.checkout_url);

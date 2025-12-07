@@ -7,16 +7,19 @@ export interface CheckoutResponse {
 }
 
 export const subscriptionsService = {
-  async checkout(planType: 'monthly' | 'yearly', paymentMethod?: 'card' | 'upi'): Promise<CheckoutResponse> {
+  async checkout(planType: 'monthly' | 'yearly', paymentMethod?: 'card' | 'upi', amount?: number, currency?: string): Promise<CheckoutResponse> {
     try {
       const token = apiClient.getToken();
       
-      const payload = {
+      const payload: any = {
         plan_type: planType,
-        payment_method: paymentMethod, // Send as is (backend expects 'card' or 'upi')
-        // Omit success/cancel URLs to avoid validation errors with custom schemes (spendly://)
-        // Backend will use default configured URLs
+        payment_method: paymentMethod,
       };
+
+      if (amount && currency) {
+        payload.amount = amount;
+        payload.currency = currency.toLowerCase();
+      }
       
       console.log('Checkout payload:', JSON.stringify(payload));
       
