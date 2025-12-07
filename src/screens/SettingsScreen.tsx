@@ -475,6 +475,47 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
         console.log('🔔 Enabling notifications - requesting system permissions...');
         setNotificationPermissionStatus('checking');
         
+        // First check current permission status
+        const currentStatus = await notificationService.getPermissionStatus();
+        
+        // If permission is already denied, open settings directly
+        if (currentStatus === 'denied') {
+          console.log('📱 Permission denied - opening device settings...');
+          Alert.alert(
+            t('settings.notificationPermissionDenied') || 'Notification Permission Required',
+            t('settings.notificationPermissionDeniedMessage') || 
+            'To enable notifications, please enable them in your device settings.',
+            [
+              { 
+                text: t('settings.cancel') || 'Cancel', 
+                style: 'cancel', 
+                onPress: () => setNotifications(false) 
+              },
+              { 
+                text: t('settings.openSettings') || 'Open Settings', 
+                onPress: async () => {
+                  try {
+                    // Open device settings
+                    await Linking.openSettings();
+                    console.log('✅ Opened device settings');
+                    // Keep toggle off for now - user will need to come back and toggle again
+                    setNotifications(false);
+                  } catch (error) {
+                    console.error('Error opening settings:', error);
+                    Alert.alert(
+                      t('settings.error') || 'Error',
+                      t('settings.errorOpenSettings') || 'Could not open settings. Please go to Settings → Apps → Spendly Money → Notifications manually.'
+                    );
+                    setNotifications(false);
+                  }
+                }
+              }
+            ]
+          );
+          return;
+        }
+        
+        // Request permissions (will show dialog if undetermined)
         const permissionResult = await notificationService.requestPermissions();
         setNotificationPermissionStatus(permissionResult.status as 'granted' | 'denied' | 'undetermined');
         
@@ -482,33 +523,66 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
           console.log('⚠️ Notification permissions not granted');
           console.log('📊 Permission status:', permissionResult.status);
           
-          // Show alert based on permission status
+          // If still not granted after request, open settings
           if (permissionResult.status === 'denied') {
             Alert.alert(
-              t('settings.notificationPermissionDenied') || 'Notification Permission Denied',
+              t('settings.notificationPermissionDenied') || 'Notification Permission Required',
               t('settings.notificationPermissionDeniedMessage') || 
-              'To enable notifications, please go to:\n\nSettings → Apps → Spendly Money → Notifications → Enable notifications',
+              'To enable notifications, please enable them in your device settings.',
               [
-                { text: t('settings.cancel') || 'Cancel', style: 'cancel', onPress: () => setNotifications(false) },
                 { 
-                  text: t('settings.ok') || 'OK', 
-                  onPress: () => {
-                    // Keep toggle off since permission was denied
-                    setNotifications(false);
+                  text: t('settings.cancel') || 'Cancel', 
+                  style: 'cancel', 
+                  onPress: () => setNotifications(false) 
+                },
+                { 
+                  text: t('settings.openSettings') || 'Open Settings', 
+                  onPress: async () => {
+                    try {
+                      // Open device settings
+                      await Linking.openSettings();
+                      console.log('✅ Opened device settings');
+                      setNotifications(false);
+                    } catch (error) {
+                      console.error('Error opening settings:', error);
+                      Alert.alert(
+                        t('settings.error') || 'Error',
+                        t('settings.errorOpenSettings') || 'Could not open settings. Please go to Settings → Apps → Spendly Money → Notifications manually.'
+                      );
+                      setNotifications(false);
+                    }
                   }
                 }
               ]
             );
-            // Don't update backend if permission was denied
             return;
           } else {
-            // Permission not granted but can ask again (undetermined)
+            // Permission not granted but can ask again (undetermined) - this shouldn't happen after requestPermissions
+            // But if it does, open settings as fallback
             Alert.alert(
               t('settings.notificationPermissionRequired') || 'Notification Permission Required',
               t('settings.notificationPermissionRequiredMessage') || 
-              'Please grant notification permission to receive push notifications. The permission dialog should appear above this message.'
+              'Please enable notifications in your device settings.',
+              [
+                { 
+                  text: t('settings.cancel') || 'Cancel', 
+                  style: 'cancel',
+                  onPress: () => setNotifications(false)
+                },
+                { 
+                  text: t('settings.openSettings') || 'Open Settings', 
+                  onPress: async () => {
+                    try {
+                      await Linking.openSettings();
+                      setNotifications(false);
+                    } catch (error) {
+                      console.error('Error opening settings:', error);
+                      setNotifications(false);
+                    }
+                  }
+                }
+              ]
             );
-            // Don't update backend if permission not granted
             return;
           }
         }
