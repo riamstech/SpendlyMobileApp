@@ -1142,7 +1142,27 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                 />
               </View>
 
-              <View style={[styles.settingItem, { borderBottomColor: colors.border }]}>
+              <Pressable
+                style={[styles.settingItem, { borderBottomColor: colors.border }]}
+                onPress={async () => {
+                  // If permission is denied, open settings directly when clicking anywhere on the item
+                  if (notificationPermissionStatus === 'denied') {
+                    try {
+                      await Linking.openSettings();
+                      console.log('✅ Opened device settings from notification item');
+                    } catch (error) {
+                      console.error('Error opening settings:', error);
+                      Alert.alert(
+                        t('settings.error') || 'Error',
+                        t('settings.errorOpenSettings') || 'Could not open settings. Please go to Settings → Apps → Spendly Money → Notifications manually.'
+                      );
+                    }
+                  } else {
+                    // Otherwise, toggle normally
+                    handleToggleNotifications(!notifications);
+                  }
+                }}
+              >
                 <View style={styles.settingItemLeft}>
                   <Bell size={20} color="#F59E0B" />
                   <View style={styles.settingItemInfo}>
@@ -1163,7 +1183,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                   thumbColor="#fff"
                   disabled={notificationPermissionStatus === 'denied'}
                 />
-              </View>
+              </Pressable>
             </View>
           )}
         </View>
