@@ -60,9 +60,11 @@ function AppContent() {
   const responseListener = useRef<Notifications.Subscription | undefined>(undefined);
   const notificationsInitialized = useRef(false);
 
-  // Initialize notifications when user reaches dashboard
+  // Initialize notifications when user reaches dashboard or after login/signup
   useEffect(() => {
+    // Request permissions as soon as user is authenticated (dashboard screen)
     if (currentScreen === 'dashboard' && !notificationsInitialized.current) {
+      console.log('🚀 Dashboard loaded, initializing notifications...');
       initializeNotifications();
       notificationsInitialized.current = true;
     }
@@ -101,15 +103,23 @@ function AppContent() {
         },
       ]);
 
-      // Request permissions
-      const { granted } = await notificationService.requestPermissions();
+      // Request permissions - this will show the system permission dialog on Android 13+
+      console.log('📱 Requesting notification permissions...');
+      const permissionResult = await notificationService.requestPermissions();
       
-      if (!granted) {
+      if (!permissionResult.granted) {
         console.log('⚠️ Notification permissions not granted');
+        console.log('📊 Permission status:', permissionResult.status);
+        console.log('🔄 Can ask again:', permissionResult.canAskAgain);
+        
+        if (permissionResult.status === 'denied') {
+          console.log('❌ User denied notification permissions');
+          console.log('💡 User can enable in Settings → Apps → Spendly Money → Notifications');
+        }
         return;
       }
 
-      console.log('✅ Notification permissions granted');
+      console.log('✅ Notification permissions granted!');
 
       // Get Expo push token (works with Firebase via Expo's push service)
       const pushToken = await notificationService.getExpoPushToken();

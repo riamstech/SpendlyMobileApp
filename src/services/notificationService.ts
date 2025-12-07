@@ -41,21 +41,31 @@ export const notificationService = {
    */
   async requestPermissions(): Promise<NotificationPermissionStatus> {
     try {
+      console.log('🔔 Checking notification permissions...');
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      console.log('📋 Current permission status:', existingStatus);
+      
       let finalStatus = existingStatus;
       
       if (existingStatus !== 'granted') {
+        console.log('📱 Requesting notification permissions...');
         const { status } = await Notifications.requestPermissionsAsync();
         finalStatus = status;
+        console.log('✅ Permission request result:', status);
+      } else {
+        console.log('✅ Notifications already granted');
       }
       
-      return {
+      const result = {
         granted: finalStatus === 'granted',
         canAskAgain: finalStatus !== 'denied',
         status: finalStatus,
       };
+      
+      console.log('📊 Permission result:', result);
+      return result;
     } catch (error) {
-      console.error('Error requesting notification permissions:', error);
+      console.error('❌ Error requesting notification permissions:', error);
       return {
         granted: false,
         canAskAgain: false,
