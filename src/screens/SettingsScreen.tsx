@@ -55,6 +55,8 @@ import { authService } from '../api/services/auth';
 import { usersService } from '../api/services/users';
 import { currenciesService, Currency } from '../api/services/currencies';
 import { dashboardService } from '../api/services/dashboard';
+import { subscriptionsService } from '../api/services/subscriptions';
+import * as Linking from 'expo-linking';
 import { COUNTRIES, US_STATES, CA_PROVINCES } from '../constants/countries';
 import { SUPPORTED_LANGUAGES } from '../i18n';
 import { useTheme } from '../contexts/ThemeContext';
@@ -228,6 +230,53 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const handleDeepLink = async (event: { url: string }) => {
+        if (!event.url) return;
+        
+        try {
+            const parsed = Linking.parse(event.url);
+            const queryParams = parsed.queryParams;
+            
+            if (queryParams?.payment === 'success') {
+                setLoading(true);
+                
+                // If it's a Razorpay Payment Link redirect, verify it
+                if (queryParams.razorpay_payment_link_id) {
+                     await subscriptionsService.verifyPayment({
+                         payment_link_id: queryParams.razorpay_payment_link_id
+                     });
+                     await loadInitialData();
+                     Alert.alert(t('settings.success'), t('settings.successSubscriptionActive') || 'Subscription Activated!');
+                } else {
+                     // For Stripe or others, just refresh data (assuming Webhook handled it)
+                     // Or wait a bit?
+                     // Stripe webhook might take a second.
+                     setTimeout(async () => {
+                        await loadInitialData();
+                        Alert.alert(t('settings.success'), t('settings.successSubscriptionActive') || 'Payment Successful!');
+                     }, 2000);
+                }
+            } else if (queryParams?.payment === 'cancel') {
+                Alert.alert(t('settings.paymentCancelled') || 'Payment Cancelled', 'You have cancelled the payment.');
+            }
+        } catch (error) {
+            console.error('Deep link handling error:', error);
+            Alert.alert(t('settings.error'), 'Payment verification failed. If you were charged, please contact support.');
+             await loadInitialData(); // Try to load anyway
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    Linking.getInitialURL().then((url) => {
+        if (url) handleDeepLink({ url });
+    });
+
+    const subscription = Linking.addEventListener('url', handleDeepLink);
+    return () => subscription.remove();
+  }, []);
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({

@@ -102,4 +102,28 @@ export const subscriptionsService = {
       throw error;
     }
   },
+
+  async verifyPayment(params: any): Promise<any> {
+    try {
+        const token = apiClient.getToken();
+        const response = await fetch(`${config.apiBaseUrl}/razorpay/verify`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(params)
+        });
+        
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(`Verification failed: ${response.status} ${text}`);
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('Error in subscriptionsService.verifyPayment:', error);
+        throw error;
+    }
+  }
 };
