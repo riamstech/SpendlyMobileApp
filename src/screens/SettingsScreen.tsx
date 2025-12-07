@@ -190,15 +190,18 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
   }, []);
 
   // Listen for app state changes to refresh notification permission status
+  // This ensures the toggle reflects the actual system permission when user returns from settings
   useEffect(() => {
+    let appStateSubscription: any;
+
     const checkPermissionOnFocus = async () => {
       try {
         const status = await notificationService.getPermissionStatus();
         setNotificationPermissionStatus(status);
         
-        // If permission is now granted but toggle is off, enable it
-        if (status === 'granted' && !notifications) {
-          // User might have enabled in settings, sync with backend preference
+        // Sync toggle with actual permission status
+        if (status === 'granted') {
+          // Permission granted - check backend preference
           try {
             const settings = await usersService.getUserSettings();
             const backendEnabled = settings.settings?.notificationsEnabled !== false;
@@ -206,14 +209,17 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
           } catch (error) {
             console.error('Error checking backend settings:', error);
           }
-        } else if (status !== 'granted' && notifications) {
-          // Permission revoked - disable toggle
+        } else {
+          // Permission not granted - toggle must be OFF
           setNotifications(false);
-          // Update backend
+          // Update backend if it was enabled
           try {
-            await usersService.updateUserSettings({
-              notifications_enabled: false,
-            });
+            const settings = await usersService.getUserSettings();
+            if (settings.settings?.notificationsEnabled) {
+              await usersService.updateUserSettings({
+                notifications_enabled: false,
+              });
+            }
           } catch (error) {
             console.error('Error updating notification setting:', error);
           }
@@ -224,16 +230,28 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
     };
 
     // Check when app comes to foreground (user returns from settings)
-    const subscription = AppState.addEventListener('change', (nextAppState) => {
-      if (nextAppState === 'active') {
-        checkPermissionOnFocus();
-      }
-    });
+    if (AppState.addEventListener) {
+      appStateSubscription = AppState.addEventListener('change', (nextAppState) => {
+        if (nextAppState === 'active') {
+          console.log('📱 App became active - checking notification permission status...');
+          checkPermissionOnFocus();
+        }
+      });
+    } else {
+      // Fallback for older React Native versions
+      appStateSubscription = AppState.addEventListener('change', (nextAppState) => {
+        if (nextAppState === 'active') {
+          checkPermissionOnFocus();
+        }
+      });
+    }
 
     return () => {
-      subscription.remove();
+      if (appStateSubscription && appStateSubscription.remove) {
+        appStateSubscription.remove();
+      }
     };
-  }, [notifications]);
+  }, []);
 
   // Reset avatar load error when user changes
   useEffect(() => {
