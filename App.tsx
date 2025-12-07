@@ -149,9 +149,17 @@ function AppContent() {
           
           console.log('Action:', actionIdentifier, 'Data:', data);
           
-          // Handle different actions
-          if (actionIdentifier === 'VIEW') {
-            console.log('User wants to view details');
+          // Navigate based on notification data
+          if (actionIdentifier === 'VIEW' || actionIdentifier === 'DEFAULT') {
+            // Open the app to dashboard (or specific screen from data)
+            if (data?.screen === 'dashboard' || !data?.screen) {
+              setCurrentScreen('dashboard');
+              console.log('✅ Navigated to dashboard');
+            }
+            // You can add more screen navigation here
+            // else if (data?.screen === 'transactions') {
+            //   setCurrentScreen('dashboard'); // Navigate to transactions
+            // }
           } else if (actionIdentifier === 'DISMISS') {
             console.log('User dismissed notification');
           }
