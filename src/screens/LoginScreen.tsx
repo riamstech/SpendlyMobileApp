@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
 import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import { config } from '../config/env';
 
 interface LoginScreenProps {
   onLoginSuccess?: () => void;
@@ -152,20 +153,15 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
 
   React.useEffect(() => {
     if (Platform.OS !== 'web') {
-      // Platform-specific webClientId configuration
-      // iOS: Use the original webClientId that was working
-      // Android: Try original webClientId first (same as iOS), as it might be the one configured in Google Cloud Console
-      const webClientId = Platform.OS === 'ios' 
-        ? '913299133500-pn633h3t96sht7ama46r8736jjfann5v.apps.googleusercontent.com' // Original iOS webClientId
-        : '913299133500-pn633h3t96sht7ama46r8736jjfann5v.apps.googleusercontent.com'; // Try same as iOS - might be the correct one for both
+      // Get Google Sign-In configuration from environment variables
+      const webClientId = config.googleWebClientId;
+      const iosClientId = config.googleIosClientId;
       
       GoogleSignin.configure({
-        // Web Client ID (Required for idToken generation)
-        // Using the same webClientId for both iOS and Android
-        // This is the original working webClientId
+        // Web Client ID (Required for idToken generation) - From environment variables
         webClientId, 
-        // iOS Client ID - User provided
-        iosClientId: '913299133500-c6hjl99i7q14h40ne17mm2e2jrh2q9pu.apps.googleusercontent.com',
+        // iOS Client ID - From environment variables
+        iosClientId,
         // Android Client ID is handled automatically by google-services.json
         offlineAccess: true,
         scopes: ['email', 'profile'],
