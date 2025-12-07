@@ -56,6 +56,7 @@ import { usersService } from '../api/services/users';
 import { currenciesService, Currency } from '../api/services/currencies';
 import { dashboardService } from '../api/services/dashboard';
 import { subscriptionsService } from '../api/services/subscriptions';
+import { devicesService } from '../api/services/devices';
 import * as Linking from 'expo-linking';
 import { COUNTRIES, US_STATES, CA_PROVINCES } from '../constants/countries';
 import { SUPPORTED_LANGUAGES } from '../i18n';
@@ -64,6 +65,7 @@ import { textStyles, createResponsiveTextStyles, fonts } from '../constants/font
 import StripePaymentDialog from '../components/StripePaymentDialog';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { getCurrencyForCountry, convertUsdToCurrency, formatCurrencyAmount } from '../utils/currencyConverter';
+import { notificationService } from '../services/notificationService';
 
 const LANGUAGE_FLAGS: Record<string, string> = {
   en: '🇺🇸',
@@ -145,6 +147,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
   const [selectedCurrency, setSelectedCurrency] = useState('USD');
   const [preferredLocale, setPreferredLocale] = useState('en');
   const [notifications, setNotifications] = useState(true);
+  const [notificationPermissionStatus, setNotificationPermissionStatus] = useState<'granted' | 'denied' | 'undetermined' | 'checking'>('checking');
   const [biometricLock, setBiometricLock] = useState(false);
   const [showStripePayment, setShowStripePayment] = useState(false);
   const [stripePaymentData, setStripePaymentData] = useState<{
@@ -220,6 +223,24 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
         setNotifications(settings.settings?.notificationsEnabled !== false);
         setBiometricLock(settings.settings?.biometricLockEnabled || false);
         setBudgetCycleDay(settings.settings?.budgetCycleDay || 1);
+        
+        // Check actual notification permission status
+        try {
+          const { status } = await notificationService.requestPermissions();
+          setNotificationPermissionStatus(status as 'granted' | 'denied' | 'undetermined');
+          
+          // Sync toggle with actual permission status
+          if (status === 'granted' && !notifications) {
+            // Permission granted but toggle is off - enable it
+            setNotifications(true);
+          } else if (status !== 'granted' && notifications) {
+            // Permission not granted but toggle is on - this is just a preference, keep it
+            console.log('📊 Notification preference is on but system permission:', status);
+          }
+        } catch (error) {
+          console.error('Error checking notification permissions:', error);
+          setNotificationPermissionStatus('undetermined');
+        }
       } catch (error) {
         console.error('Failed to load settings:', error);
       }
@@ -453,13 +474,81 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
 
   const handleToggleNotifications = async (enabled: boolean) => {
     try {
+      // If enabling notifications, request system permissions first
+      if (enabled) {
+        console.log('🔔 Enabling notifications - requesting system permissions...');
+        setNotificationPermissionStatus('checking');
+        
+        const permissionResult = await notificationService.requestPermissions();
+        setNotificationPermissionStatus(permissionResult.status as 'granted' | 'denied' | 'undetermined');
+        
+        if (!permissionResult.granted) {
+          console.log('⚠️ Notification permissions not granted');
+          console.log('📊 Permission status:', permissionResult.status);
+          
+          // Show alert based on permission status
+          if (permissionResult.status === 'denied') {
+            Alert.alert(
+              t('settings.notificationPermissionDenied') || 'Notification Permission Denied',
+              t('settings.notificationPermissionDeniedMessage') || 
+              'To enable notifications, please go to:\n\nSettings → Apps → Spendly Money → Notifications → Enable notifications',
+              [
+                { text: t('settings.cancel') || 'Cancel', style: 'cancel', onPress: () => setNotifications(false) },
+                { 
+                  text: t('settings.ok') || 'OK', 
+                  onPress: () => {
+                    // Keep toggle off since permission was denied
+                    setNotifications(false);
+                  }
+                }
+              ]
+            );
+            // Don't update backend if permission was denied
+            return;
+          } else {
+            // Permission not granted but can ask again (undetermined)
+            Alert.alert(
+              t('settings.notificationPermissionRequired') || 'Notification Permission Required',
+              t('settings.notificationPermissionRequiredMessage') || 
+              'Please grant notification permission to receive push notifications. The permission dialog should appear above this message.'
+            );
+            // Don't update backend if permission not granted
+            return;
+          }
+        }
+        
+        console.log('✅ Notification permissions granted');
+        
+        // If permission granted, get push token and register device
+        try {
+          const pushToken = await notificationService.getExpoPushToken();
+          if (pushToken) {
+            const deviceUUID = await notificationService.getDeviceUUID();
+            // Register device with backend
+            await devicesService.registerDevice(deviceUUID, pushToken);
+            console.log('✅ Notifications enabled and device registered');
+          }
+        } catch (error) {
+          console.error('Error initializing notifications:', error);
+          // Don't fail the toggle if this fails, but show a warning
+          Alert.alert(
+            t('settings.warning') || 'Warning',
+            t('settings.notificationSetupIncomplete') || 'Notifications enabled but device registration failed. You may not receive notifications.'
+          );
+        }
+      }
+      
+      // Update backend setting
       await usersService.updateUserSettings({
         notifications_enabled: enabled,
       });
       setNotifications(enabled);
+      
     } catch (error: any) {
       console.error('Error updating notifications:', error);
-      Alert.alert(t('settings.error'), t('settings.errorUpdateNotifications'));
+      Alert.alert(t('settings.error'), error.response?.data?.message || t('settings.errorUpdateNotifications'));
+      // Revert toggle on error
+      setNotifications(!enabled);
     }
   };
 
@@ -906,7 +995,13 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                   <Bell size={20} color="#F59E0B" />
                   <View style={styles.settingItemInfo}>
                     <Text style={[styles.settingItemLabel, textStyles.caption, { color: colors.foreground }]}>{t('settings.notifications')}</Text>
-                    <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>{t('settings.notificationsDescription')}</Text>
+                    <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
+                      {notificationPermissionStatus === 'granted' 
+                        ? (t('settings.notificationsDescription') || 'Enable push notifications to stay updated')
+                        : notificationPermissionStatus === 'denied'
+                        ? (t('settings.notificationsPermissionDenied') || 'Permission denied - enable in device Settings')
+                        : (t('settings.notificationsDescription') || 'Enable push notifications to stay updated')}
+                    </Text>
                   </View>
                 </View>
                 <Switch
