@@ -231,7 +231,7 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
                     { paddingVertical: 14, color: colors.foreground },
                     errors.email && styles.inputError
                   ]}
-                  placeholder="you@example.com"
+                  placeholder={t('auth.emailPlaceholder')}
                   placeholderTextColor={colors.mutedForeground}
                   value={email}
                   onChangeText={(text) => {
@@ -258,7 +258,7 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
                     { paddingVertical: 14, color: colors.foreground },
                     errors.password && styles.inputError
                   ]}
-                  placeholder="Enter your password"
+                  placeholder={t('auth.passwordPlaceholder')}
                   placeholderTextColor={colors.mutedForeground}
                   value={password}
                   onChangeText={(text) => {
@@ -300,14 +300,14 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
               disabled={isLoading}
             >
               <Text style={[styles.loginButtonText, responsiveTextStyles.button]}>
-                {isLoading ? 'Signing in...' : 'Sign In'}
+                {isLoading ? t('auth.signingIn') : t('auth.signIn')}
               </Text>
             </Pressable>
 
             {/* Divider: or continue with */}
             <View style={styles.dividerRow}>
               <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
-              <Text style={[styles.dividerText, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>or continue with</Text>
+              <Text style={[styles.dividerText, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>{t('auth.continueWith')}</Text>
               <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
             </View>
 
@@ -322,7 +322,7 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
               <View style={styles.googleIconCircle}>
                 <Text style={styles.googleIconText}>G</Text>
               </View>
-              <Text style={[styles.googleButtonText, responsiveTextStyles.button, { color: colors.foreground }]}>Continue with Google</Text>
+              <Text style={[styles.googleButtonText, responsiveTextStyles.button, { color: colors.foreground }]}>{t('auth.continueWithGoogle')}</Text>
             </Pressable>
 
             {/* Sign Up Link */}
@@ -336,7 +336,7 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
 
           {/* Footer tagline */}
           <Text style={[styles.footerText, responsiveTextStyles.caption, { color: isDark ? colors.mutedForeground : 'rgba(255,255,255,0.9)' }]}>
-            Track. Save. Grow. © 2024 Spendly
+            {t('footer.tagline')} {t('footer.copyright')}
           </Text>
         </ScrollView>
       </KeyboardAvoidingView>

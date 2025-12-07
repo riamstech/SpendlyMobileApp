@@ -68,33 +68,33 @@ export default function SignupScreen({
     } = {};
 
     if (!name) {
-      newErrors.name = 'Name is required';
+      newErrors.name = t('auth.nameRequired');
     } else if (name.length < 2) {
-      newErrors.name = 'Name must be at least 2 characters';
+      newErrors.name = t('auth.nameMin');
     }
 
     if (!email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = t('auth.emailRequired');
     } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Please enter a valid email';
+      newErrors.email = t('auth.emailInvalid');
     }
 
     if (!password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = t('auth.passwordRequired');
     } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = t('auth.passwordMin');
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/.test(password)) {
-      newErrors.password = 'Password must contain uppercase, lowercase, and number';
+      newErrors.password = t('auth.passwordComplexity');
     }
 
     if (!confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
+      newErrors.confirmPassword = t('auth.confirmPasswordRequired');
     } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = t('auth.passwordsNotMatch');
     }
 
     if (!acceptedTerms) {
-      newErrors.terms = 'You must accept the terms and conditions';
+      newErrors.terms = t('auth.termsRequired');
     }
 
     setErrors(newErrors);
@@ -290,8 +290,8 @@ export default function SignupScreen({
                 style={{ width: 80 * scale, height: 80 * scale }}
                 resizeMode="contain"
               />
-              <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: isDark ? colors.foreground : '#fff' }]}>Create Account</Text>
-              <Text style={[styles.headerSubtitle, responsiveTextStyles.body, { color: isDark ? colors.mutedForeground : 'rgba(255, 255, 255, 0.9)' }]}>Start tracking your finances today</Text>
+              <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: isDark ? colors.foreground : '#fff' }]}>{t('auth.createAccount')}</Text>
+              <Text style={[styles.headerSubtitle, responsiveTextStyles.body, { color: isDark ? colors.mutedForeground : 'rgba(255, 255, 255, 0.9)' }]}>{t('auth.signupSubtitle')}</Text>
             </View>
 
             {/* Signup Form */}
@@ -306,7 +306,7 @@ export default function SignupScreen({
             >
               {/* Name Field */}
               <View style={styles.inputContainer}>
-                <Text style={[styles.label, responsiveTextStyles.label, { color: colors.foreground }]}>Full Name</Text>
+                <Text style={[styles.label, responsiveTextStyles.label, { color: colors.foreground }]}>{t('auth.fullName')}</Text>
                 <View style={[styles.inputWrapper, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
                   <User
                     size={Math.max(18, Math.min(20 * scale, 22))}
@@ -335,7 +335,7 @@ export default function SignupScreen({
 
               {/* Email Field */}
               <View style={styles.inputContainer}>
-                <Text style={[styles.label, responsiveTextStyles.label, { color: colors.foreground }]}>Email Address</Text>
+                <Text style={[styles.label, responsiveTextStyles.label, { color: colors.foreground }]}>{t('auth.email')}</Text>
                 <View style={[styles.inputWrapper, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
                   <Mail
                     size={Math.max(18, Math.min(20 * scale, 22))}
@@ -349,7 +349,7 @@ export default function SignupScreen({
                       { paddingVertical: 14, color: colors.foreground },
                       errors.email && styles.inputError,
                     ]}
-                    placeholder="you@example.com"
+                    placeholder={t('auth.emailPlaceholder')}
                     placeholderTextColor={colors.mutedForeground}
                     value={email}
                     onChangeText={(text) => {
@@ -366,7 +366,7 @@ export default function SignupScreen({
 
               {/* Password Field */}
               <View style={styles.inputContainer}>
-                <Text style={[styles.label, responsiveTextStyles.label, { color: colors.foreground }]}>Password</Text>
+                <Text style={[styles.label, responsiveTextStyles.label, { color: colors.foreground }]}>{t('auth.password')}</Text>
                 <View style={[styles.inputWrapper, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
                   <Lock
                     size={Math.max(18, Math.min(20 * scale, 22))}
@@ -380,7 +380,7 @@ export default function SignupScreen({
                       { paddingVertical: 14, color: colors.foreground },
                       errors.password && styles.inputError,
                     ]}
-                    placeholder="Create a strong password"
+                    placeholder={t('auth.passwordPlaceholderSignup')}
                     placeholderTextColor={colors.mutedForeground}
                     value={password}
                     onChangeText={(text) => {
@@ -430,7 +430,7 @@ export default function SignupScreen({
 
               {/* Confirm Password Field */}
               <View style={styles.inputContainer}>
-                <Text style={[styles.label, responsiveTextStyles.label, { color: colors.foreground }]}>Confirm Password</Text>
+                <Text style={[styles.label, responsiveTextStyles.label, { color: colors.foreground }]}>{t('auth.confirmPassword')}</Text>
                 <View style={[styles.inputWrapper, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
                   <Lock
                     size={Math.max(18, Math.min(20 * scale, 22))}
@@ -444,7 +444,7 @@ export default function SignupScreen({
                       { paddingVertical: 14, color: colors.foreground },
                       errors.confirmPassword && styles.inputError,
                     ]}
-                    placeholder="Re-enter your password"
+                    placeholder={t('auth.confirmPasswordPlaceholder')}
                     placeholderTextColor={colors.mutedForeground}
                     value={confirmPassword}
                     onChangeText={(text) => {
@@ -479,7 +479,7 @@ export default function SignupScreen({
               {/* Referral Code Field */}
               <View style={styles.inputContainer}>
                 <Text style={[styles.label, responsiveTextStyles.label, { color: colors.foreground }]}>
-                  Referral Code <Text style={[styles.optionalText, responsiveTextStyles.small, { color: colors.mutedForeground }]}>(Optional)</Text>
+                  {t('auth.referralCode')} <Text style={[styles.optionalText, responsiveTextStyles.small, { color: colors.mutedForeground }]}>(Optional)</Text>
                 </Text>
                 <View style={[styles.inputWrapper, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
                   <Gift
@@ -493,7 +493,7 @@ export default function SignupScreen({
                       responsiveTextStyles.body,
                       { paddingVertical: 14, color: colors.foreground },
                     ]}
-                    placeholder="Enter referral code"
+                    placeholder={t('auth.referralCodePlaceholder')}
                     placeholderTextColor={colors.mutedForeground}
                     value={referralCode}
                     onChangeText={(text) => setReferralCode(text.toUpperCase())}
@@ -503,7 +503,7 @@ export default function SignupScreen({
                 </View>
                 {referralCode && (
                   <Text style={[styles.referralHint, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                    You'll both get 1 month of Pro free!
+                    {t('auth.referralCodeHint')}
                   </Text>
                 )}
               </View>
@@ -525,8 +525,9 @@ export default function SignupScreen({
                 </Pressable>
                 <Text style={[styles.termsText, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
                   I agree to the{' '}
-                  <Text style={[styles.termsLink, { color: colors.primary }]}>Terms of Service</Text> and{' '}
-                  <Text style={[styles.termsLink, { color: colors.primary }]}>Privacy Policy</Text>
+                  <Text style={[styles.termsLink, { color: colors.primary }]}>{t('auth.termsOfService')}</Text>
+                  {' and '}
+                  <Text style={[styles.termsLink, { color: colors.primary }]}>{t('auth.privacyPolicy')}</Text>
                 </Text>
               </View>
               {errors.terms && <Text style={[styles.errorText, responsiveTextStyles.caption, { color: colors.destructive }]}>{errors.terms}</Text>}
@@ -542,14 +543,14 @@ export default function SignupScreen({
                 disabled={isLoading}
               >
                 <Text style={[styles.signupButtonText, responsiveTextStyles.button]}>
-                  {isLoading ? 'Creating Account...' : 'Create Account'}
+                  {isLoading ? t('auth.creatingAccount') : t('auth.createAccountButton')}
                 </Text>
               </Pressable>
 
               {/* Divider */}
               <View style={styles.dividerRow}>
                 <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
-                <Text style={[styles.dividerText, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>or continue with</Text>
+                <Text style={[styles.dividerText, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>{t('auth.continueWith')}</Text>
                 <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
               </View>
 
@@ -569,16 +570,16 @@ export default function SignupScreen({
 
               {/* Login Link */}
               <View style={styles.loginLinkContainer}>
-                <Text style={[styles.loginLinkText, responsiveTextStyles.body, { color: colors.mutedForeground }]}>Already have an account? </Text>
+                <Text style={[styles.loginLinkText, responsiveTextStyles.body, { color: colors.mutedForeground }]}>{t('auth.alreadyHaveAccount')} </Text>
                 <Pressable onPress={onLoginClick}>
-                  <Text style={[styles.loginLink, responsiveTextStyles.body, { color: colors.primary }]}>Sign In</Text>
+                  <Text style={[styles.loginLink, responsiveTextStyles.body, { color: colors.primary }]}>{t('auth.signIn')}</Text>
                 </Pressable>
               </View>
             </View>
 
             {/* Footer */}
             <Text style={[styles.footerText, responsiveTextStyles.caption, { color: isDark ? colors.mutedForeground : 'rgba(255,255,255,0.9)' }]}>
-              Track. Save. Grow. © 2024 Spendly
+              {t('footer.tagline')} {t('footer.copyright')}
             </Text>
           </ScrollView>
         </KeyboardAvoidingView>

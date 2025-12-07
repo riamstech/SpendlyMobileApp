@@ -46,9 +46,9 @@ export default function ForgotPasswordScreen({
     const newErrors: { email?: string } = {};
 
     if (!email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = t('auth.emailRequired');
     } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Please enter a valid email';
+      newErrors.email = t('auth.emailInvalid');
     }
 
     setErrors(newErrors);
@@ -117,16 +117,16 @@ export default function ForgotPasswordScreen({
                   <CheckCircle size={48 * scale} color="#4CAF50" />
                 </View>
                 <Text style={[styles.successTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>
-                  Check Your Email
+                  {t('auth.checkYourEmail')}
                 </Text>
                 <Text style={[styles.successText, responsiveTextStyles.body, { marginTop: 8, color: colors.mutedForeground }]}>
-                  We've sent a password reset link to
+                  {t('auth.resetEmailSent')}
                 </Text>
                 <Text style={[styles.successEmail, responsiveTextStyles.body, { marginTop: 8, marginBottom: 16, color: colors.foreground }]}>
                   {email}
                 </Text>
                 <Text style={[styles.successText, responsiveTextStyles.body, { marginBottom: 24, color: colors.mutedForeground }]}>
-                  Click the link in the email to reset your password. If you don't see it, check your spam folder.
+                  {t('auth.resetEmailInstructions')}
                 </Text>
                 <Pressable
                   style={[
@@ -138,7 +138,7 @@ export default function ForgotPasswordScreen({
                   disabled={isLoading}
                 >
                   <Text style={[styles.primaryButtonText, responsiveTextStyles.button]}>
-                    Back to Login
+                    {t('auth.backToLogin')}
                   </Text>
                 </Pressable>
                 <Pressable
@@ -146,7 +146,7 @@ export default function ForgotPasswordScreen({
                   onPress={() => setSubmitted(false)}
                 >
                   <Text style={[styles.tryAgainText, responsiveTextStyles.bodySmall, { color: colors.primary }]}>
-                    Didn't receive the email? Try again
+                    {t('auth.tryAgain')}
                   </Text>
                 </Pressable>
               </View>
@@ -188,10 +188,10 @@ export default function ForgotPasswordScreen({
                 resizeMode="contain"
               />
               <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: isDark ? colors.foreground : '#fff' }]}>
-                Forgot Password?
+                {t('auth.forgotPasswordTitle')}
               </Text>
               <Text style={[styles.headerSubtitle, responsiveTextStyles.body, { color: isDark ? colors.mutedForeground : 'rgba(255, 255, 255, 0.9)' }]}>
-                No worries, we'll send you reset instructions
+                {t('auth.forgotPasswordSubtitle')}
               </Text>
             </View>
 
@@ -208,7 +208,7 @@ export default function ForgotPasswordScreen({
             >
               {/* Email Field */}
               <View style={styles.inputContainer}>
-                <Text style={[styles.label, responsiveTextStyles.label, { color: colors.foreground }]}>Email Address</Text>
+                <Text style={[styles.label, responsiveTextStyles.label, { color: colors.foreground }]}>{t('auth.email')}</Text>
                 <View style={[styles.inputWrapper, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
                   <Mail
                     size={Math.max(18, Math.min(20 * scale, 22))}
@@ -222,7 +222,7 @@ export default function ForgotPasswordScreen({
                       { paddingVertical: 14, color: colors.foreground },
                       errors.email && styles.inputError,
                     ]}
-                    placeholder="you@example.com"
+                    placeholder={t('auth.emailPlaceholder')}
                     placeholderTextColor={colors.mutedForeground}
                     value={email}
                     onChangeText={(text) => {
@@ -240,7 +240,7 @@ export default function ForgotPasswordScreen({
                   </Text>
                 )}
                 <Text style={[styles.hintText, responsiveTextStyles.caption, { marginTop: 4, color: colors.mutedForeground }]}>
-                  Enter the email address associated with your account
+                  {t('auth.emailHint')}
                 </Text>
               </View>
 
@@ -255,7 +255,7 @@ export default function ForgotPasswordScreen({
                 disabled={isLoading}
               >
                 <Text style={[styles.primaryButtonText, responsiveTextStyles.button]}>
-                  {isLoading ? 'Sending...' : 'Send Reset Link'}
+                  {isLoading ? t('auth.sending') : t('auth.sendResetLink')}
                 </Text>
               </Pressable>
 
@@ -270,7 +270,7 @@ export default function ForgotPasswordScreen({
                   style={{ marginRight: 8 }}
                 />
                 <Text style={[styles.backButtonText, responsiveTextStyles.button, { color: colors.primary }]}>
-                  Back to Login
+                  {t('auth.backToLogin')}
                 </Text>
               </Pressable>
             </View>
