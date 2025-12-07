@@ -395,6 +395,25 @@
     "rewardMonthsPlural": "{{count}} meses",
     "rewardDays": "{{count}} dia",
     "rewardDaysPlural": "{{count}} dias"
+  },
+  "payment": {
+    "payWithCard": "Pagar com Cartão",
+    "payWithUPI": "Pagar com UPI",
+    "completePlanPayment": "Complete o pagamento do seu plano {{plan}}",
+    "selectPlan": "Selecionar Plano",
+    "plan": "Plano",
+    "method": "Método",
+    "monthly": "Mensal",
+    "yearly": "Anual",
+    "card": "Cartão",
+    "processing": "Processando Pagamento",
+    "redirectingToStripe": "Você será redirecionado para completar seu pagamento.",
+    "continue": "Continuar",
+    "payNow": "Pagar Agora",
+    "mobileNote": "Você será redirecionado para completar seu pagamento com segurança.",
+    "failed": "Pagamento Falhou",
+    "razorpay": "Pagamento Razorpay",
+    "razorpayNotSupported": "Integração Razorpay para mobile em breve."
   }
 }
 

@@ -671,6 +671,7 @@
     "payWithCard": "Pay with Card",
     "payWithUPI": "Pay with UPI",
     "completePlanPayment": "Complete your {{plan}} plan payment",
+    "selectPlan": "Select Plan",
     "plan": "Plan",
     "method": "Method",
     "monthly": "Monthly",

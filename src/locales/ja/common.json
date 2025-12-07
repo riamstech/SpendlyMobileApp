@@ -395,6 +395,25 @@
     "rewardMonthsPlural": "{{count}} ヶ月",
     "rewardDays": "{{count}} 日",
     "rewardDaysPlural": "{{count}} 日"
+  },
+  "payment": {
+    "payWithCard": "カードで支払う",
+    "payWithUPI": "UPIで支払う",
+    "completePlanPayment": "{{plan}}プランの支払いを完了してください",
+    "selectPlan": "プランを選択",
+    "plan": "プラン",
+    "method": "方法",
+    "monthly": "月額",
+    "yearly": "年額",
+    "card": "カード",
+    "processing": "支払い処理中",
+    "redirectingToStripe": "支払いを完了するためにリダイレクトされます。",
+    "continue": "続ける",
+    "payNow": "今すぐ支払う",
+    "mobileNote": "安全に支払いを完了するためにリダイレクトされます。",
+    "failed": "支払い失敗",
+    "razorpay": "Razorpay支払い",
+    "razorpayNotSupported": "モバイル用Razorpay統合は近日公開予定です。"
   }
 }
 

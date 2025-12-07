@@ -395,6 +395,25 @@
     "rewardMonthsPlural": "{{count}} месяцев",
     "rewardDays": "{{count}} день",
     "rewardDaysPlural": "{{count}} дней"
+  },
+  "payment": {
+    "payWithCard": "Оплатить Картой",
+    "payWithUPI": "Оплатить через UPI",
+    "completePlanPayment": "Завершите оплату вашего плана {{plan}}",
+    "selectPlan": "Выбрать План",
+    "plan": "План",
+    "method": "Метод",
+    "monthly": "Ежемесячно",
+    "yearly": "Ежегодно",
+    "card": "Карта",
+    "processing": "Обработка Платежа",
+    "redirectingToStripe": "Вы будете перенаправлены для завершения платежа.",
+    "continue": "Продолжить",
+    "payNow": "Оплатить Сейчас",
+    "mobileNote": "Вы будете перенаправлены для безопасного завершения платежа.",
+    "failed": "Платеж Не Удался",
+    "razorpay": "Платеж Razorpay",
+    "razorpayNotSupported": "Интеграция Razorpay для мобильных устройств скоро появится."
   }
 }
 

@@ -395,6 +395,25 @@
     "rewardMonthsPlural": "{{count}} أشهر",
     "rewardDays": "{{count}} يوم",
     "rewardDaysPlural": "{{count}} أيام"
+  },
+  "payment": {
+    "payWithCard": "الدفع بالبطاقة",
+    "payWithUPI": "الدفع عبر UPI",
+    "completePlanPayment": "أكمل دفع خطة {{plan}} الخاصة بك",
+    "selectPlan": "اختر الخطة",
+    "plan": "الخطة",
+    "method": "الطريقة",
+    "monthly": "شهري",
+    "yearly": "سنوي",
+    "card": "بطاقة",
+    "processing": "معالجة الدفع",
+    "redirectingToStripe": "سيتم توجيهك لإكمال الدفع.",
+    "continue": "متابعة",
+    "payNow": "ادفع الآن",
+    "mobileNote": "سيتم توجيهك لإكمال الدفع بأمان.",
+    "failed": "فشل الدفع",
+    "razorpay": "دفع Razorpay",
+    "razorpayNotSupported": "تكامل Razorpay للجوال قادم قريباً."
   }
 }
 

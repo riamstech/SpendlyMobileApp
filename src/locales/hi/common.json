@@ -530,6 +530,25 @@
     "rewardMonthsPlural": "{{count}} महीने",
     "rewardDays": "{{count}} दिन",
     "rewardDaysPlural": "{{count}} दिन"
+  },
+  "payment": {
+    "payWithCard": "कार्ड से भुगतान करें",
+    "payWithUPI": "UPI से भुगतान करें",
+    "completePlanPayment": "अपने {{plan}} प्लान का भुगतान पूरा करें",
+    "selectPlan": "प्लान चुनें",
+    "plan": "प्लान",
+    "method": "विधि",
+    "monthly": "मासिक",
+    "yearly": "वार्षिक",
+    "card": "कार्ड",
+    "processing": "भुगतान प्रसंस्करण",
+    "redirectingToStripe": "आपको भुगतान पूरा करने के लिए पुनर्निर्देशित किया जाएगा।",
+    "continue": "जारी रखें",
+    "payNow": "अभी भुगतान करें",
+    "mobileNote": "आपको सुरक्षित रूप से भुगतान पूरा करने के लिए पुनर्निर्देशित किया जाएगा।",
+    "failed": "भुगतान विफल",
+    "razorpay": "Razorpay भुगतान",
+    "razorpayNotSupported": "मोबाइल के लिए Razorpay एकीकरण जल्द ही आ रहा है।"
   }
 }
 

@@ -530,6 +530,25 @@
     "rewardMonthsPlural": "{{count}} 个月",
     "rewardDays": "{{count}} 天",
     "rewardDaysPlural": "{{count}} 天"
+  },
+  "payment": {
+    "payWithCard": "使用卡支付",
+    "payWithUPI": "使用UPI支付",
+    "completePlanPayment": "完成您的{{plan}}计划付款",
+    "selectPlan": "选择计划",
+    "plan": "计划",
+    "method": "方式",
+    "monthly": "月度",
+    "yearly": "年度",
+    "card": "卡",
+    "processing": "处理付款中",
+    "redirectingToStripe": "您将被重定向以完成付款。",
+    "continue": "继续",
+    "payNow": "立即支付",
+    "mobileNote": "您将被重定向以安全地完成付款。",
+    "failed": "付款失败",
+    "razorpay": "Razorpay付款",
+    "razorpayNotSupported": "移动端Razorpay集成即将推出。"
   }
 }
 
