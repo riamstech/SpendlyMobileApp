@@ -1697,11 +1697,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
           onClose={() => setShowStripePayment(false)}
           planType={stripePaymentData.planType}
           paymentMethod={stripePaymentData.paymentMethod}
-          onSuccess={async () => {
-            setShowStripePayment(false);
-            Alert.alert(t('settings.success'), t('settings.successSubscriptionRenewed'));
-            await loadInitialData();
-          }}
+          // onSuccess removed - payment success is handled by deep link handler
           monthlyPrice={pricingData?.monthly}
           yearlyPrice={pricingData?.yearly}
           monthlyAmount={pricingData?.monthlyAmount}

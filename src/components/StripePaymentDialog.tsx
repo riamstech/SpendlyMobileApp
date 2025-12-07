@@ -73,9 +73,10 @@ export default function StripePaymentDialog({
         if (intent.checkout_url) {
           const canOpen = await Linking.canOpenURL(intent.checkout_url);
           if (canOpen) {
+            // Close the dialog and open Razorpay checkout
+            // Don't call onSuccess here - it will be called after payment completion via deep link
+            onClose();
             await Linking.openURL(intent.checkout_url);
-            onSuccess?.(); 
-            onClose(); 
           } else {
              throw new Error('Cannot open Razorpay URL');
           }
@@ -99,9 +100,10 @@ export default function StripePaymentDialog({
          if (checkout.checkout_url) {
            const canOpen = await Linking.canOpenURL(checkout.checkout_url);
            if (canOpen) {
+             // Close the dialog and open Stripe checkout
+             // Don't call onSuccess here - it will be called after payment completion via deep link
+             onClose();
              await Linking.openURL(checkout.checkout_url);
-             onSuccess?.(); 
-             onClose(); 
            } else {
              throw new Error('Cannot open Stripe URL');
            }

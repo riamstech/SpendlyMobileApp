@@ -444,7 +444,8 @@
     "notificationsDescription": "Receive payment reminders",
     "biometricLockDescription": "Use fingerprint or face ID",
     "renewSubscription": "Renew Subscription",
-    "successSubscriptionRenewed": "Subscription renewed successfully!"
+    "successSubscriptionRenewed": "Subscription renewed successfully!",
+    "successSubscriptionActive": "Payment successful! Your subscription has been activated."
   },
   "categories": {
     "groceries": "Groceries",
