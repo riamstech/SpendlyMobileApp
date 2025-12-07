@@ -19,6 +19,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import * as Print from 'expo-print';
+import Constants from 'expo-constants';
 import { fonts, textStyles, createResponsiveTextStyles } from '../constants/fonts';
 import { useTranslation } from 'react-i18next';
 import {
@@ -526,20 +527,71 @@ export default function ReportsScreen() {
       // Native logic - save to file and share
       console.log('FileSystem available:', !!FileSystem);
       console.log('Sharing available:', !!Sharing);
+      
+      // Check execution environment
+      const executionEnvironment = Constants.executionEnvironment;
+      const isExpoGo = executionEnvironment === Constants.ExecutionEnvironment.StoreClient;
+      console.log('Execution environment:', executionEnvironment, 'Is Expo Go:', isExpoGo);
 
       // Use documentDirectory for persistent, shareable files
       // Check both properties directly (they're synchronous properties in expo-file-system)
-      const documentDir = FileSystem.documentDirectory;
-      const cacheDir = FileSystem.cacheDirectory;
+      // Note: These can be null in development builds if native module isn't linked
+      let documentDir: string | null = null;
+      let cacheDir: string | null = null;
+      
+      try {
+        // Access FileSystem properties - they should be available in development builds
+        documentDir = FileSystem.documentDirectory;
+        cacheDir = FileSystem.cacheDirectory;
+        
+        // Additional check: try to verify FileSystem is working by checking if we can access bundleDirectory
+        const bundleDir = FileSystem.bundleDirectory;
+        console.log('bundleDirectory (check):', bundleDir);
+      } catch (error: any) {
+        console.error('Error accessing FileSystem directories:', error);
+      }
       
       console.log('documentDirectory:', documentDir);
       console.log('cacheDirectory:', cacheDir);
+      console.log('Platform:', Platform.OS);
+      console.log('FileSystem object:', Object.keys(FileSystem).slice(0, 10));
       
       // Prefer documentDirectory as it's persistent and shareable
       const targetDir = documentDir || cacheDir;
       
       if (!targetDir) {
-        throw new Error('FileSystem directories are not available. Please ensure expo-file-system is properly installed and the app is rebuilt.');
+        // Provide specific error message based on environment
+        let errorMessage = 'FileSystem directories are not available. ';
+        
+        if (isExpoGo) {
+          errorMessage += '\n\nexpo-file-system is not supported in Expo Go. ';
+          errorMessage += '\n\nPlease create a development build:\n';
+          errorMessage += 'eas build --profile development --platform ios (or android)';
+        } else {
+          errorMessage += '\n\nThe native module may not be properly linked. ';
+          errorMessage += '\n\nPlease rebuild your app:\n\n';
+          if (Platform.OS === 'ios') {
+            errorMessage += 'cd ios && pod install && cd ..\n';
+            errorMessage += 'npx expo run:ios\n\n';
+          } else {
+            errorMessage += 'npx expo run:android\n\n';
+          }
+          errorMessage += 'Or create a development build:\n';
+          errorMessage += 'eas build --profile development --platform ios/android';
+        }
+        
+        Alert.alert(
+          t('common.error') || 'Error',
+          errorMessage,
+          [
+            {
+              text: 'OK',
+              style: 'default',
+            },
+          ]
+        );
+        
+        throw new Error('FileSystem directories are not available');
       }
 
       // Ensure directory path ends with a slash
@@ -549,9 +601,30 @@ export default function ReportsScreen() {
       
       console.log('Writing to:', fileUri);
 
+      // Verify directory exists or create it
+      try {
+        const dirInfo = await FileSystem.getInfoAsync(dirPath);
+        if (!dirInfo.exists) {
+          console.log('Creating directory:', dirPath);
+          await FileSystem.makeDirectoryAsync(dirPath, { intermediates: true });
+        }
+      } catch (dirError) {
+        console.warn('Directory check/create warning:', dirError);
+        // Continue anyway - writeAsStringAsync will create directories if needed
+      }
+
       // Write the file
-      await FileSystem.writeAsStringAsync(fileUri, csvContent);
+      await FileSystem.writeAsStringAsync(fileUri, csvContent, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
       console.log('File written successfully');
+
+      // Verify file was written
+      const fileInfo = await FileSystem.getInfoAsync(fileUri);
+      if (!fileInfo.exists) {
+        throw new Error('File was not created successfully');
+      }
+      console.log('File verified, size:', fileInfo.size, 'bytes');
 
       const canShare = await Sharing.isAvailableAsync();
       console.log('Can share:', canShare);

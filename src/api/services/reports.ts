@@ -41,16 +41,25 @@ export const reportsService = {
     // Use fetch directly to get HTML response
     const token = await apiClient.getTokenAsync();
     
-    const queryString = new URLSearchParams(params).toString();
+    // Build query string manually to ensure compatibility across all React Native platforms
+    const queryParts: string[] = [];
+    Object.keys(params).forEach(key => {
+      if (params[key]) {
+        queryParts.push(`${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`);
+      }
+    });
+    const queryString = queryParts.length > 0 ? queryParts.join('&') : '';
     const url = `${config.apiBaseUrl}/reports/export/pdf${queryString ? `?${queryString}` : ''}`;
     
     console.log('PDF export URL:', url);
+    console.log('PDF export params:', params);
     
     const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Accept': 'text/html',
+        'Content-Type': 'application/json',
       },
     });
     
@@ -78,16 +87,25 @@ export const reportsService = {
     // Use fetch directly to get CSV response
     const token = await apiClient.getTokenAsync();
     
-    const queryString = new URLSearchParams(params).toString();
+    // Build query string manually to ensure compatibility across all React Native platforms
+    const queryParts: string[] = [];
+    Object.keys(params).forEach(key => {
+      if (params[key]) {
+        queryParts.push(`${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`);
+      }
+    });
+    const queryString = queryParts.length > 0 ? queryParts.join('&') : '';
     const url = `${config.apiBaseUrl}/reports/export/csv${queryString ? `?${queryString}` : ''}`;
     
     console.log('CSV export URL:', url);
+    console.log('CSV export params:', params);
     
     const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Accept': 'text/csv',
+        'Content-Type': 'application/json',
       },
     });
     
