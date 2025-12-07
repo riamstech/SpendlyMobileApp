@@ -44,6 +44,13 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
   const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [loadingPricing, setLoadingPricing] = useState(false);
   const [pendingPaymentDialog, setPendingPaymentDialog] = useState(false);
+  const [manualPricingData, setManualPricingData] = useState<{
+    monthly: string;
+    yearly: string;
+    monthlyAmount: number;
+    yearlyAmount: number;
+    currencyCode: string;
+  } | null>(null);
 
   // Handle initial screen from notification
   React.useEffect(() => {
@@ -280,7 +287,8 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
                   
                   console.log('Calculated pricing directly:', calculatedPricing);
                   
-                  // Show dialog with calculated pricing
+                  // Store calculated pricing and show dialog
+                  setManualPricingData(calculatedPricing);
                   setStripePaymentData({
                     planType: 'monthly',
                     paymentMethod: 'card',
@@ -317,14 +325,15 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
           onClose={() => {
             setShowStripePayment(false);
             setStripePaymentData(null);
+            setManualPricingData(null);
           }}
           planType={stripePaymentData.planType}
           paymentMethod={stripePaymentData.paymentMethod}
-          monthlyPrice={pricingData?.monthly}
-          yearlyPrice={pricingData?.yearly}
-          monthlyAmount={pricingData?.monthlyAmount}
-          yearlyAmount={pricingData?.yearlyAmount}
-          currencyCode={pricingData?.currencyCode}
+          monthlyPrice={manualPricingData?.monthly || pricingData?.monthly}
+          yearlyPrice={manualPricingData?.yearly || pricingData?.yearly}
+          monthlyAmount={manualPricingData?.monthlyAmount || pricingData?.monthlyAmount}
+          yearlyAmount={manualPricingData?.yearlyAmount || pricingData?.yearlyAmount}
+          currencyCode={manualPricingData?.currencyCode || pricingData?.currencyCode}
         />
       )}
     </View>
