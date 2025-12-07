@@ -56,10 +56,12 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
   const loadUserAndCurrencies = async () => {
     try {
       setLoadingPricing(true);
+      console.log('Loading user and currencies...');
       const [userData, currenciesData] = await Promise.all([
         usersService.getCurrentUser(),
         currenciesService.getAll(),
       ]);
+      console.log('Loaded - user:', userData?.email || 'no user', 'currencies:', currenciesData?.length || 0);
       setUser(userData);
       setCurrencies(currenciesData);
       return { userData, currenciesData };
@@ -77,28 +79,41 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
 
   // Calculate pricing based on user's country/currency
   const pricingData = React.useMemo(() => {
-    if (!user) return null;
+    if (!user) {
+      console.log('PricingData: No user available');
+      return null;
+    }
+    
+    if (currencies.length === 0) {
+      console.log('PricingData: No currencies available');
+      return null;
+    }
     
     // Default to USD if checking country fails or currencies not loaded
     // Prioritize user's selected defaultCurrency if available, otherwise fallback to country-based currency
     const userCurrencyCode = user.defaultCurrency || getCurrencyForCountry(user.country) || 'USD';
+    console.log('PricingData: Calculating for currency:', userCurrencyCode);
     
     // Use base prices from Web App logic: $2/mo and $10/yr
     const monthlyPrice = convertUsdToCurrency(2, userCurrencyCode, currencies);
     const yearlyPrice = convertUsdToCurrency(10, userCurrencyCode, currencies);
     
-    return {
+    const result = {
       monthly: `${monthlyPrice.symbol}${formatCurrencyAmount(monthlyPrice.amount, monthlyPrice.symbol)}`,
       yearly: `${yearlyPrice.symbol}${formatCurrencyAmount(yearlyPrice.amount, yearlyPrice.symbol)}`,
       monthlyAmount: monthlyPrice.amount,
       yearlyAmount: yearlyPrice.amount,
       currencyCode: userCurrencyCode
     };
+    
+    console.log('PricingData calculated:', result);
+    return result;
   }, [user, currencies]);
 
   // Show payment dialog when pricing data becomes available after loading
   React.useEffect(() => {
     if (pendingPaymentDialog && pricingData && !loadingPricing) {
+      console.log('Pricing data ready, showing payment dialog:', pricingData);
       setStripePaymentData({
         planType: 'monthly',
         paymentMethod: 'card',
@@ -226,8 +241,11 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
             onViewAllPayments={() => setShowAllPayments(true)}
             onViewInbox={() => setShowInbox(true)}
             onRenewLicense={async () => {
+              console.log('Renew clicked - pricingData:', pricingData, 'user:', !!user, 'currencies:', currencies.length);
+              
               // If pricing data is already available, show dialog immediately
               if (pricingData) {
+                console.log('Pricing data available, showing dialog immediately');
                 setStripePaymentData({
                   planType: 'monthly',
                   paymentMethod: 'card',
@@ -238,10 +256,19 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
 
               // Otherwise, load user and currencies data first
               if (!user || currencies.length === 0) {
+                console.log('Loading user and currencies data...');
                 try {
                   setPendingPaymentDialog(true);
-                  await loadUserAndCurrencies();
+                  const loadedData = await loadUserAndCurrencies();
+                  console.log('Data loaded - user:', !!loadedData.userData, 'currencies:', loadedData.currenciesData.length);
                   // The useEffect will handle showing the dialog once pricingData is calculated
+                  // Give it a moment to recalculate
+                  setTimeout(() => {
+                    if (!pricingData) {
+                      console.log('Pricing data still not available after loading, checking again...');
+                      // Check one more time after a brief delay
+                    }
+                  }, 500);
                 } catch (error) {
                   console.error('Failed to load pricing data:', error);
                   setPendingPaymentDialog(false);
@@ -249,7 +276,8 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
                   setActiveTab('settings');
                 }
               } else {
-                // User/currencies exist but pricingData is null - navigate to settings as fallback
+                // User/currencies exist but pricingData is null - this shouldn't happen, but navigate to settings as fallback
+                console.log('User/currencies exist but pricingData is null - navigating to settings');
                 setActiveTab('settings');
               }
             }}
