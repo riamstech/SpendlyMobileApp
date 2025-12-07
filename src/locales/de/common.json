@@ -187,7 +187,8 @@
     "nearLimit": "Nahe am Limit",
     "save": "Speichern",
     "deleteConfirm": "Sind Sie sicher, dass Sie dieses Budget löschen möchten?",
-    "left": "übrig"
+    "left": "übrig",
+    "searchCategory": "Kategorie suchen..."
   },
   "settings": {
     "title": "Einstellungen",

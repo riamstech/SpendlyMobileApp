@@ -323,7 +323,8 @@
     "nearLimit": "सीमा के करीब",
     "save": "सहेजें",
     "deleteConfirm": "क्या आप वाकई इस बजट को हटाना चाहते हैं?",
-    "left": "बचा"
+    "left": "बचा",
+    "searchCategory": "श्रेणी खोजें..."
   },
   "settings": {
     "title": "सेटिंग्स",

@@ -259,7 +259,8 @@
     "save": "Save",
     "deleteConfirm": "Are you sure you want to delete this budget?",
     "left": "left",
-    "noBudgets": "No budgets set yet. Add a budget to start tracking your spending."
+    "noBudgets": "No budgets set yet. Add a budget to start tracking your spending.",
+    "searchCategory": "Search category..."
   },
   "goals": {
     "title": "Savings Goals",

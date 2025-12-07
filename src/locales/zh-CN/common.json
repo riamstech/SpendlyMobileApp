@@ -323,7 +323,8 @@
     "nearLimit": "接近限制",
     "save": "保存",
     "deleteConfirm": "您确定要删除此预算吗？",
-    "left": "剩余"
+    "left": "剩余",
+    "searchCategory": "搜索类别..."
   },
   "settings": {
     "title": "设置",

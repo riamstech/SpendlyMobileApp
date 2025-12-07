@@ -335,7 +335,8 @@
     "nearLimit": "Cerca del límite",
     "save": "Guardar",
     "deleteConfirm": "¿Estás seguro de que deseas eliminar este presupuesto?",
-    "left": "restante"
+    "left": "restante",
+    "searchCategory": "Buscar categoría..."
   },
   "settings": {
     "title": "Configuración",

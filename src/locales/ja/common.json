@@ -188,7 +188,8 @@
     "nearLimit": "制限に近い",
     "save": "保存",
     "deleteConfirm": "この予算を削除してもよろしいですか？",
-    "left": "残り"
+    "left": "残り",
+    "searchCategory": "カテゴリを検索..."
   },
   "settings": {
     "title": "設定",

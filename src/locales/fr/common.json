@@ -188,7 +188,8 @@
     "nearLimit": "Proche de la limite",
     "save": "Enregistrer",
     "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce budget ?",
-    "left": "restant"
+    "left": "restant",
+    "searchCategory": "Rechercher une catégorie..."
   },
   "settings": {
     "title": "Paramètres",

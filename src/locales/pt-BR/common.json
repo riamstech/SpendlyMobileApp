@@ -188,7 +188,8 @@
     "nearLimit": "Próximo do limite",
     "save": "Salvar",
     "deleteConfirm": "Tem certeza de que deseja excluir este orçamento?",
-    "left": "restante"
+    "left": "restante",
+    "searchCategory": "Buscar categoria..."
   },
   "settings": {
     "title": "Configurações",
