@@ -104,9 +104,9 @@ export default function OnboardingScreen({
     // Simulate location fetch (replace with actual expo-location in production)
     setTimeout(() => {
       Alert.alert(
-        'Location',
-        'Location feature will be implemented with expo-location. For now, please select manually.',
-        [{ text: 'OK' }]
+        t('onboarding.location'),
+        t('onboarding.locationNotImplemented'),
+        [{ text: t('common.ok') }]
       );
       setLocationLoading(false);
     }, 1000);
@@ -162,7 +162,7 @@ export default function OnboardingScreen({
             />
             <Text style={[styles.splashTitle, responsiveTextStyles.h3, { color: isDark ? '#fff' : '#fff' }]}>Spendly</Text>
             <Text style={[styles.splashSubtitle, responsiveTextStyles.body, { color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.9)' }]}>
-              Track. Save. Grow.
+              {t('footer.tagline')}
             </Text>
           </View>
         </SafeAreaView>
@@ -188,17 +188,17 @@ export default function OnboardingScreen({
                 <Wallet size={40 * scale} color="#03A9F4" />
               </View>
               <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: isDark ? '#fff' : '#fff' }]}>
-                Welcome to Spendly
+                {t('onboarding.welcomeToSpendly')}
               </Text>
               <Text style={[styles.headerSubtitle, responsiveTextStyles.body, { color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.9)' }]}>
-                Your personal finance companion
+                {t('onboarding.personalFinanceCompanion')}
               </Text>
             </View>
 
             <View style={[styles.card, { padding: 20, backgroundColor: colors.card }]}>
-              <Text style={[styles.cardTitle, { color: colors.foreground }]}>Take control of your finances</Text>
+              <Text style={[styles.cardTitle, { color: colors.foreground }]}>{t('onboarding.takeControlOfFinances')}</Text>
               <Text style={[styles.cardText, { color: colors.mutedForeground }]}>
-                Track expenses, manage investments, and achieve your financial goals with ease.
+                {t('onboarding.takeControlDescription')}
               </Text>
               <View style={styles.progressDots}>
                 <View style={[styles.dot, styles.dotActive, { backgroundColor: colors.primary }]} />
@@ -215,7 +215,7 @@ export default function OnboardingScreen({
               onPress={() => setStep('features')}
             >
               <Text style={[styles.primaryButtonText, responsiveTextStyles.button, { color: isDark ? '#fff' : '#03A9F4' }]}>
-                Get Started
+                {t('onboarding.getStarted')}
               </Text>
               <ChevronRight size={20 * scale} color={isDark ? '#fff' : '#03A9F4'} style={{ marginLeft: 8 }} />
             </Pressable>
@@ -224,7 +224,7 @@ export default function OnboardingScreen({
               style={styles.skipButton}
               onPress={() => setStep(isAuthenticated ? 'currency' : 'currency')}
             >
-              <Text style={[styles.skipButtonText, { color: isDark ? 'rgba(255, 255, 255, 0.7)' : '#fff' }]}>Skip</Text>
+              <Text style={[styles.skipButtonText, { color: isDark ? 'rgba(255, 255, 255, 0.7)' : '#fff' }]}>{t('onboarding.skip')}</Text>
             </Pressable>
           </ScrollView>
         </SafeAreaView>
@@ -250,7 +250,7 @@ export default function OnboardingScreen({
                 <TrendingUp size={40 * scale} color="#03A9F4" />
               </View>
               <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: isDark ? '#fff' : '#fff' }]}>
-                Powerful Features
+                {t('onboarding.powerfulFeatures')}
               </Text>
             </View>
 
@@ -260,9 +260,9 @@ export default function OnboardingScreen({
                   <Wallet size={20 * scale} color="#4CAF50" />
                 </View>
                 <View style={styles.featureContent}>
-                  <Text style={[styles.featureTitle, { color: colors.foreground }]}>Track Expenses</Text>
+                  <Text style={[styles.featureTitle, { color: colors.foreground }]}>{t('onboarding.trackExpenses')}</Text>
                   <Text style={[styles.featureText, { color: colors.mutedForeground }]}>
-                    Monitor your daily spending and categorize transactions
+                    {t('onboarding.trackExpensesDescription')}
                   </Text>
                 </View>
               </View>
@@ -272,9 +272,9 @@ export default function OnboardingScreen({
                   <PieChart size={20 * scale} color="#03A9F4" />
                 </View>
                 <View style={styles.featureContent}>
-                  <Text style={[styles.featureTitle, { color: colors.foreground }]}>Budget Management</Text>
+                  <Text style={[styles.featureTitle, { color: colors.foreground }]}>{t('onboarding.budgetManagement')}</Text>
                   <Text style={[styles.featureText, { color: colors.mutedForeground }]}>
-                    Set budget limits and get alerts when approaching them
+                    {t('onboarding.budgetManagementDescription')}
                   </Text>
                 </View>
               </View>
@@ -284,9 +284,9 @@ export default function OnboardingScreen({
                   <BarChart3 size={20 * scale} color="#FFC107" />
                 </View>
                 <View style={styles.featureContent}>
-                  <Text style={[styles.featureTitle, { color: colors.foreground }]}>Investment Tracking</Text>
+                  <Text style={[styles.featureTitle, { color: colors.foreground }]}>{t('onboarding.investmentTracking')}</Text>
                   <Text style={[styles.featureText, { color: colors.mutedForeground }]}>
-                    Track your investment portfolio and monitor growth
+                    {t('onboarding.investmentTrackingDescription')}
                   </Text>
                 </View>
               </View>
@@ -306,7 +306,7 @@ export default function OnboardingScreen({
               onPress={() => setStep('currency')}
             >
               <Text style={[styles.primaryButtonText, responsiveTextStyles.button, { color: isDark ? '#fff' : '#03A9F4' }]}>
-                Continue
+                {t('onboarding.continue')}
               </Text>
               <ChevronRight size={20 * scale} color={isDark ? '#fff' : '#03A9F4'} style={{ marginLeft: 8 }} />
             </Pressable>
@@ -344,22 +344,22 @@ export default function OnboardingScreen({
                 <Check size={40 * scale} color="#fff" />
               </View>
               <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: isDark ? '#fff' : '#fff' }]}>
-                Almost Done!
+                {t('onboarding.almostDone')}
               </Text>
               <Text style={[styles.headerSubtitle, responsiveTextStyles.body, { color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.9)' }]}>
-                Select your default currency
+                {t('onboarding.selectDefaultCurrency')}
               </Text>
             </View>
 
             <View style={[styles.card, { padding: 20, backgroundColor: colors.card }]}>
-              <Text style={[styles.label, { color: colors.foreground }]}>Default Currency</Text>
+              <Text style={[styles.label, { color: colors.foreground }]}>{t('onboarding.defaultCurrency')}</Text>
               
               {/* Search Input */}
               <View style={[styles.searchContainer, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
                 <Search size={18 * scale} color={colors.mutedForeground} style={styles.searchIcon} />
                 <TextInput
                   style={[styles.searchInput, responsiveTextStyles.body, { color: colors.foreground }]}
-                  placeholder="Search currency..."
+                  placeholder={t('onboarding.searchCurrency')}
                   placeholderTextColor={colors.mutedForeground}
                   value={currencySearchQuery}
                   onChangeText={setCurrencySearchQuery}
@@ -369,14 +369,14 @@ export default function OnboardingScreen({
               {loadingCurrencies ? (
                 <View style={styles.loadingContainer}>
                   <ActivityIndicator size="small" color={colors.primary} />
-                  <Text style={[styles.loadingText, { color: colors.foreground }]}>Loading currencies...</Text>
+                  <Text style={[styles.loadingText, { color: colors.foreground }]}>{t('onboarding.loadingCurrencies')}</Text>
                 </View>
               ) : (
                 <>
                   {filteredCurrencies.length === 0 ? (
                     <View style={styles.emptyContainer}>
                       <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
-                        No currencies found matching "{currencySearchQuery}"
+                        {t('onboarding.noCurrenciesFound', { query: currencySearchQuery })}
                       </Text>
                     </View>
                   ) : (
@@ -407,7 +407,7 @@ export default function OnboardingScreen({
                 </>
               )}
               <Text style={[styles.hintText, { color: colors.mutedForeground }]}>
-                You can change this later in settings. You can also use multiple currencies for different transactions.
+                {t('onboarding.currencyHint')}
               </Text>
             </View>
 
@@ -421,7 +421,7 @@ export default function OnboardingScreen({
               disabled={!currency}
             >
               <Text style={[styles.primaryButtonText, responsiveTextStyles.button, { color: isDark ? '#fff' : '#03A9F4' }]}>
-                Continue
+                {t('onboarding.continue')}
               </Text>
               <ChevronRight size={20 * scale} color={isDark ? '#fff' : '#03A9F4'} style={{ marginLeft: 8 }} />
             </Pressable>
@@ -461,22 +461,22 @@ export default function OnboardingScreen({
                 <MapPin size={40 * scale} color="#fff" />
               </View>
               <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: isDark ? '#fff' : '#fff' }]}>
-                Share Your Location
+                {t('onboarding.shareYourLocation')}
               </Text>
               <Text style={[styles.headerSubtitle, responsiveTextStyles.body]}>
-                Help us personalize your experience
+                {t('onboarding.personalizeExperience')}
               </Text>
             </View>
 
             <View style={[styles.card, { padding: 20, backgroundColor: colors.card }]}>
-              <Text style={[styles.label, { color: colors.foreground }]}>Country</Text>
+              <Text style={[styles.label, { color: colors.foreground }]}>{t('onboarding.country')}</Text>
               
               {/* Search Input */}
               <View style={[styles.searchContainer, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
                 <Search size={18 * scale} color={colors.mutedForeground} style={styles.searchIcon} />
                 <TextInput
                   style={[styles.searchInput, responsiveTextStyles.body, { color: colors.foreground }]}
-                  placeholder="Search country..."
+                  placeholder={t('onboarding.searchCountry')}
                   placeholderTextColor={colors.mutedForeground}
                   value={countrySearchQuery}
                   onChangeText={setCountrySearchQuery}
@@ -486,7 +486,7 @@ export default function OnboardingScreen({
               {filteredCountries.length === 0 ? (
                 <View style={styles.emptyContainer}>
                   <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
-                    No countries found matching "{countrySearchQuery}"
+                    {t('onboarding.noCountriesFound', { query: countrySearchQuery })}
                   </Text>
                 </View>
               ) : (
@@ -510,11 +510,11 @@ export default function OnboardingScreen({
               )}
 
               <Text style={[styles.label, { marginTop: 16, color: colors.foreground }]}>
-                State/Province (Optional)
+                {t('onboarding.stateProvince')}
               </Text>
               <TextInput
                 style={[styles.input, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
-                placeholder="Enter your state or province"
+                placeholder={t('onboarding.stateProvincePlaceholder')}
                 placeholderTextColor={colors.mutedForeground}
                 value={state}
                 onChangeText={setState}
@@ -532,12 +532,12 @@ export default function OnboardingScreen({
                 {locationLoading ? (
                   <>
                     <ActivityIndicator size="small" color={colors.primary} />
-                    <Text style={[styles.locationButtonText, { color: colors.primary }]}>Getting location...</Text>
+                    <Text style={[styles.locationButtonText, { color: colors.primary }]}>{t('onboarding.gettingLocation')}</Text>
                   </>
                 ) : (
                   <>
                     <MapPin size={18 * scale} color={colors.primary} />
-                    <Text style={[styles.locationButtonText, { color: colors.primary }]}>Use My Current Location</Text>
+                    <Text style={[styles.locationButtonText, { color: colors.primary }]}>{t('onboarding.useMyCurrentLocation')}</Text>
                   </>
                 )}
               </Pressable>
@@ -556,7 +556,7 @@ export default function OnboardingScreen({
               disabled={!country}
             >
               <Text style={[styles.primaryButtonText, responsiveTextStyles.button, { color: isDark ? '#fff' : '#03A9F4' }]}>
-                Complete Setup
+                {t('onboarding.completeSetup')}
               </Text>
               <Check size={20 * scale} color={isDark ? '#fff' : '#03A9F4'} style={{ marginLeft: 8 }} />
             </Pressable>
