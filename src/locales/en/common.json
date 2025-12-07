@@ -325,6 +325,8 @@
     "location": "Location",
     "changeLocation": "Change Your Location",
     "changeLocationSubtitle": "Update your country and state",
+    "locationServices": "Location Services",
+    "locationServicesDescription": "Manage location permissions and settings",
     "biometricLock": "Biometric Lock",
     "biometricLockSubtitle": "Use fingerprint or face ID",
     "changePassword": "Change Password",

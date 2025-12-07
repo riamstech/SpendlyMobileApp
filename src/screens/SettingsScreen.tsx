@@ -129,7 +129,6 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
     preferences: false,
     security: false,
     location: false,
-    country: false,
     features: false,
     subscription: false,
     data: false,
@@ -844,7 +843,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                       {t('settings.defaultCurrency') || 'Default Currency'}
                     </Text>
                     <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
-                      {t('settings.currencyDescription') || 'Choose your primary currency'}
+                      {(() => {
+                        const curr = currencies.find(c => c.code === selectedCurrency);
+                        return curr ? `${curr.code}${curr.name ? ` - ${curr.name}` : ''}` : selectedCurrency;
+                      })()}
                     </Text>
                   </View>
                 </View>
@@ -860,7 +862,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                   <View style={styles.settingItemInfo}>
                     <Text style={[styles.settingItemLabel, textStyles.caption, { color: colors.foreground }]}>{t('settings.language')}</Text>
                     <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
-                      {t('settings.languageSubtitle') || 'Select your preferred language'}
+                      {SUPPORTED_LANGUAGES.find(l => l.code === preferredLocale)?.name || preferredLocale}
                     </Text>
                   </View>
                 </View>
@@ -876,7 +878,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                   <View style={styles.settingItemInfo}>
                     <Text style={[styles.settingItemLabel, textStyles.caption, { color: colors.foreground }]}>{t('settings.budgetCycleDay')}</Text>
                     <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
-                      {t('settings.budgetCycleDaySubtitle') || 'Day of the month to reset budget'}
+                      {budgetCycleDay}
                     </Text>
                   </View>
                 </View>
@@ -985,51 +987,15 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
 
           {expandedSections.location && (
             <View style={styles.sectionContent}>
-              {/* Location services and settings will be added here in the future */}
-              <View style={styles.settingItem}>
-                <View style={styles.settingItemLeft}>
-                  <MapPin size={20} color="#3B82F6" />
-                  <View style={styles.settingItemInfo}>
-                    <Text style={[styles.settingItemLabel, textStyles.caption, { color: colors.foreground }]}>
-                      {t('settings.locationServices') || 'Location Services'}
-                    </Text>
-                    <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
-                      {t('settings.locationServicesDescription') || 'Manage location permissions and settings'}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-          )}
-        </View>
-
-        {/* Country Section */}
-        <View style={[styles.section, { backgroundColor: colors.card }]}>
-          <Pressable
-            style={[styles.sectionHeader, { borderBottomColor: colors.border }]}
-            onPress={() => toggleSection('country')}
-          >
-            <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
-              {t('settings.country') || 'Country'}
-            </Text>
-            {expandedSections.country ? (
-              <ChevronUp size={20} color={colors.mutedForeground} />
-            ) : (
-              <ChevronDown size={20} color={colors.mutedForeground} />
-            )}
-          </Pressable>
-
-          {expandedSections.country && (
-            <View style={styles.sectionContent}>
               <Pressable
-                style={[styles.settingItem, { borderBottomColor: colors.border }]}
+                style={styles.settingItem}
                 onPress={() => setShowCountryModal(true)}
               >
                 <View style={styles.settingItemLeft}>
                   <MapPin size={20} color="#3B82F6" />
                   <View style={styles.settingItemInfo}>
                     <Text style={[styles.settingItemLabel, textStyles.caption, { color: colors.foreground }]}>
-                      {t('settings.selectCountry') || 'Select Country'}
+                      {t('settings.country') || 'Country'}
                     </Text>
                     <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
                       {country ? COUNTRIES.find(c => c.code === country)?.name : t('settings.notSpecified') || 'Not specified'}
@@ -1038,26 +1004,6 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                 </View>
                 <ChevronRight size={18} color={colors.mutedForeground} />
               </Pressable>
-
-              {country && getAvailableStates(country).length > 0 && (
-                <Pressable
-                  style={styles.settingItem}
-                  onPress={() => setShowStateModal(true)}
-                >
-                  <View style={styles.settingItemLeft}>
-                    <MapPin size={20} color="#8B5CF6" />
-                    <View style={styles.settingItemInfo}>
-                      <Text style={[styles.settingItemLabel, textStyles.caption, { color: colors.foreground }]}>
-                        {t('settings.state') || 'State/Province'}
-                      </Text>
-                      <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
-                        {state || t('settings.notSpecified') || 'Not specified'}
-                      </Text>
-                    </View>
-                  </View>
-                  <ChevronRight size={18} color={colors.mutedForeground} />
-                </Pressable>
-              )}
             </View>
           )}
         </View>
