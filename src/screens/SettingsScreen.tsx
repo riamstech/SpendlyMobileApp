@@ -224,18 +224,14 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
         setBiometricLock(settings.settings?.biometricLockEnabled || false);
         setBudgetCycleDay(settings.settings?.budgetCycleDay || 1);
         
-        // Check actual notification permission status
+        // Check actual notification permission status (without requesting)
         try {
-          const { status } = await notificationService.requestPermissions();
-          setNotificationPermissionStatus(status as 'granted' | 'denied' | 'undetermined');
+          const status = await notificationService.getPermissionStatus();
+          setNotificationPermissionStatus(status);
           
-          // Sync toggle with actual permission status
+          // If permission is granted but toggle is off, sync it
           if (status === 'granted' && !notifications) {
-            // Permission granted but toggle is off - enable it
             setNotifications(true);
-          } else if (status !== 'granted' && notifications) {
-            // Permission not granted but toggle is on - this is just a preference, keep it
-            console.log('📊 Notification preference is on but system permission:', status);
           }
         } catch (error) {
           console.error('Error checking notification permissions:', error);

@@ -269,4 +269,17 @@ export const notificationService = {
       return false;
     }
   },
+
+  /**
+   * Get notification permission status
+   */
+  async getPermissionStatus(): Promise<'granted' | 'denied' | 'undetermined'> {
+    try {
+      const { status } = await Notifications.getPermissionsAsync();
+      return status as 'granted' | 'denied' | 'undetermined';
+    } catch (error) {
+      console.error('Error getting notification permission status:', error);
+      return 'undetermined';
+    }
+  },
 };
