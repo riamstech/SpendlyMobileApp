@@ -53,6 +53,7 @@ type Screen = 'splash' | 'login' | 'signup' | 'forgot-password' | 'reset-passwor
 function AppContent() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('splash');
   const [resetPasswordParams, setResetPasswordParams] = useState<{ token?: string; email?: string }>({});
+  const [initialScreen, setInitialScreen] = useState<'inbox' | 'home' | undefined>(undefined);
   
   // Notification listeners refs
   const notificationListener = useRef<Notifications.Subscription | undefined>(undefined);
@@ -151,15 +152,17 @@ function AppContent() {
           
           // Navigate based on notification data
           if (actionIdentifier === 'VIEW' || actionIdentifier === 'DEFAULT') {
-            // Open the app to dashboard (or specific screen from data)
-            if (data?.screen === 'dashboard' || !data?.screen) {
+            // Check if we should navigate to inbox
+            if (data?.screen === 'inbox') {
               setCurrentScreen('dashboard');
+              setInitialScreen('inbox');
+              console.log('✅ Navigating to inbox');
+            } else if (data?.screen === 'dashboard' || !data?.screen) {
+              setCurrentScreen('dashboard');
+              setInitialScreen('home');
               console.log('✅ Navigated to dashboard');
             }
             // You can add more screen navigation here
-            // else if (data?.screen === 'transactions') {
-            //   setCurrentScreen('dashboard'); // Navigate to transactions
-            // }
           } else if (actionIdentifier === 'DISMISS') {
             console.log('User dismissed notification');
           }
@@ -249,7 +252,10 @@ function AppContent() {
           />
         )}
         {currentScreen === 'dashboard' && (
-          <MainScreen onLogout={handleLogout} />
+          <MainScreen 
+            onLogout={handleLogout} 
+            initialScreen={initialScreen === 'home' ? undefined : initialScreen} 
+          />
         )}
       </SafeAreaProvider>
     </GestureHandlerRootView>

@@ -18,9 +18,10 @@ import BottomTabNavigator from '../components/BottomTabNavigator';
 
 interface MainScreenProps {
   onLogout?: () => void;
+  initialScreen?: 'inbox' | 'home' | 'reports' | 'budget' | 'investments' | 'offers' | 'settings';
 }
 
-export default function MainScreen({ onLogout }: MainScreenProps) {
+export default function MainScreen({ onLogout, initialScreen }: MainScreenProps) {
   const [activeTab, setActiveTab] = useState('home');
   const [showAddTransaction, setShowAddTransaction] = useState(false);
   const [showAllTransactions, setShowAllTransactions] = useState(false);
@@ -35,6 +36,13 @@ export default function MainScreen({ onLogout }: MainScreenProps) {
     planType: 'monthly' | 'yearly';
     paymentMethod: 'card' | 'upi';
   } | null>(null);
+
+  // Handle initial screen from notification
+  React.useEffect(() => {
+    if (initialScreen === 'inbox') {
+      setShowInbox(true);
+    }
+  }, [initialScreen]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
