@@ -194,23 +194,19 @@ export default function ReportsScreen() {
         .sort((a, b) => b.value - a.value);
       
       // Calculate total expenses from category data (only in selected currency)
-      // When ALL is selected, we should use monthly report expenses for consistency
-      let calculatedTotalExpenses = 0;
-      if (selectedCurrency === 'ALL') {
-        // When ALL currencies selected, we'll calculate from monthly data for consistency
-        // This will be set after monthly data is loaded
-        calculatedTotalExpenses = processedCategoryData.reduce((sum, cat) => sum + cat.value, 0);
-      } else {
-        // When specific currency selected, sum only that currency
-        calculatedTotalExpenses = processedCategoryData
-          .filter(cat => cat.currency === selectedCurrency)
-          .reduce((sum, cat) => sum + cat.value, 0);
-      }
+      // Filter categories by selected currency to avoid mixing currencies
+      const categoriesInSelectedCurrency = selectedCurrency === 'ALL' 
+        ? processedCategoryData 
+        : processedCategoryData.filter(cat => cat.currency === selectedCurrency);
       
-      // Calculate percentages based on total expenses
+      const calculatedTotalExpensesFromCategories = categoriesInSelectedCurrency.reduce((sum, cat) => sum + cat.value, 0);
+      
+      // Calculate percentages based on total expenses from selected currency only
       processedCategoryData.forEach(cat => {
-        cat.percentage = calculatedTotalExpenses > 0 
-          ? (cat.value / calculatedTotalExpenses) * 100 
+        // Only show percentage for categories in selected currency
+        const isInSelectedCurrency = selectedCurrency === 'ALL' || cat.currency === selectedCurrency;
+        cat.percentage = (isInSelectedCurrency && calculatedTotalExpensesFromCategories > 0)
+          ? (cat.value / calculatedTotalExpensesFromCategories) * 100 
           : 0;
       });
       
@@ -272,21 +268,20 @@ export default function ReportsScreen() {
       setMonthlyData(filteredMonthlyData);
       
       // Calculate totals from monthly data
-      // When ALL currencies is selected, the backend should return data grouped by currency
-      // For consistency, we use monthly report data for all totals
+      // Use monthly report data for all totals to ensure consistency
+      // The backend should filter by currency when apiCurrencyFilter is provided
       const calculatedTotalIncome = filteredMonthlyData.reduce((sum, m) => sum + (m.income || 0), 0);
       const calculatedTotalExpensesFromMonthly = filteredMonthlyData.reduce((sum, m) => sum + (m.expenses || 0), 0);
       const calculatedTotalSavings = filteredMonthlyData.reduce((sum, m) => sum + (m.savings || 0), 0);
       
-      // Use monthly report expenses for total expenses when available (more accurate)
-      // This ensures consistency between income, expenses, and savings
-      if (calculatedTotalExpensesFromMonthly > 0 || selectedCurrency === 'ALL') {
-        setTotalExpenses(calculatedTotalExpensesFromMonthly);
-      } else {
-        // Fallback to category report total if monthly data is empty
-        setTotalExpenses(calculatedTotalExpenses);
-      }
+      // Use monthly report expenses for total expenses (more accurate and consistent)
+      // This ensures income, expenses, and savings all come from the same source
+      // Fallback to category report if monthly data is empty
+      const finalTotalExpenses = calculatedTotalExpensesFromMonthly > 0 
+        ? calculatedTotalExpensesFromMonthly 
+        : calculatedTotalExpensesFromCategories;
       
+      setTotalExpenses(finalTotalExpenses);
       setTotalIncome(calculatedTotalIncome);
       setTotalSavings(calculatedTotalSavings);
 
