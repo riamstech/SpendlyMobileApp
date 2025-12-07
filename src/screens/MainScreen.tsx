@@ -112,6 +112,7 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
 
   // Show payment dialog when pricing data becomes available after loading
   React.useEffect(() => {
+    console.log('useEffect triggered - pendingPaymentDialog:', pendingPaymentDialog, 'pricingData:', !!pricingData, 'loadingPricing:', loadingPricing);
     if (pendingPaymentDialog && pricingData && !loadingPricing) {
       console.log('Pricing data ready, showing payment dialog:', pricingData);
       setStripePaymentData({
@@ -120,8 +121,10 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
       });
       setShowStripePayment(true);
       setPendingPaymentDialog(false);
+    } else if (pendingPaymentDialog && !loadingPricing && !pricingData) {
+      console.log('Still waiting for pricing data... user:', !!user, 'currencies:', currencies.length);
     }
-  }, [pricingData, pendingPaymentDialog, loadingPricing]);
+  }, [pricingData, pendingPaymentDialog, loadingPricing, user, currencies]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -254,30 +257,24 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
                 return;
               }
 
-              // Otherwise, load user and currencies data first
-              if (!user || currencies.length === 0) {
-                console.log('Loading user and currencies data...');
-                try {
-                  setPendingPaymentDialog(true);
-                  const loadedData = await loadUserAndCurrencies();
-                  console.log('Data loaded - user:', !!loadedData.userData, 'currencies:', loadedData.currenciesData.length);
-                  // The useEffect will handle showing the dialog once pricingData is calculated
-                  // Give it a moment to recalculate
-                  setTimeout(() => {
-                    if (!pricingData) {
-                      console.log('Pricing data still not available after loading, checking again...');
-                      // Check one more time after a brief delay
-                    }
-                  }, 500);
-                } catch (error) {
-                  console.error('Failed to load pricing data:', error);
-                  setPendingPaymentDialog(false);
-                  // Fallback to settings if loading fails
-                  setActiveTab('settings');
-                }
-              } else {
-                // User/currencies exist but pricingData is null - this shouldn't happen, but navigate to settings as fallback
-                console.log('User/currencies exist but pricingData is null - navigating to settings');
+              // Always try to load/reload data to ensure we have the latest
+              console.log('Loading user and currencies data...');
+              try {
+                setPendingPaymentDialog(true);
+                const loadedData = await loadUserAndCurrencies();
+                console.log('Data loaded - user:', !!loadedData.userData, 'currencies:', loadedData.currenciesData.length);
+                
+                // Wait a bit for pricingData to be recalculated by useMemo
+                // Then check if it's available
+                setTimeout(() => {
+                  // Force a re-check by accessing the current pricingData
+                  // The useEffect should handle showing the dialog
+                  console.log('Checking pricing data after load...');
+                }, 300);
+              } catch (error) {
+                console.error('Failed to load pricing data:', error);
+                setPendingPaymentDialog(false);
+                // Fallback to settings if loading fails
                 setActiveTab('settings');
               }
             }}
