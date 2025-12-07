@@ -51,6 +51,7 @@ import {
   BarChart3,
   FileText,
   RefreshCw,
+  MessageSquare,
 } from 'lucide-react-native';
 import { authService } from '../api/services/auth';
 import { usersService } from '../api/services/users';
@@ -88,10 +89,11 @@ interface SettingsScreenProps {
   onViewGoals?: () => void;
   onViewAnalytics?: () => void;
   onViewReceipts?: () => void;
+  onViewSupportTickets?: () => void;
   onRenewLicense?: () => void;
 }
 
-export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, onViewAnalytics, onViewReceipts, onRenewLicense }: SettingsScreenProps) {
+export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, onViewAnalytics, onViewReceipts, onViewSupportTickets, onRenewLicense }: SettingsScreenProps) {
   const { t, i18n } = useTranslation('common');
   const { width } = useWindowDimensions();
   const { isDark, colors, toggleTheme } = useTheme();
@@ -1367,6 +1369,25 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                     </Text>
                     <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
                       {t('settings.referAndEarnSubtitle') || 'Invite friends and get Pro free'}
+                    </Text>
+                  </View>
+                </View>
+                <ChevronRight size={18} color={colors.mutedForeground} />
+              </Pressable>
+
+              {/* Support Tickets */}
+              <Pressable
+                style={[styles.settingItem]}
+                onPress={() => onViewSupportTickets?.()}
+              >
+                <View style={styles.settingItemLeft}>
+                  <MessageSquare size={20} color="#3B82F6" />
+                  <View style={styles.settingItemInfo}>
+                    <Text style={[styles.settingItemLabel, textStyles.caption, { color: colors.foreground }]}>
+                      {t('mySupportTickets') || 'Support Tickets'}
+                    </Text>
+                    <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
+                      {t('mySupportTicketsSubtitle') || 'View and manage your tickets'}
                     </Text>
                   </View>
                 </View>

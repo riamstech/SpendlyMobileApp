@@ -38,15 +38,27 @@ export interface SupportTicket {
   feedback?: SupportTicketFeedback | null;
 }
 
+// React Native file object type
+export type ReactNativeFile = {
+  uri: string;
+  type: string;
+  name: string;
+};
+
 export interface CreateTicketRequest {
   subject: string;
   message: string;
-  screenshot?: File;
+  screenshot?: File | ReactNativeFile;
 }
 
 export interface SubmitFeedbackRequest {
   rating: number;
   comment?: string;
+}
+
+export interface UpdateTicketRequest {
+  subject?: string;
+  message?: string;
 }
 
 export const supportApi = {
@@ -73,7 +85,7 @@ export const supportApi = {
   },
 
   // Reply to a ticket
-  reply: (ticketId: number, message: string, attachment?: File) => {
+  reply: (ticketId: number, message: string, attachment?: File | ReactNativeFile) => {
     const formData = new FormData();
     formData.append('message', message);
     if (attachment) {
@@ -85,6 +97,10 @@ export const supportApi = {
       },
     });
   },
+
+  // Update a ticket (subject and/or message)
+  update: (ticketId: number, data: UpdateTicketRequest) =>
+    apiClient.put<SupportTicket>(`/support-tickets/${ticketId}`, data),
 
   // Delete a ticket (if allowed)
   delete: (id: number) => apiClient.delete(`/support-tickets/${id}`),

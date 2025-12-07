@@ -14,6 +14,7 @@ import ReferralScreen from './ReferralScreen';
 import GoalsScreen from './GoalsScreen';
 import AnalyticsScreen from './AnalyticsScreen';
 import ReceiptsScreen from './ReceiptsScreen';
+import SupportTicketsScreen from './SupportTicketsScreen';
 import BottomTabNavigator from '../components/BottomTabNavigator';
 import StripePaymentDialog from '../components/StripePaymentDialog';
 import { usersService } from '../api/services/users';
@@ -35,6 +36,7 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
   const [showGoals, setShowGoals] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showReceipts, setShowReceipts] = useState(false);
+  const [showSupportTickets, setShowSupportTickets] = useState(false);
   const [showStripePayment, setShowStripePayment] = useState(false);
   const [stripePaymentData, setStripePaymentData] = useState<{
     planType: 'monthly' | 'yearly';
@@ -170,6 +172,7 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
             onViewGoals={() => setShowGoals(true)}
             onViewAnalytics={() => setShowAnalytics(true)}
             onViewReceipts={() => setShowReceipts(true)}
+            onViewSupportTickets={() => setShowSupportTickets(true)}
           />
         );
       default:
@@ -238,6 +241,14 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
     return (
       <ReceiptsScreen
         onBack={() => setShowReceipts(false)}
+      />
+    );
+  }
+
+  if (showSupportTickets) {
+    return (
+      <SupportTicketsScreen
+        onBack={() => setShowSupportTickets(false)}
       />
     );
   }
