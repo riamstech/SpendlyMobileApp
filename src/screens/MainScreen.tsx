@@ -20,6 +20,7 @@ import StripePaymentDialog from '../components/StripePaymentDialog';
 import { usersService } from '../api/services/users';
 import { currenciesService, Currency } from '../api/services/currencies';
 import { getCurrencyForCountry, convertUsdToCurrency, formatCurrencyAmount } from '../utils/currencyConverter';
+import i18n from '../i18n';
 
 interface MainScreenProps {
   onLogout?: () => void;
@@ -73,6 +74,13 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
       console.log('Loaded - user:', userData?.email || 'no user', 'currencies:', currenciesData?.length || 0);
       setUser(userData);
       setCurrencies(currenciesData);
+      
+      // Apply user's preferred language if available and different from current
+      if (userData?.preferredLocale && userData.preferredLocale !== i18n.language) {
+        console.log('[MainScreen] Applying user preferred language:', userData.preferredLocale);
+        await i18n.changeLanguage(userData.preferredLocale);
+      }
+      
       return { userData, currenciesData };
     } catch (error) {
       console.error('Failed to load user/currencies:', error);

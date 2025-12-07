@@ -16,6 +16,7 @@ import ResetPasswordScreen from './src/screens/ResetPasswordScreen';
 import MainScreen from './src/screens/MainScreen';
 import { notificationService } from './src/services/notificationService';
 import { devicesService } from './src/api/services/devices';
+import i18n from './src/i18n';
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -215,6 +216,12 @@ function AppContent() {
       const user = await authService.getCurrentUser();
       console.log('[handleLoginSuccess] User profile:', { country: user.country, defaultCurrency: user.defaultCurrency });
       
+      // Apply user's preferred language if available
+      if (user.preferredLocale && user.preferredLocale !== i18n.language) {
+        console.log('[handleLoginSuccess] Applying user preferred language:', user.preferredLocale);
+        await i18n.changeLanguage(user.preferredLocale);
+      }
+      
       // If user doesn't have country set, they need onboarding
       // (defaultCurrency is set by backend for social login, but country is set during onboarding)
       const needsOnboarding = !user.country;
@@ -249,6 +256,12 @@ function AppContent() {
     try {
       const { authService } = await import('./src/api/services/auth');
       const user = await authService.getCurrentUser();
+      
+      // Apply user's preferred language if available
+      if (user.preferredLocale && user.preferredLocale !== i18n.language) {
+        console.log('[handleSignupSuccess] Applying user preferred language:', user.preferredLocale);
+        await i18n.changeLanguage(user.preferredLocale);
+      }
       
       // If user doesn't have country set, they need onboarding
       // (defaultCurrency is set by backend for social login, but country is set during onboarding)

@@ -275,7 +275,13 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       setCountry(userData.country || '');
       setState(userData.state || '');
       setSelectedCurrency(userData.defaultCurrency || 'USD');
-      setPreferredLocale(userData.preferredLocale || i18n.language || 'en');
+      const userPreferredLocale = userData.preferredLocale || i18n.language || 'en';
+      setPreferredLocale(userPreferredLocale);
+      
+      // Apply user's preferred language if it's different from current
+      if (userData.preferredLocale && userData.preferredLocale !== i18n.language) {
+        await i18n.changeLanguage(userData.preferredLocale);
+      }
       
       // Load currencies
       try {
