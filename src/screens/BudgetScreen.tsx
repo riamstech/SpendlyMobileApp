@@ -341,8 +341,10 @@ export default function BudgetScreen() {
     }
   }, [budgetCycleDay]);
 
-  const totalSpent = categoryBudgets.reduce((sum, cat) => sum + cat.spent, 0);
-  const totalBudget = categoryBudgets.reduce((sum, cat) => sum + cat.budget, 0);
+  // Only sum budgets that match the selected currency to avoid mixing currencies
+  const budgetsInSelectedCurrency = categoryBudgets.filter(cat => cat.currency === currency);
+  const totalSpent = budgetsInSelectedCurrency.reduce((sum, cat) => sum + cat.spent, 0);
+  const totalBudget = budgetsInSelectedCurrency.reduce((sum, cat) => sum + cat.budget, 0);
   const totalUsagePercent = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
 
   // Prepare pie chart data (top 5 categories)
