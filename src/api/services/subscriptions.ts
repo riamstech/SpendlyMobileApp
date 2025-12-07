@@ -14,6 +14,8 @@ export const subscriptionsService = {
       const payload: any = {
         plan_type: planType,
         payment_method: paymentMethod,
+        success_url: 'spendly://settings?payment=success',
+        cancel_url: 'spendly://settings?payment=cancel',
       };
 
       if (amount && currency) {
