@@ -61,6 +61,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { textStyles, createResponsiveTextStyles, fonts } from '../constants/fonts';
 import StripePaymentDialog from '../components/StripePaymentDialog';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { getCurrencyForCountry, convertUsdToCurrency, formatCurrencyAmount } from '../utils/currencyConverter';
 
 const LANGUAGE_FLAGS: Record<string, string> = {
   en: '🇺🇸',
@@ -94,8 +95,27 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
   const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [budgetCycleDay, setBudgetCycleDay] = useState(1);
 
+
   const responsiveTextStyles = createResponsiveTextStyles(width);
-  
+
+  // Calculate pricing based on user's country/currency
+  const pricingData = React.useMemo(() => {
+    if (!user) return null;
+    
+    // Default to USD if checking country fails or currencies not loaded
+    // Prioritize user's selected defaultCurrency if available, otherwise fallback to country-based currency
+    const userCurrencyCode = user.defaultCurrency || getCurrencyForCountry(user.country) || 'USD';
+    
+    // Use base prices from Web App logic: $2/mo and $10/yr
+    const monthlyPrice = convertUsdToCurrency(2, userCurrencyCode, currencies);
+    const yearlyPrice = convertUsdToCurrency(10, userCurrencyCode, currencies);
+    
+    return {
+      monthly: `${monthlyPrice.symbol}${formatCurrencyAmount(monthlyPrice.amount, monthlyPrice.symbol)}`,
+      yearly: `${yearlyPrice.symbol}${formatCurrencyAmount(yearlyPrice.amount, yearlyPrice.symbol)}`
+    };
+  }, [user, currencies]);
+
 
   
   // Expanded sections
@@ -1043,6 +1063,9 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                 <ChevronRight size={18} color={colors.mutedForeground} />
               </Pressable> */}
 
+
+
+
               {/* Refer & Earn */}
               <Pressable
                 style={[styles.settingItem, { borderBottomColor: colors.border }]}
@@ -1065,6 +1088,8 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
           )}
         </View>
 
+
+
         {/* Subscription Section */}
         {user.proStatus !== undefined && (
           <View style={[styles.section, { backgroundColor: colors.card }]}>
@@ -1082,40 +1107,40 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
 
             {expandedSections.subscription && (
               <View style={styles.sectionContent}>
-                <View style={[styles.subscriptionCard, { backgroundColor: '#FFFFFF', borderColor: '#E5E7EB' }]}>
-                  {/* Yellow Circle with Crown Icon */}
-                  <View style={styles.subscriptionIconContainer}>
-                    <Crown size={28} color="#FFFFFF" />
+                <View style={[styles.settingItem, { borderBottomColor: 'transparent', paddingVertical: 0 }]}>
+                  <View style={styles.settingItemLeft}>
+                    <Crown size={20} color="#FFD700" />
+                    <View style={styles.settingItemInfo}>
+                      <Text style={[styles.settingItemLabel, textStyles.caption, { color: colors.foreground }]}>
+                        {t('settings.spendlyPremium') || 'Spendly Premium'}
+                      </Text>
+                      <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
+                        {user.licenseEndDate
+                          ? t('settings.validUntil', { date: new Date(user.licenseEndDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) })
+                          : t('settings.upgradeDescription') || 'Unlock unlimited features'}
+                      </Text>
+                    </View>
                   </View>
                   
-                  {/* Text Content */}
-                  <View style={styles.subscriptionTextContainer}>
-                    <Text style={[styles.subscriptionTitle, { color: '#1F2937' }]}>
-                      {t('settings.spendlyPremium') || 'Spendly Premium'} ✨
+                  <Pressable
+                    style={{
+                      backgroundColor: colors.primary,
+                      paddingHorizontal: 16,
+                      paddingVertical: 8,
+                      borderRadius: 20,
+                    }}
+                    onPress={() => {
+                      setStripePaymentData({
+                        planType: 'yearly',
+                        paymentMethod: 'card'
+                      });
+                      setShowStripePayment(true);
+                    }}
+                  >
+                    <Text style={{ color: '#fff', fontWeight: '600', fontSize: 13 }}>
+                      {t('settings.renew') || 'Renew'}
                     </Text>
-                    <Text style={[styles.subscriptionStatus, { color: '#6B7280' }]}>
-                      {t('settings.activePremiumMember') || 'Active Premium Member'}
-                    </Text>
-                    {user.licenseEndDate && (
-                      <View style={styles.subscriptionDateRow}>
-                        <Clock size={14} color="#6B7280" />
-                        <Text style={[styles.subscriptionDate, { color: '#10B981' }]}>
-                          {t('settings.validUntil', { date: new Date(user.licenseEndDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) })}
-                        </Text>
-                      </View>
-                    )}
-                    
-                    {/* Renew Button */}
-                    <Pressable
-                      style={[styles.renewSubscriptionButton, { backgroundColor: colors.primary }]}
-                      onPress={onRenewLicense}
-                    >
-                      <RefreshCw size={16} color="#FFFFFF" />
-                      <Text style={styles.renewSubscriptionButtonText}>
-                        {t('settings.renewSubscription') || 'Renew Subscription'}
-                      </Text>
-                    </Pressable>
-                  </View>
+                  </Pressable>
                 </View>
               </View>
             )}
@@ -1612,6 +1637,23 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
           </View>
         </View>
       </Modal>
+
+      {/* Stripe Payment Dialog */}
+      {stripePaymentData && (
+        <StripePaymentDialog
+          isOpen={showStripePayment}
+          onClose={() => setShowStripePayment(false)}
+          planType={stripePaymentData.planType}
+          paymentMethod={stripePaymentData.paymentMethod}
+          onSuccess={async () => {
+            setShowStripePayment(false);
+            Alert.alert(t('settings.success'), t('settings.successSubscriptionRenewed'));
+            await loadInitialData();
+          }}
+          monthlyPrice={pricingData?.monthly}
+          yearlyPrice={pricingData?.yearly}
+        />
+      )}
     </SafeAreaView>
   );
 }

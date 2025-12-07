@@ -442,7 +442,9 @@
     "delete": "Delete",
     "darkModeDescription": "Toggle dark theme",
     "notificationsDescription": "Receive payment reminders",
-    "biometricLockDescription": "Use fingerprint or face ID"
+    "biometricLockDescription": "Use fingerprint or face ID",
+    "renewSubscription": "Renew Subscription",
+    "successSubscriptionRenewed": "Subscription renewed successfully!"
   },
   "categories": {
     "groceries": "Groceries",
