@@ -1190,7 +1190,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                     }}
                   >
                     <Text style={{ color: '#fff', fontWeight: '600', fontSize: 13 }}>
-                      {t('settings.renew') || 'Renew'}
+                      {t('settings.extendLicense') || t('settings.renew') || 'Extend License'}
                     </Text>
                   </Pressable>
                 </View>

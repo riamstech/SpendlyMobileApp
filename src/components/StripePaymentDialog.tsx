@@ -141,7 +141,7 @@ export default function StripePaymentDialog({
       >
         <View style={styles.planInfo}>
           <Text style={[styles.planType, { color: colors.foreground }]}>
-            {type === 'monthly' ? (t('payment.monthly') || 'Monthly') : (t('payment.yearly') || 'Yearly')}
+            {type === 'monthly' ? (t('settings.oneTimePaymentMonth') || '1 Month Access') : (t('settings.oneTimePaymentYear') || '1 Year Access')}
           </Text>
           <Text style={[styles.planPrice, { color: colors.mutedForeground }]}>
             {price}
@@ -200,8 +200,8 @@ export default function StripePaymentDialog({
             </Text>
             
             <View style={styles.plansContainer}>
-              <PlanOption type="monthly" price={`${displayMonthlyPrice}/mo`} />
-              <PlanOption type="yearly" price={`${displayYearlyPrice}/yr`} save="Save 58%" />
+              <PlanOption type="monthly" price={`${displayMonthlyPrice} - 1 month`} />
+              <PlanOption type="yearly" price={`${displayYearlyPrice} - 1 year`} save="Save 58%" />
             </View>
 
             {/* Error Message */}
@@ -217,7 +217,7 @@ export default function StripePaymentDialog({
             {/* Note */}
             <View style={[styles.noteCard, { backgroundColor: colors.muted }]}>
               <Text style={[styles.noteText, { color: colors.mutedForeground }]}>
-                {t('payment.mobileNote') || 'You will be redirected to complete your payment securely.'}
+                {t('payment.mobileNote') || 'One-time payment. You will be redirected to complete your payment securely.'}
               </Text>
             </View>
           </ScrollView>

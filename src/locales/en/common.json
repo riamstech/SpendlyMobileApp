@@ -445,7 +445,11 @@
     "biometricLockDescription": "Use fingerprint or face ID",
     "renewSubscription": "Renew Subscription",
     "successSubscriptionRenewed": "Subscription renewed successfully!",
-    "successSubscriptionActive": "Payment successful! Your subscription has been activated."
+    "successSubscriptionActive": "Payment successful! Your subscription has been activated.",
+    "extendLicense": "Extend License",
+    "oneTimePayment": "One-time payment",
+    "oneTimePaymentMonth": "One-time payment for 1 month access",
+    "oneTimePaymentYear": "One-time payment for 1 year access"
   },
   "categories": {
     "groceries": "Groceries",
