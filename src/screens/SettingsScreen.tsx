@@ -14,6 +14,7 @@ import {
   Image,
   Platform,
   AppState,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {
   requestMediaLibraryPermissionsAsync,
@@ -1612,7 +1613,11 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
           setCurrencySearch('');
         }}
       >
-        <View style={styles.modalOverlay}>
+        <KeyboardAvoidingView
+          style={styles.modalOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        >
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
               <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('settings.currency')}</Text>
@@ -1632,7 +1637,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                 onChangeText={setCurrencySearch}
               />
             </View>
-            <ScrollView style={styles.modalList}>
+            <ScrollView style={styles.modalList} keyboardShouldPersistTaps="handled">
               {currencies
                 .filter((curr) => {
                   if (!currencySearch.trim()) return true;
@@ -1684,7 +1689,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                 })}
             </ScrollView>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* Language Selection Modal */}
@@ -1736,7 +1741,11 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
           setCountrySearch('');
         }}
       >
-        <View style={styles.modalOverlay}>
+        <KeyboardAvoidingView
+          style={styles.modalOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        >
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
               <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('settings.country')}</Text>
@@ -1756,7 +1765,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                 onChangeText={setCountrySearch}
               />
             </View>
-            <ScrollView style={styles.modalList}>
+            <ScrollView style={styles.modalList} keyboardShouldPersistTaps="handled">
               <Pressable
                 style={[
                   styles.modalItem,
@@ -1818,7 +1827,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                 })}
             </ScrollView>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* State Selection Modal */}

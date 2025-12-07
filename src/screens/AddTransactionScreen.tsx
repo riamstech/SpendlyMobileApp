@@ -6,12 +6,12 @@ import {
   ScrollView,
   StyleSheet,
   Pressable,
-  Alert,
   useWindowDimensions,
   ActivityIndicator,
   Platform,
   Modal as RNModal,
   Switch,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -33,6 +33,7 @@ import { Card, Button, Input, Modal } from '../components/ui';
 import { getEmojiFromIcon } from '../utils/iconMapper';
 import { useTheme } from '../contexts/ThemeContext';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { showToast } from '../utils/toast';
 
 interface AddTransactionScreenProps {
   onSuccess?: () => void;
@@ -623,7 +624,11 @@ export default function AddTransactionScreen({
           setCurrencySearch('');
         }}
       >
-        <View style={styles.modalOverlay}>
+        <KeyboardAvoidingView
+          style={styles.modalOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        >
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
               <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('addTransaction.selectCurrency') || 'Select Currency'}</Text>
@@ -650,7 +655,7 @@ export default function AddTransactionScreen({
                 onChangeText={setCurrencySearch}
               />
             </View>
-            <ScrollView style={styles.modalList}>
+            <ScrollView style={styles.modalList} keyboardShouldPersistTaps="handled">
               {loadingCurrencies ? (
                 <View style={styles.loadingContainer}>
                   <ActivityIndicator size="small" color={colors.primary} />
@@ -695,7 +700,7 @@ export default function AddTransactionScreen({
               )}
             </ScrollView>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </RNModal>
 
       {/* Date Picker */}

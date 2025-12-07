@@ -17,6 +17,8 @@ export interface RegisterRequest {
 export interface AuthResponse {
   token: string;
   user: User;
+  is_new_user?: boolean; // Backend returns this as snake_case
+  isNewUser?: boolean; // Transformed to camelCase by API client
 }
 
 export interface User {

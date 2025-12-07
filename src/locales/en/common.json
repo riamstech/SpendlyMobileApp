@@ -400,6 +400,23 @@
     "subject": "Subject",
     "subjectPlaceholder": "Brief description of the issue",
     "message": "Message",
+    "supportTickets": {
+      "subject": "Subject",
+      "subjectPlaceholder": "Enter ticket subject",
+      "message": "Message",
+      "messagePlaceholder": "Describe your issue...",
+      "replyPlaceholder": "Type your reply...",
+      "status": "Status",
+      "created": "Created",
+      "replies": "Replies",
+      "reply": "Reply",
+      "user": "User",
+      "editTicket": "Edit Ticket",
+      "replyToTicket": "Reply to Ticket",
+      "attachEvidence": "Attach Evidence (Optional)",
+      "changeEvidence": "Change Evidence",
+      "changeAttachment": "Change Attachment"
+    },
     "noCurrenciesAvailableError": "No currencies available",
     "failedToLoadCurrencies": "Failed to load currencies. Please check your connection.",
     "razorpaySdkFailed": "Razorpay SDK failed to load. Are you online?",
@@ -708,6 +725,26 @@
     "error": "Error",
     "success": "Success",
     "saving": "Saving..."
+  },
+  "mySupportTickets": "My Support Tickets",
+  "mySupportTicketsSubtitle": "View and manage your tickets",
+  "submitSupportTicket": "Submit Support Ticket",
+  "supportTickets": {
+    "subject": "Subject",
+    "subjectPlaceholder": "Enter ticket subject",
+    "message": "Message",
+    "messagePlaceholder": "Describe your issue...",
+    "replyPlaceholder": "Type your reply...",
+    "status": "Status",
+    "created": "Created",
+    "replies": "Replies",
+    "reply": "Reply",
+    "user": "User",
+    "editTicket": "Edit Ticket",
+    "replyToTicket": "Reply to Ticket",
+    "attachEvidence": "Attach Evidence (Optional)",
+    "changeEvidence": "Change Evidence",
+    "changeAttachment": "Change Attachment"
   }
 }
 

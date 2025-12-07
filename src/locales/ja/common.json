@@ -97,7 +97,7 @@
     "incomeVsExpenses": "収入と支出",
     "net": "純額",
     "savingsRateOverTime": "時間経過による貯蓄率",
-    "savingsRate": "貯蓄率 %",
+    "savingsRate": "貯蓄率",
     "saved": "貯蓄済み",
     "financialHealthScore": "財務健全性スコア",
     "grade": "グレード：",
@@ -111,7 +111,6 @@
     "quickWinsToImproveScore": "スコアを改善するためのクイックウィン：",
     "gotIt": "了解しました！",
     "tipsToImprove": "財務健全性を改善するためのヒント",
-    "savingsRate": "貯蓄率",
     "spendingTrend": "支出トレンド",
     "topSpendingCategory": "主要支出カテゴリ",
     "spendingPace": "支出ペース",
@@ -300,6 +299,23 @@
     "subject": "件名",
     "subjectPlaceholder": "問題の簡単な説明",
     "message": "メッセージ",
+    "supportTickets": {
+      "subject": "件名",
+      "subjectPlaceholder": "チケットの件名を入力",
+      "message": "メッセージ",
+      "messagePlaceholder": "問題を説明してください...",
+      "replyPlaceholder": "返信を入力してください...",
+      "status": "ステータス",
+      "created": "作成日",
+      "replies": "返信",
+      "reply": "返信",
+      "user": "ユーザー",
+      "editTicket": "チケットを編集",
+      "replyToTicket": "チケットに返信",
+      "attachEvidence": "証拠を添付（オプション）",
+      "changeEvidence": "証拠を変更",
+      "changeAttachment": "添付ファイルを変更"
+    },
     "noCurrenciesAvailableError": "利用可能な通貨がありません",
     "failedToLoadCurrencies": "通貨の読み込みに失敗しました。接続を確認してください。",
     "razorpaySdkFailed": "Razorpay SDKの読み込みに失敗しました。オンラインですか？",
@@ -415,7 +431,25 @@
     "failed": "支払い失敗",
     "razorpay": "Razorpay支払い",
     "razorpayNotSupported": "モバイル用Razorpay統合は近日公開予定です。"
+  },
+  "mySupportTickets": "サポートチケット",
+  "mySupportTicketsSubtitle": "チケットを表示および管理",
+  "submitSupportTicket": "サポートチケットを送信",
+  "supportTickets": {
+    "subject": "件名",
+    "subjectPlaceholder": "チケットの件名を入力",
+    "message": "メッセージ",
+    "messagePlaceholder": "問題を説明してください...",
+    "replyPlaceholder": "返信を入力してください...",
+    "status": "ステータス",
+    "created": "作成日",
+    "replies": "返信",
+    "reply": "返信",
+    "user": "ユーザー",
+    "editTicket": "チケットを編集",
+    "replyToTicket": "チケットに返信",
+    "attachEvidence": "証拠を添付（オプション）",
+    "changeEvidence": "証拠を変更",
+    "changeAttachment": "添付ファイルを変更"
   }
 }
-
-

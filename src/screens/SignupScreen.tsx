@@ -8,7 +8,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
   Image,
   useWindowDimensions,
 } from 'react-native';
@@ -21,9 +20,10 @@ import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-si
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
 import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
+import { showToast } from '../utils/toast';
 
 interface SignupScreenProps {
-  onSignupSuccess?: () => void;
+  onSignupSuccess?: (isNewUser?: boolean) => void;
   onLoginClick?: () => void;
   initialReferralCode?: string;
 }
@@ -143,20 +143,16 @@ export default function SignupScreen({
       });
 
       if (Platform.OS === 'web') {
-        if (onSignupSuccess) onSignupSuccess();
+        if (onSignupSuccess) onSignupSuccess(true); // Regular signup always creates new user
         return;
       }
       
-      Alert.alert('Success', 'Account created successfully', [
-        {
-          text: 'OK',
-          onPress: () => {
-            if (onSignupSuccess) {
-              onSignupSuccess();
-            }
-          },
-        },
-      ]);
+      showToast.success('Account created successfully', 'Success');
+      if (onSignupSuccess) {
+        setTimeout(() => {
+          onSignupSuccess(true); // Regular signup always creates new user
+        }, 500);
+      }
     } catch (error: any) {
       console.error('Signup failed', error);
       
@@ -202,7 +198,7 @@ export default function SignupScreen({
         errorMessage = errorData.message;
       }
       
-      Alert.alert('Signup failed', errorMessage);
+      showToast.error(errorMessage, 'Signup failed');
     } finally {
       setIsLoading(false);
     }
@@ -223,23 +219,34 @@ export default function SignupScreen({
       
       // Send token to backend
       const deviceName = `${Platform.OS} ${Platform.Version} - React Native`;
-      await authService.googleLogin({
+      const response = await authService.googleLogin({
         token: tokens.idToken,
         device_name: deviceName
       });
 
-      if (onSignupSuccess) onSignupSuccess();
+      console.log('[SignupScreen] Social login response:', 'is_new_user:', response.is_new_user, 'isNewUser:', response.isNewUser);
+
+      // Check if this is a new user - if so, show onboarding, otherwise go to dashboard
+      // When user signs up via signup page, if account already exists, backend returns is_new_user: false
+      // API client transforms snake_case to camelCase, so check both
+      const isNewUser = response.isNewUser !== false && response.is_new_user !== false; // Default to true if undefined, only false if explicitly false
+      
+      console.log('[SignupScreen] Determined isNewUser:', isNewUser);
+      
+      if (onSignupSuccess) {
+        onSignupSuccess(isNewUser);
+      }
     } catch (error: any) {
       console.error('Google Sign-Up error:', error);
       
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         // User cancelled
       } else if (error.code === statusCodes.IN_PROGRESS) {
-        Alert.alert('Error', 'Sign in already in progress');
+        showToast.error('Sign in already in progress', 'Error');
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        Alert.alert('Error', 'Google Play Services not available');
+        showToast.error('Google Play Services not available', 'Error');
       } else {
-        Alert.alert('Google Sign-Up Failed', error.message || 'An error occurred during Google Sign-Up');
+        showToast.error(error.message || 'An error occurred during Google Sign-Up', 'Google Sign-Up Failed');
       }
     } finally {
       setIsLoading(false);

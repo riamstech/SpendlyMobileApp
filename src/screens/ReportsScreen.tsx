@@ -12,6 +12,7 @@ import {
   TextInput,
   Alert,
   Platform,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -1270,7 +1271,11 @@ export default function ReportsScreen() {
         transparent={true}
         onRequestClose={() => setShowCurrencyModal(false)}
       >
-        <View style={styles.modalOverlay}>
+        <KeyboardAvoidingView
+          style={styles.modalOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        >
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
               <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('reports.selectCurrency') || 'Select Currency'}</Text>
@@ -1278,16 +1283,16 @@ export default function ReportsScreen() {
                 <X size={24} color={colors.mutedForeground} />
               </Pressable>
             </View>
-            <ScrollView style={styles.modalList}>
-              <View style={[styles.currencySearchContainer, { borderBottomColor: colors.border }]}>
-                <TextInput
-                  style={[styles.currencySearchInput, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
-                  placeholder={t('reports.searchCurrency') || 'Search currency...'}
-                  placeholderTextColor={colors.mutedForeground}
-                  value={currencySearch}
-                  onChangeText={setCurrencySearch}
-                />
-              </View>
+            <View style={[styles.currencySearchContainer, { borderBottomColor: colors.border }]}>
+              <TextInput
+                style={[styles.currencySearchInput, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
+                placeholder={t('reports.searchCurrency') || 'Search currency...'}
+                placeholderTextColor={colors.mutedForeground}
+                value={currencySearch}
+                onChangeText={setCurrencySearch}
+              />
+            </View>
+            <ScrollView style={styles.modalList} keyboardShouldPersistTaps="handled">
               <Pressable
                 style={[styles.modalItem, { borderBottomColor: colors.border }]}
                 onPress={() => {
@@ -1324,7 +1329,7 @@ export default function ReportsScreen() {
                 ))}
             </ScrollView>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
         </>
       )}

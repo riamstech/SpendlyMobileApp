@@ -8,7 +8,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
   Image,
   useWindowDimensions,
 } from 'react-native';
@@ -22,9 +21,10 @@ import { useTheme } from '../contexts/ThemeContext';
 import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { config } from '../config/env';
+import { showToast } from '../utils/toast';
 
 interface LoginScreenProps {
-  onLoginSuccess?: () => void;
+  onLoginSuccess?: (isNewUser?: boolean) => void;
   onSignupClick?: () => void;
   onForgotPasswordClick?: () => void;
 }
@@ -83,7 +83,7 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
       const message =
         error?.response?.data?.message ||
         'Login failed. Please check your credentials and try again.';
-      Alert.alert('Login failed', message);
+      showToast.error(message, 'Login failed');
     } finally {
       setIsLoading(false);
     }
@@ -117,13 +117,22 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
       // Send token to backend
       const deviceName = `${Platform.OS} ${Platform.Version} - React Native`;
       console.log('Sending token to backend...');
-      await authService.googleLogin({
+      const response = await authService.googleLogin({
         token: tokens.idToken,
         device_name: deviceName
       });
-      console.log('Backend authentication successful');
+      console.log('Backend authentication successful', 'is_new_user:', response.is_new_user, 'isNewUser:', response.isNewUser, 'full response:', JSON.stringify(response));
 
-      if (onLoginSuccess) onLoginSuccess();
+      // Check if this is a new user - if so, show onboarding, otherwise go to dashboard
+      // When user logs in via login page but doesn't have account, backend creates account and returns is_new_user: true
+      // API client transforms snake_case to camelCase, so check both
+      const isNewUser = response.isNewUser === true || response.is_new_user === true;
+      
+      console.log('[LoginScreen] Determined isNewUser:', isNewUser);
+      
+      if (onLoginSuccess) {
+        onLoginSuccess(isNewUser);
+      }
     } catch (error: any) {
       console.error('Google Sign-In error:', error);
       console.error('Error code:', error.code);
@@ -134,9 +143,9 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
       } else if (error.code === statusCodes.IN_PROGRESS) {
         console.log('Sign in already in progress');
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        Alert.alert('Error', 'Google Play Services not available');
+        showToast.error('Google Play Services not available', 'Error');
       } else {
-        Alert.alert('Google Sign-In Failed', error.message || 'An error occurred during Google Sign-In');
+        showToast.error(error.message || 'An error occurred during Google Sign-In', 'Google Sign-In Failed');
       }
     } finally {
       setIsLoading(false);

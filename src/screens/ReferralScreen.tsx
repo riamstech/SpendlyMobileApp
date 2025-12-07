@@ -34,6 +34,7 @@ import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Linking from 'expo-linking';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { showToast } from '../utils/toast';
 
 interface ReferralScreenProps {
   onBack: () => void;
@@ -94,7 +95,7 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
       }
     } catch (error) {
       console.error('Failed to load referral data:', error);
-      Alert.alert('Error', t('referral.failedToLoad') || 'Failed to load referral data');
+      showToast.error(t('referral.failedToLoad') || 'Failed to load referral data', 'Error');
     } finally {
       setLoading(false);
     }
@@ -141,7 +142,7 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
       }
     } catch (error) {
       console.error(`Error opening ${platform}:`, error);
-      Alert.alert('Error', `Failed to open ${platform}`);
+      showToast.error(`Failed to open ${platform}`, 'Error');
     }
   };
 

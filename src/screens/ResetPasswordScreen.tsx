@@ -8,7 +8,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
   Image,
   useWindowDimensions,
 } from 'react-native';
@@ -20,6 +19,7 @@ import { Lock, Eye, EyeOff, CheckCircle } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
 import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
+import { showToast } from '../utils/toast';
 
 interface ResetPasswordScreenProps {
   token?: string;
@@ -55,20 +55,12 @@ export default function ResetPasswordScreen({
     // In React Native, token and email should be passed as props or via deep linking
     // For now, if not provided, show error
     if (!token || !email) {
-      Alert.alert(
-        'Invalid Link',
-        'Invalid password reset link. Please request a new one.',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              if (onBackToLogin) {
-                onBackToLogin();
-              }
-            },
-          },
-        ]
-      );
+      showToast.error('Invalid password reset link. Please request a new one.', 'Invalid Link');
+      if (onBackToLogin) {
+        setTimeout(() => {
+          onBackToLogin();
+        }, 2000);
+      }
     }
   }, [token, email, onBackToLogin]);
 
@@ -108,7 +100,7 @@ export default function ResetPasswordScreen({
       const message =
         error?.response?.data?.message ||
         'Failed to reset password. The link may have expired. Please request a new one.';
-      Alert.alert('Error', message);
+      showToast.error(message, 'Error');
     } finally {
       setIsLoading(false);
     }

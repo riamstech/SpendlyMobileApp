@@ -77,25 +77,20 @@ export const supportApi = {
       formData.append('screenshot', data.screenshot);
     }
 
-    return apiClient.post<SupportTicket>('/support-tickets', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    return apiClient.postFormData<SupportTicket>('/support-tickets', formData);
   },
 
   // Reply to a ticket
   reply: (ticketId: number, message: string, attachment?: File | ReactNativeFile) => {
+    console.log('supportApi.reply called with:', { ticketId, message, hasAttachment: !!attachment });
     const formData = new FormData();
     formData.append('message', message);
     if (attachment) {
+      console.log('Appending attachment:', { uri: attachment.uri, type: attachment.type, name: attachment.name });
       formData.append('attachment', attachment);
     }
-    return apiClient.post<TicketMessage>(`/support-tickets/${ticketId}/reply`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    console.log('Sending FormData to:', `/support-tickets/${ticketId}/reply`);
+    return apiClient.postFormData<TicketMessage>(`/support-tickets/${ticketId}/reply`, formData);
   },
 
   // Update a ticket (subject and/or message)

@@ -97,7 +97,7 @@
     "incomeVsExpenses": "Receita vs Despesas",
     "net": "Líquido",
     "savingsRateOverTime": "Taxa de Economia ao Longo do Tempo",
-    "savingsRate": "Taxa de Economia %",
+    "savingsRate": "Taxa de Economia",
     "saved": "economizado",
     "financialHealthScore": "Pontuação de Saúde Financeira",
     "grade": "Nota:",
@@ -111,7 +111,6 @@
     "quickWinsToImproveScore": "Ganhos Rápidos para Melhorar Sua Pontuação:",
     "gotIt": "Entendi!",
     "tipsToImprove": "Dicas para melhorar sua saúde financeira",
-    "savingsRate": "Taxa de Economia",
     "spendingTrend": "Tendência de Gastos",
     "topSpendingCategory": "Principais Categorias de Gastos",
     "spendingPace": "Ritmo de Gastos",
@@ -300,6 +299,23 @@
     "subject": "Assunto",
     "subjectPlaceholder": "Breve descrição do problema",
     "message": "Mensagem",
+    "supportTickets": {
+      "subject": "Assunto",
+      "subjectPlaceholder": "Digite o assunto do ticket",
+      "message": "Mensagem",
+      "messagePlaceholder": "Descreva seu problema...",
+      "replyPlaceholder": "Digite sua resposta...",
+      "status": "Status",
+      "created": "Criado",
+      "replies": "Respostas",
+      "reply": "Responder",
+      "user": "Usuário",
+      "editTicket": "Editar Ticket",
+      "replyToTicket": "Responder ao Ticket",
+      "attachEvidence": "Anexar Evidência (Opcional)",
+      "changeEvidence": "Alterar Evidência",
+      "changeAttachment": "Alterar Anexo"
+    },
     "noCurrenciesAvailableError": "Nenhuma moeda disponível",
     "failedToLoadCurrencies": "Falha ao carregar moedas. Verifique sua conexão.",
     "razorpaySdkFailed": "Falha ao carregar Razorpay SDK. Você está online?",
@@ -415,7 +431,25 @@
     "failed": "Pagamento Falhou",
     "razorpay": "Pagamento Razorpay",
     "razorpayNotSupported": "Integração Razorpay para mobile em breve."
+  },
+  "mySupportTickets": "Meus Tickets de Suporte",
+  "mySupportTicketsSubtitle": "Ver e gerenciar seus tickets",
+  "submitSupportTicket": "Enviar Ticket de Suporte",
+  "supportTickets": {
+    "subject": "Assunto",
+    "subjectPlaceholder": "Digite o assunto do ticket",
+    "message": "Mensagem",
+    "messagePlaceholder": "Descreva seu problema...",
+    "replyPlaceholder": "Digite sua resposta...",
+    "status": "Status",
+    "created": "Criado",
+    "replies": "Respostas",
+    "reply": "Responder",
+    "user": "Usuário",
+    "editTicket": "Editar Ticket",
+    "replyToTicket": "Responder ao Ticket",
+    "attachEvidence": "Anexar Evidência (Opcional)",
+    "changeEvidence": "Alterar Evidência",
+    "changeAttachment": "Alterar Anexo"
   }
 }
-
-

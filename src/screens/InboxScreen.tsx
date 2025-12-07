@@ -30,6 +30,7 @@ import { formatDateForDisplay } from '../api/utils/dateUtils';
 import { useTheme } from '../contexts/ThemeContext';
 import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { showToast } from '../utils/toast';
 
 interface InboxScreenProps {
   onBack: () => void;
@@ -57,7 +58,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
       setNotifications(notificationsList);
     } catch (error) {
       console.error('Failed to load notifications:', error);
-      Alert.alert('Error', t('inbox.failedToLoad') || 'Failed to load notifications');
+      showToast.error(t('inbox.failedToLoad') || 'Failed to load notifications', 'Error');
     } finally {
       setLoading(false);
     }
@@ -75,7 +76,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
       await loadNotifications();
     } catch (error) {
       console.error('Failed to mark as read:', error);
-      Alert.alert('Error', t('inbox.errorMarkingRead') || 'Failed to mark as read');
+      showToast.error(t('inbox.errorMarkingRead') || 'Failed to mark as read', 'Error');
     }
   };
 
@@ -86,7 +87,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
       await loadNotifications();
     } catch (error) {
       console.error('Failed to mark all as read:', error);
-      Alert.alert('Error', t('inbox.errorMarkingAllRead') || 'Failed to mark all as read');
+      showToast.error(t('inbox.errorMarkingAllRead') || 'Failed to mark all as read', 'Error');
     } finally {
       setLoading(false);
     }
@@ -108,7 +109,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
               await loadNotifications();
             } catch (error) {
               console.error('Failed to delete:', error);
-              Alert.alert('Error', t('inbox.errorDeleting') || 'Failed to delete notification');
+              showToast.error(t('inbox.errorDeleting') || 'Failed to delete notification', 'Error');
             } finally {
               setDeletingId(null);
             }

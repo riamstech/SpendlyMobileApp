@@ -10,6 +10,7 @@ import {
   useWindowDimensions,
   ActivityIndicator,
 } from 'react-native';
+import { showToast } from '../utils/toast';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { fonts, textStyles, createResponsiveTextStyles } from '../constants/fonts';
@@ -140,7 +141,7 @@ export default function EditTransactionScreen({
 
   const handleSubmit = async () => {
     if (!amount || !category || !description) {
-      Alert.alert('Error', 'Please fill in all required fields');
+      showToast.error('Please fill in all required fields', 'Error');
       return;
     }
 
@@ -158,21 +159,17 @@ export default function EditTransactionScreen({
         reminder_days: isRecurring ? parseInt(reminderDays) : undefined,
       });
 
-      Alert.alert('Success', 'Transaction updated successfully', [
-        {
-          text: 'OK',
-          onPress: () => {
-            if (onSuccess) {
-              onSuccess();
-            }
-          },
-        },
-      ]);
+      showToast.success('Transaction updated successfully', 'Success');
+      if (onSuccess) {
+        setTimeout(() => {
+          onSuccess();
+        }, 500);
+      }
     } catch (error: any) {
       console.error('Error updating transaction:', error);
-      Alert.alert(
-        'Error',
-        error?.response?.data?.message || 'Failed to update transaction'
+      showToast.error(
+        error?.response?.data?.message || 'Failed to update transaction',
+        'Error'
       );
     } finally {
       setSubmitting(false);
@@ -195,21 +192,17 @@ export default function EditTransactionScreen({
             try {
               setDeleting(true);
               await transactionsService.deleteTransaction(transaction.id);
-              Alert.alert('Success', 'Transaction deleted successfully', [
-                {
-                  text: 'OK',
-                  onPress: () => {
-                    if (onSuccess) {
-                      onSuccess();
-                    }
-                  },
-                },
-              ]);
+              showToast.success('Transaction deleted successfully', 'Success');
+              if (onSuccess) {
+                setTimeout(() => {
+                  onSuccess();
+                }, 500);
+              }
             } catch (error: any) {
               console.error('Error deleting transaction:', error);
-              Alert.alert(
-                'Error',
-                error?.response?.data?.message || 'Failed to delete transaction'
+              showToast.error(
+                error?.response?.data?.message || 'Failed to delete transaction',
+                'Error'
               );
             } finally {
               setDeleting(false);

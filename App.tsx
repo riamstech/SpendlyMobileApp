@@ -5,6 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import * as Notifications from 'expo-notifications';
+import Toast from 'react-native-toast-message';
 import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
 import SplashScreen from './src/screens/SplashScreen';
 import LoginScreen from './src/screens/LoginScreen';
@@ -193,12 +194,76 @@ function AppContent() {
     setCurrentScreen('login');
   }, []);
 
-  const handleLoginSuccess = useCallback(() => {
-    setCurrentScreen('dashboard');
+  const handleLoginSuccess = useCallback(async (isNewUser?: boolean) => {
+    console.log('[handleLoginSuccess] isNewUser:', isNewUser);
+    
+    // If isNewUser flag is provided, use it directly
+    if (isNewUser !== undefined) {
+      if (isNewUser) {
+        console.log('[handleLoginSuccess] New user detected, routing to onboarding');
+        setCurrentScreen('onboarding');
+      } else {
+        console.log('[handleLoginSuccess] Existing user, routing to dashboard');
+        setCurrentScreen('dashboard');
+      }
+      return;
+    }
+
+    // Fallback: Check if user needs onboarding (missing country indicates incomplete onboarding)
+    try {
+      const { authService } = await import('./src/api/services/auth');
+      const user = await authService.getCurrentUser();
+      console.log('[handleLoginSuccess] User profile:', { country: user.country, defaultCurrency: user.defaultCurrency });
+      
+      // If user doesn't have country set, they need onboarding
+      // (defaultCurrency is set by backend for social login, but country is set during onboarding)
+      const needsOnboarding = !user.country;
+      
+      if (needsOnboarding) {
+        console.log('[handleLoginSuccess] User needs onboarding (no country), routing to onboarding');
+        setCurrentScreen('onboarding');
+      } else {
+        console.log('[handleLoginSuccess] User has completed onboarding, routing to dashboard');
+        setCurrentScreen('dashboard');
+      }
+    } catch (error) {
+      console.error('[handleLoginSuccess] Error checking user onboarding status:', error);
+      // Default to dashboard on error
+      setCurrentScreen('dashboard');
+    }
   }, []);
 
-  const handleSignupSuccess = useCallback(() => {
-    setCurrentScreen('onboarding');
+  const handleSignupSuccess = useCallback(async (isNewUser?: boolean) => {
+    // If isNewUser flag is provided, use it directly
+    // Otherwise, check user profile for onboarding status
+    if (isNewUser !== undefined) {
+      if (isNewUser) {
+        setCurrentScreen('onboarding');
+      } else {
+        setCurrentScreen('dashboard');
+      }
+      return;
+    }
+
+    // Fallback: Check if user needs onboarding (missing country indicates incomplete onboarding)
+    try {
+      const { authService } = await import('./src/api/services/auth');
+      const user = await authService.getCurrentUser();
+      
+      // If user doesn't have country set, they need onboarding
+      // (defaultCurrency is set by backend for social login, but country is set during onboarding)
+      const needsOnboarding = !user.country;
+      
+      if (needsOnboarding) {
+        setCurrentScreen('onboarding');
+      } else {
+        setCurrentScreen('dashboard');
+      }
+    } catch (error) {
+      console.error('Error checking user onboarding status:', error);
+      // Default to onboarding on error for signup
+      setCurrentScreen('onboarding');
+    }
   }, []);
 
   const handleOnboardingComplete = useCallback(() => {
@@ -326,6 +391,7 @@ export default function App() {
     <ErrorBoundary>
       <ThemeProvider>
         <AppContent />
+        <Toast />
       </ThemeProvider>
     </ErrorBoundary>
   );

@@ -35,6 +35,7 @@ import EditTransactionScreen from './EditTransactionScreen';
 import { useTheme } from '../contexts/ThemeContext';
 import { fonts, createResponsiveTextStyles, textStyles } from '../constants/fonts';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { showToast } from '../utils/toast';
 
 interface Transaction {
   id: string;
@@ -272,7 +273,7 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
       setFilteredTransactions(filtered);
     } catch (error) {
       console.error('Failed to load transactions:', error);
-      Alert.alert('Error', 'Failed to load transactions. Please try again.');
+      showToast.error('Failed to load transactions. Please try again.', 'Error');
       setTransactions([]);
       setFilteredTransactions([]);
     }
@@ -349,7 +350,7 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
               await transactionsService.deleteTransaction(Number(id));
               await loadTransactions();
             } catch (error) {
-              Alert.alert('Error', 'Failed to delete transaction. Please try again.');
+              showToast.error('Failed to delete transaction. Please try again.', 'Error');
             }
           },
         },
@@ -656,7 +657,7 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
                   onPress={() => {
                     if (range === 'custom') {
                       // For custom, we'd need a date picker - simplified for now
-                      Alert.alert('Custom Date Range', 'Custom date range selection will be implemented with date picker');
+                      showToast.info('Custom date range selection will be implemented with date picker', 'Custom Date Range');
                     } else {
                       setFilterDateRange(range as any);
                       setShowDateRangeModal(false);

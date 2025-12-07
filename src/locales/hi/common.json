@@ -435,6 +435,23 @@
     "subject": "विषय",
     "subjectPlaceholder": "समस्या का संक्षिप्त विवरण",
     "message": "संदेश",
+    "supportTickets": {
+      "subject": "विषय",
+      "subjectPlaceholder": "टिकट विषय दर्ज करें",
+      "message": "संदेश",
+      "messagePlaceholder": "अपनी समस्या का वर्णन करें...",
+      "replyPlaceholder": "अपना उत्तर टाइप करें...",
+      "status": "स्थिति",
+      "created": "बनाया गया",
+      "replies": "उत्तर",
+      "reply": "उत्तर दें",
+      "user": "उपयोगकर्ता",
+      "editTicket": "टिकट संपादित करें",
+      "replyToTicket": "टिकट का उत्तर दें",
+      "attachEvidence": "साक्ष्य संलग्न करें (वैकल्पिक)",
+      "changeEvidence": "साक्ष्य बदलें",
+      "changeAttachment": "अनुलग्नक बदलें"
+    },
     "noCurrenciesAvailableError": "कोई मुद्रा उपलब्ध नहीं",
     "failedToLoadCurrencies": "मुद्राएं लोड करने में विफल। कृपया अपना कनेक्शन जांचें।",
     "razorpaySdkFailed": "Razorpay SDK लोड करने में विफल। क्या आप ऑनलाइन हैं?",
@@ -550,7 +567,25 @@
     "failed": "भुगतान विफल",
     "razorpay": "Razorpay भुगतान",
     "razorpayNotSupported": "मोबाइल के लिए Razorpay एकीकरण जल्द ही आ रहा है।"
+  },
+  "mySupportTickets": "मेरे सहायता टिकट",
+  "mySupportTicketsSubtitle": "अपने टिकट देखें और प्रबंधित करें",
+  "submitSupportTicket": "सहायता टिकट सबमिट करें",
+  "supportTickets": {
+    "subject": "विषय",
+    "subjectPlaceholder": "टिकट विषय दर्ज करें",
+    "message": "संदेश",
+    "messagePlaceholder": "अपनी समस्या का वर्णन करें...",
+    "replyPlaceholder": "अपना उत्तर टाइप करें...",
+    "status": "स्थिति",
+    "created": "बनाया गया",
+    "replies": "उत्तर",
+    "reply": "उत्तर दें",
+    "user": "उपयोगकर्ता",
+    "editTicket": "टिकट संपादित करें",
+    "replyToTicket": "टिकट का उत्तर दें",
+    "attachEvidence": "साक्ष्य संलग्न करें (वैकल्पिक)",
+    "changeEvidence": "साक्ष्य बदलें",
+    "changeAttachment": "अनुलग्नक बदलें"
   }
 }
-
-

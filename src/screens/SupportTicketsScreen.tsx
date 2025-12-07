@@ -11,6 +11,8 @@ import {
   Modal,
   ActivityIndicator,
   Image,
+  Platform,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {
   requestMediaLibraryPermissionsAsync,
@@ -46,10 +48,11 @@ interface SupportTicketsScreenProps {
 }
 
 export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenProps) {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const { width } = useWindowDimensions();
   const { isDark, colors } = useTheme();
   const responsiveTextStyles = createResponsiveTextStyles(width);
+  
 
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [loading, setLoading] = useState(true);
@@ -166,7 +169,12 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
   };
 
   const handleReply = async () => {
-    if (!selectedTicket) return;
+    if (!selectedTicket) {
+      return;
+    }
+    if (replying) {
+      return;
+    }
     if (!replyMessage.trim()) {
       Alert.alert(t('settings.error') || 'Error', 'Please enter a message');
       return;
@@ -189,9 +197,16 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
       setReplyMessage('');
       setReplyAttachment(null);
       await loadTicketDetail(selectedTicket.id);
+      // Reopen ticket detail modal to show the new reply
+      setTimeout(() => {
+        setShowTicketDetail(true);
+      }, 300);
     } catch (error: any) {
       console.error('Failed to reply:', error);
-      Alert.alert(t('settings.error') || 'Error', error.response?.data?.message || 'Failed to send reply');
+      Alert.alert(
+        t('settings.error') || 'Error', 
+        error.response?.data?.message || error.message || 'Failed to send reply'
+      );
     } finally {
       setReplying(false);
     }
@@ -324,11 +339,15 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
 
       {/* Header */}
       <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
-        <Pressable onPress={onBack} style={styles.backButton}>
+        <Pressable 
+          onPress={onBack} 
+          style={styles.backButton}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
           <ChevronLeft size={24} color={colors.foreground} />
         </Pressable>
         <Text style={[styles.headerTitle, responsiveTextStyles.h2, { color: colors.foreground }]}>
-          {t('mySupportTickets') || 'My Support Tickets'}
+          {t('mySupportTickets')}
         </Text>
         <Pressable
           onPress={() => {
@@ -338,6 +357,7 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
             setShowCreateModal(true);
           }}
           style={[styles.addButton, { backgroundColor: colors.primary }]}
+          hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
         >
           <Plus size={20} color="#fff" />
         </Pressable>
@@ -351,11 +371,13 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
               {t('mySupportTicketsSubtitle') || 'No support tickets yet'}
             </Text>
             <Pressable
-              onPress={() => setShowCreateModal(true)}
+              onPress={() => {
+                setShowCreateModal(true);
+              }}
               style={[styles.emptyStateButton, { backgroundColor: colors.primary }]}
             >
               <Text style={styles.emptyStateButtonText}>
-                {t('submitSupportTicket') || 'Create Support Ticket'}
+                {t('submitSupportTicket')}
               </Text>
             </Pressable>
           </View>
@@ -387,7 +409,9 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
               </Text>
               {ticket.messages && ticket.messages.length > 0 && (
                 <Text style={[styles.ticketMessagesCount, { color: colors.primary }]}>
-                  {ticket.messages.length} {ticket.messages.length === 1 ? 'reply' : 'replies'}
+                  {ticket.messages.length} {ticket.messages.length === 1 
+                    ? t('supportTickets.reply')
+                    : t('supportTickets.replies')}
                 </Text>
               )}
             </Pressable>
@@ -402,34 +426,45 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
         transparent={true}
         onRequestClose={() => setShowCreateModal(false)}
       >
-        <View style={styles.modalOverlay}>
+        <KeyboardAvoidingView
+          style={styles.modalOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        >
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
               <Text style={[styles.modalTitle, { color: colors.foreground }]}>
-                {t('submitSupportTicket') || 'Create Support Ticket'}
+                {t('submitSupportTicket')}
               </Text>
               <Pressable onPress={() => setShowCreateModal(false)}>
                 <X size={24} color={colors.mutedForeground} />
               </Pressable>
             </View>
-            <ScrollView style={styles.modalBody}>
+            <ScrollView 
+              style={styles.modalBody}
+              keyboardShouldPersistTaps="handled"
+            >
               <View style={styles.formField}>
-                <Text style={[styles.formLabel, { color: colors.foreground }]}>Subject *</Text>
+                <Text style={[styles.formLabel, { color: colors.foreground }]}>
+                  {t('supportTickets.subject') || 'Subject'} *
+                </Text>
                 <TextInput
                   style={[styles.formInput, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
                   value={createSubject}
                   onChangeText={setCreateSubject}
-                  placeholder="Enter ticket subject"
+                  placeholder={t('supportTickets.subjectPlaceholder') || 'Enter ticket subject'}
                   placeholderTextColor={colors.mutedForeground}
                 />
               </View>
               <View style={styles.formField}>
-                <Text style={[styles.formLabel, { color: colors.foreground }]}>Message *</Text>
+                <Text style={[styles.formLabel, { color: colors.foreground }]}>
+                  {t('supportTickets.message') || 'Message'} *
+                </Text>
                 <TextInput
                   style={[styles.formTextArea, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
                   value={createMessage}
                   onChangeText={setCreateMessage}
-                  placeholder="Describe your issue..."
+                  placeholder={t('supportTickets.messagePlaceholder')}
                   placeholderTextColor={colors.mutedForeground}
                   multiline
                   numberOfLines={6}
@@ -443,7 +478,9 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
                 >
                   <Paperclip size={20} color={colors.primary} />
                   <Text style={[styles.attachmentButtonText, { color: colors.foreground }]}>
-                    {createScreenshot ? 'Change Evidence' : 'Attach Evidence (Optional)'}
+                    {createScreenshot 
+                      ? (t('supportTickets.changeEvidence') || 'Change Evidence')
+                      : (t('supportTickets.attachEvidence') || 'Attach Evidence (Optional)')}
                   </Text>
                 </Pressable>
                 {createScreenshot && (
@@ -483,7 +520,7 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
               </Pressable>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* Ticket Detail Modal */}
@@ -497,119 +534,161 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
         }}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, styles.detailModalContent, { backgroundColor: colors.card }]}>
-            <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
-              <View style={styles.detailHeaderLeft}>
-                <Pressable
-                  onPress={() => {
-                    setShowTicketDetail(false);
-                    setSelectedTicket(null);
-                  }}
-                >
-                  <ChevronLeft size={24} color={colors.foreground} />
-                </Pressable>
-                <Text style={[styles.modalTitle, { color: colors.foreground }]}>
-                  {selectedTicket?.subject}
-                </Text>
+          <SafeAreaView style={styles.detailModalContent} edges={['top', 'bottom']}>
+            <View style={[styles.modalContent, { backgroundColor: colors.card, flex: 1, borderTopLeftRadius: 20, borderTopRightRadius: 20 }]}>
+              <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+                <View style={styles.detailHeaderLeft}>
+                  <Pressable
+                    onPress={() => {
+                      setShowTicketDetail(false);
+                      setSelectedTicket(null);
+                    }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <ChevronLeft size={24} color={colors.foreground} />
+                  </Pressable>
+                  <Text style={[styles.modalTitle, { color: colors.foreground }]} numberOfLines={1}>
+                    {selectedTicket?.subject}
+                  </Text>
+                </View>
+                <View style={styles.detailHeaderRight}>
+                  {selectedTicket && (
+                    <>
+                      <Pressable
+                        onPress={() => {
+                          setEditSubject(selectedTicket.subject);
+                          setEditMessage(selectedTicket.message);
+                          setShowEditModal(true);
+                        }}
+                        style={styles.iconButton}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      >
+                        <Edit2 size={20} color={colors.primary} />
+                      </Pressable>
+                      <Pressable
+                        onPress={() => selectedTicket && handleDeleteTicket(selectedTicket)}
+                        style={styles.iconButton}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      >
+                        <Trash2 size={20} color={colors.destructive} />
+                      </Pressable>
+                    </>
+                  )}
+                </View>
               </View>
-              <View style={styles.detailHeaderRight}>
-                {selectedTicket && (
+              <View style={styles.detailContainer}>
+                <ScrollView
+                  style={styles.detailBody}
+                  contentContainerStyle={styles.detailBodyContent}
+                  showsVerticalScrollIndicator={true}
+                  keyboardShouldPersistTaps="handled"
+                >
+                  {selectedTicket && (
                   <>
-                    <Pressable
-                      onPress={() => {
-                        setEditSubject(selectedTicket.subject);
-                        setEditMessage(selectedTicket.message);
-                        setShowEditModal(true);
-                      }}
-                      style={styles.iconButton}
-                    >
-                      <Edit2 size={20} color={colors.primary} />
-                    </Pressable>
-                    <Pressable
-                      onPress={() => selectedTicket && handleDeleteTicket(selectedTicket)}
-                      style={styles.iconButton}
-                    >
-                      <Trash2 size={20} color={colors.destructive} />
-                    </Pressable>
+                    <View style={[styles.detailSection, { borderBottomColor: colors.border }]}>
+                      <View style={styles.statusRow}>
+                        <Text style={[styles.detailLabel, { color: colors.mutedForeground }]}>
+                          {t('supportTickets.status')}:
+                        </Text>
+                        <View style={[styles.statusBadge, { backgroundColor: `${getStatusColor(selectedTicket.status)}20` }]}>
+                          {getStatusIcon(selectedTicket.status)}
+                          <Text style={[styles.statusText, { color: getStatusColor(selectedTicket.status) }]}>
+                            {selectedTicket.status.replace('_', ' ').toUpperCase()}
+                          </Text>
+                        </View>
+                      </View>
+                      <Text style={[styles.detailLabel, { color: colors.mutedForeground }]}>
+                        {t('supportTickets.created')}: {new Date(selectedTicket.createdAt).toLocaleString()}
+                      </Text>
+                    </View>
+                    <View style={styles.detailSection}>
+                      <Text style={[styles.detailMessage, { color: colors.foreground }]}>
+                        {selectedTicket.message}
+                      </Text>
+                      {selectedTicket.screenshotPath && (
+                        <View style={styles.imageContainer}>
+                          <Image
+                            source={{ uri: getImageUrl(selectedTicket.screenshotPath) || '' }}
+                            style={styles.detailImage}
+                            resizeMode="contain"
+                          />
+                        </View>
+                      )}
+                    </View>
+                    {selectedTicket.messages && selectedTicket.messages.length > 0 && (
+                      <View style={styles.messagesSection}>
+                        <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
+                          {t('supportTickets.replies')}:
+                        </Text>
+                        {selectedTicket.messages.map((message: TicketMessage) => (
+                          <View key={message.id} style={[styles.messageCard, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
+                            <View style={styles.messageHeader}>
+                              <Text style={[styles.messageAuthor, { color: colors.foreground }]}>
+                                {message.user?.name || t('supportTickets.user') || 'User'}
+                              </Text>
+                              <Text style={[styles.messageDate, { color: colors.mutedForeground }]}>
+                                {new Date(message.createdAt).toLocaleString()}
+                              </Text>
+                            </View>
+                            <Text style={[styles.messageText, { color: colors.foreground }]}>
+                              {message.message}
+                            </Text>
+                            {message.attachmentPath && (
+                              <View style={styles.imageContainer}>
+                                <Image
+                                  source={{ uri: getImageUrl(message.attachmentPath) || '' }}
+                                  style={styles.detailImage}
+                                  resizeMode="contain"
+                                />
+                              </View>
+                            )}
+                          </View>
+                        ))}
+                      </View>
+                    )}
                   </>
+                  )}
+                </ScrollView>
+                {selectedTicket && (
+                <View style={[styles.replyButtonContainer, { borderTopColor: colors.border }]}>
+                  <Pressable
+                    onPress={() => {
+                      if (showReplyModal) {
+                        return;
+                      }
+                      const ticketId = selectedTicket?.id;
+                      
+                      // Store ticket ID before closing modal
+                      const currentTicket = selectedTicket;
+                      
+                      // Close ticket detail modal first, then open reply modal
+                      setShowTicketDetail(false);
+                      setReplyMessage('');
+                      setReplyAttachment(null);
+                      
+                      // Use a longer timeout to ensure ticket detail modal fully closes
+                      setTimeout(() => {
+                        setShowReplyModal(true);
+                        // Ensure selectedTicket is still set
+                        if (!selectedTicket && currentTicket) {
+                          setSelectedTicket(currentTicket);
+                        }
+                      }, 500);
+                    }}
+                    style={[styles.replyButton, { backgroundColor: colors.primary }]}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    disabled={showReplyModal}
+                  >
+                    <Send size={20} color="#fff" />
+                    <Text style={styles.replyButtonText}>
+                      {t('supportTickets.reply')}
+                    </Text>
+                  </Pressable>
+                </View>
                 )}
               </View>
             </View>
-            <ScrollView style={styles.detailBody}>
-              {selectedTicket && (
-                <>
-                  <View style={[styles.detailSection, { borderBottomColor: colors.border }]}>
-                    <View style={styles.statusRow}>
-                      <Text style={[styles.detailLabel, { color: colors.mutedForeground }]}>Status:</Text>
-                      <View style={[styles.statusBadge, { backgroundColor: `${getStatusColor(selectedTicket.status)}20` }]}>
-                        {getStatusIcon(selectedTicket.status)}
-                        <Text style={[styles.statusText, { color: getStatusColor(selectedTicket.status) }]}>
-                          {selectedTicket.status.replace('_', ' ').toUpperCase()}
-                        </Text>
-                      </View>
-                    </View>
-                    <Text style={[styles.detailLabel, { color: colors.mutedForeground }]}>
-                      Created: {new Date(selectedTicket.createdAt).toLocaleString()}
-                    </Text>
-                  </View>
-                  <View style={styles.detailSection}>
-                    <Text style={[styles.detailMessage, { color: colors.foreground }]}>
-                      {selectedTicket.message}
-                    </Text>
-                    {selectedTicket.screenshotPath && (
-                      <View style={styles.imageContainer}>
-                        <Image
-                          source={{ uri: getImageUrl(selectedTicket.screenshotPath) || '' }}
-                          style={styles.detailImage}
-                          resizeMode="contain"
-                        />
-                      </View>
-                    )}
-                  </View>
-                  {selectedTicket.messages && selectedTicket.messages.length > 0 && (
-                    <View style={styles.messagesSection}>
-                      <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Replies:</Text>
-                      {selectedTicket.messages.map((message: TicketMessage) => (
-                        <View key={message.id} style={[styles.messageCard, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
-                          <View style={styles.messageHeader}>
-                            <Text style={[styles.messageAuthor, { color: colors.foreground }]}>
-                              {message.user?.name || 'User'}
-                            </Text>
-                            <Text style={[styles.messageDate, { color: colors.mutedForeground }]}>
-                              {new Date(message.createdAt).toLocaleString()}
-                            </Text>
-                          </View>
-                          <Text style={[styles.messageText, { color: colors.foreground }]}>
-                            {message.message}
-                          </Text>
-                          {message.attachmentPath && (
-                            <View style={styles.imageContainer}>
-                              <Image
-                                source={{ uri: getImageUrl(message.attachmentPath) || '' }}
-                                style={styles.detailImage}
-                                resizeMode="contain"
-                              />
-                            </View>
-                          )}
-                        </View>
-                      ))}
-                    </View>
-                  )}
-                  <Pressable
-                    onPress={() => {
-                      setReplyMessage('');
-                      setReplyAttachment(null);
-                      setShowReplyModal(true);
-                    }}
-                    style={[styles.replyButton, { backgroundColor: colors.primary }]}
-                  >
-                    <Send size={20} color="#fff" />
-                    <Text style={styles.replyButtonText}>Reply</Text>
-                  </Pressable>
-                </>
-              )}
-            </ScrollView>
-          </View>
+          </SafeAreaView>
         </View>
       </Modal>
 
@@ -620,32 +699,45 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
         transparent={true}
         onRequestClose={() => setShowEditModal(false)}
       >
-        <View style={styles.modalOverlay}>
+        <KeyboardAvoidingView
+          style={styles.modalOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        >
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
-              <Text style={[styles.modalTitle, { color: colors.foreground }]}>Edit Ticket</Text>
+              <Text style={[styles.modalTitle, { color: colors.foreground }]}>
+                {t('supportTickets.editTicket') || 'Edit Ticket'}
+              </Text>
               <Pressable onPress={() => setShowEditModal(false)}>
                 <X size={24} color={colors.mutedForeground} />
               </Pressable>
             </View>
-            <ScrollView style={styles.modalBody}>
+            <ScrollView 
+              style={styles.modalBody}
+              keyboardShouldPersistTaps="handled"
+            >
               <View style={styles.formField}>
-                <Text style={[styles.formLabel, { color: colors.foreground }]}>Subject *</Text>
+                <Text style={[styles.formLabel, { color: colors.foreground }]}>
+                  {t('supportTickets.subject') || 'Subject'} *
+                </Text>
                 <TextInput
                   style={[styles.formInput, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
                   value={editSubject}
                   onChangeText={setEditSubject}
-                  placeholder="Enter ticket subject"
+                  placeholder={t('supportTickets.subjectPlaceholder') || 'Enter ticket subject'}
                   placeholderTextColor={colors.mutedForeground}
                 />
               </View>
               <View style={styles.formField}>
-                <Text style={[styles.formLabel, { color: colors.foreground }]}>Message *</Text>
+                <Text style={[styles.formLabel, { color: colors.foreground }]}>
+                  {t('supportTickets.message') || 'Message'} *
+                </Text>
                 <TextInput
                   style={[styles.formTextArea, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
                   value={editMessage}
                   onChangeText={setEditMessage}
-                  placeholder="Describe your issue..."
+                  placeholder={t('supportTickets.messagePlaceholder')}
                   placeholderTextColor={colors.mutedForeground}
                   multiline
                   numberOfLines={6}
@@ -677,32 +769,61 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
               </Pressable>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* Reply Modal */}
-      <Modal
-        visible={showReplyModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowReplyModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+      {showReplyModal && (
+        <Modal
+          visible={showReplyModal}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => {
+            setShowReplyModal(false);
+            if (selectedTicket) {
+              setTimeout(() => {
+                setShowTicketDetail(true);
+              }, 300);
+            }
+          }}
+          presentationStyle="overFullScreen"
+        >
+          <KeyboardAvoidingView
+            style={styles.modalOverlay}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+          >
+            <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
-              <Text style={[styles.modalTitle, { color: colors.foreground }]}>Reply to Ticket</Text>
-              <Pressable onPress={() => setShowReplyModal(false)}>
+              <Text style={[styles.modalTitle, { color: colors.foreground }]}>
+                {t('supportTickets.replyToTicket')}
+              </Text>
+              <Pressable 
+                onPress={() => {
+                  setShowReplyModal(false);
+                  if (selectedTicket) {
+                    setTimeout(() => {
+                      setShowTicketDetail(true);
+                    }, 300);
+                  }
+                }}
+              >
                 <X size={24} color={colors.mutedForeground} />
               </Pressable>
             </View>
-            <ScrollView style={styles.modalBody}>
+            <ScrollView 
+              style={styles.modalBody}
+              keyboardShouldPersistTaps="handled"
+            >
               <View style={styles.formField}>
-                <Text style={[styles.formLabel, { color: colors.foreground }]}>Message *</Text>
+                <Text style={[styles.formLabel, { color: colors.foreground }]}>
+                  {t('supportTickets.message') || 'Message'} *
+                </Text>
                 <TextInput
                   style={[styles.formTextArea, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
                   value={replyMessage}
                   onChangeText={setReplyMessage}
-                  placeholder="Type your reply..."
+                  placeholder={t('supportTickets.replyPlaceholder')}
                   placeholderTextColor={colors.mutedForeground}
                   multiline
                   numberOfLines={6}
@@ -716,7 +837,9 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
                 >
                   <Paperclip size={20} color={colors.primary} />
                   <Text style={[styles.attachmentButtonText, { color: colors.foreground }]}>
-                    {replyAttachment ? 'Change Attachment' : 'Attach Evidence (Optional)'}
+                    {replyAttachment 
+                      ? t('supportTickets.changeAttachment')
+                      : t('supportTickets.attachEvidence')}
                   </Text>
                 </Pressable>
                 {replyAttachment && (
@@ -735,7 +858,15 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
             <View style={[styles.modalFooter, { borderTopColor: colors.border }]}>
               <Pressable
                 style={[styles.modalButton, styles.cancelButton, { backgroundColor: colors.muted }]}
-                onPress={() => setShowReplyModal(false)}
+                onPress={() => {
+                  setShowReplyModal(false);
+                  // Reopen ticket detail modal if we have a selected ticket
+                  if (selectedTicket) {
+                    setTimeout(() => {
+                      setShowTicketDetail(true);
+                    }, 300);
+                  }
+                }}
               >
                 <Text style={[styles.modalButtonText, { color: colors.foreground }]}>
                   {t('settings.cancel') || 'Cancel'}
@@ -756,8 +887,9 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
               </Pressable>
             </View>
           </View>
-        </View>
-      </Modal>
+        </KeyboardAvoidingView>
+        </Modal>
+      )}
     </SafeAreaView>
   );
 }
@@ -772,19 +904,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
+    zIndex: 1,
+    elevation: 2,
+    position: 'relative',
   },
   backButton: {
     marginRight: 12,
+    padding: 8,
+    minWidth: 40,
+    minHeight: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerTitle: {
     flex: 1,
   },
   addButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
+    minWidth: 44,
+    minHeight: 44,
+    zIndex: 10,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   scrollView: {
     flex: 1,
@@ -860,6 +1008,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'flex-end',
   },
+  detailModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
   modalContent: {
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -867,7 +1019,10 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   detailModalContent: {
+    height: '95%',
     maxHeight: '95%',
+    width: '100%',
+    justifyContent: 'flex-end',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -899,8 +1054,24 @@ const styles = StyleSheet.create({
     padding: 20,
     maxHeight: 400,
   },
+  detailContainer: {
+    flex: 1,
+    minHeight: 0,
+  },
   detailBody: {
+    flex: 1,
+  },
+  detailBodyContent: {
     padding: 20,
+    paddingBottom: 20,
+    flexGrow: 1,
+  },
+  replyButtonContainer: {
+    padding: 16,
+    paddingBottom: 20,
+    borderTopWidth: 1,
+    backgroundColor: 'transparent',
+    width: '100%',
   },
   formField: {
     marginBottom: 16,
@@ -1049,11 +1220,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
+    paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 8,
-    marginTop: 20,
     gap: 8,
+    minHeight: 48,
+    zIndex: 10,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   replyButtonText: {
     color: '#fff',

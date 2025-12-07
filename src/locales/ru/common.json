@@ -97,7 +97,7 @@
     "incomeVsExpenses": "Доходы vs Расходы",
     "net": "Чистый",
     "savingsRateOverTime": "Норма Сбережений во Времени",
-    "savingsRate": "Норма Сбережений %",
+    "savingsRate": "Норма Сбережений",
     "saved": "сэкономлено",
     "financialHealthScore": "Оценка Финансового Здоровья",
     "grade": "Оценка:",
@@ -111,7 +111,6 @@
     "quickWinsToImproveScore": "Быстрые Победы для Улучшения Оценки:",
     "gotIt": "Понял!",
     "tipsToImprove": "Советы по улучшению финансового здоровья",
-    "savingsRate": "Норма Сбережений",
     "spendingTrend": "Тенденция Расходов",
     "topSpendingCategory": "Основные Категории Расходов",
     "spendingPace": "Темп Расходов",
@@ -299,6 +298,23 @@
     "submitSupportTicketDescription": "Есть проблема? Отправьте нам сообщение, и мы вернемся к вам.",
     "subject": "Тема",
     "subjectPlaceholder": "Краткое описание проблемы",
+    "supportTickets": {
+      "subject": "Тема",
+      "subjectPlaceholder": "Введите тему тикета",
+      "message": "Сообщение",
+      "messagePlaceholder": "Опишите вашу проблему...",
+      "replyPlaceholder": "Введите ваш ответ...",
+      "status": "Статус",
+      "created": "Создано",
+      "replies": "Ответы",
+      "reply": "Ответить",
+      "user": "Пользователь",
+      "editTicket": "Редактировать Тикет",
+      "replyToTicket": "Ответить на Тикет",
+      "attachEvidence": "Прикрепить Доказательство (Необязательно)",
+      "changeEvidence": "Изменить Доказательство",
+      "changeAttachment": "Изменить Вложение"
+    },
     "message": "Сообщение",
     "noCurrenciesAvailableError": "Нет доступных валют",
     "failedToLoadCurrencies": "Не удалось загрузить валюты. Пожалуйста, проверьте ваше соединение.",
@@ -415,7 +431,25 @@
     "failed": "Платеж Не Удался",
     "razorpay": "Платеж Razorpay",
     "razorpayNotSupported": "Интеграция Razorpay для мобильных устройств скоро появится."
+  },
+  "mySupportTickets": "Мои Тикеты Поддержки",
+  "mySupportTicketsSubtitle": "Просмотр и управление вашими тикетами",
+  "submitSupportTicket": "Отправить Тикет Поддержки",
+  "supportTickets": {
+    "subject": "Тема",
+    "subjectPlaceholder": "Введите тему тикета",
+    "message": "Сообщение",
+    "messagePlaceholder": "Опишите вашу проблему...",
+    "replyPlaceholder": "Введите ваш ответ...",
+    "status": "Статус",
+    "created": "Создано",
+    "replies": "Ответы",
+    "reply": "Ответить",
+    "user": "Пользователь",
+    "editTicket": "Редактировать Тикет",
+    "replyToTicket": "Ответить на Тикет",
+    "attachEvidence": "Прикрепить Доказательство (Необязательно)",
+    "changeEvidence": "Изменить Доказательство",
+    "changeAttachment": "Изменить Вложение"
   }
 }
-
-

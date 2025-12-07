@@ -12,6 +12,7 @@ import {
   Modal,
   ActivityIndicator,
   Platform,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -38,6 +39,7 @@ import { CategoryIcon } from '../components/CategoryIcon';
 import { getEmojiFromIcon } from '../utils/iconMapper';
 import { useTheme } from '../contexts/ThemeContext';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { showToast } from '../utils/toast';
 
 interface CategoryBudget {
   id: string;
@@ -171,7 +173,7 @@ export default function BudgetScreen() {
       setCategoryBudgets(transformedBudgets);
     } catch (error) {
       console.error('Failed to load budget data:', error);
-      Alert.alert('Error', 'Failed to load budgets. Please try again.');
+      showToast.error('Failed to load budgets. Please try again.', 'Error');
     } finally {
       setLoading(false);
     }
@@ -188,7 +190,7 @@ export default function BudgetScreen() {
     const budget = parseFloat(newCategoryBudget);
 
     if (!name || isNaN(budget) || budget <= 0) {
-      Alert.alert('Error', 'Please enter a valid category and budget amount.');
+      showToast.error('Please enter a valid category and budget amount.', 'Error');
       return;
     }
 
@@ -205,8 +207,7 @@ export default function BudgetScreen() {
       );
       
       if (existingBudget) {
-        Alert.alert(
-          t('budget.duplicateBudgetTitle') || 'Duplicate Budget',
+        showToast.info(
           t('budget.duplicateBudgetMessage', { category: name }) || 
           `A budget for "${name}" already exists. Please edit the existing budget or choose a different category.`
         );
@@ -233,7 +234,7 @@ export default function BudgetScreen() {
       if (Platform.OS === 'web') {
         window.alert('Budget added successfully');
       } else {
-        Alert.alert('Success', 'Budget added successfully');
+        showToast.success('Budget added successfully', 'Success');
       }
     } catch (error: any) {
       console.error('Error adding budget:', error);
@@ -244,9 +245,9 @@ export default function BudgetScreen() {
                           error.response?.data?.error ||
                           'Failed to add budget. Please try again.';
       
-      Alert.alert(
-        t('budget.error') || 'Error',
-        errorMessage
+      showToast.error(
+        errorMessage,
+        t('budget.error') || 'Error'
       );
     } finally {
       setLoading(false);
@@ -256,7 +257,7 @@ export default function BudgetScreen() {
   const handleUpdateBudget = async (categoryId: string) => {
     const newBudget = parseFloat(budgetValue);
     if (isNaN(newBudget) || newBudget < 0) {
-      Alert.alert('Error', 'Please enter a valid budget amount.');
+      showToast.error('Please enter a valid budget amount.', 'Error');
       return;
     }
 
@@ -282,10 +283,10 @@ export default function BudgetScreen() {
       await loadBudgetData();
       setEditingCategory(null);
       setBudgetValue('');
-      Alert.alert('Success', 'Budget updated successfully');
+      showToast.success('Budget updated successfully', 'Success');
     } catch (error: any) {
       console.error('Error updating budget:', error);
-      Alert.alert('Error', error.response?.data?.message || 'Failed to update budget. Please try again.');
+      showToast.error(error.response?.data?.message || 'Failed to update budget. Please try again.', 'Error');
     } finally {
       setLoading(false);
     }
@@ -305,10 +306,10 @@ export default function BudgetScreen() {
               setLoading(true);
               await budgetsService.deleteCategoryBudget(Number(categoryId));
               await loadBudgetData();
-              Alert.alert('Success', 'Budget deleted successfully');
+              showToast.success('Budget deleted successfully', 'Success');
             } catch (error: any) {
               console.error('Error deleting budget:', error);
-              Alert.alert('Error', error.response?.data?.message || 'Failed to delete budget. Please try again.');
+              showToast.error(error.response?.data?.message || 'Failed to delete budget. Please try again.', 'Error');
             } finally {
               setLoading(false);
             }
@@ -780,7 +781,11 @@ export default function BudgetScreen() {
           setCurrencySearch('');
         }}
       >
-        <View style={[styles.modalOverlay, { backgroundColor: isDark ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.5)' }]}>
+        <KeyboardAvoidingView
+          style={[styles.modalOverlay, { backgroundColor: isDark ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.5)' }]}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        >
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
               <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('addTransaction.selectCurrency') || 'Select Currency'}</Text>
@@ -800,7 +805,7 @@ export default function BudgetScreen() {
                 onChangeText={setCurrencySearch}
               />
             </View>
-            <ScrollView style={styles.modalList}>
+            <ScrollView style={styles.modalList} keyboardShouldPersistTaps="handled">
               {currencies
                 .filter((curr) => {
                   if (!currencySearch.trim()) return true;
@@ -828,7 +833,7 @@ export default function BudgetScreen() {
                 ))}
             </ScrollView>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaView>
   );

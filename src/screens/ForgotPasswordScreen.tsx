@@ -8,7 +8,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
   Image,
   useWindowDimensions,
 } from 'react-native';
@@ -20,6 +19,7 @@ import { Mail, ArrowLeft, CheckCircle } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
 import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
+import { showToast } from '../utils/toast';
 
 interface ForgotPasswordScreenProps {
   onBackToLogin?: () => void;
@@ -67,7 +67,7 @@ export default function ForgotPasswordScreen({
       const message =
         error?.response?.data?.message ||
         'Failed to send reset email. Please try again.';
-      Alert.alert('Error', message);
+      showToast.error(message, 'Error');
     } finally {
       setIsLoading(false);
     }

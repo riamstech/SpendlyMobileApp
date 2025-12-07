@@ -97,7 +97,7 @@
     "incomeVsExpenses": "الدخل مقابل المصروفات",
     "net": "الصافي",
     "savingsRateOverTime": "معدل التوفير مع مرور الوقت",
-    "savingsRate": "معدل التوفير %",
+    "savingsRate": "معدل الادخار",
     "saved": "موفر",
     "financialHealthScore": "نقاط الصحة المالية",
     "grade": "الدرجة:",
@@ -111,7 +111,6 @@
     "quickWinsToImproveScore": "مكاسب سريعة لتحسين نقاطك:",
     "gotIt": "فهمت!",
     "tipsToImprove": "نصائح لتحسين صحتك المالية",
-    "savingsRate": "معدل الادخار",
     "spendingTrend": "اتجاه الإنفاق",
     "topSpendingCategory": "أهم فئات الإنفاق",
     "spendingPace": "وتيرة الإنفاق",
@@ -300,6 +299,23 @@
     "subject": "الموضوع",
     "subjectPlaceholder": "وصف موجز للمشكلة",
     "message": "الرسالة",
+    "supportTickets": {
+      "subject": "الموضوع",
+      "subjectPlaceholder": "أدخل موضوع التذكرة",
+      "message": "الرسالة",
+      "messagePlaceholder": "اوصف مشكلتك...",
+      "replyPlaceholder": "اكتب ردك...",
+      "status": "الحالة",
+      "created": "تم الإنشاء",
+      "replies": "الردود",
+      "reply": "رد",
+      "user": "المستخدم",
+      "editTicket": "تعديل التذكرة",
+      "replyToTicket": "الرد على التذكرة",
+      "attachEvidence": "إرفاق دليل (اختياري)",
+      "changeEvidence": "تغيير الدليل",
+      "changeAttachment": "تغيير المرفق"
+    },
     "noCurrenciesAvailableError": "لا توجد عملات متاحة",
     "failedToLoadCurrencies": "فشل تحميل العملات. يرجى التحقق من اتصالك.",
     "razorpaySdkFailed": "فشل تحميل Razorpay SDK. هل أنت متصل بالإنترنت؟",
@@ -415,7 +431,25 @@
     "failed": "فشل الدفع",
     "razorpay": "دفع Razorpay",
     "razorpayNotSupported": "تكامل Razorpay للجوال قادم قريباً."
+  },
+  "mySupportTickets": "تذاكر الدعم الخاصة بي",
+  "mySupportTicketsSubtitle": "عرض وإدارة تذاكرك",
+  "submitSupportTicket": "إرسال تذكرة دعم",
+  "supportTickets": {
+    "subject": "الموضوع",
+    "subjectPlaceholder": "أدخل موضوع التذكرة",
+    "message": "الرسالة",
+    "messagePlaceholder": "اوصف مشكلتك...",
+    "replyPlaceholder": "اكتب ردك...",
+    "status": "الحالة",
+    "created": "تم الإنشاء",
+    "replies": "الردود",
+    "reply": "رد",
+    "user": "المستخدم",
+    "editTicket": "تعديل التذكرة",
+    "replyToTicket": "الرد على التذكرة",
+    "attachEvidence": "إرفاق دليل (اختياري)",
+    "changeEvidence": "تغيير الدليل",
+    "changeAttachment": "تغيير المرفق"
   }
 }
-
-

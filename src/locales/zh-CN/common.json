@@ -435,6 +435,23 @@
     "subject": "主题",
     "subjectPlaceholder": "问题的简要描述",
     "message": "消息",
+    "supportTickets": {
+      "subject": "主题",
+      "subjectPlaceholder": "输入工单主题",
+      "message": "消息",
+      "messagePlaceholder": "描述您的问题...",
+      "replyPlaceholder": "输入您的回复...",
+      "status": "状态",
+      "created": "创建时间",
+      "replies": "回复",
+      "reply": "回复",
+      "user": "用户",
+      "editTicket": "编辑工单",
+      "replyToTicket": "回复工单",
+      "attachEvidence": "附加证据（可选）",
+      "changeEvidence": "更改证据",
+      "changeAttachment": "更改附件"
+    },
     "noCurrenciesAvailableError": "没有可用的货币",
     "failedToLoadCurrencies": "加载货币失败。请检查您的连接。",
     "razorpaySdkFailed": "Razorpay SDK加载失败。您在线吗？",
@@ -550,7 +567,25 @@
     "failed": "付款失败",
     "razorpay": "Razorpay付款",
     "razorpayNotSupported": "移动端Razorpay集成即将推出。"
+  },
+  "mySupportTickets": "我的支持工单",
+  "mySupportTicketsSubtitle": "查看和管理您的工单",
+  "submitSupportTicket": "提交支持工单",
+  "supportTickets": {
+    "subject": "主题",
+    "subjectPlaceholder": "输入工单主题",
+    "message": "消息",
+    "messagePlaceholder": "描述您的问题...",
+    "replyPlaceholder": "输入您的回复...",
+    "status": "状态",
+    "created": "创建时间",
+    "replies": "回复",
+    "reply": "回复",
+    "user": "用户",
+    "editTicket": "编辑工单",
+    "replyToTicket": "回复工单",
+    "attachEvidence": "附加证据（可选）",
+    "changeEvidence": "更改证据",
+    "changeAttachment": "更改附件"
   }
 }
-
-

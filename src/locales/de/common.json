@@ -299,6 +299,23 @@
     "subject": "Betreff",
     "subjectPlaceholder": "Kurze Beschreibung des Problems",
     "message": "Nachricht",
+    "supportTickets": {
+      "subject": "Betreff",
+      "subjectPlaceholder": "Ticket-Betreff eingeben",
+      "message": "Nachricht",
+      "messagePlaceholder": "Beschreiben Sie Ihr Problem...",
+      "replyPlaceholder": "Geben Sie Ihre Antwort ein...",
+      "status": "Status",
+      "created": "Erstellt",
+      "replies": "Antworten",
+      "reply": "Antworten",
+      "user": "Benutzer",
+      "editTicket": "Ticket Bearbeiten",
+      "replyToTicket": "Auf Ticket Antworten",
+      "attachEvidence": "Beweis Anhängen (Optional)",
+      "changeEvidence": "Beweis Ändern",
+      "changeAttachment": "Anhang Ändern"
+    },
     "noCurrenciesAvailableError": "Keine Währungen verfügbar",
     "failedToLoadCurrencies": "Währungen konnten nicht geladen werden. Bitte überprüfen Sie Ihre Verbindung.",
     "razorpaySdkFailed": "Razorpay SDK konnte nicht geladen werden. Sind Sie online?",
@@ -414,7 +431,25 @@
     "failed": "Zahlung Fehlgeschlagen",
     "razorpay": "Razorpay Zahlung",
     "razorpayNotSupported": "Razorpay-Integration für Mobilgeräte kommt bald."
+  },
+  "mySupportTickets": "Meine Support-Tickets",
+  "mySupportTicketsSubtitle": "Ihre Tickets anzeigen und verwalten",
+  "submitSupportTicket": "Support-Ticket Senden",
+  "supportTickets": {
+    "subject": "Betreff",
+    "subjectPlaceholder": "Ticket-Betreff eingeben",
+    "message": "Nachricht",
+    "messagePlaceholder": "Beschreiben Sie Ihr Problem...",
+    "replyPlaceholder": "Geben Sie Ihre Antwort ein...",
+    "status": "Status",
+    "created": "Erstellt",
+    "replies": "Antworten",
+    "reply": "Antworten",
+    "user": "Benutzer",
+    "editTicket": "Ticket Bearbeiten",
+    "replyToTicket": "Auf Ticket Antworten",
+    "attachEvidence": "Beweis Anhängen (Optional)",
+    "changeEvidence": "Beweis Ändern",
+    "changeAttachment": "Anhang Ändern"
   }
 }
-
-

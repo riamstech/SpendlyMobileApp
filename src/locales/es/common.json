@@ -445,6 +445,23 @@
     "logout": "Cerrar Sesión",
     "submitSupportTicket": "Enviar Ticket de Soporte",
     "submitSupportTicketDescription": "¿Tienes un problema? Envíanos un mensaje y te responderemos.",
+    "supportTickets": {
+      "subject": "Asunto",
+      "subjectPlaceholder": "Ingrese el asunto del ticket",
+      "message": "Mensaje",
+      "messagePlaceholder": "Describe tu problema...",
+      "replyPlaceholder": "Escribe tu respuesta...",
+      "status": "Estado",
+      "created": "Creado",
+      "replies": "Respuestas",
+      "reply": "Responder",
+      "user": "Usuario",
+      "editTicket": "Editar Ticket",
+      "replyToTicket": "Responder al Ticket",
+      "attachEvidence": "Adjuntar Prueba (Opcional)",
+      "changeEvidence": "Cambiar Prueba",
+      "changeAttachment": "Cambiar Adjunto"
+    },
     "subject": "Asunto",
     "subjectPlaceholder": "Breve descripción del problema",
     "message": "Mensaje",
@@ -563,7 +580,25 @@
     "failed": "Pago fallido",
     "razorpay": "Pago Razorpay",
     "razorpayNotSupported": "La integración de Razorpay para móvil estará disponible pronto."
+  },
+  "mySupportTickets": "Mis Tickets de Soporte",
+  "mySupportTicketsSubtitle": "Ver y administrar tus tickets",
+  "submitSupportTicket": "Enviar Ticket de Soporte",
+  "supportTickets": {
+    "subject": "Asunto",
+    "subjectPlaceholder": "Ingrese el asunto del ticket",
+    "message": "Mensaje",
+    "messagePlaceholder": "Describe tu problema...",
+    "replyPlaceholder": "Escribe tu respuesta...",
+    "status": "Estado",
+    "created": "Creado",
+    "replies": "Respuestas",
+    "reply": "Responder",
+    "user": "Usuario",
+    "editTicket": "Editar Ticket",
+    "replyToTicket": "Responder al Ticket",
+    "attachEvidence": "Adjuntar Prueba (Opcional)",
+    "changeEvidence": "Cambiar Prueba",
+    "changeAttachment": "Cambiar Adjunto"
   }
 }
-
-

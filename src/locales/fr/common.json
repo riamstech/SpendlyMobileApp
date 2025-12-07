@@ -97,7 +97,7 @@
     "incomeVsExpenses": "Revenus vs Dépenses",
     "net": "Net",
     "savingsRateOverTime": "Taux d'Épargne dans le Temps",
-    "savingsRate": "Taux d'Épargne %",
+    "savingsRate": "Taux d'Épargne",
     "saved": "épargné",
     "financialHealthScore": "Score de Santé Financière",
     "grade": "Note :",
@@ -111,7 +111,6 @@
     "quickWinsToImproveScore": "Gains Rapides pour Améliorer Votre Score :",
     "gotIt": "Compris !",
     "tipsToImprove": "Conseils pour améliorer votre santé financière",
-    "savingsRate": "Taux d'Épargne",
     "spendingTrend": "Tendance des Dépenses",
     "topSpendingCategory": "Catégories de Dépenses Principales",
     "spendingPace": "Rythme de Dépenses",
@@ -300,6 +299,23 @@
     "subject": "Sujet",
     "subjectPlaceholder": "Brève description du problème",
     "message": "Message",
+    "supportTickets": {
+      "subject": "Sujet",
+      "subjectPlaceholder": "Entrez le sujet du ticket",
+      "message": "Message",
+      "messagePlaceholder": "Décrivez votre problème...",
+      "replyPlaceholder": "Tapez votre réponse...",
+      "status": "Statut",
+      "created": "Créé",
+      "replies": "Réponses",
+      "reply": "Répondre",
+      "user": "Utilisateur",
+      "editTicket": "Modifier le Ticket",
+      "replyToTicket": "Répondre au Ticket",
+      "attachEvidence": "Joindre une Preuve (Optionnel)",
+      "changeEvidence": "Changer la Preuve",
+      "changeAttachment": "Changer la Pièce Jointe"
+    },
     "noCurrenciesAvailableError": "Aucune devise disponible",
     "failedToLoadCurrencies": "Échec du chargement des devises. Veuillez vérifier votre connexion.",
     "razorpaySdkFailed": "Échec du chargement du SDK Razorpay. Êtes-vous en ligne ?",
@@ -415,7 +431,25 @@
     "failed": "Paiement échoué",
     "razorpay": "Paiement Razorpay",
     "razorpayNotSupported": "L'intégration Razorpay pour mobile arrive bientôt."
+  },
+  "mySupportTickets": "Mes Tickets de Support",
+  "mySupportTicketsSubtitle": "Voir et gérer vos tickets",
+  "submitSupportTicket": "Soumettre un Ticket de Support",
+  "supportTickets": {
+    "subject": "Sujet",
+    "subjectPlaceholder": "Entrez le sujet du ticket",
+    "message": "Message",
+    "messagePlaceholder": "Décrivez votre problème...",
+    "replyPlaceholder": "Tapez votre réponse...",
+    "status": "Statut",
+    "created": "Créé",
+    "replies": "Réponses",
+    "reply": "Répondre",
+    "user": "Utilisateur",
+    "editTicket": "Modifier le Ticket",
+    "replyToTicket": "Répondre au Ticket",
+    "attachEvidence": "Joindre une Preuve (Optionnel)",
+    "changeEvidence": "Changer la Preuve",
+    "changeAttachment": "Changer la Pièce Jointe"
   }
 }
-
-

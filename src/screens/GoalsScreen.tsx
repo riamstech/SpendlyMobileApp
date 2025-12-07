@@ -33,6 +33,7 @@ import { goalsApi, SavingsGoal } from '../api/services/goals';
 import { authService } from '../api/services/auth';
 import { useTheme } from '../contexts/ThemeContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { showToast } from '../utils/toast';
 
 interface GoalsScreenProps {
   onBack?: () => void;
@@ -99,7 +100,7 @@ export default function GoalsScreen({ onBack }: GoalsScreenProps) {
 
   const handleCreate = async () => {
     if (!name.trim() || !targetAmount) {
-      Alert.alert('Error', 'Please fill in all required fields');
+      showToast.error('Please fill in all required fields', 'Error');
       return;
     }
 
@@ -121,7 +122,7 @@ export default function GoalsScreen({ onBack }: GoalsScreenProps) {
       await fetchGoals();
     } catch (error) {
       console.error('Failed to create goal:', error);
-      Alert.alert('Error', t('goals.errorCreate'));
+      showToast.error(t('goals.errorCreate'), 'Error');
     } finally {
       setCreating(false);
     }
@@ -144,7 +145,7 @@ export default function GoalsScreen({ onBack }: GoalsScreenProps) {
                   await fetchGoals();
                 } catch (error) {
                   console.error('Failed to update goal:', error);
-                  Alert.alert('Error', t('goals.errorUpdate'));
+                  showToast.error(t('goals.errorUpdate'), 'Error');
                 }
               }
             },
@@ -155,11 +156,10 @@ export default function GoalsScreen({ onBack }: GoalsScreenProps) {
         'decimal-pad'
       );
     } else {
-      // For Android, show a simple alert with instructions
-      Alert.alert(
-        t('goals.updateProgress'),
+      // For Android, show a simple toast with instructions
+      showToast.info(
         `Current amount: ${currency}${goal.current_amount}\n\nTo update, edit the goal and enter the new amount.`,
-        [{ text: 'OK' }]
+        t('goals.updateProgress')
       );
     }
   };
@@ -188,7 +188,7 @@ export default function GoalsScreen({ onBack }: GoalsScreenProps) {
               await fetchGoals();
             } catch (error) {
               console.error('Failed to delete goal:', error);
-              Alert.alert('Error', t('goals.errorDelete'));
+              showToast.error(t('goals.errorDelete'), 'Error');
             }
           },
         },

@@ -48,6 +48,7 @@ import { categoriesService } from '../api/services/categories';
 import { authService } from '../api/services/auth';
 import { useTheme } from '../contexts/ThemeContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { showToast } from '../utils/toast';
 
 interface ReceiptsScreenProps {
   onBack?: () => void;
@@ -178,9 +179,9 @@ export default function ReceiptsScreen({ onBack }: ReceiptsScreenProps) {
   const requestPermissions = async () => {
     if (Platform.OS !== 'web') {
       if (!isImagePickerAvailable()) {
-        Alert.alert(
-          'Feature Unavailable',
-          'Image picker is not available. Please wait for the app rebuild to complete, or rebuild the app manually.'
+        showToast.error(
+          'Image picker is not available. Please wait for the app rebuild to complete, or rebuild the app manually.',
+          'Feature Unavailable'
         );
         return false;
       }
@@ -190,14 +191,14 @@ export default function ReceiptsScreen({ onBack }: ReceiptsScreenProps) {
         const libraryPermission = await requestMediaLibraryPermissionsAsync();
         
         if (cameraPermission.status !== 'granted' || libraryPermission.status !== 'granted') {
-          Alert.alert(
-            'Permissions needed',
-            'Camera and photo library permissions are required to upload receipts.'
+          showToast.error(
+            'Camera and photo library permissions are required to upload receipts.',
+            'Permissions needed'
           );
           return false;
         }
       } catch (error: any) {
-        Alert.alert('Error', error.message || 'Failed to request permissions');
+        showToast.error(error.message || 'Failed to request permissions', 'Error');
         return false;
       }
     }
@@ -206,9 +207,9 @@ export default function ReceiptsScreen({ onBack }: ReceiptsScreenProps) {
 
   const pickFromCamera = async () => {
     if (!isImagePickerAvailable()) {
-      Alert.alert(
-        'Feature Unavailable',
-        'Image picker is not available. Please wait for the app rebuild to complete.'
+      showToast.error(
+        'Image picker is not available. Please wait for the app rebuild to complete.',
+        'Feature Unavailable'
       );
       return;
     }
@@ -228,15 +229,15 @@ export default function ReceiptsScreen({ onBack }: ReceiptsScreenProps) {
         setShowUploadModal(true);
       }
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to open camera');
+      showToast.error(error.message || 'Failed to open camera', 'Error');
     }
   };
 
   const pickFromGallery = async () => {
     if (!isImagePickerAvailable()) {
-      Alert.alert(
-        'Feature Unavailable',
-        'Image picker is not available. Please wait for the app rebuild to complete.'
+      showToast.error(
+        'Image picker is not available. Please wait for the app rebuild to complete.',
+        'Feature Unavailable'
       );
       return;
     }
@@ -256,13 +257,13 @@ export default function ReceiptsScreen({ onBack }: ReceiptsScreenProps) {
         setShowUploadModal(true);
       }
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to open gallery');
+      showToast.error(error.message || 'Failed to open gallery', 'Error');
     }
   };
 
   const handleUpload = async () => {
     if (!selectedImage) {
-      Alert.alert('Error', 'Please select an image first');
+      showToast.error('Please select an image first', 'Error');
       return;
     }
 
@@ -281,10 +282,10 @@ export default function ReceiptsScreen({ onBack }: ReceiptsScreenProps) {
       
       // Refresh list
       await fetchReceipts();
-      Alert.alert('Success', 'Receipt uploaded successfully!');
+      showToast.success('Receipt uploaded successfully!', 'Success');
     } catch (error) {
       console.error('Failed to upload receipt:', error);
-      Alert.alert('Error', 'Failed to upload receipt. Please try again.');
+      showToast.error('Failed to upload receipt. Please try again.', 'Error');
     } finally {
       setUploading(false);
     }
@@ -313,7 +314,7 @@ export default function ReceiptsScreen({ onBack }: ReceiptsScreenProps) {
               await fetchReceipts();
             } catch (error) {
               console.error('Failed to delete receipt:', error);
-              Alert.alert('Error', 'Failed to delete receipt.');
+              showToast.error('Failed to delete receipt.', 'Error');
             }
           },
         },
