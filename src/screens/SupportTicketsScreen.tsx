@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import {
   requestMediaLibraryPermissionsAsync,
+  getMediaLibraryPermissionsAsync,
   launchImageLibraryAsync,
   MediaTypeOptions,
   isImagePickerAvailable,
@@ -222,10 +223,16 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
         return;
       }
 
-      const { status } = await requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert(t('settings.permissionDenied'), t('settings.permissionDeniedMessage'));
-        return;
+      // Check permission status first to avoid unnecessary dialogs
+      let permissionStatus = await getMediaLibraryPermissionsAsync();
+      
+      // Only request if not already granted
+      if (permissionStatus.status !== 'granted') {
+        permissionStatus = await requestMediaLibraryPermissionsAsync();
+        if (permissionStatus.status !== 'granted') {
+          Alert.alert(t('settings.permissionDenied'), t('settings.permissionDeniedMessage'));
+          return;
+        }
       }
 
       const result = await launchImageLibraryAsync({

@@ -17,16 +17,54 @@ try {
 
 export const isImagePickerAvailable = () => isAvailable;
 
+/**
+ * Check media library permission status without requesting
+ */
+export const getMediaLibraryPermissionsAsync = async () => {
+  if (!isAvailable || !ImagePicker) {
+    throw new Error('ImagePicker native module is not available. Please rebuild the app with expo-image-picker plugin.');
+  }
+  return ImagePicker.getMediaLibraryPermissionsAsync();
+};
+
+/**
+ * Request media library permissions (only shows dialog if not already granted)
+ */
 export const requestMediaLibraryPermissionsAsync = async () => {
   if (!isAvailable || !ImagePicker) {
     throw new Error('ImagePicker native module is not available. Please rebuild the app with expo-image-picker plugin.');
   }
+  // Check current status first
+  const currentStatus = await ImagePicker.getMediaLibraryPermissionsAsync();
+  // Only request if not already granted
+  if (currentStatus.status === 'granted') {
+    return currentStatus;
+  }
   return ImagePicker.requestMediaLibraryPermissionsAsync();
 };
 
+/**
+ * Check camera permission status without requesting
+ */
+export const getCameraPermissionsAsync = async () => {
+  if (!isAvailable || !ImagePicker) {
+    throw new Error('ImagePicker native module is not available. Please rebuild the app with expo-image-picker plugin.');
+  }
+  return ImagePicker.getCameraPermissionsAsync();
+};
+
+/**
+ * Request camera permissions (only shows dialog if not already granted)
+ */
 export const requestCameraPermissionsAsync = async () => {
   if (!isAvailable || !ImagePicker) {
     throw new Error('ImagePicker native module is not available. Please rebuild the app with expo-image-picker plugin.');
+  }
+  // Check current status first
+  const currentStatus = await ImagePicker.getCameraPermissionsAsync();
+  // Only request if not already granted
+  if (currentStatus.status === 'granted') {
+    return currentStatus;
   }
   return ImagePicker.requestCameraPermissionsAsync();
 };

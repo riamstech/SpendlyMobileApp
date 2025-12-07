@@ -18,6 +18,7 @@ import {
 } from 'react-native';
 import {
   requestMediaLibraryPermissionsAsync,
+  getMediaLibraryPermissionsAsync,
   launchImageLibraryAsync,
   MediaTypeOptions,
   isImagePickerAvailable,
@@ -799,11 +800,17 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
         return;
       }
 
-      // Request permission
-      const { status } = await requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert(t('settings.permissionDenied'), t('settings.permissionDeniedMessage'));
-        return;
+      // Only request permission when user explicitly tries to upload
+      // Check current status first to avoid unnecessary permission dialogs
+      let permissionStatus = await getMediaLibraryPermissionsAsync();
+      
+      // Only request if not already granted
+      if (permissionStatus.status !== 'granted') {
+        permissionStatus = await requestMediaLibraryPermissionsAsync();
+        if (permissionStatus.status !== 'granted') {
+          Alert.alert(t('settings.permissionDenied'), t('settings.permissionDeniedMessage'));
+          return;
+        }
       }
 
       // Launch image picker

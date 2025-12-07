@@ -20,6 +20,8 @@ import { useTranslation } from 'react-i18next';
 import {
   requestCameraPermissionsAsync,
   requestMediaLibraryPermissionsAsync,
+  getCameraPermissionsAsync,
+  getMediaLibraryPermissionsAsync,
   launchCameraAsync,
   launchImageLibraryAsync,
   MediaTypeOptions,
@@ -187,8 +189,17 @@ export default function ReceiptsScreen({ onBack }: ReceiptsScreenProps) {
       }
 
       try {
-        const cameraPermission = await requestCameraPermissionsAsync();
-        const libraryPermission = await requestMediaLibraryPermissionsAsync();
+        // Check permission status first to avoid unnecessary dialogs
+        let cameraPermission = await getCameraPermissionsAsync();
+        let libraryPermission = await getMediaLibraryPermissionsAsync();
+        
+        // Only request if not already granted
+        if (cameraPermission.status !== 'granted') {
+          cameraPermission = await requestCameraPermissionsAsync();
+        }
+        if (libraryPermission.status !== 'granted') {
+          libraryPermission = await requestMediaLibraryPermissionsAsync();
+        }
         
         if (cameraPermission.status !== 'granted' || libraryPermission.status !== 'granted') {
           showToast.error(
