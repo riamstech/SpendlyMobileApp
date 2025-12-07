@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
 import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
 import { subscriptionsService } from '../api/services/subscriptions';
+import { convertToSmallestUnit } from '../utils/currencyConverter';
 import * as Linking from 'expo-linking';
 
 interface StripePaymentDialogProps {
@@ -25,6 +26,9 @@ interface StripePaymentDialogProps {
   onSuccess?: () => void;
   monthlyPrice?: string;
   yearlyPrice?: string;
+  monthlyAmount?: number;
+  yearlyAmount?: number;
+  currencyCode?: string;
 }
 
 export default function StripePaymentDialog({
@@ -35,6 +39,9 @@ export default function StripePaymentDialog({
   onSuccess,
   monthlyPrice,
   yearlyPrice,
+  monthlyAmount,
+  yearlyAmount,
+  currencyCode,
 }: StripePaymentDialogProps) {
   const { t } = useTranslation('common');
   const { width } = useWindowDimensions();
@@ -50,23 +57,51 @@ export default function StripePaymentDialog({
       setLoading(true);
       setError(null);
 
-      // Use checkout session (URL) for all payment methods on mobile
-      // This supports both Stripe Checkout and Razorpay Payment Links (if implemented on backend)
-      const checkout = await subscriptionsService.checkout(selectedPlan, paymentMethod);
-      
-      if (checkout.checkout_url) {
-        // Open the checkout URL in system browser
-        const canOpen = await Linking.canOpenURL(checkout.checkout_url);
-        if (canOpen) {
-          await Linking.openURL(checkout.checkout_url);
-          onSuccess?.(); // Optimistically call success or wait for deep link return?
-          // Usually we want to wait, but here we just close the dialog
-          onClose(); 
-        } else {
-          throw new Error('Cannot open payment URL');
+      if (paymentMethod === 'upi') {
+        // UPI / INR Flow (Razorpay)
+        // Uses createPaymentIntent to get a Razorpay Payment Link URL
+        
+        let amount = selectedPlan === 'monthly' ? monthlyAmount : yearlyAmount;
+        const currency = currencyCode;
+        
+        if (amount !== undefined && currency) {
+          amount = convertToSmallestUnit(amount, currency);
         }
+
+        const intent = await subscriptionsService.createPaymentIntent(selectedPlan, 'upi', amount, currency);
+        
+        if (intent.checkout_url) {
+          const canOpen = await Linking.canOpenURL(intent.checkout_url);
+          if (canOpen) {
+            await Linking.openURL(intent.checkout_url);
+            onSuccess?.(); 
+            onClose(); 
+          } else {
+             throw new Error('Cannot open Razorpay URL');
+          }
+        } else {
+             // Fallback for older backend or non-link response
+             throw new Error('UPI Payment Link not ready. Please try Card.');
+        }
+
       } else {
-        throw new Error('No checkout URL returned');
+         // Card / USD Flow (Stripe)
+         // Uses checkout endpoint (Stripe Hosted Page)
+         // Note: Backend determines price (USD). Frontend amounts are estimation.
+         const checkout = await subscriptionsService.checkout(selectedPlan, 'card');
+         
+         if (checkout.checkout_url) {
+           const canOpen = await Linking.canOpenURL(checkout.checkout_url);
+           if (canOpen) {
+             await Linking.openURL(checkout.checkout_url);
+             onSuccess?.(); 
+             onClose(); 
+           } else {
+             throw new Error('Cannot open Stripe URL');
+           }
+         } else {
+           throw new Error('No checkout URL returned');
+         }
       }
 
     } catch (err: any) {

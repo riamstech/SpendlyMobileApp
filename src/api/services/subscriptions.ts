@@ -11,6 +11,15 @@ export const subscriptionsService = {
     try {
       const token = apiClient.getToken();
       
+      const payload = {
+        plan_type: planType,
+        payment_method: paymentMethod, // Send as is (backend expects 'card' or 'upi')
+        // Omit success/cancel URLs to avoid validation errors with custom schemes (spendly://)
+        // Backend will use default configured URLs
+      };
+      
+      console.log('Checkout payload:', JSON.stringify(payload));
+      
       const response = await fetch(`${config.apiBaseUrl}/pro-subscriptions/checkout`, {
         method: 'POST',
         headers: {
@@ -18,12 +27,7 @@ export const subscriptionsService = {
           'Accept': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-          plan_type: planType,
-          payment_method: paymentMethod,
-          success_url: 'spendly://settings?payment=success',
-          cancel_url: 'spendly://settings?payment=cancel',
-        })
+        body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
@@ -51,6 +55,7 @@ export const subscriptionsService = {
     key?: string;
     amount?: number;
     currency?: string;
+    checkout_url?: string; // For Razorpay Payment Link
     prefill?: {
       name?: string;
       email?: string;

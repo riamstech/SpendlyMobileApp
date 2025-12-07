@@ -112,7 +112,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
     
     return {
       monthly: `${monthlyPrice.symbol}${formatCurrencyAmount(monthlyPrice.amount, monthlyPrice.symbol)}`,
-      yearly: `${yearlyPrice.symbol}${formatCurrencyAmount(yearlyPrice.amount, yearlyPrice.symbol)}`
+      yearly: `${yearlyPrice.symbol}${formatCurrencyAmount(yearlyPrice.amount, yearlyPrice.symbol)}`,
+      monthlyAmount: monthlyPrice.amount,
+      yearlyAmount: yearlyPrice.amount,
+      currencyCode: userCurrencyCode
     };
   }, [user, currencies]);
 
@@ -1652,6 +1655,9 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
           }}
           monthlyPrice={pricingData?.monthly}
           yearlyPrice={pricingData?.yearly}
+          monthlyAmount={pricingData?.monthlyAmount}
+          yearlyAmount={pricingData?.yearlyAmount}
+          currencyCode={pricingData?.currencyCode}
         />
       )}
     </SafeAreaView>
