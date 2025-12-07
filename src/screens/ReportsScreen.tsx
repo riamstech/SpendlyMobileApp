@@ -527,16 +527,30 @@ export default function ReportsScreen() {
       console.log('FileSystem available:', !!FileSystem);
       console.log('Sharing available:', !!Sharing);
 
-      const cacheDir = (FileSystem as any).cacheDirectory || (FileSystem as any).documentDirectory;
-      if (!cacheDir) {
-        throw new Error('FileSystem directories are not available. The app may need to be rebuilt.');
+      // Use documentDirectory for persistent, shareable files
+      // Check both properties directly (they're synchronous properties in expo-file-system)
+      const documentDir = FileSystem.documentDirectory;
+      const cacheDir = FileSystem.cacheDirectory;
+      
+      console.log('documentDirectory:', documentDir);
+      console.log('cacheDirectory:', cacheDir);
+      
+      // Prefer documentDirectory as it's persistent and shareable
+      const targetDir = documentDir || cacheDir;
+      
+      if (!targetDir) {
+        throw new Error('FileSystem directories are not available. Please ensure expo-file-system is properly installed and the app is rebuilt.');
       }
 
+      // Ensure directory path ends with a slash
+      const dirPath = targetDir.endsWith('/') ? targetDir : `${targetDir}/`;
       const fileName = `financial_report_${from}_to_${to}.csv`;
-      const fileUri = `${cacheDir}${fileName}`;
+      const fileUri = `${dirPath}${fileName}`;
+      
       console.log('Writing to:', fileUri);
 
-      await (FileSystem as any).writeAsStringAsync(fileUri, csvContent);
+      // Write the file
+      await FileSystem.writeAsStringAsync(fileUri, csvContent);
       console.log('File written successfully');
 
       const canShare = await Sharing.isAvailableAsync();
