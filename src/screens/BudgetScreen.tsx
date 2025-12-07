@@ -11,6 +11,7 @@ import {
   useWindowDimensions,
   Modal,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -198,6 +199,21 @@ export default function BudgetScreen() {
       const cycleDay = budgetCycleDay || 1;
       const budgetPeriod = getBudgetPeriodFromCycleDay(cycleDay);
 
+      // Check for duplicate budget before submitting
+      const existingBudget = categoryBudgets.find(
+        (b) => b.name.toLowerCase() === name.toLowerCase()
+      );
+      
+      if (existingBudget) {
+        Alert.alert(
+          t('budget.duplicateBudgetTitle') || 'Duplicate Budget',
+          t('budget.duplicateBudgetMessage', { category: name }) || 
+          `A budget for "${name}" already exists. Please edit the existing budget or choose a different category.`
+        );
+        setLoading(false);
+        return;
+      }
+
       await budgetsService.createCategoryBudget({
         category: name,
         budget_amount: budget,
@@ -221,7 +237,17 @@ export default function BudgetScreen() {
       }
     } catch (error: any) {
       console.error('Error adding budget:', error);
-      Alert.alert('Error', error.response?.data?.message || 'Failed to add budget. Please try again.');
+      
+      // Handle validation errors from backend
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.errors?.category?.[0] ||
+                          error.response?.data?.error ||
+                          'Failed to add budget. Please try again.';
+      
+      Alert.alert(
+        t('budget.error') || 'Error',
+        errorMessage
+      );
     } finally {
       setLoading(false);
     }
