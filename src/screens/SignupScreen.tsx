@@ -121,9 +121,9 @@ export default function SignupScreen({
 
   const getStrengthText = () => {
     const strength = passwordStrength();
-    if (strength <= 1) return 'Weak';
-    if (strength <= 3) return 'Medium';
-    return 'Strong';
+    if (strength <= 1) return t('auth.passwordWeak') || 'Weak';
+    if (strength <= 3) return t('auth.passwordMedium') || 'Medium';
+    return t('auth.passwordStrong') || 'Strong';
   };
 
   const handleSignup = async () => {
@@ -185,7 +185,7 @@ export default function SignupScreen({
       }
       
       // Get the error message to display in alert
-      let errorMessage = 'Signup failed. Please try again.';
+      let errorMessage = t('auth.signupFailed') || 'Signup failed. Please try again.';
       
       // Prioritize field-specific errors
       if (newErrors.email) {
@@ -198,7 +198,7 @@ export default function SignupScreen({
         errorMessage = errorData.message;
       }
       
-      showToast.error(errorMessage, 'Signup failed');
+      showToast.error(errorMessage, t('auth.signupFailedTitle') || 'Signup failed');
     } finally {
       setIsLoading(false);
     }
@@ -242,11 +242,11 @@ export default function SignupScreen({
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         // User cancelled
       } else if (error.code === statusCodes.IN_PROGRESS) {
-        showToast.error('Sign in already in progress', 'Error');
+        showToast.error(t('auth.signInProgress') || 'Sign in already in progress', t('settings.error') || 'Error');
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        showToast.error('Google Play Services not available', 'Error');
+        showToast.error(t('auth.playServicesNotAvailable') || 'Google Play Services not available', t('settings.error') || 'Error');
       } else {
-        showToast.error(error.message || 'An error occurred during Google Sign-Up', 'Google Sign-Up Failed');
+        showToast.error(error.message || t('auth.googleSignUpError') || 'An error occurred during Google Sign-Up', t('auth.googleSignUpFailed') || 'Google Sign-Up Failed');
       }
     } finally {
       setIsLoading(false);
@@ -320,7 +320,7 @@ export default function SignupScreen({
                       { paddingVertical: 14, color: colors.foreground },
                       errors.name && styles.inputError,
                     ]}
-                    placeholder="John Doe"
+                    placeholder={t('auth.namePlaceholder')}
                     placeholderTextColor={colors.mutedForeground}
                     value={name}
                     onChangeText={(text) => {
@@ -479,7 +479,7 @@ export default function SignupScreen({
               {/* Referral Code Field */}
               <View style={styles.inputContainer}>
                 <Text style={[styles.label, responsiveTextStyles.label, { color: colors.foreground }]}>
-                  {t('auth.referralCode')} <Text style={[styles.optionalText, responsiveTextStyles.small, { color: colors.mutedForeground }]}>(Optional)</Text>
+                  {t('auth.referralCode')} <Text style={[styles.optionalText, responsiveTextStyles.small, { color: colors.mutedForeground }]}> ({t('common.optional') || 'Optional'})</Text>
                 </Text>
                 <View style={[styles.inputWrapper, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
                   <Gift
@@ -565,7 +565,7 @@ export default function SignupScreen({
                 <View style={styles.googleIconCircle}>
                   <Text style={styles.googleIconText}>G</Text>
                 </View>
-                <Text style={[styles.googleButtonText, responsiveTextStyles.button, { color: colors.foreground }]}>Continue with Google</Text>
+                <Text style={[styles.googleButtonText, responsiveTextStyles.button, { color: colors.foreground }]}>{t('auth.continueWithGoogle')}</Text>
               </Pressable>
 
               {/* Login Link */}

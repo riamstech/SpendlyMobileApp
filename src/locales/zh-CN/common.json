@@ -60,7 +60,20 @@
     "referralCodePlaceholder": "Enter referral code",
     "referralCodeHint": "You'll both get 1 month of Pro free!",
     "termsOfService": "Terms of Service",
-    "privacyPolicy": "Privacy Policy"
+    "privacyPolicy": "Privacy Policy",
+    "agreeToTerms": "I agree to the",
+    "and": "and",
+    "passwordWeak": "Weak",
+    "passwordMedium": "Medium",
+    "passwordStrong": "Strong",
+    "accountCreatedSuccess": "Account created successfully",
+    "signupFailed": "Signup failed. Please try again.",
+    "signupFailedTitle": "Signup failed",
+    "resetEmailFailed": "Failed to send reset email. Please try again.",
+    "signInProgress": "Sign in already in progress",
+    "playServicesNotAvailable": "Google Play Services not available",
+    "googleSignUpError": "An error occurred during Google Sign-Up",
+    "googleSignUpFailed": "Google Sign-Up Failed"
   },
   "footer": {
     "tagline": "记录 · 储蓄 · 成长",
@@ -623,5 +636,18 @@
     "attachEvidence": "附加证据（可选）",
     "changeEvidence": "更改证据",
     "changeAttachment": "更改附件"
+  },
+  "common": {
+    "all": "All",
+    "search": "Search",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "clearFilters": "Clear Filters",
+    "loading": "Loading...",
+    "ok": "OK",
+    "error": "Error",
+    "success": "Success",
+    "saving": "Saving...",
+    "optional": "Optional"
   }
 }

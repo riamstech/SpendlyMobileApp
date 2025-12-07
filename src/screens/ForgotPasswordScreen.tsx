@@ -277,7 +277,7 @@ export default function ForgotPasswordScreen({
 
             {/* Footer */}
             <Text style={[styles.footerText, responsiveTextStyles.caption, { color: isDark ? colors.mutedForeground : 'rgba(255,255,255,0.9)' }]}>
-              Track. Save. Grow. © 2024 Spendly
+              {t('footer.tagline')} {t('footer.copyright')}
             </Text>
           </ScrollView>
         </KeyboardAvoidingView>
