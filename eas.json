@@ -8,22 +8,43 @@
       "distribution": "internal",
       "ios": {
         "simulator": false
+      },
+      "env": {
+        "GOOGLE_SERVICE_INFO_PLIST": "$GOOGLE_SERVICE_INFO_PLIST",
+        "GOOGLE_SERVICES_JSON": "$GOOGLE_SERVICES_JSON"
       }
     },
     "preview": {
-      "distribution": "internal",
+      "developmentClient": false,
+      "distribution": "store",
       "ios": {
         "simulator": false
+      },
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "GOOGLE_SERVICE_INFO_PLIST": "$GOOGLE_SERVICE_INFO_PLIST",
+        "GOOGLE_SERVICES_JSON": "$GOOGLE_SERVICES_JSON"
       }
     },
     "production": {
+      "developmentClient": false,
       "ios": {
         "simulator": false
+      },
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "GOOGLE_SERVICE_INFO_PLIST": "$GOOGLE_SERVICE_INFO_PLIST",
+        "GOOGLE_SERVICES_JSON": "$GOOGLE_SERVICES_JSON"
       }
     }
   },
   "submit": {
-    "production": {}
+    "production": {},
+    "preview": {}
   }
 }
 
