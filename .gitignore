@@ -17,6 +17,16 @@ expo-env.d.ts
 *.p12
 *.key
 *.mobileprovision
+*.pem
+
+# Environment and secrets
+.env
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!app.json
+!eas.json
 
 # Metro
 .metro-health-check*
@@ -28,11 +38,9 @@ yarn-error.*
 
 # macOS
 .DS_Store
-*.pem
 
-# local env files
-.env
-.env*.local
+
+
 
 # typescript
 *.tsbuildinfo
@@ -41,6 +49,3 @@ yarn-error.*
 /ios
 /android
 
-# Firebase config files (contain sensitive keys)
-GoogleService-Info.plist
-google-services.json
