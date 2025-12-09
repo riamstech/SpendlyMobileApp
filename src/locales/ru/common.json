@@ -100,7 +100,9 @@
     "netWorth": "Чистая Стоимость:",
     "remaining": "осталось",
     "overBy": "Превышено на",
-    "noTransactions": "Пока нет транзакций"
+    "noTransactions": "Пока нет транзакций",
+    "spendingRatio": "Коэффициент расходов",
+    "ofIncome": "от дохода"
   },
   "reports": {
     "reportsAnalytics": "Отчеты и Аналитика",
@@ -512,7 +514,8 @@
     "error": "Error",
     "success": "Success",
     "saving": "Saving...",
-    "optional": "Optional"
+    "optional": "Optional",
+    "done": "Готово"
   },
   "onboarding": {
     "welcomeToSpendly": "Welcome to Spendly",

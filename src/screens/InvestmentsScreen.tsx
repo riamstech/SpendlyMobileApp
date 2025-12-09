@@ -1019,22 +1019,46 @@ export default function InvestmentsScreen() {
 
         {/* Date Pickers */}
         {showStartDatePicker && (
-          <DateTimePicker
-            value={startDate}
-            mode="date"
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-            onChange={handleStartDateChange}
-            maximumDate={endDate}
-          />
+          <View>
+            <DateTimePicker
+              value={startDate}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              onChange={handleStartDateChange}
+              maximumDate={endDate}
+            />
+            {Platform.OS === 'ios' && (
+              <View style={{ backgroundColor: colors.card, padding: 10, alignItems: 'flex-end', borderTopWidth: 1, borderTopColor: colors.border }}>
+                  <Pressable 
+                    onPress={() => setShowStartDatePicker(false)}
+                    style={{ padding: 10 }}
+                  >
+                    <Text style={{ color: colors.primary, fontWeight: '600', fontSize: 16 }}>{t('common.done') || 'Done'}</Text>
+                  </Pressable>
+              </View>
+            )}
+          </View>
         )}
         {showEndDatePicker && (
-          <DateTimePicker
-            value={endDate}
-            mode="date"
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-            onChange={handleEndDateChange}
-            minimumDate={startDate}
-          />
+          <View>
+            <DateTimePicker
+              value={endDate}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              onChange={handleEndDateChange}
+              minimumDate={startDate}
+            />
+            {Platform.OS === 'ios' && (
+              <View style={{ backgroundColor: colors.card, padding: 10, alignItems: 'flex-end', borderTopWidth: 1, borderTopColor: colors.border }}>
+                  <Pressable 
+                    onPress={() => setShowEndDatePicker(false)}
+                    style={{ padding: 10 }}
+                  >
+                    <Text style={{ color: colors.primary, fontWeight: '600', fontSize: 16 }}>{t('common.done') || 'Done'}</Text>
+                  </Pressable>
+              </View>
+            )}
+          </View>
         )}
 
         {/* Summary Cards */}

@@ -100,7 +100,9 @@
     "netWorth": "Patrimônio Líquido:",
     "remaining": "restante",
     "overBy": "Excedido em",
-    "noTransactions": "Ainda não há transações"
+    "noTransactions": "Ainda não há transações",
+    "spendingRatio": "Taxa de Gastos",
+    "ofIncome": "da renda"
   },
   "reports": {
     "reportsAnalytics": "Relatórios e Análises",
@@ -512,7 +514,8 @@
     "error": "Error",
     "success": "Success",
     "saving": "Saving...",
-    "optional": "Optional"
+    "optional": "Optional",
+    "done": "Concluído"
   },
   "onboarding": {
     "welcomeToSpendly": "Welcome to Spendly",

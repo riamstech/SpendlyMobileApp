@@ -85,7 +85,10 @@ export const usersService = {
       return avatarPath;
     }
     // Otherwise, prepend storage URL
-    return `${config.storageUrl}/${avatarPath}`;
+    const cleanPath = avatarPath.startsWith('/') ? avatarPath.substring(1) : avatarPath;
+    // Remove trailing slash from storageUrl if present
+    const storageUrl = config.storageUrl.endsWith('/') ? config.storageUrl.slice(0, -1) : config.storageUrl;
+    return `${storageUrl}/${cleanPath}`;
   },
 };
 

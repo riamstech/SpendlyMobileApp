@@ -100,7 +100,9 @@
     "netWorth": "शुद्ध मूल्य:",
     "remaining": "शेष",
     "overBy": "से अधिक",
-    "noTransactions": "अभी तक कोई लेनदेन नहीं"
+    "noTransactions": "अभी तक कोई लेनदेन नहीं",
+    "spendingRatio": "खर्च अनुपात",
+    "ofIncome": "आय का"
   },
   "reports": {
     "reportsAnalytics": "रिपोर्ट और विश्लेषण",
@@ -648,7 +650,8 @@
     "error": "Error",
     "success": "Success",
     "saving": "Saving...",
-    "optional": "Optional"
+    "optional": "Optional",
+    "done": "हो गया"
   },
   "onboarding": {
     "welcomeToSpendly": "Welcome to Spendly",

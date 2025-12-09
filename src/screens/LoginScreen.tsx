@@ -19,7 +19,7 @@ import { Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
 import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import { GoogleSignin, statusCodes } from '../utils/googleSignin';
 import { config } from '../config/env';
 import { showToast } from '../utils/toast';
 

@@ -105,7 +105,9 @@
     "ends": "Termina",
     "of": "de",
     "paid": "Pagado",
-    "noTransactions": "Aún no hay transacciones"
+    "noTransactions": "Aún no hay transacciones",
+    "spendingRatio": "Ratio de Gastos",
+    "ofIncome": "de ingresos"
   },
   "reports": {
     "reportsAnalytics": "Informes y Análisis",
@@ -661,7 +663,8 @@
     "error": "Error",
     "success": "Success",
     "saving": "Saving...",
-    "optional": "Optional"
+    "optional": "Optional",
+    "done": "Hecho"
   },
   "onboarding": {
     "welcomeToSpendly": "Welcome to Spendly",

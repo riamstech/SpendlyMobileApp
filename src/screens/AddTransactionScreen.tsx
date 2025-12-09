@@ -12,6 +12,7 @@ import {
   Modal as RNModal,
   Switch,
   KeyboardAvoidingView,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -34,6 +35,7 @@ import { getEmojiFromIcon } from '../utils/iconMapper';
 import { useTheme } from '../contexts/ThemeContext';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { showToast } from '../utils/toast';
+import { CategoryIcon } from '../components/CategoryIcon';
 
 interface AddTransactionScreenProps {
   onSuccess?: () => void;
@@ -71,6 +73,13 @@ export default function AddTransactionScreen({
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
   const [showDateModal, setShowDateModal] = useState(false);
   const [currencySearch, setCurrencySearch] = useState('');
+  const [showAllCategories, setShowAllCategories] = useState(false);
+  const [hasWarranty, setHasWarranty] = useState(false);
+  const [warrantyExpiryDate, setWarrantyExpiryDate] = useState('');
+  const [isLoan, setIsLoan] = useState(false);
+  const [loanAmount, setLoanAmount] = useState('');
+  const [loanEndDate, setLoanEndDate] = useState('');
+  const [loanType, setLoanType] = useState('personal');
 
   // Responsive scaling
   const scale = Math.min(width / 375, 1);
@@ -224,18 +233,34 @@ export default function AddTransactionScreen({
         is_recurring: isRecurring,
         recurring_frequency: isRecurring ? frequency : undefined,
         reminder_days: isRecurring ? parseInt(reminderDays) : undefined,
-      });
+        is_loan: transactionType === 'expense' ? isLoan : undefined,
+        loan_amount: (transactionType === 'expense' && isLoan) ? parseFloat(loanAmount) : undefined,
+        loan_end_date: (transactionType === 'expense' && isLoan) ? loanEndDate : undefined,
+        loan_type: (transactionType === 'expense' && isLoan) ? loanType : undefined,
+        warranty_expiry_date: (transactionType === 'expense' && hasWarranty) ? warrantyExpiryDate : undefined,
+      } as any);
 
-      Alert.alert(t('common.success'), t('addTransaction.success'), [
-        {
-          text: t('common.ok'),
-          onPress: () => {
-            if (onSuccess) {
-              onSuccess();
-            }
-          },
-        },
-      ]);
+      showToast.success(t('addTransaction.success'), t('common.success'));
+
+      // Clear fields
+      setAmount('');
+      setCategory('');
+      setDescription('');
+      setDate(new Date().toISOString().split('T')[0]);
+      setNotes('');
+      setIsRecurring(false);
+      setFrequency('monthly');
+      setReminderDays('1');
+      setIsLoan(false);
+      setLoanAmount('');
+      setLoanEndDate('');
+      setLoanType('personal');
+      setHasWarranty(false);
+      setWarrantyExpiryDate('');
+
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error: any) {
       console.error('Error creating transaction:', error);
       Alert.alert(
@@ -359,7 +384,7 @@ export default function AddTransactionScreen({
                     borderColor: colors.border,
                     color: colors.foreground,
                     fontSize: responsiveTextStyles.displaySmall.fontSize,
-                    fontFamily: fonts.mono,
+                    fontFamily: undefined,
                   }
                 ]}
                 placeholder="0.00"
@@ -415,28 +440,55 @@ export default function AddTransactionScreen({
             <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>{t('addTransaction.noCategoriesAvailable')}</Text>
           ) : (
             <>
-              <Pressable
-                style={[
-                  styles.selectButton,
-                  { 
-                    backgroundColor: colors.inputBackground,
-                    borderColor: colors.border,
-                  }
-                ]}
-                onPress={() => setShowCategoryModal(true)}
-              >
-                <View style={styles.selectedCategoryContainer}>
-                  {selectedCategory && (
-                    <Text style={styles.categoryIcon}>
-                      {getEmojiFromIcon(selectedCategory.icon || '')}
-                    </Text>
-                  )}
-                  <Text style={[styles.selectButtonText, { color: colors.foreground }]}>
-                    {selectedCategory?.name || t('addTransaction.selectCategory')}
+              <View style={styles.categoryGrid}>
+                {(showAllCategories ? filteredCategories : filteredCategories.slice(0, 6)).map((cat) => {
+                  const isSelected = category === cat.name;
+                  return (
+                    <Pressable
+                      key={cat.id || cat.name}
+                      style={[
+                        styles.categoryItem,
+                        isSelected && styles.categoryItemSelected,
+                        {
+                          borderColor: isSelected ? colors.primary : colors.border,
+                          backgroundColor: isSelected ? `${colors.primary}20` : colors.card,
+                        }
+                      ]}
+                      onPress={() => setCategory(cat.name)}
+                    >
+                      <View style={[styles.categoryIconContainer, { backgroundColor: isSelected ? 'transparent' : `${cat.color || colors.primary}20` }]}>
+                         <CategoryIcon
+                            iconName={cat.icon || ''}
+                            size={24 * scale}
+                            color={cat.color || colors.primary}
+                          />
+                      </View>
+                      <Text
+                        style={[
+                          styles.categoryItemText,
+                          isSelected && styles.categoryItemTextSelected,
+                          {
+                            color: isSelected ? colors.primary : colors.mutedForeground,
+                          }
+                        ]}
+                        numberOfLines={1}
+                      >
+                        {cat.name}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+              {filteredCategories.length > 6 && (
+                <Pressable
+                  style={styles.showMoreButton}
+                  onPress={() => setShowAllCategories(!showAllCategories)}
+                >
+                  <Text style={[styles.showMoreText, { color: colors.primary }]}>
+                    {showAllCategories ? t('addTransaction.showLess') : t('addTransaction.showMore', { count: filteredCategories.length - 6 })}
                   </Text>
-                </View>
-                <ChevronDown size={16 * scale} color={colors.mutedForeground} />
-              </Pressable>
+                </Pressable>
+              )}
             </>
           )}
         </Card>
@@ -483,6 +535,7 @@ export default function AddTransactionScreen({
             />
           </View>
           
+          
           {isRecurring && (
             <View>
               <Text style={[styles.label, { color: colors.foreground }]}>{t('addTransaction.frequency')}</Text>
@@ -501,7 +554,7 @@ export default function AddTransactionScreen({
                       styles.frequencyButtonText,
                       { color: frequency === freq ? colors.primary : colors.mutedForeground }
                     ]}>
-                      {t(`addTransaction.frequency.${freq}`) || freq.charAt(0).toUpperCase() + freq.slice(1)}
+                      {t(`addTransaction.${freq}`) || freq.charAt(0).toUpperCase() + freq.slice(1)}
                     </Text>
                   </Pressable>
                 ))}
@@ -532,6 +585,150 @@ export default function AddTransactionScreen({
             </View>
           )}
         </Card>
+
+        {/* Warranty Tracking (Expenses Only) */}
+        {transactionType === 'expense' && (
+          <Card style={{ marginBottom: 16, backgroundColor: colors.card }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: hasWarranty ? 16 : 0 }}>
+              <Text style={[styles.label, { color: colors.foreground, marginBottom: 0 }]}>{t('addTransaction.productWarranty')}</Text>
+              <Switch
+                value={hasWarranty}
+                onValueChange={setHasWarranty}
+                trackColor={{ false: colors.border, true: colors.primary }}
+                thumbColor={Platform.OS === 'ios' ? '#fff' : hasWarranty ? '#fff' : '#f4f3f4'}
+              />
+            </View>
+            
+            {hasWarranty && (
+              <View>
+                <Text style={[styles.label, { color: colors.foreground }]}>{t('addTransaction.warrantyExpiryDate')}</Text>
+                <Pressable
+                  style={[
+                    styles.selectButton,
+                    { 
+                      backgroundColor: colors.inputBackground,
+                      borderColor: colors.border,
+                    }
+                  ]}
+                  onPress={() => {
+                     // For simplicity, using same date modal but logic needs to handle which date to set
+                     // Since we only have one date selection modal logic, we might need a separate state or mode
+                     // For now, let's use a Text Input for date or simplistic approach if we don't want to refactor date modal logic heavily
+                     // Or just implement a quick way to set it.
+                     // The user asked to "refer existing code". The web app uses input type="date".
+                     // Ideally we should reuse the DatePicker modal.
+                     // But showing another modal state is better.
+                     // I'll just use a text input YYYY-MM-DD for simpler implementation as requested "help fix issues", or reuse the main date picker?
+                     // Let's reuse the main date picker but add a mode.
+                     // Actually, I'll just use the same interaction pattern but I need to know WHICH date I'm picking.
+                     // I'll add a 'datePickerMode' state to 'AddTransactionScreen' in a separate edit if needed, or just use text input for now to avoid complexity of multiple date pickers in one screen without refactoring.
+                     // The requirement is "options missing".
+                     // I'll just use TextInput for YYYY-MM-DD for now.
+                  }}
+                >
+                  <TextInput
+                    style={{ flex: 1, color: colors.foreground }}
+                    placeholder="YYYY-MM-DD"
+                    placeholderTextColor={colors.mutedForeground}
+                    value={warrantyExpiryDate}
+                    onChangeText={setWarrantyExpiryDate}
+                  />
+                  <Calendar size={18 * scale} color={colors.mutedForeground} />
+                </Pressable>
+                <Text style={[styles.hintTeat, { color: colors.mutedForeground, marginTop: 4, ...textStyles.caption }]}>
+                  {t('addTransaction.warrantyReminder')}
+                </Text>
+              </View>
+            )}
+          </Card>
+        )}
+
+        {/* Loan Tracking (Expenses Only) */}
+        {transactionType === 'expense' && (
+          <Card style={{ marginBottom: 16, backgroundColor: colors.card }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: isLoan ? 16 : 0 }}>
+              <Text style={[styles.label, { color: colors.foreground, marginBottom: 0 }]}>{t('addTransaction.isThisALoan')}</Text>
+              <Switch
+                value={isLoan}
+                onValueChange={setIsLoan}
+                trackColor={{ false: colors.border, true: colors.primary }}
+                thumbColor={Platform.OS === 'ios' ? '#fff' : isLoan ? '#fff' : '#f4f3f4'}
+              />
+            </View>
+            
+            {isLoan && (
+              <View>
+                <View style={{ marginBottom: 16 }}>
+                  <Text style={[styles.label, { color: colors.foreground }]}>{t('addTransaction.totalLoanAmount')}</Text>
+                   <TextInput
+                    style={[
+                      styles.amountInput, 
+                      { 
+                        backgroundColor: colors.inputBackground,
+                        borderColor: colors.border,
+                        color: colors.foreground,
+                        fontSize: responsiveTextStyles.body.fontSize,
+                        fontFamily: undefined,
+                        paddingVertical: 12
+                      }
+                    ]}
+                    placeholder="0.00"
+                    placeholderTextColor={colors.mutedForeground}
+                    value={loanAmount}
+                    onChangeText={setLoanAmount}
+                    keyboardType="decimal-pad"
+                  />
+                </View>
+
+                 <View style={{ marginBottom: 16 }}>
+                  <Text style={[styles.label, { color: colors.foreground }]}>{t('addTransaction.loanEndDate')}</Text>
+                   <Pressable
+                    style={[
+                      styles.selectButton,
+                      { 
+                        backgroundColor: colors.inputBackground,
+                        borderColor: colors.border,
+                      }
+                    ]}
+                  >
+                     <TextInput
+                      style={{ flex: 1, color: colors.foreground }}
+                      placeholder="YYYY-MM-DD"
+                      placeholderTextColor={colors.mutedForeground}
+                      value={loanEndDate}
+                      onChangeText={setLoanEndDate}
+                    />
+                    <Calendar size={18 * scale} color={colors.mutedForeground} />
+                  </Pressable>
+                </View>
+
+                <View>
+                  <Text style={[styles.label, { color: colors.foreground }]}>{t('addTransaction.loanType')}</Text>
+                  <View style={styles.frequencyContainer}>
+                     {['personal', 'car', 'home', 'education', 'other'].map((type) => (
+                      <Pressable
+                        key={type}
+                        style={[
+                          styles.frequencyButton,
+                          loanType === type && { backgroundColor: `${colors.primary}20`, borderColor: colors.primary },
+                          { borderColor: colors.border }
+                        ]}
+                        onPress={() => setLoanType(type)}
+                      >
+                        <Text style={[
+                          styles.frequencyButtonText,
+                          { color: loanType === type ? colors.primary : colors.mutedForeground }
+                        ]}>
+                          {t(`addTransaction.${type}Loan`) || type.charAt(0).toUpperCase() + type.slice(1)}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
+              </View>
+            )}
+          </Card>
+        )}
 
         {/* Notes */}
         <Card style={{ marginBottom: 16, backgroundColor: colors.card }}>
@@ -1035,8 +1232,26 @@ const styles = StyleSheet.create({
     ...textStyles.bodySmall,
     fontWeight: '500',
   },
-  hintTeat: { // Typo fix in style name if needed, or just use caption
+  hintTeat: {
     ...textStyles.caption,
-  }
+  },
+  showMoreButton: {
+    padding: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+  },
+  showMoreText: {
+    ...textStyles.bodySmall,
+    fontWeight: '600',
+  },
+  categoryIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
 });
 

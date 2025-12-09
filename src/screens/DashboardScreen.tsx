@@ -173,10 +173,11 @@ export default function DashboardScreen({
         
         if (diffDays < 0) {
           setLicenseStatus('expired');
-        } else if (diffDays <= 30) {
+        } else if (diffDays <= 7) {
           setLicenseStatus('expiring');
           setDaysRemaining(diffDays);
         } else {
+
           setLicenseStatus('active');
         }
       } else {

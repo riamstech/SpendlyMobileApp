@@ -100,7 +100,9 @@
     "netWorth": "Nettovermögen:",
     "remaining": "verbleibend",
     "overBy": "Überschritten um",
-    "noTransactions": "Noch keine Transaktionen"
+    "noTransactions": "Noch keine Transaktionen",
+    "spendingRatio": "Ausgabenverhältnis",
+    "ofIncome": "des Einkommens"
   },
   "reports": {
     "reportsAnalytics": "Berichte & Analysen",
@@ -512,7 +514,8 @@
     "error": "Error",
     "success": "Success",
     "saving": "Saving...",
-    "optional": "Optional"
+    "optional": "Optional",
+    "done": "Fertig"
   },
   "onboarding": {
     "welcomeToSpendly": "Welcome to Spendly",

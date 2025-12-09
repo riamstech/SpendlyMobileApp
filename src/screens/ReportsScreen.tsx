@@ -253,28 +253,81 @@ export default function ReportsScreen() {
       });
       
       // Filter monthly data based on date range
-      const filteredMonthlyData = allMonthlyData
+      const rawFilteredData = allMonthlyData
         .filter(m => {
           const monthStart = new Date(m.monthDate.getFullYear(), m.monthDate.getMonth(), 1);
           const monthEnd = new Date(m.monthDate.getFullYear(), m.monthDate.getMonth() + 1, 0, 23, 59, 59);
           return monthStart <= toDate && monthEnd >= fromDate;
         })
-        .sort((a, b) => a.monthDate.getTime() - b.monthDate.getTime())
-        .map(m => ({
-          month: m.month,
-          income: m.income,
-          expenses: m.expenses,
-          savings: m.savings,
-        }));
-      
-      setMonthlyData(filteredMonthlyData);
+        .sort((a, b) => a.monthDate.getTime() - b.monthDate.getTime());
+
+      // Check if duration is more than 12 months (approx) to decide on aggregation
+      const isLongDuration = rawFilteredData.length > 12;
+
+      let finalChartData;
+
+      if (isLongDuration) {
+        // Aggregate by Year
+        const yearlyMap = new Map<number, {
+          year: number;
+          income: number;
+          expenses: number;
+          savings: number;
+        }>();
+
+        rawFilteredData.forEach(m => {
+          const year = m.monthDate.getFullYear();
+          if (!yearlyMap.has(year)) {
+            yearlyMap.set(year, { year, income: 0, expenses: 0, savings: 0 });
+          }
+          const current = yearlyMap.get(year)!;
+          current.income += (m.income || 0);
+          current.expenses += (m.expenses || 0);
+          current.savings += (m.savings || 0);
+        });
+
+        finalChartData = Array.from(yearlyMap.values())
+          .sort((a, b) => a.year - b.year)
+          .map(y => ({
+            month: y.year.toString(), // Use year as the label "2023", "2024"
+            income: y.income,
+            expenses: y.expenses,
+            savings: y.savings,
+          }));
+
+      } else {
+        // Use monthly data, but improve labels if spanning multiple years
+        // Check if years are different
+        const uniqueYears = new Set(rawFilteredData.map(m => m.monthDate.getFullYear()));
+        const showYearInLabel = uniqueYears.size > 1;
+
+        finalChartData = rawFilteredData.map(m => {
+          let label = m.month;
+           // m.month is already short month name from line 242.
+           // If we span multiple years, append year '23, '24 to distinguish
+           if (showYearInLabel) {
+             const shortYear = m.monthDate.getFullYear().toString().slice(2);
+             label = `${m.month} '${shortYear}`;
+           }
+
+           return {
+            month: label,
+            income: m.income,
+            expenses: m.expenses,
+            savings: m.savings,
+          };
+        });
+      }
+
+      setMonthlyData(finalChartData);
       
       // Calculate totals from monthly data
       // Use monthly report data for all totals to ensure consistency
       // The backend should filter by currency when apiCurrencyFilter is provided
-      const calculatedTotalIncome = filteredMonthlyData.reduce((sum, m) => sum + (m.income || 0), 0);
-      const calculatedTotalExpensesFromMonthly = filteredMonthlyData.reduce((sum, m) => sum + (m.expenses || 0), 0);
-      const calculatedTotalSavings = filteredMonthlyData.reduce((sum, m) => sum + (m.savings || 0), 0);
+      // Use rawFilteredData for totals to stay accurate regardless of chart aggregation
+      const calculatedTotalIncome = rawFilteredData.reduce((sum, m) => sum + (m.income || 0), 0);
+      const calculatedTotalExpensesFromMonthly = rawFilteredData.reduce((sum, m) => sum + (m.expenses || 0), 0);
+      const calculatedTotalSavings = rawFilteredData.reduce((sum, m) => sum + (m.savings || 0), 0);
       
       // Use monthly report expenses for total expenses (more accurate and consistent)
       // This ensures income, expenses, and savings all come from the same source
@@ -531,7 +584,7 @@ export default function ReportsScreen() {
       
       // Check execution environment
       const executionEnvironment = Constants.executionEnvironment;
-      const isExpoGo = executionEnvironment === Constants.ExecutionEnvironment.StoreClient;
+      const isExpoGo = Constants.ExecutionEnvironment && executionEnvironment === Constants.ExecutionEnvironment.StoreClient;
       console.log('Execution environment:', executionEnvironment, 'Is Expo Go:', isExpoGo);
 
       // Use documentDirectory for persistent, shareable files
@@ -728,16 +781,20 @@ export default function ReportsScreen() {
   };
 
   // Prepare chart data
-  const barChartData = {
+  const incomeExpenseChartData = {
     labels: monthlyData.map(m => m.month),
     datasets: [
       {
         data: monthlyData.map(m => m.income),
         color: (opacity = 1) => `rgba(76, 175, 80, ${opacity})`,
+        strokeWidth: 3,
+        legend: t('dashboard.income') || 'Income',
       },
       {
         data: monthlyData.map(m => m.expenses),
         color: (opacity = 1) => `rgba(255, 82, 82, ${opacity})`,
+        strokeWidth: 3,
+        legend: t('dashboard.expenses') || 'Expenses',
       },
     ],
   };
@@ -991,16 +1048,15 @@ export default function ReportsScreen() {
                 <Text style={[styles.legendText, { color: colors.foreground }]}>{t('dashboard.expenses') || 'Expenses'}</Text>
               </View>
             </View>
-            <BarChart
-              data={barChartData}
+            <LineChart
+              data={incomeExpenseChartData}
               width={width - 64}
               height={220}
               yAxisLabel=""
               yAxisSuffix=""
               chartConfig={chartConfig}
               verticalLabelRotation={30}
-              showValuesOnTopOfBars
-              fromZero
+              bezier
               style={styles.chart}
             />
           </View>

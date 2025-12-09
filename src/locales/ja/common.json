@@ -100,7 +100,9 @@
     "netWorth": "純資産：",
     "remaining": "残り",
     "overBy": "超過",
-    "noTransactions": "まだ取引がありません"
+    "noTransactions": "まだ取引がありません",
+    "spendingRatio": "支出比率",
+    "ofIncome": "収入の"
   },
   "reports": {
     "reportsAnalytics": "レポートと分析",
@@ -512,7 +514,8 @@
     "error": "Error",
     "success": "Success",
     "saving": "Saving...",
-    "optional": "Optional"
+    "optional": "Optional",
+    "done": "完了"
   },
   "onboarding": {
     "welcomeToSpendly": "Welcome to Spendly",

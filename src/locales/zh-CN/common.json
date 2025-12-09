@@ -100,7 +100,9 @@
     "netWorth": "净资产：",
     "remaining": "剩余",
     "overBy": "超出",
-    "noTransactions": "还没有交易"
+    "noTransactions": "还没有交易",
+    "spendingRatio": "支出比例",
+    "ofIncome": "占收入"
   },
   "reports": {
     "reportsAnalytics": "报表与分析",
@@ -648,7 +650,8 @@
     "error": "Error",
     "success": "Success",
     "saving": "Saving...",
-    "optional": "Optional"
+    "optional": "Optional",
+    "done": "完成"
   },
   "onboarding": {
     "welcomeToSpendly": "Welcome to Spendly",

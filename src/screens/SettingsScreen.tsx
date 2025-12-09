@@ -791,14 +791,9 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
 
   const handleUploadAvatar = async () => {
     try {
-      // Check if ImagePicker is available
-      if (!isImagePickerAvailable()) {
-        Alert.alert(
-          t('settings.featureUnavailable') || 'Feature Unavailable',
-          'Image picker is not available. Please wait for the app rebuild to complete, or rebuild the app manually.'
-        );
-        return;
-      }
+      // Check if ImagePicker is available - disabled check to fix availability issue
+      // if (!isImagePickerAvailable()) return;
+
 
       // Only request permission when user explicitly tries to upload
       // Check current status first to avoid unnecessary permission dialogs
@@ -966,14 +961,16 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                   {getAvatarUrl(user.avatar || (user as any)?.avatar_url) && !avatarLoadError ? (
                     <Image 
                       source={{ uri: getAvatarUrl(user.avatar || (user as any)?.avatar_url) || '' }} 
+                      onLoadStart={() => console.log('Loading avatar from:', getAvatarUrl(user.avatar || (user as any)?.avatar_url))}
                       style={styles.avatar}
                       onError={(error) => {
                         // Fallback to placeholder if image fails to load
-                        console.log('Avatar image failed to load:', error);
+                        console.log('Avatar image failed to load:', error.nativeEvent);
                         setAvatarLoadError(true);
                       }}
                       onLoad={() => {
                         // Reset error state if image loads successfully
+                        console.log('Avatar loaded successfully');
                         setAvatarLoadError(false);
                       }}
                     />

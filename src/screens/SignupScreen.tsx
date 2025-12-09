@@ -16,7 +16,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { authService } from '../api/services/auth';
 import { Mail, Lock, User, Eye, EyeOff, Check, Gift } from 'lucide-react-native';
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import { GoogleSignin, statusCodes } from '../utils/googleSignin';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
 import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
@@ -257,9 +257,9 @@ export default function SignupScreen({
   const responsiveTextStyles = createResponsiveTextStyles(width);
 
   // Dynamic gradient colors based on theme
-  const gradientColors = isDark 
+  const gradientColors = (isDark 
     ? ['#1a1a1a', '#2a2a2a'] 
-    : ['#03A9F4', '#0288D1'];
+    : ['#03A9F4', '#0288D1']) as [string, string, ...string[]];
 
   return (
     <LinearGradient

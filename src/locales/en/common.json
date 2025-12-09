@@ -56,7 +56,6 @@
     "passwordPlaceholderSignup": "Create a strong password",
     "confirmPasswordPlaceholder": "Re-enter your password",
     "creatingAccount": "Creating Account...",
-    "alreadyHaveAccount": "Already have an account?",
     "referralCode": "Referral Code",
     "referralCodePlaceholder": "Enter referral code",
     "referralCodeHint": "You'll both get 1 month of Pro free!",
@@ -185,7 +184,6 @@
     "incomeVsExpenses": "Income vs Expenses",
     "net": "Net",
     "savingsRateOverTime": "Savings Rate Over Time",
-
     "saved": "saved",
     "financialHealthScore": "Financial Health Score",
     "grade": "Grade:",
@@ -644,13 +642,14 @@
     "oneTime": "One-time",
     "recurring": "Recurring",
     "frequency": "Frequency",
+    "daily": "Daily",
     "weekly": "Weekly",
     "monthly": "Monthly",
     "quarterly": "Quarterly",
     "yearly": "Yearly",
     "remindMeDaysBefore": "Remind me (days before)",
     "notesOptional": "Notes (Optional)",
-    "notesPlaceholder": "Add any additional notes...",
+    "notesPlaceholder": "Add notes (optional)",
     "productWarranty": "Product Warranty",
     "warrantyExpiryDate": "Warranty Expiry Date",
     "warrantyReminder": "We'll remind you before your warranty expires",
@@ -663,16 +662,15 @@
     "homeLoan": "Home Loan",
     "educationLoan": "Education Loan",
     "other": "Other",
+    "otherLoan": "Other Loan",
     "addTransactionButton": "Add Transaction",
     "selectCategory": "Select Category",
     "searchCurrency": "Search currency...",
     "submit": "Add Transaction",
     "notes": "Notes",
-    "notesPlaceholder": "Add notes (optional)",
     "errorLoadingCurrencies": "Failed to load currencies. Please try again.",
     "errorLoadingCategories": "Failed to load categories. Please try again.",
     "selectDate": "Select Date",
-    "cancel": "Cancel",
     "done": "Done",
     "fillRequiredFields": "Please fill in all required fields",
     "success": "Transaction added successfully",
@@ -775,7 +773,8 @@
     "error": "Error",
     "success": "Success",
     "saving": "Saving...",
-    "optional": "Optional"
+    "optional": "Optional",
+    "done": "Done"
   },
   "mySupportTickets": "My Support Tickets",
   "mySupportTicketsSubtitle": "View and manage your tickets",
@@ -833,5 +832,3 @@
     "locationNotImplemented": "Location feature will be implemented with expo-location. For now, please select manually."
   }
 }
-
-
