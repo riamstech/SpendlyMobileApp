@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { translateCategoryName } from '../utils/categoryTranslator';
 import {
   View,
   Text,
@@ -473,7 +474,7 @@ export default function AddTransactionScreen({
                         ]}
                         numberOfLines={1}
                       >
-                        {cat.name}
+                        {translateCategoryName(cat.name, t)}
                       </Text>
                     </Pressable>
                   );
