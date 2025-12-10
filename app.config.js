@@ -38,9 +38,10 @@ module.exports = {
     },
     android: {
       package: "com.spendly.money",
-      label: "Spendly Money",
+      label: "Spendly",
+      icon: "./assets/icon.png",
       adaptiveIcon: {
-        foregroundImage: "./assets/adaptive-icon.png",
+        foregroundImage: "./assets/icon.png",
         backgroundColor: "#ffffff"
       },
       permissions: [
