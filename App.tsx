@@ -39,9 +39,15 @@ class ErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>Something went wrong</Text>
-          <Text style={styles.errorText}>{this.state.error?.message || 'Unknown error'}</Text>
-          <Text style={styles.errorHint}>Please restart the app</Text>
+          <Text style={styles.errorTitle}>
+            {i18n.t('errorBoundary.somethingWentWrong', { defaultValue: 'Something went wrong' })}
+          </Text>
+          <Text style={styles.errorText}>
+            {this.state.error?.message || i18n.t('errorBoundary.unknownError', { defaultValue: 'Unknown error' })}
+          </Text>
+          <Text style={styles.errorHint}>
+            {i18n.t('errorBoundary.pleaseRestart', { defaultValue: 'Please restart the app' })}
+          </Text>
         </View>
       );
     }

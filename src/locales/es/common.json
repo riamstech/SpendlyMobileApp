@@ -653,18 +653,56 @@
     "changeAttachment": "Cambiar Adjunto"
   },
   "common": {
-    "all": "All",
-    "search": "Search",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "clearFilters": "Clear Filters",
-    "loading": "Loading...",
+    "all": "Todos",
+    "search": "Buscar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "clearFilters": "Limpiar filtros",
+    "loading": "Cargando...",
     "ok": "OK",
     "error": "Error",
-    "success": "Success",
-    "saving": "Saving...",
-    "optional": "Optional",
-    "done": "Hecho"
+    "success": "Éxito",
+    "saving": "Guardando...",
+    "optional": "Opcional",
+    "done": "Hecho",
+    "info": "Información",
+    "deleting": "Eliminando...",
+    "view": "Ver",
+    "dismiss": "Descartar"
+  },
+  "errorBoundary": {
+    "somethingWentWrong": "Algo salió mal",
+    "unknownError": "Error desconocido",
+    "pleaseRestart": "Por favor reinicia la aplicación"
+  },
+  "freemium": {
+    "limitReached": "Has alcanzado {{limit}} transacciones",
+    "limitDescription": "¡Lo estás haciendo muy bien con el seguimiento de tus finanzas! Para agregar más transacciones y desbloquear todas las funciones, considera actualizar a Premium.",
+    "unlimitedTransactions": "Transacciones ilimitadas",
+    "unlimitedTransactionsDesc": "Rastrea tantos gastos e ingresos como quieras",
+    "advancedAnalytics": "Análisis avanzado",
+    "advancedAnalyticsDesc": "Obtén información detallada e informes personalizados",
+    "investmentPortfolio": "Portafolio de inversiones",
+    "investmentPortfolioDesc": "Seguimiento completo de inversiones sin límites",
+    "prioritySupport": "Soporte prioritario",
+    "prioritySupportDesc": "Obtén ayuda cuando la necesites",
+    "premiumPlan": "Plan Premium",
+    "cancelAnytime": "Cancela en cualquier momento",
+    "upgradeToPremium": "Actualizar a Premium",
+    "continueFree": "Continuar en modo gratuito",
+    "safeNote": "¡No te preocupes! Tus {{count}} transacciones existentes están seguras. Puedes verlas y gestionarlas en cualquier momento."
+  },
+  "editTransaction": {
+    "title": "Editar transacción",
+    "update": "Actualizar",
+    "delete": "Eliminar",
+    "deleteTitle": "Eliminar transacción",
+    "deleteConfirm": "¿Estás seguro de que quieres eliminar esta transacción? Esta acción no se puede deshacer.",
+    "deleteSuccess": "Transacción eliminada exitosamente",
+    "deleteError": "Error al eliminar la transacción",
+    "updateSuccess": "Transacción actualizada exitosamente",
+    "updateError": "Error al actualizar la transacción",
+    "fillRequired": "Por favor completa todos los campos requeridos"
   },
   "onboarding": {
     "welcomeToSpendly": "Welcome to Spendly",
@@ -700,5 +738,28 @@
     "completeSetup": "Complete Setup",
     "location": "Location",
     "locationNotImplemented": "Location feature will be implemented with expo-location. For now, please select manually."
+  },
+  "reports": {
+    "csv": "CSV",
+    "pdf": "PDF",
+    "shareCsv": "Compartir informe CSV",
+    "csvReady": "CSV listo",
+    "csvReadyDescription": "El archivo CSV se ha generado en: {{fileUri}}",
+    "csvError": "Error al generar el informe CSV.",
+    "sharePdf": "Compartir informe PDF",
+    "pdfReady": "PDF listo",
+    "pdfReadyDescription": "El archivo PDF se ha generado en: {{uri}}",
+    "pdfError": "Error al generar el informe PDF.",
+    "pleaseSelectDateRange": "Por favor selecciona un rango de fechas"
+  },
+  "payment": {
+    "oneMonthAccess": "Acceso de 1 mes",
+    "oneYearAccess": "Acceso de 1 año",
+    "savePercent": "Ahorra {{percent}}%",
+    "cannotOpenRazorpayUrl": "No se puede abrir la URL de Razorpay",
+    "upiPaymentLinkNotReady": "El enlace de pago UPI no está listo. Por favor intenta con tarjeta.",
+    "amountCurrencyRequired": "Se requiere cantidad y moneda para el pago. Por favor intenta de nuevo.",
+    "cannotOpenStripeUrl": "No se puede abrir la URL de Stripe",
+    "noCheckoutUrl": "No se devolvió ninguna URL de pago"
   }
 }

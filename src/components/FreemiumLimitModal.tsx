@@ -55,13 +55,12 @@ export default function FreemiumLimitModal({
 
           {/* Title */}
           <Text style={[styles.title, { color: colors.foreground }]}>
-            {t('freemium.limitReached') || `You've Reached ${transactionLimit} Transactions`}
+            {t('freemium.limitReached', { limit: transactionLimit, defaultValue: `You've Reached ${transactionLimit} Transactions` })}
           </Text>
 
           {/* Description */}
           <Text style={[styles.description, { color: colors.mutedForeground }]}>
-            {t('freemium.limitDescription') ||
-              "You're doing great with tracking your finances! To add more transactions and unlock all features, consider upgrading to Premium."}
+            {t('freemium.limitDescription', { defaultValue: "You're doing great with tracking your finances! To add more transactions and unlock all features, consider upgrading to Premium." })}
           </Text>
 
           {/* Features List */}
@@ -72,11 +71,10 @@ export default function FreemiumLimitModal({
               </View>
               <View style={styles.featureContent}>
                 <Text style={[styles.featureTitle, { color: colors.foreground }]}>
-                  {t('freemium.unlimitedTransactions') || 'Unlimited Transactions'}
+                  {t('freemium.unlimitedTransactions', { defaultValue: 'Unlimited Transactions' })}
                 </Text>
                 <Text style={[styles.featureDescription, { color: colors.mutedForeground }]}>
-                  {t('freemium.unlimitedTransactionsDesc') ||
-                    'Track as many expenses and income as you want'}
+                  {t('freemium.unlimitedTransactionsDesc', { defaultValue: 'Track as many expenses and income as you want' })}
                 </Text>
               </View>
             </View>
@@ -87,11 +85,10 @@ export default function FreemiumLimitModal({
               </View>
               <View style={styles.featureContent}>
                 <Text style={[styles.featureTitle, { color: colors.foreground }]}>
-                  {t('freemium.advancedAnalytics') || 'Advanced Analytics'}
+                  {t('freemium.advancedAnalytics', { defaultValue: 'Advanced Analytics' })}
                 </Text>
                 <Text style={[styles.featureDescription, { color: colors.mutedForeground }]}>
-                  {t('freemium.advancedAnalyticsDesc') ||
-                    'Get detailed insights and custom reports'}
+                  {t('freemium.advancedAnalyticsDesc', { defaultValue: 'Get detailed insights and custom reports' })}
                 </Text>
               </View>
             </View>
@@ -102,11 +99,10 @@ export default function FreemiumLimitModal({
               </View>
               <View style={styles.featureContent}>
                 <Text style={[styles.featureTitle, { color: colors.foreground }]}>
-                  {t('freemium.investmentPortfolio') || 'Investment Portfolio'}
+                  {t('freemium.investmentPortfolio', { defaultValue: 'Investment Portfolio' })}
                 </Text>
                 <Text style={[styles.featureDescription, { color: colors.mutedForeground }]}>
-                  {t('freemium.investmentPortfolioDesc') ||
-                    'Full investment tracking with no limits'}
+                  {t('freemium.investmentPortfolioDesc', { defaultValue: 'Full investment tracking with no limits' })}
                 </Text>
               </View>
             </View>
@@ -117,10 +113,10 @@ export default function FreemiumLimitModal({
               </View>
               <View style={styles.featureContent}>
                 <Text style={[styles.featureTitle, { color: colors.foreground }]}>
-                  {t('freemium.prioritySupport') || 'Priority Support'}
+                  {t('freemium.prioritySupport', { defaultValue: 'Priority Support' })}
                 </Text>
                 <Text style={[styles.featureDescription, { color: colors.mutedForeground }]}>
-                  {t('freemium.prioritySupportDesc') || 'Get help whenever you need it'}
+                  {t('freemium.prioritySupportDesc', { defaultValue: 'Get help whenever you need it' })}
                 </Text>
               </View>
             </View>
@@ -136,37 +132,36 @@ export default function FreemiumLimitModal({
             ]}
           >
             <Text style={[styles.priceLabel, { color: colors.primary }]}>
-              {t('freemium.premiumPlan') || 'Premium Plan'}
+              {t('freemium.premiumPlan', { defaultValue: 'Premium Plan' })}
             </Text>
             <View style={styles.priceRow}>
               <Text style={[styles.priceSymbol, { color: colors.primary }]}>$</Text>
               <Text style={[styles.priceAmount, { color: colors.primary }]}>9.99</Text>
-              <Text style={[styles.pricePeriod, { color: colors.primary }]}>/month</Text>
+              <Text style={[styles.pricePeriod, { color: colors.primary }]}>{t('settings.month', { defaultValue: '/month' })}</Text>
             </View>
             <Text style={[styles.priceNote, { color: colors.mutedForeground }]}>
-              {t('freemium.cancelAnytime') || 'Cancel anytime'}
+              {t('freemium.cancelAnytime', { defaultValue: 'Cancel anytime' })}
             </Text>
           </View>
 
           {/* Buttons */}
           <View style={styles.buttonContainer}>
             <Button
-              title={t('freemium.upgradeToPremium') || 'Upgrade to Premium'}
+              title={t('freemium.upgradeToPremium', { defaultValue: 'Upgrade to Premium' })}
               onPress={handleUpgrade}
               variant="primary"
               fullWidth
             />
             <Pressable onPress={onClose} style={styles.continueButton}>
               <Text style={[styles.continueButtonText, { color: colors.mutedForeground }]}>
-                {t('freemium.continueFree') || 'Continue in Free Mode'}
+                {t('freemium.continueFree', { defaultValue: 'Continue in Free Mode' })}
               </Text>
             </Pressable>
           </View>
 
           {/* Footer Note */}
           <Text style={[styles.footerNote, { color: colors.mutedForeground }]}>
-            {t('freemium.safeNote', { count: transactionCount }) ||
-              `Don't worry! Your existing ${transactionCount} transactions are safe. You can view and manage them anytime.`}
+            {t('freemium.safeNote', { count: transactionCount, defaultValue: `Don't worry! Your existing ${transactionCount} transactions are safe. You can view and manage them anytime.` })}
           </Text>
         </View>
       </View>

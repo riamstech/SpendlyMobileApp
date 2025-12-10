@@ -16,7 +16,7 @@
     },
     "preview": {
       "developmentClient": false,
-      "distribution": "store",
+      "distribution": "internal",
       "ios": {
         "simulator": false
       },

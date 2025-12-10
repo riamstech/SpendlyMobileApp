@@ -93,8 +93,8 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
       console.error('Failed to load tickets:', error);
       Toast.show({
         type: 'error',
-        text1: t('settings.error') || 'Error',
-        text2: error.response?.data?.message || 'Failed to load support tickets'
+        text1: t('settings.error', { defaultValue: 'Error' }),
+        text2: error.response?.data?.message || t('inbox.failedToLoad', { defaultValue: 'Failed to load support tickets' })
       });
     } finally {
       setLoading(false);

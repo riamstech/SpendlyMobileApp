@@ -642,5 +642,80 @@
     "pocketmoney": "Pocket Money",
     "governmentaid": "Government Aid",
     "otherincome": "Other Income"
+  },
+  "common": {
+    "all": "الكل",
+    "search": "بحث",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "clearFilters": "مسح المرشحات",
+    "loading": "جاري التحميل...",
+    "ok": "موافق",
+    "error": "خطأ",
+    "success": "نجاح",
+    "saving": "جاري الحفظ...",
+    "optional": "اختياري",
+    "done": "تم",
+    "info": "معلومات",
+    "deleting": "جاري الحذف...",
+    "view": "عرض",
+    "dismiss": "رفض"
+  },
+  "errorBoundary": {
+    "somethingWentWrong": "حدث خطأ ما",
+    "unknownError": "خطأ غير معروف",
+    "pleaseRestart": "يرجى إعادة تشغيل التطبيق"
+  },
+  "freemium": {
+    "limitReached": "لقد وصلت إلى {{limit}} معاملة",
+    "limitDescription": "أنت تقوم بعمل رائع في تتبع أموالك! لإضافة المزيد من المعاملات وإلغاء قفل جميع الميزات، فكر في الترقية إلى Premium.",
+    "unlimitedTransactions": "معاملات غير محدودة",
+    "unlimitedTransactionsDesc": "تتبع أكبر عدد تريده من المصروفات والدخل",
+    "advancedAnalytics": "تحليلات متقدمة",
+    "advancedAnalyticsDesc": "احصل على رؤى مفصلة وتقارير مخصصة",
+    "investmentPortfolio": "محفظة الاستثمار",
+    "investmentPortfolioDesc": "تتبع كامل للاستثمارات بدون حدود",
+    "prioritySupport": "دعم ذو أولوية",
+    "prioritySupportDesc": "احصل على المساعدة متى احتجت إليها",
+    "premiumPlan": "خطة Premium",
+    "cancelAnytime": "إلغاء في أي وقت",
+    "upgradeToPremium": "الترقية إلى Premium",
+    "continueFree": "المتابعة في الوضع المجاني",
+    "safeNote": "لا تقلق! معاملاتك الحالية البالغ عددها {{count}} آمنة. يمكنك عرضها وإدارتها في أي وقت."
+  },
+  "editTransaction": {
+    "title": "تعديل المعاملة",
+    "update": "تحديث",
+    "delete": "حذف",
+    "deleteTitle": "حذف المعاملة",
+    "deleteConfirm": "هل أنت متأكد من أنك تريد حذف هذه المعاملة؟ لا يمكن التراجع عن هذا الإجراء.",
+    "deleteSuccess": "تم حذف المعاملة بنجاح",
+    "deleteError": "فشل في حذف المعاملة",
+    "updateSuccess": "تم تحديث المعاملة بنجاح",
+    "updateError": "فشل في تحديث المعاملة",
+    "fillRequired": "يرجى ملء جميع الحقول المطلوبة"
+  },
+  "reports": {
+    "csv": "CSV",
+    "pdf": "PDF",
+    "shareCsv": "مشاركة تقرير CSV",
+    "csvReady": "CSV جاهز",
+    "csvReadyDescription": "تم إنشاء ملف CSV في: {{fileUri}}",
+    "csvError": "فشل في إنشاء تقرير CSV.",
+    "sharePdf": "مشاركة تقرير PDF",
+    "pdfReady": "PDF جاهز",
+    "pdfReadyDescription": "تم إنشاء ملف PDF في: {{uri}}",
+    "pdfError": "فشل في إنشاء تقرير PDF.",
+    "pleaseSelectDateRange": "يرجى تحديد نطاق تاريخ"
+  },
+  "payment": {
+    "oneMonthAccess": "وصول لمدة شهر واحد",
+    "oneYearAccess": "وصول لمدة سنة واحدة",
+    "savePercent": "وفر {{percent}}%",
+    "cannotOpenRazorpayUrl": "لا يمكن فتح رابط Razorpay",
+    "upiPaymentLinkNotReady": "رابط الدفع UPI غير جاهز. يرجى المحاولة باستخدام البطاقة.",
+    "amountCurrencyRequired": "المبلغ والعملة مطلوبان للدفع. يرجى المحاولة مرة أخرى.",
+    "cannotOpenStripeUrl": "لا يمكن فتح رابط Stripe",
+    "noCheckoutUrl": "لم يتم إرجاع رابط الدفع"
   }
 }

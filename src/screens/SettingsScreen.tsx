@@ -1008,13 +1008,11 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                   <View style={styles.formField}>
                     <Text style={[styles.formLabel, { color: colors.foreground }]}>{t('auth.email')}</Text>
                     <TextInput
-                      style={[styles.formInput, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
+                      style={[styles.formInput, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.mutedForeground, opacity: 0.7 }]}
                       value={email}
-                      onChangeText={setEmail}
+                      editable={false}
                       placeholder={t('auth.email')}
                       placeholderTextColor={colors.mutedForeground}
-                      keyboardType="email-address"
-                      autoCapitalize="none"
                     />
                   </View>
                   <View style={styles.formActions}>

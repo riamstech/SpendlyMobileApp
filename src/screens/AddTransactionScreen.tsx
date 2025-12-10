@@ -37,6 +37,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { showToast } from '../utils/toast';
 import { CategoryIcon } from '../components/CategoryIcon';
+import { useCategories } from '../hooks/useCategories';
 
 interface AddTransactionScreenProps {
   onSuccess?: () => void;
@@ -55,17 +56,22 @@ export default function AddTransactionScreen({
   const [category, setCategory] = useState('');
   const [currency, setCurrency] = useState('');
   const [description, setDescription] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(() => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  });
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [notes, setNotes] = useState('');
   const [isRecurring, setIsRecurring] = useState(false);
   const [frequency, setFrequency] = useState('monthly');
   const [reminderDays, setReminderDays] = useState('1');
 
-  // Data loading
-  const [categories, setCategories] = useState<Category[]>([]);
+  // Data loading - use useCategories hook for automatic refetch on language change
+  const { categories, loading: loadingCategories } = useCategories();
   const [currencies, setCurrencies] = useState<Array<{ code: string; symbol: string; flag: string; name: string }>>([]);
-  const [loadingCategories, setLoadingCategories] = useState(true);
   const [loadingCurrencies, setLoadingCurrencies] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -131,45 +137,8 @@ export default function AddTransactionScreen({
     loadData();
   }, []);
 
-  // Load categories
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        setLoadingCategories(true);
-        console.log('AddTransaction: Loading categories from API...');
-        const response = await categoriesService.getCategories();
-        console.log('AddTransaction: Received categories response:', response);
-        
-        // Handle different response formats
-        let allCategories: Category[] = [];
-        if (response.all && Array.isArray(response.all)) {
-          allCategories = response.all;
-        } else if (response.system || response.custom) {
-          allCategories = [
-            ...(response.system || []),
-            ...(response.custom || []),
-          ];
-        } else if (Array.isArray(response)) {
-          allCategories = response;
-        }
-        
-        console.log('AddTransaction: Loaded categories:', allCategories.length);
-        if (allCategories.length > 0) {
-          setCategories(allCategories);
-        } else {
-          console.warn('AddTransaction: No categories returned from API');
-          setCategories([]);
-        }
-      } catch (error: any) {
-        console.error('AddTransaction: Error loading categories:', error);
-        showToast.error(t('addTransaction.errorLoadingCategories'), t('common.error'));
-        setCategories([]);
-      } finally {
-        setLoadingCategories(false);
-      }
-    };
-    loadCategories();
-  }, []);
+  // Categories are now loaded automatically via useCategories hook
+  // This hook automatically refetches categories when language changes
 
   // Filter categories by transaction type
   const filteredCategories = categories.filter((cat) => {
@@ -267,7 +236,7 @@ export default function AddTransactionScreen({
         recurring_frequency: isRecurring ? frequency : undefined,
         reminder_days: isRecurring ? parseInt(reminderDays) : undefined,
         is_loan: transactionType === 'expense' ? isLoan : undefined,
-        loan_amount: (transactionType === 'expense' && isLoan) ? parseFloat(loanAmount) : undefined,
+        loan_amount: (transactionType === 'expense' && isLoan) ? parseFloat(parseFloat(loanAmount).toFixed(2)) : undefined,
         loan_end_date: (transactionType === 'expense' && isLoan) ? loanEndDate : undefined,
         loan_type: (transactionType === 'expense' && isLoan) ? loanType : undefined,
         warranty_expiry_date: (transactionType === 'expense' && hasWarranty) ? warrantyExpiryDate : undefined,
@@ -506,7 +475,7 @@ export default function AddTransactionScreen({
                         ]}
                         numberOfLines={1}
                       >
-                        {translateCategoryName(cat.name, t)}
+                        {translateCategoryName(cat.name, t, cat.original_name)}
                       </Text>
                     </Pressable>
                   );

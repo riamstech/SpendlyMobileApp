@@ -48,6 +48,7 @@ import { investmentsService } from '../api/services/investments';
 import { getDateRangeFromString, formatDateForAPI, formatDateForDisplay as formatDateForDisplayUtil } from '../api/utils/dateUtils';
 import { translateCategoryName } from '../utils/categoryTranslator';
 import Analytics from '../components/Analytics';
+import { useCategories } from '../hooks/useCategories';
 import { useTheme } from '../contexts/ThemeContext';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { showToast } from '../utils/toast';
@@ -99,8 +100,20 @@ export default function ReportsScreen() {
   const [showDateRangeModal, setShowDateRangeModal] = useState(false);
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
   const [currencies, setCurrencies] = useState<Array<{ code: string; symbol: string; name?: string; flag?: string }>>([]);
+  // Use useCategories hook for automatic refetch on language change
+  const { categories: allCategoriesData } = useCategories();
   const [allCategories, setAllCategories] = useState<Array<{ name: string; color?: string | null }>>([]);
   const [currencySearch, setCurrencySearch] = useState('');
+  
+  // Sync categories from hook to local state (for compatibility with existing code)
+  useEffect(() => {
+    if (allCategoriesData && allCategoriesData.length > 0) {
+      setAllCategories(allCategoriesData.map(cat => ({
+        name: cat.name,
+        color: cat.color || null,
+      })));
+    }
+  }, [allCategoriesData]);
 
   const responsiveTextStyles = createResponsiveTextStyles(width);
 
@@ -125,10 +138,8 @@ export default function ReportsScreen() {
           console.error('Failed to load currencies:', error);
           return [];
         }),
-        categoriesService.getCategories().catch(error => {
-          console.error('Failed to load categories:', error);
-          return { system: [], custom: [] };
-        }),
+        // Categories are now loaded via useCategories hook, skip here
+        Promise.resolve({ system: [], custom: [] }),
       ]);
 
       // Process user currency
@@ -139,12 +150,7 @@ export default function ReportsScreen() {
       // Process currencies
       setCurrencies(currenciesData);
 
-      // Process categories
-      const allCats = [
-        ...(categoriesResponse.system || []),
-        ...(categoriesResponse.custom || []),
-      ];
-      setAllCategories(allCats);
+      // Categories are now loaded via useCategories hook, skip manual setting
 
     } catch (error) {
       console.error('Failed to load initial data:', error);
@@ -338,8 +344,18 @@ export default function ReportsScreen() {
       // so the 1000 limit is less likely to be hit.
       // Also, category reports typically don't include income.
       let preciseTotalIncome = 0;
-      if (transactionsResponse && transactionsResponse.data) {
-        preciseTotalIncome = transactionsResponse.data
+      let txData: any[] = [];
+      
+      if (Array.isArray(transactionsResponse)) {
+        txData = transactionsResponse;
+      } else if (transactionsResponse?.data && Array.isArray(transactionsResponse.data)) {
+        txData = transactionsResponse.data;
+      } else if (transactionsResponse?.transactions && Array.isArray(transactionsResponse.transactions)) {
+        txData = transactionsResponse.transactions;
+      }
+
+      if (txData.length > 0) {
+        preciseTotalIncome = txData
           .filter((t: any) => t.type === 'income')
           .reduce((sum: number, t: any) => sum + (parseFloat(t.amount) || 0), 0);
       }
@@ -358,7 +374,7 @@ export default function ReportsScreen() {
 
       // --- Process Transactions ---
       try {
-        let formattedTransactions = (transactionsResponse.data || []).map((t: any) => ({
+        let formattedTransactions = txData.map((t: any) => ({
           ...t,
           description: t.notes || t.description || '',
           date: formatDateForDisplayUtil(t.date || new Date().toISOString().split('T')[0], i18n.language),
@@ -521,8 +537,8 @@ export default function ReportsScreen() {
       if (dateRange === 'custom') {
         if (!customDateFrom || !customDateTo) {
           showToast.error(
-            t('reports.selectDateRange') || 'Please select a date range',
-            t('common.error') || 'Error'
+            t('reports.pleaseSelectDateRange', { defaultValue: 'Please select a date range' }),
+            t('common.error', { defaultValue: 'Error' })
           );
           return;
         }
@@ -596,10 +612,12 @@ export default function ReportsScreen() {
       console.log('Platform:', Platform.OS);
       console.log('FileSystem object:', Object.keys(FileSystem).slice(0, 10));
       
-      // Prefer documentDirectory as it's persistent and shareable
-      const targetDir = documentDir || cacheDir;
+      // Prefer cacheDirectory for temporary sharing files to avoid permission issues
+      // and prevent cluttering document storage
+      const targetDir = cacheDir || documentDir;
       
       if (!targetDir) {
+        // ... (error handling remains same)
         // Provide specific error message based on environment
         let errorMessage = 'FileSystem directories are not available. ';
         
@@ -620,7 +638,7 @@ export default function ReportsScreen() {
           errorMessage += 'eas build --profile development --platform ios/android';
         }
         
-        showToast.error(errorMessage, t('common.error') || 'Error');
+        showToast.error(errorMessage, t('common.error', { defaultValue: 'Error' }));
         
         throw new Error('FileSystem directories are not available');
       }
@@ -664,13 +682,13 @@ export default function ReportsScreen() {
       if (canShare) {
         await Sharing.shareAsync(fileUri, {
           mimeType: 'text/csv',
-          dialogTitle: t('reports.shareCsv') || 'Share CSV report',
+          dialogTitle: t('reports.shareCsv', { defaultValue: 'Share CSV report' }),
         });
         console.log('Share dialog opened');
       } else {
         showToast.success(
-          t('reports.csvReadyDescription') || `CSV file has been generated at: ${fileUri}`,
-          t('reports.csvReady') || 'CSV Ready'
+          t('reports.csvReadyDescription', { fileUri, defaultValue: `CSV file has been generated at: ${fileUri}` }),
+          t('reports.csvReady', { defaultValue: 'CSV Ready' })
         );
       }
     } catch (error: any) {
@@ -681,8 +699,8 @@ export default function ReportsScreen() {
         name: error.name,
       });
       showToast.error(
-        error.message || t('reports.csvError') || 'Failed to generate CSV report.',
-        t('common.error') || 'Error'
+        error.message || t('reports.csvError', { defaultValue: 'Failed to generate CSV report.' }),
+        t('common.error', { defaultValue: 'Error' })
       );
     }
   };
@@ -696,8 +714,8 @@ export default function ReportsScreen() {
       if (dateRange === 'custom') {
         if (!customDateFrom || !customDateTo) {
           showToast.error(
-            t('reports.selectDateRange') || 'Please select a date range',
-            t('common.error') || 'Error'
+            t('reports.pleaseSelectDateRange', { defaultValue: 'Please select a date range' }),
+            t('common.error', { defaultValue: 'Error' })
           );
           return;
         }
@@ -735,13 +753,13 @@ export default function ReportsScreen() {
       if (canShare) {
         await Sharing.shareAsync(uri, {
           mimeType: 'application/pdf',
-          dialogTitle: t('reports.sharePdf') || 'Share PDF report',
+          dialogTitle: t('reports.sharePdf', { defaultValue: 'Share PDF report' }),
         });
         console.log('Share dialog opened');
       } else {
         showToast.success(
-          t('reports.pdfReadyDescription') || `PDF file has been generated at: ${uri}`,
-          t('reports.pdfReady') || 'PDF Ready'
+          t('reports.pdfReadyDescription', { uri, defaultValue: `PDF file has been generated at: ${uri}` }),
+          t('reports.pdfReady', { defaultValue: 'PDF Ready' })
         );
       }
     } catch (error: any) {
@@ -752,8 +770,8 @@ export default function ReportsScreen() {
         name: error.name,
       });
       showToast.error(
-        error.message || t('reports.pdfError') || 'Failed to generate PDF report.',
-        t('common.error') || 'Error'
+        error.message || t('reports.pdfError', { defaultValue: 'Failed to generate PDF report.' }),
+        t('common.error', { defaultValue: 'Error' })
       );
     }
   };
@@ -765,13 +783,13 @@ export default function ReportsScreen() {
       {
         data: monthlyData.map(m => m.income),
         strokeWidth: 3,
-        legend: t('dashboard.income') || 'Income',
+        legend: t('dashboard.income', { defaultValue: 'Income' }),
       },
       {
         data: monthlyData.map(m => m.expenses),
         color: (opacity = 1) => `rgba(255, 82, 82, ${opacity})`,
         strokeWidth: 3,
-        legend: t('dashboard.expenses') || 'Expenses',
+        legend: t('dashboard.expenses', { defaultValue: 'Expenses' }),
       },
     ],
   };
@@ -831,7 +849,7 @@ export default function ReportsScreen() {
         <StatusBar style={isDark ? 'light' : 'dark'} />
         <LoadingSpinner 
           size="large" 
-          text={t('common.loading') || 'Loading...'} 
+          text={t('common.loading', { defaultValue: 'Loading...' })} 
           fullScreen={true}
         />
       </SafeAreaView>
@@ -844,8 +862,8 @@ export default function ReportsScreen() {
       
       {/* Header */}
       <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
-        <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>{t('reports.reportsAnalytics') || 'Reports & Analytics'}</Text>
-        <Text style={[styles.headerSubtitle, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>{t('reports.trackFinancialTrends') || 'Track your financial trends'}</Text>
+        <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>{t('reports.reportsAnalytics', { defaultValue: 'Reports & Analytics' })}</Text>
+        <Text style={[styles.headerSubtitle, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>{t('reports.trackFinancialTrends', { defaultValue: 'Track your financial trends' })}</Text>
       </View>
 
       {/* Tabs */}
@@ -895,7 +913,7 @@ export default function ReportsScreen() {
         >
           <DollarSign size={18} color={colors.mutedForeground} />
           <Text style={[styles.filterButtonText, { color: colors.foreground }]}>
-            {selectedCurrency === 'ALL' ? t('reports.allCurrencies') || 'All Currencies' : selectedCurrency}
+            {selectedCurrency === 'ALL' ? t('reports.allCurrencies', { defaultValue: 'All Currencies' }) : selectedCurrency}
           </Text>
           <ChevronDown size={18} color={colors.mutedForeground} />
         </Pressable>
@@ -905,11 +923,11 @@ export default function ReportsScreen() {
       <View style={[styles.downloadButtonsContainer, { backgroundColor: colors.card }]}>
         <Pressable style={[styles.downloadButton, { backgroundColor: colors.muted, borderColor: colors.border }]} onPress={handleDownloadCSV}>
           <Download size={16} color={colors.mutedForeground} />
-          <Text style={[styles.downloadButtonText, { color: colors.foreground }]}>CSV</Text>
+          <Text style={[styles.downloadButtonText, { color: colors.foreground }]}>{t('reports.csv', { defaultValue: 'CSV' })}</Text>
         </Pressable>
         <Pressable style={[styles.downloadButton, { backgroundColor: colors.muted, borderColor: colors.border }]} onPress={handleDownloadPDF}>
           <Download size={16} color={colors.mutedForeground} />
-          <Text style={[styles.downloadButtonText, { color: colors.foreground }]}>PDF</Text>
+          <Text style={[styles.downloadButtonText, { color: colors.foreground }]}>{t('reports.pdf', { defaultValue: 'PDF' })}</Text>
         </Pressable>
       </View>
 
@@ -918,7 +936,7 @@ export default function ReportsScreen() {
           <View style={[styles.customDateContainer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
           <View style={styles.customDateRow}>
             <View style={styles.customDateInputWrapper}>
-              <Text style={[styles.customDateLabel, { color: colors.foreground }]}>{t('reports.startDate') || 'Start Date'}</Text>
+              <Text style={[styles.customDateLabel, { color: colors.foreground }]}>{t('reports.startDate', { defaultValue: 'Start Date' })}</Text>
               <Pressable 
                 style={[styles.customDateInput, { backgroundColor: colors.muted, borderColor: colors.border }]}
                 onPress={() => setShowStartDatePicker(true)}
@@ -930,7 +948,7 @@ export default function ReportsScreen() {
               </Pressable>
             </View>
             <View style={styles.customDateInputWrapper}>
-              <Text style={[styles.customDateLabel, { color: colors.foreground }]}>{t('reports.endDate') || 'End Date'}</Text>
+              <Text style={[styles.customDateLabel, { color: colors.foreground }]}>{t('reports.endDate', { defaultValue: 'End Date' })}</Text>
               <Pressable 
                 style={[styles.customDateInput, { backgroundColor: colors.muted, borderColor: colors.border }]}
                 onPress={() => setShowEndDatePicker(true)}
@@ -1018,11 +1036,11 @@ export default function ReportsScreen() {
             <View style={styles.chartLegend}>
               <View style={styles.legendItem}>
                 <View style={[styles.legendDot, { backgroundColor: '#4CAF50' }]} />
-                <Text style={[styles.legendText, { color: colors.foreground }]}>{t('dashboard.income') || 'Income'}</Text>
+                <Text style={[styles.legendText, { color: colors.foreground }]}>{t('dashboard.income', { defaultValue: 'Income' })}</Text>
               </View>
               <View style={styles.legendItem}>
                 <View style={[styles.legendDot, { backgroundColor: '#FF5252' }]} />
-                <Text style={[styles.legendText, { color: colors.foreground }]}>{t('dashboard.expenses') || 'Expenses'}</Text>
+                <Text style={[styles.legendText, { color: colors.foreground }]}>{t('dashboard.expenses', { defaultValue: 'Expenses' })}</Text>
               </View>
             </View>
             <LineChart
@@ -1046,7 +1064,7 @@ export default function ReportsScreen() {
             <View style={styles.chartLegend}>
               <View style={styles.legendItem}>
                 <View style={[styles.legendDot, { backgroundColor: '#03A9F4' }]} />
-                <Text style={[styles.legendText, { color: colors.foreground }]}>{t('dashboard.savings') || 'Savings'}</Text>
+                <Text style={[styles.legendText, { color: colors.foreground }]}>{t('dashboard.savings', { defaultValue: 'Savings' })}</Text>
               </View>
             </View>
             <LineChart
@@ -1086,7 +1104,7 @@ export default function ReportsScreen() {
                 <View style={styles.categoryItemLeft}>
                   <View style={[styles.categoryColorDot, { backgroundColor: cat.color }]} />
                   <View style={styles.categoryItemInfo}>
-                    <Text style={[styles.categoryItemName, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>{cat.name}</Text>
+                    <Text style={[styles.categoryItemName, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>{translateCategoryName(cat.name, t, (cat as any).original_name)}</Text>
                     <Text style={[styles.categoryItemPercentage, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
                       {cat.percentage.toFixed(1)}%
                     </Text>
@@ -1104,7 +1122,7 @@ export default function ReportsScreen() {
         <View style={[styles.categoryCard, { backgroundColor: colors.card }]}>
           <View style={styles.transactionsHeader}>
             <Text style={[styles.categoryTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>
-              {t('reports.transactions') || 'Transactions'}
+              {t('reports.transactions', { defaultValue: 'Transactions' })}
             </Text>
             {transactions.length > 0 && (
               <Text style={[styles.transactionCount, { color: colors.mutedForeground }]}>
@@ -1135,7 +1153,7 @@ export default function ReportsScreen() {
                     </View>
                     <View style={styles.transactionInfo}>
                       <Text style={[styles.transactionDescription, { color: colors.foreground }]}>
-                        {transaction.description || transaction.notes || 'Transaction'}
+                        {transaction.description || transaction.notes || t('dashboard.transactions', { defaultValue: 'Transaction' })}
                       </Text>
                       <View style={styles.transactionMeta}>
                         <Text style={[styles.transactionMetaText, { color: colors.mutedForeground }]}>
@@ -1167,7 +1185,7 @@ export default function ReportsScreen() {
           ) : (
             <View style={styles.emptyState}>
               <Text style={[styles.emptyStateText, { color: colors.mutedForeground }]}>
-                {t('reports.noTransactionsFound') || 'No transactions found'}
+                {t('reports.noTransactionsFound', { defaultValue: 'No transactions found' })}
               </Text>
             </View>
           )}
@@ -1177,7 +1195,7 @@ export default function ReportsScreen() {
         <View style={[styles.categoryCard, { backgroundColor: colors.card }]}>
           <View style={styles.transactionsHeader}>
             <Text style={[styles.categoryTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>
-              {t('reports.investments') || 'Investments'} ({investments.length})
+              {t('reports.investments', { defaultValue: 'Investments' })} ({investments.length})
             </Text>
           </View>
           {investments.length > 0 ? (
@@ -1245,7 +1263,7 @@ export default function ReportsScreen() {
           ) : (
             <View style={styles.emptyState}>
               <Text style={[styles.emptyStateText, { color: colors.mutedForeground }]}>
-                {t('reports.noInvestmentsFound') || 'No investments found'}
+                {t('reports.noInvestmentsFound', { defaultValue: 'No investments found' })}
               </Text>
             </View>
           )}
@@ -1254,7 +1272,7 @@ export default function ReportsScreen() {
         {categoryData.length === 0 && monthlyData.length === 0 && transactions.length === 0 && investments.length === 0 && !loading && (
           <View style={styles.emptyState}>
             <Text style={[styles.emptyStateText, { color: colors.mutedForeground }]}>
-              {t('reports.noSpendingData') || 'No spending data available for the selected date range'}
+              {t('reports.noSpendingData', { defaultValue: 'No spending data available for the selected date range' })}
             </Text>
           </View>
         )}
@@ -1270,7 +1288,7 @@ export default function ReportsScreen() {
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
-              <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('reports.selectDateRange') || 'Select Date Range'}</Text>
+              <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('reports.selectDateRange', { defaultValue: 'Select Date Range' })}</Text>
               <Pressable onPress={() => setShowDateRangeModal(false)}>
                 <X size={24} color={colors.mutedForeground} />
               </Pressable>
@@ -1309,7 +1327,7 @@ export default function ReportsScreen() {
         >
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
-              <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('reports.selectCurrency') || 'Select Currency'}</Text>
+              <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('reports.selectCurrency', { defaultValue: 'Select Currency' })}</Text>
               <Pressable onPress={() => setShowCurrencyModal(false)}>
                 <X size={24} color={colors.mutedForeground} />
               </Pressable>
@@ -1317,7 +1335,7 @@ export default function ReportsScreen() {
             <View style={[styles.currencySearchContainer, { borderBottomColor: colors.border }]}>
               <TextInput
                 style={[styles.currencySearchInput, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
-                placeholder={t('reports.searchCurrency') || 'Search currency...'}
+                placeholder={t('reports.searchCurrency', { defaultValue: 'Search currency...' })}
                 placeholderTextColor={colors.mutedForeground}
                 value={currencySearch}
                 onChangeText={setCurrencySearch}
@@ -1332,7 +1350,7 @@ export default function ReportsScreen() {
                 }}
               >
                 <Text style={[styles.modalItemText, { color: colors.foreground }, selectedCurrency === 'ALL' && [styles.modalItemTextActive, { color: colors.primary }]]}>
-                  {t('reports.allCurrencies') || 'All Currencies'}
+                  {t('reports.allCurrencies', { defaultValue: 'All Currencies' })}
                 </Text>
               </Pressable>
               {currencies
@@ -1626,7 +1644,6 @@ const styles = StyleSheet.create({
     ...textStyles.bodySmall,
     fontWeight: '600',
     color: '#333',
-    fontFamily: fonts.mono,
   },
   emptyState: {
     padding: 40,

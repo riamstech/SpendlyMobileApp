@@ -89,11 +89,11 @@ export default function AllPaymentsScreen({ onBack }: AllPaymentsScreenProps) {
       // Transform to match our interface
       const transformedPayments: UpcomingPayment[] = upcomingPayments.map((payment: any) => ({
         id: payment.id.toString(),
-        name: payment.name || payment.description || 'Recurring Payment',
+        name: payment.name || payment.description || t('dashboard.upcomingPayments', { defaultValue: 'Recurring Payment' }),
         amount: payment.amount || 0,
         currency: payment.currency || defaultCurrency,
         dueDate: formatDateForDisplay(payment.nextDueDate || payment.dueDate, i18n.language),
-        category: payment.category || 'Other',
+        category: payment.category || t('categories.others', { defaultValue: 'Other' }),
         icon: payment.icon,
         type: payment.type || 'expense',
       }));

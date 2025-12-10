@@ -74,7 +74,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
     try {
       // Optimistic update
       setNotifications(prev => prev.map(n => 
-        n.id === id ? { ...n, read_at: new Date().toISOString() } : n
+        n.id === id ? { ...n, read_at: new Date().toISOString(), is_read: true } : n
       ));
       await notificationsService.markAsRead(id);
       // No need to reload, we updated locally. But can reload silently if needed.

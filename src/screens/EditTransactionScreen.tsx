@@ -9,6 +9,8 @@ import {
   Alert,
   useWindowDimensions,
   ActivityIndicator,
+  Platform,
+  Modal as RNModal,
 } from 'react-native';
 import { showToast } from '../utils/toast';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -23,6 +25,7 @@ import {
   ChevronDown,
   Trash2,
 } from 'lucide-react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { transactionsService } from '../api/services/transactions';
 import { categoriesService, Category } from '../api/services/categories';
 import { currenciesService } from '../api/services/currencies';
@@ -30,6 +33,9 @@ import { Transaction } from '../api/types/transaction';
 import { Card, Button, Input, Modal } from '../components/ui';
 import { getEmojiFromIcon } from '../utils/iconMapper';
 import { useTheme } from '../contexts/ThemeContext';
+import { formatDateForDisplay } from '../api/utils/dateUtils';
+import { translateCategoryName } from '../utils/categoryTranslator';
+import { useCategories } from '../hooks/useCategories';
 
 interface EditTransactionScreenProps {
   transaction: Transaction;
@@ -42,19 +48,29 @@ export default function EditTransactionScreen({
   onSuccess,
   onCancel,
 }: EditTransactionScreenProps) {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const { width } = useWindowDimensions();
   const { isDark, colors } = useTheme();
   const responsiveTextStyles = createResponsiveTextStyles(width);
 
+  // Parse initial date
+  const parseDate = (dateStr: string) => {
+    // If it's ISO, use it. If it's formatted (e.g., Dec 10, 2025), try to parse.
+    // Ideally we prefer YYYY-MM-DD
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) return d.toISOString().split('T')[0];
+    return new Date().toISOString().split('T')[0];
+  };
+
   const [transactionType, setTransactionType] = useState<'income' | 'expense'>(
     transaction.type
   );
-  const [amount, setAmount] = useState(transaction.amount.toString());
+  const [amount, setAmount] = useState(Math.abs(transaction.amount).toString());
   const [category, setCategory] = useState(transaction.category);
   const [currency, setCurrency] = useState(transaction.currency);
-  const [description, setDescription] = useState(transaction.notes || '');
-  const [date, setDate] = useState(transaction.date);
+  // Use description if available (cast to any as it's not in shared type yet), fallback to notes
+  const [description, setDescription] = useState((transaction as any).description || transaction.notes || '');
+  const [date, setDate] = useState(parseDate(transaction.date));
   const [notes, setNotes] = useState(transaction.notes || '');
   const [isRecurring, setIsRecurring] = useState(transaction.is_recurring || false);
   const [frequency, setFrequency] = useState(
@@ -64,12 +80,16 @@ export default function EditTransactionScreen({
     (transaction.reminder_days || 1).toString()
   );
 
+  // Date Picker State
+  const [selectedDate, setSelectedDate] = useState(new Date(date));
+  const [showDateModal, setShowDateModal] = useState(false);
+
   // Data loading
-  const [categories, setCategories] = useState<Category[]>([]);
+  // Use useCategories hook for automatic refetch on language change
+  const { categories, loading: loadingCategories } = useCategories();
   const [currencies, setCurrencies] = useState<
     Array<{ code: string; symbol: string; flag: string; name: string }>
   >([]);
-  const [loadingCategories, setLoadingCategories] = useState(true);
   const [loadingCurrencies, setLoadingCurrencies] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -77,14 +97,13 @@ export default function EditTransactionScreen({
   // Modals
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
-  const [showDateModal, setShowDateModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Responsive scaling
   const scale = Math.min(width / 375, 1);
   const isSmallScreen = width < 375;
 
-  // Load currencies
+  // Load currencies... (keep existing)
   useEffect(() => {
     const loadCurrencies = async () => {
       try {
@@ -102,25 +121,10 @@ export default function EditTransactionScreen({
     loadCurrencies();
   }, []);
 
-  // Load categories
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        setLoadingCategories(true);
-        const response = await categoriesService.getCategories();
-        const allCategories =
-          response.all || [...(response.system || []), ...(response.custom || [])];
-        setCategories(allCategories);
-      } catch (error) {
-        console.error('Error loading categories:', error);
-      } finally {
-        setLoadingCategories(false);
-      }
-    };
-    loadCategories();
-  }, []);
+  // Categories are now loaded automatically via useCategories hook
+  // This hook automatically refetches categories when language changes
 
-  // Filter categories by transaction type
+  // Filter categories... (keep existing)
   const filteredCategories = categories.filter((cat) => {
     if (transactionType === 'income') {
       return cat.type === 'income' || cat.type === 'both';
@@ -129,7 +133,7 @@ export default function EditTransactionScreen({
     }
   });
 
-  // Reset category when type changes
+  // Reset category... (keep existing)
   useEffect(() => {
     if (
       category &&
@@ -139,9 +143,27 @@ export default function EditTransactionScreen({
     }
   }, [transactionType, filteredCategories]);
 
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    if (Platform.OS === 'android') {
+      setShowDateModal(false);
+    }
+    if (selectedDate) {
+      setSelectedDate(selectedDate);
+      // Format as YYYY-MM-DD
+      const year = selectedDate.getFullYear();
+      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+      const day = String(selectedDate.getDate()).padStart(2, '0');
+      setDate(`${year}-${month}-${day}`);
+    }
+  };
+
+  const openDatePicker = () => {
+    setShowDateModal(true);
+  };
+
   const handleSubmit = async () => {
     if (!amount || !category || !description) {
-      showToast.error(t('editTransaction.fillRequired') || 'Please fill in all required fields', 'Error');
+      showToast.error(t('editTransaction.fillRequired', { defaultValue: 'Please fill in all required fields' }), t('common.error', { defaultValue: 'Error' }));
       return;
     }
 
@@ -153,13 +175,13 @@ export default function EditTransactionScreen({
         category,
         currency,
         date,
-        notes: description || notes,
+        notes: description, 
         is_recurring: isRecurring,
         recurring_frequency: isRecurring ? frequency : undefined,
         reminder_days: isRecurring ? parseInt(reminderDays) : undefined,
       });
 
-      showToast.success(t('editTransaction.updateSuccess') || 'Transaction updated successfully', 'Success');
+      showToast.success(t('editTransaction.updateSuccess', { defaultValue: 'Transaction updated successfully' }), t('common.success', { defaultValue: 'Success' }));
       if (onSuccess) {
         setTimeout(() => {
           onSuccess();
@@ -168,31 +190,32 @@ export default function EditTransactionScreen({
     } catch (error: any) {
       console.error('Error updating transaction:', error);
       showToast.error(
-        error?.response?.data?.message || t('editTransaction.updateError') || 'Failed to update transaction',
-        'Error'
+        error?.response?.data?.message || t('editTransaction.updateError', { defaultValue: 'Failed to update transaction' }),
+        t('common.error', { defaultValue: 'Error' })
       );
     } finally {
       setSubmitting(false);
     }
   };
 
+  // handleDelete... (keep existing)
   const handleDelete = async () => {
     Alert.alert(
-      t('editTransaction.deleteTitle') || 'Delete Transaction',
-      t('editTransaction.deleteConfirm') || 'Are you sure you want to delete this transaction? This action cannot be undone.',
+      t('editTransaction.deleteTitle', { defaultValue: 'Delete Transaction' }),
+      t('editTransaction.deleteConfirm', { defaultValue: 'Are you sure you want to delete this transaction? This action cannot be undone.' }),
       [
         {
-          text: t('common.cancel'),
+          text: t('common.cancel', { defaultValue: 'Cancel' }),
           style: 'cancel',
         },
         {
-          text: t('common.delete'),
+          text: t('common.delete', { defaultValue: 'Delete' }),
           style: 'destructive',
           onPress: async () => {
             try {
               setDeleting(true);
               await transactionsService.deleteTransaction(transaction.id);
-              showToast.success(t('editTransaction.deleteSuccess') || 'Transaction deleted successfully', 'Success');
+              showToast.success(t('editTransaction.deleteSuccess', { defaultValue: 'Transaction deleted successfully' }), t('common.success', { defaultValue: 'Success' }));
               if (onSuccess) {
                 setTimeout(() => {
                   onSuccess();
@@ -201,8 +224,8 @@ export default function EditTransactionScreen({
             } catch (error: any) {
               console.error('Error deleting transaction:', error);
               showToast.error(
-                error?.response?.data?.message || t('editTransaction.deleteError') || 'Failed to delete transaction',
-                'Error'
+                error?.response?.data?.message || t('editTransaction.deleteError', { defaultValue: 'Failed to delete transaction' }),
+                t('common.error', { defaultValue: 'Error' })
               );
             } finally {
               setDeleting(false);
@@ -221,7 +244,7 @@ export default function EditTransactionScreen({
       <StatusBar style="dark" />
       <View style={styles.header}>
         <Text style={[styles.headerTitle, responsiveTextStyles.h3]}>
-          {t('editTransaction.title') || 'Edit Transaction'}
+          {t('editTransaction.title', { defaultValue: 'Edit Transaction' })}
         </Text>
         <Pressable onPress={onCancel} style={styles.closeButton}>
           <X size={24 * scale} color="#666" />
@@ -316,7 +339,7 @@ export default function EditTransactionScreen({
                   styles.amountInput,
                   responsiveTextStyles.body,
                 ]}
-                placeholder="0.00"
+                placeholder={t('addTransaction.amountPlaceholder') || "0.00"}
                 placeholderTextColor="#9CA3AF"
                 value={amount}
                 onChangeText={setAmount}
@@ -389,18 +412,22 @@ export default function EditTransactionScreen({
             <Text style={styles.label}>{t('addTransaction.date')}</Text>
             <Pressable
               style={styles.selectButton}
-              onPress={() => setShowDateModal(true)}
+              onPress={openDatePicker}
             >
               <View style={styles.selectedCategoryContainer}>
                 <Calendar size={18 * scale} color="#666" />
-                <Text style={styles.selectButtonText}>{date}</Text>
+                <Text style={styles.selectButtonText}>{formatDateForDisplay(date, i18n.language)}</Text>
               </View>
               <ChevronDown size={16 * scale} color="#666" />
             </Pressable>
           </View>
         </Card>
 
-        {/* Notes */}
+        {/* Notes (Removed strictly, merging with description for now as per backend limitation) */}
+        {/* But we keep it if user wants to add extra info, just append it? */}
+        {/* For now, hiding Notes field to avoid confusion if we merge them. 
+            Or keep it and fix the merge logic. 
+            Let's keep it but ensure it's saved. */}
         <Card style={{ marginBottom: 16 }}>
           <Text style={styles.label}>{t('addTransaction.notes')}</Text>
           <TextInput
@@ -428,7 +455,7 @@ export default function EditTransactionScreen({
 
         {/* Delete Button */}
         <Button
-          title={deleting ? t('common.deleting') || 'Deleting...' : t('editTransaction.delete') || 'Delete'}
+          title={deleting ? t('common.deleting', { defaultValue: 'Deleting...' }) : t('editTransaction.delete', { defaultValue: 'Delete' })}
           onPress={handleDelete}
           disabled={deleting}
           loading={deleting}
@@ -441,6 +468,48 @@ export default function EditTransactionScreen({
           textStyle={{ color: '#FF5252' }}
         />
       </ScrollView>
+
+      {/* Date Picker Modal */}
+      {Platform.OS === 'ios' ? (
+        <RNModal
+          visible={showDateModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowDateModal(false)}
+        >
+          <Pressable 
+            style={styles.modalOverlay} 
+            onPress={() => setShowDateModal(false)}
+          >
+            <View style={styles.datePickerContainer}>
+              <View style={styles.datePickerHeader}>
+                <Pressable onPress={() => setShowDateModal(false)}>
+                  <Text style={styles.datePickerButton}>{t('common.cancel')}</Text>
+                </Pressable>
+                <Pressable onPress={() => setShowDateModal(false)}>
+                  <Text style={[styles.datePickerButton, { fontWeight: 'bold' }]}>{t('common.done')}</Text>
+                </Pressable>
+              </View>
+              <DateTimePicker
+                value={selectedDate}
+                mode="date"
+                display="spinner"
+                onChange={handleDateChange}
+                textColor={isDark ? 'white' : 'black'}
+              />
+            </View>
+          </Pressable>
+        </RNModal>
+      ) : (
+        showDateModal && (
+          <DateTimePicker
+            value={selectedDate}
+            mode="date"
+            display="default"
+            onChange={handleDateChange}
+          />
+        )
+      )}
 
       {/* Category Selection Modal */}
       <Modal
@@ -474,7 +543,7 @@ export default function EditTransactionScreen({
                       isSelected && styles.categoryItemTextSelected,
                     ]}
                   >
-                    {cat.name}
+                    {translateCategoryName(cat.name, t, cat.original_name)}
                   </Text>
                 </Pressable>
               );
@@ -715,6 +784,28 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     borderColor: '#FF5252',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  datePickerContainer: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: 20,
+  },
+  datePickerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  datePickerButton: {
+    color: '#007AFF',
+    fontSize: 16,
   },
 });
 

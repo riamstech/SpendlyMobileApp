@@ -49,7 +49,7 @@ export default function Analytics() {
       setLoading(true);
       const [insightsData, categoryData, trendsData, healthData] = await Promise.all([
         analyticsService.getInsights(),
-        analyticsService.getCategoryBreakdown({ months: 1, type: 'expense' }),
+        analyticsService.getCategoryBreakdown({ months: 3, type: 'expense' }),
         analyticsService.getSpendingTrends({ period: 'monthly', months: 6 }),
         analyticsService.getHealthScore(),
       ]);
@@ -775,7 +775,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   trendValueAmount: {
-    ...textStyles.monoMedium,
+    ...textStyles.bodySmall,
     fontWeight: '600',
   },
   trendValueDivider: {

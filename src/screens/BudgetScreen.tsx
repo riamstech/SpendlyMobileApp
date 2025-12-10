@@ -36,6 +36,7 @@ import { authService } from '../api/services/auth';
 import { getBudgetPeriodFromCycleDay, formatDateForDisplay } from '../api/utils/dateUtils';
 import { translateCategoryName } from '../utils/categoryTranslator';
 import { CategoryIcon } from '../components/CategoryIcon';
+import { useCategories } from '../hooks/useCategories';
 import { getEmojiFromIcon } from '../utils/iconMapper';
 import { useTheme } from '../contexts/ThemeContext';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
@@ -70,8 +71,23 @@ export default function BudgetScreen() {
   
   // Budget data
   const [categoryBudgets, setCategoryBudgets] = useState<CategoryBudget[]>([]);
+  // Use useCategories hook for automatic refetch on language change
+  const { categories: categoriesData } = useCategories();
   const [availableCategories, setAvailableCategories] = useState<Category[]>([]);
   const [currencies, setCurrencies] = useState<Currency[]>([]);
+  
+  // Sync categories from hook to local state
+  useEffect(() => {
+    if (categoriesData && categoriesData.length > 0) {
+      setAvailableCategories(categoriesData.map((cat: any) => ({
+        id: String(cat.id || cat.name),
+        name: cat.name,
+        icon: cat.icon || 'CircleEllipsis',
+        color: cat.color,
+        type: cat.type || 'both',
+      })));
+    }
+  }, [categoriesData]);
   
   // UI states
   const [isAdding, setIsAdding] = useState(false);
@@ -127,23 +143,7 @@ export default function BudgetScreen() {
         console.error('Failed to load currencies:', error);
       }
       
-      // Load categories
-      try {
-        const categoriesResponse = await categoriesService.getCategories();
-        const allCats = [
-          ...(categoriesResponse.system || []),
-          ...(categoriesResponse.custom || []),
-        ];
-        setAvailableCategories(allCats.map((cat: any) => ({
-          id: String(cat.id),
-          name: cat.name,
-          icon: cat.icon || 'CircleEllipsis',
-          color: cat.color,
-          type: cat.type || 'both',
-        })));
-      } catch (error) {
-        console.error('Failed to load categories:', error);
-      }
+      // Categories are now loaded via useCategories hook, skip manual loading
     } catch (error) {
       console.error('Failed to load initial data:', error);
     }
@@ -354,7 +354,7 @@ export default function BudgetScreen() {
     .sort((a, b) => b.spent - a.spent)
     .slice(0, 5)
     .map(cat => ({
-      name: translateCategoryName(cat.name, t),
+      name: translateCategoryName(cat.name, t, (cat as any).original_name),
       value: cat.spent,
       color: cat.color,
       legendFontColor: colors.foreground,
@@ -611,7 +611,7 @@ export default function BudgetScreen() {
                       </View>
                       <View style={styles.budgetInfo}>
                         <Text style={[styles.budgetName, responsiveTextStyles.body, { color: colors.foreground, fontWeight: '600' }]}>
-                          {translateCategoryName(category.name, t)}
+                          {translateCategoryName(category.name, t, (category as any).original_name)}
                         </Text>
                         <View style={styles.budgetMeta}>
                           <Text style={[styles.budgetAmount, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>

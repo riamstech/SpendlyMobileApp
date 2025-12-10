@@ -39,6 +39,7 @@ import { currenciesService } from '../api/services/currencies';
 import { authService } from '../api/services/auth';
 import { translateCategoryName } from '../utils/categoryTranslator';
 import { CategoryIcon } from '../components/CategoryIcon';
+import { useCategories } from '../hooks/useCategories';
 import { Investment } from '../api/types/investment';
 import { useTheme } from '../contexts/ThemeContext';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
@@ -61,8 +62,26 @@ export default function InvestmentsScreen() {
   
   // Data
   const [investments, setInvestments] = useState<Investment[]>([]);
+  // Use useCategories hook for automatic refetch on language change (investment type)
+  const { categories: categoriesData } = useCategories('investment');
   const [availableCategories, setAvailableCategories] = useState<Category[]>([]);
   const [currencies, setCurrencies] = useState<Array<{ code: string; symbol: string; name?: string; flag?: string }>>([]);
+  
+  // Sync categories from hook to local state (filter for investment type)
+  useEffect(() => {
+    if (categoriesData && categoriesData.length > 0) {
+      const investmentCats = categoriesData
+        .filter((cat: any) => cat.type === 'investment' || cat.type === 'both')
+        .map((cat: any) => ({
+          id: String(cat.id || cat.name),
+          name: cat.name,
+          icon: cat.icon || 'CircleEllipsis',
+          color: cat.color,
+          type: cat.type || 'investment',
+        }));
+      setAvailableCategories(investmentCats);
+    }
+  }, [categoriesData]);
   
   // UI states
   const [showAddForm, setShowAddForm] = useState(false);
@@ -148,22 +167,7 @@ export default function InvestmentsScreen() {
           const currenciesData = await currenciesService.getCurrencies();
           setCurrencies(currenciesData);
           
-          // Reload categories (investment type only)
-          const categoriesResponse = await categoriesService.getCategories();
-          const allCats = [
-            ...(categoriesResponse.system || []),
-            ...(categoriesResponse.custom || []),
-          ];
-          const investmentCats = allCats
-            .filter((cat: any) => cat.type === 'investment')
-            .map((cat: any) => ({
-              id: String(cat.id),
-              name: cat.name,
-              icon: cat.icon || 'CircleEllipsis',
-              color: cat.color,
-              type: cat.type || 'investment',
-            }));
-          setAvailableCategories(investmentCats);
+          // Categories are now loaded via useCategories hook, skip manual reload
         } catch (error) {
           console.error('Failed to reload data for form:', error);
         }
@@ -214,23 +218,10 @@ export default function InvestmentsScreen() {
         console.error('Failed to load currencies:', error);
       }
       
-      // Load categories (investment type only)
+      // Categories are now loaded via useCategories hook, skip manual loading
+      // The hook automatically filters for investment type
       try {
-        const categoriesResponse = await categoriesService.getCategories();
-        const allCats = [
-          ...(categoriesResponse.system || []),
-          ...(categoriesResponse.custom || []),
-        ];
-        const investmentCats = allCats
-          .filter((cat: any) => cat.type === 'investment')
-          .map((cat: any) => ({
-            id: String(cat.id),
-            name: cat.name,
-            icon: cat.icon || 'CircleEllipsis',
-            color: cat.color,
-            type: cat.type || 'investment',
-          }));
-        setAvailableCategories(investmentCats);
+        // Categories are set via useEffect hook above
       } catch (error) {
         console.error('Failed to load categories:', error);
       }
@@ -447,7 +438,7 @@ export default function InvestmentsScreen() {
       return sum + (typeof value === 'number' ? value : parseFloat(String(value)) || 0);
     }, 0);
     return {
-      name: translateCategoryName(cat.name, t),
+      name: translateCategoryName(cat.name, t, (cat as any).original_name),
       value: total,
       color: cat.color || '#ccc',
       legendFontColor: '#333',
@@ -647,7 +638,7 @@ export default function InvestmentsScreen() {
                           formData.category === cat.id && { color: colors.primary, fontWeight: '600' },
                         ]}
                       >
-                        {translateCategoryName(cat.name, t)}
+                        {translateCategoryName(cat.name, t, (cat as any).original_name)}
                       </Text>
                     </Pressable>
                   ))}
@@ -1315,7 +1306,7 @@ export default function InvestmentsScreen() {
                         <Text style={[styles.investmentName, { color: colors.foreground }]}>{investment.name}</Text>
                         <View style={styles.investmentMeta}>
                           <Text style={[styles.investmentMetaText, { color: colors.mutedForeground }]}>
-                            {category ? translateCategoryName(category.name, t) : ''}
+                            {category ? translateCategoryName(category.name, t, (category as any).original_name) : ''}
                           </Text>
                           <Text style={[styles.investmentMetaDot, { color: colors.mutedForeground }]}>•</Text>
                           <Text style={[styles.investmentMetaText, { color: colors.mutedForeground }]}>{investment.type}</Text>

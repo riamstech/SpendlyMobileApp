@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { config } from '../config/env';
 import { toCamelCase, toSnakeCase } from './utils/transformers';
 import { ApiError } from './types/common';
+import i18n from '../i18n';
 
 const TOKEN_KEY = 'spendly_auth_token';
 
@@ -23,13 +24,20 @@ class ApiClient {
   }
 
   private setupInterceptors(): void {
-    // Request interceptor - add token and transform to snake_case
+    // Request interceptor - add token, language header, and transform to snake_case
     this.client.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
         // Add auth token if available
         const token = this.getToken();
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
+        }
+
+        // Add Accept-Language header with current i18n language
+        // This ensures backend translates categories and other content based on app language
+        const currentLanguage = i18n.language || 'en';
+        if (config.headers) {
+          config.headers['Accept-Language'] = currentLanguage;
         }
 
         // Transform request data to snake_case, except for FormData (file uploads)

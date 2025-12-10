@@ -642,5 +642,80 @@
     "pocketmoney": "Taschengeld",
     "governmentaid": "Staatliche Hilfe",
     "otherincome": "Sonstiges Einkommen"
+  },
+  "common": {
+    "all": "Alle",
+    "search": "Suchen",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "clearFilters": "Filter löschen",
+    "loading": "Laden...",
+    "ok": "OK",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "saving": "Speichern...",
+    "optional": "Optional",
+    "done": "Fertig",
+    "info": "Info",
+    "deleting": "Löschen...",
+    "view": "Ansehen",
+    "dismiss": "Verwerfen"
+  },
+  "errorBoundary": {
+    "somethingWentWrong": "Etwas ist schief gelaufen",
+    "unknownError": "Unbekannter Fehler",
+    "pleaseRestart": "Bitte starten Sie die App neu"
+  },
+  "freemium": {
+    "limitReached": "Sie haben {{limit}} Transaktionen erreicht",
+    "limitDescription": "Sie machen großartige Arbeit beim Verfolgen Ihrer Finanzen! Um weitere Transaktionen hinzuzufügen und alle Funktionen freizuschalten, sollten Sie ein Upgrade auf Premium in Betracht ziehen.",
+    "unlimitedTransactions": "Unbegrenzte Transaktionen",
+    "unlimitedTransactionsDesc": "Verfolgen Sie so viele Ausgaben und Einnahmen wie Sie möchten",
+    "advancedAnalytics": "Erweiterte Analysen",
+    "advancedAnalyticsDesc": "Erhalten Sie detaillierte Einblicke und benutzerdefinierte Berichte",
+    "investmentPortfolio": "Investmentportfolio",
+    "investmentPortfolioDesc": "Vollständige Investitionsverfolgung ohne Limits",
+    "prioritySupport": "Prioritätssupport",
+    "prioritySupportDesc": "Erhalten Sie Hilfe, wann immer Sie sie benötigen",
+    "premiumPlan": "Premium-Plan",
+    "cancelAnytime": "Jederzeit kündbar",
+    "upgradeToPremium": "Auf Premium upgraden",
+    "continueFree": "Im kostenlosen Modus fortfahren",
+    "safeNote": "Keine Sorge! Ihre bestehenden {{count}} Transaktionen sind sicher. Sie können sie jederzeit ansehen und verwalten."
+  },
+  "editTransaction": {
+    "title": "Transaktion bearbeiten",
+    "update": "Aktualisieren",
+    "delete": "Löschen",
+    "deleteTitle": "Transaktion löschen",
+    "deleteConfirm": "Sind Sie sicher, dass Sie diese Transaktion löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleteSuccess": "Transaktion erfolgreich gelöscht",
+    "deleteError": "Fehler beim Löschen der Transaktion",
+    "updateSuccess": "Transaktion erfolgreich aktualisiert",
+    "updateError": "Fehler beim Aktualisieren der Transaktion",
+    "fillRequired": "Bitte füllen Sie alle erforderlichen Felder aus"
+  },
+  "reports": {
+    "csv": "CSV",
+    "pdf": "PDF",
+    "shareCsv": "CSV-Bericht teilen",
+    "csvReady": "CSV bereit",
+    "csvReadyDescription": "CSV-Datei wurde generiert unter: {{fileUri}}",
+    "csvError": "Fehler beim Generieren des CSV-Berichts.",
+    "sharePdf": "PDF-Bericht teilen",
+    "pdfReady": "PDF bereit",
+    "pdfReadyDescription": "PDF-Datei wurde generiert unter: {{uri}}",
+    "pdfError": "Fehler beim Generieren des PDF-Berichts.",
+    "pleaseSelectDateRange": "Bitte wählen Sie einen Datumsbereich aus"
+  },
+  "payment": {
+    "oneMonthAccess": "1 Monat Zugang",
+    "oneYearAccess": "1 Jahr Zugang",
+    "savePercent": "Sparen Sie {{percent}}%",
+    "cannotOpenRazorpayUrl": "Razorpay-URL kann nicht geöffnet werden",
+    "upiPaymentLinkNotReady": "UPI-Zahlungslink ist nicht bereit. Bitte versuchen Sie es mit Karte.",
+    "amountCurrencyRequired": "Betrag und Währung sind für die Zahlung erforderlich. Bitte versuchen Sie es erneut.",
+    "cannotOpenStripeUrl": "Stripe-URL kann nicht geöffnet werden",
+    "noCheckoutUrl": "Keine Checkout-URL zurückgegeben"
   }
 }

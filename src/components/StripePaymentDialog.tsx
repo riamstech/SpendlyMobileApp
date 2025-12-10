@@ -66,7 +66,7 @@ export default function StripePaymentDialog({
         
         // Ensure amount and currency are provided (required for one-time payments)
         if (!amount || !currency) {
-          throw new Error('Amount and currency are required for payment. Please try again.');
+          throw new Error(t('payment.amountCurrencyRequired', { defaultValue: 'Amount and currency are required for payment. Please try again.' }));
         }
         
         amount = convertToSmallestUnit(amount, currency);
@@ -81,11 +81,11 @@ export default function StripePaymentDialog({
             onClose();
             await Linking.openURL(intent.checkout_url);
           } else {
-             throw new Error('Cannot open Razorpay URL');
+             throw new Error(t('payment.cannotOpenRazorpayUrl', { defaultValue: 'Cannot open Razorpay URL' }));
           }
         } else {
              // Fallback for older backend or non-link response
-             throw new Error('UPI Payment Link not ready. Please try Card.');
+             throw new Error(t('payment.upiPaymentLinkNotReady', { defaultValue: 'UPI Payment Link not ready. Please try Card.' }));
         }
 
       } else {
@@ -96,7 +96,7 @@ export default function StripePaymentDialog({
          
          // Ensure amount and currency are provided (required for one-time payments)
          if (!amount || !currency) {
-           throw new Error('Amount and currency are required for payment. Please try again.');
+           throw new Error(t('payment.amountCurrencyRequired', { defaultValue: 'Amount and currency are required for payment. Please try again.' }));
          }
          
          amount = convertToSmallestUnit(amount, currency);
@@ -111,10 +111,10 @@ export default function StripePaymentDialog({
              onClose();
              await Linking.openURL(checkout.checkout_url);
            } else {
-             throw new Error('Cannot open Stripe URL');
+             throw new Error(t('payment.cannotOpenStripeUrl', { defaultValue: 'Cannot open Stripe URL' }));
            }
          } else {
-           throw new Error('No checkout URL returned');
+           throw new Error(t('payment.noCheckoutUrl', { defaultValue: 'No checkout URL returned' }));
          }
       }
 
@@ -147,7 +147,7 @@ export default function StripePaymentDialog({
       >
         <View style={styles.planInfo}>
           <Text style={[styles.planType, { color: colors.foreground }]}>
-            {type === 'monthly' ? (t('settings.oneTimePaymentMonth') || '1 Month Access') : (t('settings.oneTimePaymentYear') || '1 Year Access')}
+            {type === 'monthly' ? t('payment.oneMonthAccess', { defaultValue: '1 Month Access' }) : t('payment.oneYearAccess', { defaultValue: '1 Year Access' })}
           </Text>
           <Text style={[styles.planPrice, { color: colors.mutedForeground }]}>
             {price}
@@ -206,8 +206,8 @@ export default function StripePaymentDialog({
             </Text>
             
             <View style={styles.plansContainer}>
-              <PlanOption type="monthly" price={`${displayMonthlyPrice} - 1 month`} />
-              <PlanOption type="yearly" price={`${displayYearlyPrice} - 1 year`} save="Save 58%" />
+              <PlanOption type="monthly" price={`${displayMonthlyPrice} - ${t('settings.month', { defaultValue: '1 month' })}`} />
+              <PlanOption type="yearly" price={`${displayYearlyPrice} - ${t('settings.year', { defaultValue: '1 year' })}`} save={t('payment.savePercent', { percent: 58, defaultValue: 'Save 58%' })} />
             </View>
 
             {/* Error Message */}
@@ -223,7 +223,7 @@ export default function StripePaymentDialog({
             {/* Note */}
             <View style={[styles.noteCard, { backgroundColor: colors.muted }]}>
               <Text style={[styles.noteText, { color: colors.mutedForeground }]}>
-                {t('payment.mobileNote') || 'One-time payment. You will be redirected to complete your payment securely.'}
+                {t('payment.mobileNote', { defaultValue: 'One-time payment. You will be redirected to complete your payment securely.' })}
               </Text>
             </View>
           </ScrollView>

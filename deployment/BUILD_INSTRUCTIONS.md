@@ -144,3 +144,50 @@ Alternatively, you can export the `.ipa` file and upload it using the **Transpor
     *   *Solution:* Always open the `.xcworkspace` file (not `.xcodeproj`) and check the "Signing & Capabilities" tab in Xcode.
 *   **Gradle Errors**:
     *   *Solution:* Check if `local.properties` exists in `android/` with the correct `sdk.dir` path.
+
+---
+
+## ⚡ Local Native Build (Automated)
+
+We have created a data-driven shell script to automate the native build process without using EAS Cloud.
+
+**Prerequisites:**
+- Android Studio & SDK installed (`$HOME/Library/Android/sdk`).
+- Xcode installed (for iOS).
+- Cocoapods installed (`sudo gem install cocoapods`).
+
+**Usage:**
+
+1.  **Make the script executable (if needed):**
+    ```bash
+    chmod +x deployment/build_native.sh
+    ```
+
+2.  **Run the script from project root:**
+    ```bash
+    # Build both platforms (Default)
+    ./deployment/build_native.sh
+
+    # Build Android only
+    ./deployment/build_native.sh android
+
+    # Build iOS only
+    ./deployment/build_native.sh ios
+
+    # Build with Version Bump (applies to package.json before build)
+    ./deployment/build_native.sh android 1.0.5
+    ./deployment/build_native.sh both 1.1.0
+
+    # Build with Version and Output Folder (artifacts copied to folder)
+    ./deployment/build_native.sh both 1.1.0 ./builds/v1.1.0
+    ```
+
+**iOS Export Note:**
+To automatically generate an `.ipa` file after archiving, you need an `ExportOptions.plist` file in the `ios/` directory. If it doesn't exist, the script will stop at creating the `.xcarchive`, which you can verify/distribute via Xcode Organizer.
+
+To generate `ExportOptions.plist`:
+1.  Archive manually once in Xcode.
+2.  "Distribute App" -> "Ad Hoc" (or desired method).
+3.  Proceed until the summary screen.
+4.  Export the artifacts; the folder will contain a valid `ExportOptions.plist`.
+5.  Copy that file to `ios/ExportOptions.plist`.

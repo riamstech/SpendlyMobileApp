@@ -642,5 +642,80 @@
     "pocketmoney": "Pocket Money",
     "governmentaid": "Government Aid",
     "otherincome": "Other Income"
+  },
+  "common": {
+    "all": "Все",
+    "search": "Поиск",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "clearFilters": "Очистить фильтры",
+    "loading": "Загрузка...",
+    "ok": "ОК",
+    "error": "Ошибка",
+    "success": "Успех",
+    "saving": "Сохранение...",
+    "optional": "Необязательно",
+    "done": "Готово",
+    "info": "Информация",
+    "deleting": "Удаление...",
+    "view": "Просмотр",
+    "dismiss": "Отклонить"
+  },
+  "errorBoundary": {
+    "somethingWentWrong": "Что-то пошло не так",
+    "unknownError": "Неизвестная ошибка",
+    "pleaseRestart": "Пожалуйста, перезапустите приложение"
+  },
+  "freemium": {
+    "limitReached": "Вы достигли {{limit}} транзакций",
+    "limitDescription": "Вы отлично справляетесь с отслеживанием своих финансов! Чтобы добавить больше транзакций и разблокировать все функции, рассмотрите возможность обновления до Premium.",
+    "unlimitedTransactions": "Неограниченные транзакции",
+    "unlimitedTransactionsDesc": "Отслеживайте столько расходов и доходов, сколько хотите",
+    "advancedAnalytics": "Расширенная аналитика",
+    "advancedAnalyticsDesc": "Получайте подробную информацию и пользовательские отчеты",
+    "investmentPortfolio": "Инвестиционный портфель",
+    "investmentPortfolioDesc": "Полное отслеживание инвестиций без ограничений",
+    "prioritySupport": "Приоритетная поддержка",
+    "prioritySupportDesc": "Получайте помощь, когда она вам нужна",
+    "premiumPlan": "Премиум план",
+    "cancelAnytime": "Отменить в любое время",
+    "upgradeToPremium": "Обновить до Premium",
+    "continueFree": "Продолжить в бесплатном режиме",
+    "safeNote": "Не волнуйтесь! Ваши существующие {{count}} транзакций в безопасности. Вы можете просматривать и управлять ими в любое время."
+  },
+  "editTransaction": {
+    "title": "Редактировать транзакцию",
+    "update": "Обновить",
+    "delete": "Удалить",
+    "deleteTitle": "Удалить транзакцию",
+    "deleteConfirm": "Вы уверены, что хотите удалить эту транзакцию? Это действие нельзя отменить.",
+    "deleteSuccess": "Транзакция успешно удалена",
+    "deleteError": "Не удалось удалить транзакцию",
+    "updateSuccess": "Транзакция успешно обновлена",
+    "updateError": "Не удалось обновить транзакцию",
+    "fillRequired": "Пожалуйста, заполните все обязательные поля"
+  },
+  "reports": {
+    "csv": "CSV",
+    "pdf": "PDF",
+    "shareCsv": "Поделиться CSV отчетом",
+    "csvReady": "CSV готов",
+    "csvReadyDescription": "CSV файл был создан по адресу: {{fileUri}}",
+    "csvError": "Не удалось создать CSV отчет.",
+    "sharePdf": "Поделиться PDF отчетом",
+    "pdfReady": "PDF готов",
+    "pdfReadyDescription": "PDF файл был создан по адресу: {{uri}}",
+    "pdfError": "Не удалось создать PDF отчет.",
+    "pleaseSelectDateRange": "Пожалуйста, выберите диапазон дат"
+  },
+  "payment": {
+    "oneMonthAccess": "Доступ на 1 месяц",
+    "oneYearAccess": "Доступ на 1 год",
+    "savePercent": "Сэкономьте {{percent}}%",
+    "cannotOpenRazorpayUrl": "Не удалось открыть URL Razorpay",
+    "upiPaymentLinkNotReady": "Ссылка на оплату UPI не готова. Пожалуйста, попробуйте карту.",
+    "amountCurrencyRequired": "Для оплаты требуются сумма и валюта. Пожалуйста, попробуйте снова.",
+    "cannotOpenStripeUrl": "Не удалось открыть URL Stripe",
+    "noCheckoutUrl": "URL оформления заказа не возвращен"
   }
 }

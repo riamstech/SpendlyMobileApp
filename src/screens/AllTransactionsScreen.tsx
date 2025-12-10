@@ -36,6 +36,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { fonts, createResponsiveTextStyles, textStyles } from '../constants/fonts';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { showToast } from '../utils/toast';
+import { translateCategoryName } from '../utils/categoryTranslator';
 
 interface Transaction {
   id: string;
@@ -48,6 +49,10 @@ interface Transaction {
   convertedAmount?: number;
   defaultCurrency?: string;
   showConversion?: boolean;
+  notes?: string;
+  is_recurring?: boolean;
+  recurring_frequency?: string | null;
+  reminder_days?: number | null;
 }
 
 interface Category {
@@ -75,14 +80,31 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
   const [filterCategory, setFilterCategory] = useState<string>('all');
-  const [filterDateRange, setFilterDateRange] = useState<'all' | 'this_month' | 'last_month' | 'this_year' | 'custom'>('all');
+  const [filterDateRange, setFilterDateRange] = useState<'all' | 'this_month' | 'last_month' | 'this_year' | 'custom'>('this_month');
   const [customDateFrom, setCustomDateFrom] = useState('');
   const [customDateTo, setCustomDateTo] = useState('');
   
-  // Categories
+  // Use useCategories hook for automatic refetch on language change
+  const { categories: categoriesData } = useCategories();
   const [categories, setCategories] = useState<Category[]>([]);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+  
+  // Sync categories from hook to local state (transform to match expected format)
+  useEffect(() => {
+    if (categoriesData && categoriesData.length > 0) {
+      setCategories(categoriesData.map((cat: any) => ({
+        id: String(cat.id || cat.name),
+        name: cat.name,
+        type: cat.type || 'both',
+      })));
+    }
+  }, [categoriesData]);
   const [showDateRangeModal, setShowDateRangeModal] = useState(false);
+  
+  // Currency Filter
+  const [currencies, setCurrencies] = useState<Currency[]>([]);
+  const [filterCurrency, setFilterCurrency] = useState('all');
+  const [showCurrencyModal, setShowCurrencyModal] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -90,7 +112,7 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
 
   useEffect(() => {
     applyFilters();
-  }, [transactions, searchQuery, filterType, filterCategory, filterDateRange, customDateFrom, customDateTo]);
+  }, [transactions, searchQuery, filterType, filterCategory, filterDateRange, filterCurrency, customDateFrom, customDateTo]);
 
   const loadData = async () => {
     try {
@@ -98,26 +120,16 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
       
       // Get user currency
       const userData = await authService.getCurrentUser();
-      const defaultCurrency = userData.defaultCurrency || 'USD';
-      setCurrency(defaultCurrency);
+      const userDefaultCurrency = userData.defaultCurrency || 'USD';
+      setCurrency(userDefaultCurrency);
+      setDefaultCurrency(userDefaultCurrency);
+      setFilterCurrency(userDefaultCurrency); // Default filter to user's default currency
+
+      // Load currencies
+      const currenciesData = await currenciesService.getCurrencies();
+      setCurrencies(currenciesData);
       
-      // Load categories first (needed for filtering)
-      
-      // Load categories
-      try {
-        const categoriesResponse = await categoriesService.getCategories();
-        const allCategories = [
-          ...(categoriesResponse.system || []),
-          ...(categoriesResponse.custom || []),
-        ];
-        setCategories(allCategories.map((cat: any) => ({
-          id: String(cat.id),
-          name: cat.name,
-          type: cat.type || 'both',
-        })));
-      } catch (error) {
-        console.error('Failed to load categories:', error);
-      }
+      // Categories are now loaded via useCategories hook, skip manual loading
       
       // Load transactions
       await loadTransactions();
@@ -236,8 +248,8 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
           type: tx.type as 'income' | 'expense',
           amount,
           currency: txCurrency,
-          category: tx.category || 'Uncategorized',
-          description: tx.notes || tx.description || 'Transaction',
+          category: tx.category || t('categories.others', { defaultValue: 'Uncategorized' }),
+          description: tx.notes || tx.description || t('dashboard.transactions', { defaultValue: 'Transaction' }),
           date: formatDateForDisplay(dateStr, i18n.language),
           convertedAmount,
           defaultCurrency: targetCurrency,
@@ -273,7 +285,7 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
       setFilteredTransactions(filtered);
     } catch (error) {
       console.error('Failed to load transactions:', error);
-      showToast.error('Failed to load transactions. Please try again.', 'Error');
+      showToast.error(t('dashboard.noTransactionsFound', { defaultValue: 'Failed to load transactions. Please try again.' }), t('common.error', { defaultValue: 'Error' }));
       setTransactions([]);
       setFilteredTransactions([]);
     }
@@ -299,6 +311,10 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
     // Category filter (already applied in API, but keep for consistency)
     if (filterCategory !== 'all') {
       filtered = filtered.filter(tx => tx.category === filterCategory);
+    }
+
+    if (filterCurrency !== 'all') {
+      filtered = filtered.filter(tx => tx.currency === filterCurrency);
     }
     
     console.log('Filtered transactions:', filtered.length, 'from', txList.length);
@@ -326,20 +342,28 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
         amount: Math.abs(fullTransaction.amount),
         currency: fullTransaction.currency,
         category: fullTransaction.category,
-        description: fullTransaction.notes || fullTransaction.description || '',
+        description: fullTransaction.description || fullTransaction.notes || '', // Prefer description, fallback to notes
+        notes: fullTransaction.notes || '',
         date: fullTransaction.date,
+        is_recurring: fullTransaction.is_recurring,
+        recurring_frequency: fullTransaction.recurring_frequency,
+        reminder_days: fullTransaction.reminder_days,
       });
     } catch (error) {
       console.error('Failed to load transaction details:', error);
-      // Fallback to using the transaction we have
-      setEditingTransaction(transaction);
+      // Fallback to using the transaction we have, but ensure fields exist
+      setEditingTransaction({
+        ...transaction,
+        description: transaction.description || '',
+        notes: transaction.notes || '',
+      });
     }
   };
 
   const handleDelete = (id: string) => {
     Alert.alert(
-      t('dashboard.deleteTransaction') || 'Delete Transaction',
-      t('dashboard.deleteTransactionConfirm') || 'Are you sure you want to delete this transaction?',
+      t('dashboard.deleteTransaction', { defaultValue: 'Delete Transaction' }),
+      t('dashboard.deleteTransactionConfirm', { defaultValue: 'Are you sure you want to delete this transaction?' }),
       [
         { text: t('common.cancel') || 'Cancel', style: 'cancel' },
         {
@@ -348,9 +372,10 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
           onPress: async () => {
             try {
               await transactionsService.deleteTransaction(Number(id));
+              showToast.success(t('dashboard.deleteTransactionSuccess') || 'Transaction deleted successfully', 'Success');
               await loadTransactions();
             } catch (error) {
-              showToast.error('Failed to delete transaction. Please try again.', 'Error');
+              showToast.error(t('editTransaction.deleteError', { defaultValue: 'Failed to delete transaction. Please try again.' }), t('common.error', { defaultValue: 'Error' }));
             }
           },
         },
@@ -452,6 +477,42 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
             {filteredTransactions.length} {t('dashboard.totalTransactions') || 'total transactions'}
           </Text>
         </View>
+        
+        {/* Date FIlter Button (Dropdown style) */}
+        <Pressable 
+          style={[styles.filterButton, { flexDirection: 'row', alignItems: 'center', gap: 4, marginRight: 8, backgroundColor: colors.inputBackground, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 }]}
+          onPress={() => setShowDateRangeModal(true)}
+        >
+          <Calendar size={16} color={colors.foreground} />
+          <Text style={{ fontSize: 12, color: colors.foreground }}>
+            {filterDateRange === 'all' ? (t('common.all') || 'All') :
+             filterDateRange === 'this_month' ? (t('dashboard.thisMonth') || 'This Month') :
+             filterDateRange === 'last_month' ? (t('dashboard.lastMonth') || 'Last Month') :
+             filterDateRange === 'this_year' ? (t('dashboard.thisYear') || 'This Year') : 'Custom'}
+          </Text>
+          <Filter size={12} color={colors.mutedForeground} />
+        </Pressable>
+
+        {/* Currency Filter Button */}
+        <Pressable 
+          style={[styles.filterButton, { flexDirection: 'row', alignItems: 'center', gap: 4, marginRight: 8, backgroundColor: colors.inputBackground, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 }]}
+          onPress={() => setShowCurrencyModal(true)}
+        >
+          <Text style={{ fontSize: 12, color: colors.foreground }}>
+            {filterCurrency === 'all' ? (t('common.all') || 'All') : filterCurrency}
+          </Text>
+          <Filter size={12} color={colors.mutedForeground} />
+        </Pressable>
+
+        <Pressable 
+          style={styles.filterButton}
+          onPress={() => setShowCategoryModal(true)}
+        >
+          <Filter size={24} color={colors.foreground} />
+          {(filterCategory !== 'all') && (
+            <View style={styles.filterBadge} />
+          )}
+        </Pressable>
       </View>
 
       {/* Summary Grid */}
@@ -528,7 +589,7 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
                     {transaction.description}
                   </Text>
                   <Text style={[styles.transactionMeta, responsiveTextStyles.small, { color: colors.mutedForeground }]}>
-                    {transaction.category} • {transaction.date}
+                    {translateCategoryName(transaction.category, t)} • {transaction.date}
                   </Text>
                 </View>
                 <View style={styles.transactionActions}>
@@ -625,7 +686,7 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
                   }}
                 >
                   <Text style={[styles.modalItemText, filterCategory === category.id && styles.modalItemTextActive]}>
-                    {category.name}
+                    {translateCategoryName(category.name, t, (category as any).original_name)}
                   </Text>
                 </Pressable>
               ))}
@@ -657,7 +718,7 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
                   onPress={() => {
                     if (range === 'custom') {
                       // For custom, we'd need a date picker - simplified for now
-                      showToast.info('Custom date range selection will be implemented with date picker', 'Custom Date Range');
+                      showToast.info(t('reports.customRange', { defaultValue: 'Custom date range selection will be implemented with date picker' }), t('reports.customRange', { defaultValue: 'Custom Date Range' }));
                     } else {
                       setFilterDateRange(range as any);
                       setShowDateRangeModal(false);
@@ -677,6 +738,51 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
                       : range === 'custom'
                       ? (t('dashboard.customRange') || 'Custom Range')
                       : ''}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+      {/* Currency Filter Modal */}
+      <Modal
+        visible={showCurrencyModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowCurrencyModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card, maxHeight: '80%' }]}>
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('dashboard.selectCurrency') || 'Select Currency'}</Text>
+              <Pressable onPress={() => setShowCurrencyModal(false)}>
+                <X size={24} color={colors.mutedForeground} />
+              </Pressable>
+            </View>
+            <ScrollView style={styles.modalList}>
+              <Pressable
+                style={[styles.modalItem, { borderBottomColor: colors.border }]}
+                onPress={() => {
+                  setFilterCurrency('all');
+                  setShowCurrencyModal(false);
+                }}
+              >
+                <Text style={[styles.modalItemText, { color: colors.foreground }, filterCurrency === 'all' && { color: colors.primary, fontWeight: 'bold' }]}>
+                  {t('common.all') || 'All'}
+                </Text>
+              </Pressable>
+              {currencies.map((curr) => (
+                <Pressable
+                  key={curr.code}
+                  style={[styles.modalItem, { borderBottomColor: colors.border }]}
+                  onPress={() => {
+                    setFilterCurrency(curr.code);
+                    setShowCurrencyModal(false);
+                  }}
+                >
+                  <Text style={[styles.modalItemText, { color: colors.foreground }, filterCurrency === curr.code && { color: colors.primary, fontWeight: 'bold' }]}>
+                    {curr.code} - {curr.name}
                   </Text>
                 </Pressable>
               ))}
@@ -802,64 +908,61 @@ const styles = StyleSheet.create({
     ...textStyles.bodySmall,
     color: '#333',
   },
-  clearFiltersButton: {
-    marginTop: 8,
-    paddingVertical: 12,
-    alignItems: 'center',
+  activeFilterButton: {
+    borderColor: '#03A9F4',
+    backgroundColor: 'rgba(3, 169, 244, 0.05)',
   },
-  clearFiltersText: {
-    ...textStyles.bodySmall,
-    color: '#03A9F4',
-    fontWeight: '600',
+  statsGrid: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
   },
-  summaryRow: {
+  statsRow: {
     flexDirection: 'row',
     gap: 12,
-    paddingHorizontal: 16,
-    marginTop: 16,
-    marginBottom: 16,
   },
-  summaryCard: {
+  statsCard: {
     flex: 1,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
   },
-  summaryLabel: {
-    ...textStyles.caption,
-    marginBottom: 4,
+  statsLabel: {
+    marginBottom: 8,
   },
-  summaryValue: {
-    ...textStyles.bodySmall,
-    fontFamily: fonts.mono,
+  statsValue: {
+    fontWeight: '700',
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 32,
+    padding: 16,
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  emptyStateText: {
+    ...textStyles.body,
+    textAlign: 'center',
   },
   transactionCard: {
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 16,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 1,
+    padding: 16,
+    // Shadow calculated in card component generally or provided here
   },
   transactionContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
   },
   transactionIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
   },
   transactionInfo: {
     flex: 1,
@@ -867,39 +970,29 @@ const styles = StyleSheet.create({
   transactionDescription: {
     ...textStyles.body,
     fontWeight: '600',
-    marginBottom: 4,
   },
   transactionMeta: {
-    ...textStyles.small,
+    marginTop: 4,
   },
   transactionActions: {
     alignItems: 'flex-end',
-    gap: 8,
   },
   transactionAmountContainer: {
     alignItems: 'flex-end',
   },
   transactionAmount: {
-    ...textStyles.caption,
     fontWeight: '600',
   },
   conversionAmount: {
-    ...textStyles.small,
     marginTop: 2,
   },
   actionButtons: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 12,
+    marginTop: 8,
   },
   actionButton: {
-    padding: 8,
-  },
-  emptyState: {
-    padding: 40,
-    alignItems: 'center',
-  },
-  emptyStateText: {
-    ...textStyles.bodySmall,
+    padding: 4,
   },
   modalOverlay: {
     flex: 1,
@@ -908,69 +1001,36 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: '70%',
-    paddingTop: 20,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '80%',
   },
   modalHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingBottom: 16,
+    justifyContent: 'space-between',
+    padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#f0f0f0',
   },
   modalTitle: {
-    ...textStyles.h2,
+    ...textStyles.h3,
+    color: '#333',
   },
   modalList: {
-    maxHeight: 400,
+    padding: 20,
   },
   modalItem: {
     paddingVertical: 16,
-    paddingHorizontal: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
   modalItemText: {
     ...textStyles.body,
+    color: '#666',
   },
   modalItemTextActive: {
     color: '#03A9F4',
     fontWeight: '600',
   },
-  statsGrid: {
-    gap: 12,
-    marginTop: 12,
-    marginBottom: 24,
-    marginHorizontal: 16,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  statsCard: {
-    flex: 1,
-    borderRadius: 16,
-    padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 140,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  statsLabel: {
-    textAlign: 'center',
-    marginBottom: 4,
-  },
-  statsValue: {
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
 });
-
