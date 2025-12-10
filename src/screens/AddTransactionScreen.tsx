@@ -81,6 +81,7 @@ export default function AddTransactionScreen({
   const [loanAmount, setLoanAmount] = useState('');
   const [loanEndDate, setLoanEndDate] = useState('');
   const [loanType, setLoanType] = useState('personal');
+  const [datePickerTarget, setDatePickerTarget] = useState<'transaction' | 'warranty' | 'loan'>('transaction');
 
   // Responsive scaling
   const scale = Math.min(width / 375, 1);
@@ -197,17 +198,54 @@ export default function AddTransactionScreen({
     }
   }, []);
 
+  const formatDateLocal = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const handleDateChange = (event: any, selectedDate?: Date) => {
     if (Platform.OS === 'android') {
       setShowDateModal(false);
     }
     if (selectedDate) {
       setSelectedDate(selectedDate);
-      const formattedDate = selectedDate.toISOString().split('T')[0];
-      setDate(formattedDate);
+      const formattedDate = formatDateLocal(selectedDate);
+      
+      if (datePickerTarget === 'transaction') {
+        setDate(formattedDate);
+      } else if (datePickerTarget === 'warranty') {
+        setWarrantyExpiryDate(formattedDate);
+      } else if (datePickerTarget === 'loan') {
+        setLoanEndDate(formattedDate);
+      }
     } else if (Platform.OS === 'android' && event.type === 'dismissed') {
       setShowDateModal(false);
     }
+  };
+
+  const openDatePicker = (target: 'transaction' | 'warranty' | 'loan') => {
+    setDatePickerTarget(target);
+    let dateStr = '';
+    if (target === 'transaction') dateStr = date;
+    else if (target === 'warranty') dateStr = warrantyExpiryDate;
+    else if (target === 'loan') dateStr = loanEndDate;
+
+    if (dateStr) {
+      // Create date object treating the string as local time (YYYY-MM-DD -> YYYY-MM-DDT00:00:00)
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        if (!isNaN(d.getTime())) setSelectedDate(d);
+        else setSelectedDate(new Date());
+      } else {
+        setSelectedDate(new Date());
+      }
+    } else {
+      setSelectedDate(new Date());
+    }
+    setShowDateModal(true);
   };
 
   const handleSubmit = async () => {
@@ -507,7 +545,7 @@ export default function AddTransactionScreen({
                   borderColor: colors.border,
                 }
               ]}
-              onPress={() => setShowDateModal(true)}
+              onPress={() => openDatePicker('transaction')}
             >
               <View style={styles.selectedCategoryContainer}>
                 <Calendar size={18 * scale} color={colors.mutedForeground} />
@@ -605,29 +643,11 @@ export default function AddTransactionScreen({
                       borderColor: colors.border,
                     }
                   ]}
-                  onPress={() => {
-                     // For simplicity, using same date modal but logic needs to handle which date to set
-                     // Since we only have one date selection modal logic, we might need a separate state or mode
-                     // For now, let's use a Text Input for date or simplistic approach if we don't want to refactor date modal logic heavily
-                     // Or just implement a quick way to set it.
-                     // The user asked to "refer existing code". The web app uses input type="date".
-                     // Ideally we should reuse the DatePicker modal.
-                     // But showing another modal state is better.
-                     // I'll just use a text input YYYY-MM-DD for simpler implementation as requested "help fix issues", or reuse the main date picker?
-                     // Let's reuse the main date picker but add a mode.
-                     // Actually, I'll just use the same interaction pattern but I need to know WHICH date I'm picking.
-                     // I'll add a 'datePickerMode' state to 'AddTransactionScreen' in a separate edit if needed, or just use text input for now to avoid complexity of multiple date pickers in one screen without refactoring.
-                     // The requirement is "options missing".
-                     // I'll just use TextInput for YYYY-MM-DD for now.
-                  }}
+                  onPress={() => openDatePicker('warranty')}
                 >
-                  <TextInput
-                    style={{ flex: 1, color: colors.foreground }}
-                    placeholder="YYYY-MM-DD"
-                    placeholderTextColor={colors.mutedForeground}
-                    value={warrantyExpiryDate}
-                    onChangeText={setWarrantyExpiryDate}
-                  />
+                  <Text style={{ flex: 1, color: warrantyExpiryDate ? colors.foreground : colors.mutedForeground }}>
+                    {warrantyExpiryDate || 'YYYY-MM-DD'}
+                  </Text>
                   <Calendar size={18 * scale} color={colors.mutedForeground} />
                 </Pressable>
                 <Text style={[styles.hintTeat, { color: colors.mutedForeground, marginTop: 4, ...textStyles.caption }]}>
@@ -685,14 +705,11 @@ export default function AddTransactionScreen({
                         borderColor: colors.border,
                       }
                     ]}
+                    onPress={() => openDatePicker('loan')}
                   >
-                     <TextInput
-                      style={{ flex: 1, color: colors.foreground }}
-                      placeholder="YYYY-MM-DD"
-                      placeholderTextColor={colors.mutedForeground}
-                      value={loanEndDate}
-                      onChangeText={setLoanEndDate}
-                    />
+                     <Text style={{ flex: 1, color: loanEndDate ? colors.foreground : colors.mutedForeground }}>
+                      {loanEndDate || 'YYYY-MM-DD'}
+                    </Text>
                     <Calendar size={18 * scale} color={colors.mutedForeground} />
                   </Pressable>
                 </View>
@@ -916,8 +933,14 @@ export default function AddTransactionScreen({
                 <Text style={[styles.datePickerTitle, { color: colors.foreground }]}>{t('addTransaction.selectDate')}</Text>
                 <Pressable
                   onPress={() => {
-                    const formattedDate = selectedDate.toISOString().split('T')[0];
-                    setDate(formattedDate);
+                    const formattedDate = formatDateLocal(selectedDate);
+                    if (datePickerTarget === 'transaction') {
+                      setDate(formattedDate);
+                    } else if (datePickerTarget === 'warranty') {
+                      setWarrantyExpiryDate(formattedDate);
+                    } else if (datePickerTarget === 'loan') {
+                      setLoanEndDate(formattedDate);
+                    }
                     setShowDateModal(false);
                   }}
                 >
@@ -933,7 +956,8 @@ export default function AddTransactionScreen({
                     setSelectedDate(date);
                   }
                 }}
-                maximumDate={new Date()}
+                maximumDate={datePickerTarget === 'transaction' ? new Date() : undefined}
+                minimumDate={datePickerTarget !== 'transaction' ? new Date() : undefined}
                 textColor={isDark ? '#fff' : '#000'}
                 themeVariant={isDark ? 'dark' : 'light'}
               />
@@ -947,7 +971,8 @@ export default function AddTransactionScreen({
           mode="date"
           display="default"
           onChange={handleDateChange}
-          maximumDate={new Date()}
+          maximumDate={datePickerTarget === 'transaction' ? new Date() : undefined}
+          minimumDate={datePickerTarget !== 'transaction' ? new Date() : undefined}
         />
       )}
     </SafeAreaView>

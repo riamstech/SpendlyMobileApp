@@ -749,7 +749,6 @@ const styles = StyleSheet.create({
   categoryTotal: {
     ...textStyles.body,
     fontWeight: '700',
-    fontFamily: fonts.mono,
   },
   categoryPercentage: {
     ...textStyles.caption,
@@ -803,8 +802,7 @@ const styles = StyleSheet.create({
   },
   trendRowValue: {
     ...textStyles.body,
-    fontWeight: '600',
-    fontFamily: fonts.mono,
+    fontWeight: '500',
   },
   // Health Score
   healthScoreCard: {
@@ -818,10 +816,9 @@ const styles = StyleSheet.create({
   },
   healthScoreValue: {
     ...textStyles.display,
-    fontWeight: '700',
-    fontFamily: fonts.mono,
-    color: '#0D47A1',
-    marginTop: 12,
+    fontWeight: 'bold',
+    color: '#03A9F4',
+    marginBottom: 4,
   },
   gradeRow: {
     flexDirection: 'row',
@@ -868,7 +865,6 @@ const styles = StyleSheet.create({
   factorScore: {
     ...textStyles.h3,
     fontWeight: '700',
-    fontFamily: fonts.mono,
   },
   statusBadge: {
     paddingHorizontal: 8,

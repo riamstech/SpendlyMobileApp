@@ -141,7 +141,7 @@ export default function EditTransactionScreen({
 
   const handleSubmit = async () => {
     if (!amount || !category || !description) {
-      showToast.error('Please fill in all required fields', 'Error');
+      showToast.error(t('editTransaction.fillRequired') || 'Please fill in all required fields', 'Error');
       return;
     }
 
@@ -159,7 +159,7 @@ export default function EditTransactionScreen({
         reminder_days: isRecurring ? parseInt(reminderDays) : undefined,
       });
 
-      showToast.success('Transaction updated successfully', 'Success');
+      showToast.success(t('editTransaction.updateSuccess') || 'Transaction updated successfully', 'Success');
       if (onSuccess) {
         setTimeout(() => {
           onSuccess();
@@ -168,7 +168,7 @@ export default function EditTransactionScreen({
     } catch (error: any) {
       console.error('Error updating transaction:', error);
       showToast.error(
-        error?.response?.data?.message || 'Failed to update transaction',
+        error?.response?.data?.message || t('editTransaction.updateError') || 'Failed to update transaction',
         'Error'
       );
     } finally {
@@ -178,21 +178,21 @@ export default function EditTransactionScreen({
 
   const handleDelete = async () => {
     Alert.alert(
-      'Delete Transaction',
-      'Are you sure you want to delete this transaction? This action cannot be undone.',
+      t('editTransaction.deleteTitle') || 'Delete Transaction',
+      t('editTransaction.deleteConfirm') || 'Are you sure you want to delete this transaction? This action cannot be undone.',
       [
         {
-          text: 'Cancel',
+          text: t('common.cancel'),
           style: 'cancel',
         },
         {
-          text: 'Delete',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
               setDeleting(true);
               await transactionsService.deleteTransaction(transaction.id);
-              showToast.success('Transaction deleted successfully', 'Success');
+              showToast.success(t('editTransaction.deleteSuccess') || 'Transaction deleted successfully', 'Success');
               if (onSuccess) {
                 setTimeout(() => {
                   onSuccess();
@@ -201,7 +201,7 @@ export default function EditTransactionScreen({
             } catch (error: any) {
               console.error('Error deleting transaction:', error);
               showToast.error(
-                error?.response?.data?.message || 'Failed to delete transaction',
+                error?.response?.data?.message || t('editTransaction.deleteError') || 'Failed to delete transaction',
                 'Error'
               );
             } finally {

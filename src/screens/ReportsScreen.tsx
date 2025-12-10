@@ -122,7 +122,7 @@ export default function ReportsScreen() {
       const userData = await authService.getCurrentUser();
       const defaultCurrency = userData.defaultCurrency || 'USD';
       setCurrency(defaultCurrency);
-      setSelectedCurrency(defaultCurrency);
+      setSelectedCurrency('ALL');
       
       // Load currencies
       try {
@@ -781,7 +781,6 @@ export default function ReportsScreen() {
     datasets: [
       {
         data: monthlyData.map(m => m.income),
-        color: (opacity = 1) => `rgba(76, 175, 80, ${opacity})`,
         strokeWidth: 3,
         legend: t('dashboard.income') || 'Income',
       },
@@ -1110,7 +1109,7 @@ export default function ReportsScreen() {
                     </Text>
                   </View>
                 </View>
-                <Text style={[styles.categoryItemValue, responsiveTextStyles.bodySmall, { color: colors.foreground, fontFamily: fonts.mono }]}>
+                <Text style={[styles.categoryItemValue, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>
                   {displayCurrency} {formatValue(cat.value)}
                 </Text>
               </View>
@@ -1172,7 +1171,6 @@ export default function ReportsScreen() {
                         styles.transactionAmount,
                         { 
                           color: transaction.type === 'income' ? colors.success : colors.destructive,
-                          fontFamily: fonts.mono,
                         },
                       ]}
                     >
@@ -1236,7 +1234,7 @@ export default function ReportsScreen() {
                     </View>
                   </View>
                   <View style={styles.transactionRight}>
-                    <Text style={[styles.transactionAmount, { color: colors.foreground, fontFamily: fonts.mono }]}>
+                    <Text style={[styles.transactionAmount, { color: colors.foreground }]}>
                       {investment.currency || displayCurrency} {formatValue(investment.currentValue || 0)}
                     </Text>
                     {investment.profitLoss !== undefined && (
@@ -1245,7 +1243,6 @@ export default function ReportsScreen() {
                           styles.investmentProfitLoss,
                           {
                             color: investment.profitLoss >= 0 ? colors.success : colors.destructive,
-                            fontFamily: fonts.mono,
                           },
                         ]}
                       >
@@ -1551,7 +1548,6 @@ const styles = StyleSheet.create({
   summaryValue: {
     ...textStyles.h3,
     fontWeight: 'bold',
-    fontFamily: fonts.mono,
   },
   chartCard: {
     backgroundColor: '#fff',

@@ -72,11 +72,17 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
 
   const handleMarkAsRead = async (id: number) => {
     try {
+      // Optimistic update
+      setNotifications(prev => prev.map(n => 
+        n.id === id ? { ...n, read_at: new Date().toISOString() } : n
+      ));
       await notificationsService.markAsRead(id);
-      await loadNotifications();
+      // No need to reload, we updated locally. But can reload silently if needed.
     } catch (error) {
       console.error('Failed to mark as read:', error);
       showToast.error(t('inbox.errorMarkingRead') || 'Failed to mark as read', 'Error');
+      // Revert if failed (optional, but good practice)
+      loadNotifications(); 
     }
   };
 
