@@ -1,12 +1,5 @@
 import { apiClient } from '../client';
-
-export interface Currency {
-  code: string;
-  name: string;
-  symbol: string;
-  flag: string;
-  exchangeRate?: number;
-}
+import { Currency } from '../types/category';
 
 export const currenciesService = {
   /**

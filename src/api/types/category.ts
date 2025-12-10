@@ -9,6 +9,15 @@ export interface Category {
   is_system?: boolean;
 }
 
+export interface Currency {
+  code: string;
+  name: string; // Translated name from backend (based on Accept-Language header)
+  original_name?: string; // Original English name (provided by backend)
+  symbol: string;
+  flag: string;
+  exchangeRate?: number;
+}
+
 export interface CategoriesResponse {
   system: Category[];
   custom: Category[];

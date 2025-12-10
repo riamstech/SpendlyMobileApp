@@ -38,6 +38,7 @@ import { categoriesService } from '../api/services/categories';
 import { currenciesService } from '../api/services/currencies';
 import { authService } from '../api/services/auth';
 import { translateCategoryName } from '../utils/categoryTranslator';
+import { translateCurrencyName } from '../utils/currencyTranslator';
 import { CategoryIcon } from '../components/CategoryIcon';
 import { useCategories } from '../hooks/useCategories';
 import { Investment } from '../api/types/investment';
@@ -925,7 +926,7 @@ export default function InvestmentsScreen() {
                       }}
                     >
                       <Text style={[styles.modalItemText, { color: colors.foreground }, formData.currency === curr.code && { color: colors.primary, fontWeight: '600' }]}>
-                        {curr.flag ? `${curr.flag} ` : ''}{curr.code} {curr.name ? `- ${curr.name}` : ''}
+                        {curr.flag ? `${curr.flag} ` : ''}{curr.code} {curr.name ? `- ${translateCurrencyName(curr.name, t, (curr as any).original_name)}` : ''}
                       </Text>
                     </Pressable>
                   ))}
@@ -1502,7 +1503,7 @@ export default function InvestmentsScreen() {
                     }}
                   >
                     <Text style={[styles.modalItemText, { color: colors.foreground }, selectedCurrency === curr.code && { color: colors.primary, fontWeight: '600' }]}>
-                      {curr.flag ? `${curr.flag} ` : ''}{curr.code} {curr.name ? `- ${curr.name}` : ''}
+                      {curr.flag ? `${curr.flag} ` : ''}{curr.code} {curr.name ? `- ${translateCurrencyName(curr.name, t, (curr as any).original_name)}` : ''}
                     </Text>
                   </Pressable>
                 ))}
@@ -1601,7 +1602,7 @@ export default function InvestmentsScreen() {
                     }}
                   >
                     <Text style={[styles.modalItemText, { color: colors.foreground }, formData.currency === curr.code && { color: colors.primary, fontWeight: '600' }]}>
-                      {curr.flag ? `${curr.flag} ` : ''}{curr.code} {curr.name ? `- ${curr.name}` : ''}
+                      {curr.flag ? `${curr.flag} ` : ''}{curr.code} {curr.name ? `- ${translateCurrencyName(curr.name, t, (curr as any).original_name)}` : ''}
                     </Text>
                   </Pressable>
                 ))}

@@ -37,6 +37,7 @@ import { fonts, createResponsiveTextStyles, textStyles } from '../constants/font
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { showToast } from '../utils/toast';
 import { translateCategoryName } from '../utils/categoryTranslator';
+import { translateCurrencyName } from '../utils/currencyTranslator';
 
 interface Transaction {
   id: string;
@@ -782,7 +783,7 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
                   }}
                 >
                   <Text style={[styles.modalItemText, { color: colors.foreground }, filterCurrency === curr.code && { color: colors.primary, fontWeight: 'bold' }]}>
-                    {curr.code} - {curr.name}
+                    {curr.code} - {translateCurrencyName(curr.name, t, (curr as any).original_name)}
                   </Text>
                 </Pressable>
               ))}

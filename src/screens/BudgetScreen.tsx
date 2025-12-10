@@ -35,6 +35,7 @@ import { dashboardService } from '../api/services/dashboard';
 import { authService } from '../api/services/auth';
 import { getBudgetPeriodFromCycleDay, formatDateForDisplay } from '../api/utils/dateUtils';
 import { translateCategoryName } from '../utils/categoryTranslator';
+import { translateCurrencyName } from '../utils/currencyTranslator';
 import { CategoryIcon } from '../components/CategoryIcon';
 import { useCategories } from '../hooks/useCategories';
 import { getEmojiFromIcon } from '../utils/iconMapper';
@@ -827,7 +828,7 @@ export default function BudgetScreen() {
                     }}
                   >
                     <Text style={[styles.modalItemText, { color: colors.foreground }, newCategoryCurrency === curr.code && [styles.modalItemTextActive, { color: colors.primary }]]}>
-                      {curr.flag ? `${curr.flag} ` : ''}{curr.code} {curr.name ? `- ${curr.name}` : ''} ({curr.symbol})
+                      {curr.flag ? `${curr.flag} ` : ''}{curr.code} {curr.name ? `- ${translateCurrencyName(curr.name, t, (curr as any).original_name)}` : ''} ({curr.symbol})
                     </Text>
                   </Pressable>
                 ))}

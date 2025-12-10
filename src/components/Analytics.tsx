@@ -26,7 +26,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { fonts, textStyles } from '../constants/fonts';
 
 export default function Analytics() {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const { width, height } = useWindowDimensions();
   const { isDark, colors } = useTheme();
   const [loading, setLoading] = useState(true);
@@ -42,7 +42,7 @@ export default function Analytics() {
 
   useEffect(() => {
     loadAnalytics();
-  }, []);
+  }, [i18n.language]); // Reload when language changes
 
   const loadAnalytics = async () => {
     try {
@@ -155,7 +155,9 @@ export default function Analytics() {
       return t('analytics.insightTopCategory', { category: translatedCategory, percentage: topCategoryMatch[2] });
     }
     
-    return message;
+    // If message doesn't match any pattern, try to translate common patterns
+    // Fallback to original message if no translation found
+    return t('analytics.unknownInsight', { defaultValue: message });
   };
 
   if (loading) {
@@ -224,7 +226,7 @@ export default function Analytics() {
             ) : (
               <View style={styles.emptyState}>
                 <Text style={[styles.emptyStateText, { color: colors.mutedForeground }]}>
-                  {t('analytics.noInsights') || 'No insights available. Start adding transactions to see smart insights.'}
+                  {t('analytics.noInsights')}
                 </Text>
               </View>
             )}
@@ -241,7 +243,7 @@ export default function Analytics() {
                   <Text style={[styles.chartTitle, { color: colors.foreground }]}>{t('analytics.categoryDistribution')}</Text>
                   <PieChart
                     data={categoryBreakdown.map(item => ({
-                      name: translateCategoryName(item.category, t),
+                      name: translateCategoryName(item.category, t, (item as any).original_category),
                       value: item.total,
                       color: item.color,
                       legendFontColor: isDark ? colors.foreground : '#333',
@@ -277,7 +279,7 @@ export default function Analytics() {
                         </View>
                         <View style={styles.categoryItemInfo}>
                           <Text style={[styles.categoryItemName, { color: colors.foreground }]}>
-                            {translateCategoryName(item.category, t)}
+                            {translateCategoryName(item.category, t, (item as any).original_category)}
                           </Text>
                           <Text style={[styles.categoryItemCount, { color: colors.mutedForeground }]}>
                             {item.count} {t('analytics.transactions')}
@@ -514,9 +516,9 @@ export default function Analytics() {
                 };
                 const factorColors = statusColors[factor.status] || statusColors.needs_improvement;
                 const progressPercentage = (factor.score / factor.max) * 100;
-                const statusLabel = factor.status === 'excellent' ? t('analytics.statusExcellent') || 'Excellent' :
-                                  factor.status === 'good' ? t('analytics.statusGood') || 'Good' :
-                                  t('analytics.statusNeedsImprovement') || 'Needs Improvement';
+                const statusLabel = factor.status === 'excellent' ? t('analytics.statusExcellent') :
+                                  factor.status === 'good' ? t('analytics.statusGood') :
+                                  t('analytics.statusNeedsImprovement');
                 return (
                   <View key={index} style={[styles.factorItem, { backgroundColor: factorColors.bg }]}>
                     <View style={styles.factorItemContent}>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { translateCategoryName } from '../utils/categoryTranslator';
+import { translateCurrencyName } from '../utils/currencyTranslator';
 import {
   View,
   Text,
@@ -748,7 +749,7 @@ export default function AddTransactionScreen({
       <Modal
         visible={showCategoryModal}
         onClose={() => setShowCategoryModal(false)}
-        title={t('addTransaction.selectCategory') || 'Select Category'}
+        title={t('addTransaction.selectCategory')}
         fullScreen
       >
         <ScrollView>
@@ -809,7 +810,7 @@ export default function AddTransactionScreen({
         >
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
-              <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('addTransaction.selectCurrency') || 'Select Currency'}</Text>
+              <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('addTransaction.selectCurrency')}</Text>
               <Pressable onPress={() => {
                 setShowCurrencyModal(false);
                 setCurrencySearch('');
@@ -870,7 +871,7 @@ export default function AddTransactionScreen({
                         }}
                       >
                         <Text style={[styles.modalItemText, { color: colors.foreground }, isSelected && { color: colors.primary, fontWeight: '600' }]}>
-                          {curr.flag ? `${curr.flag} ` : ''}{curr.code} {curr.name ? `- ${curr.name}` : ''}
+                          {curr.flag ? `${curr.flag} ` : ''}{curr.code} {curr.name ? `- ${translateCurrencyName(curr.name, t, (curr as any).original_name)}` : ''}
                         </Text>
                       </Pressable>
                     );

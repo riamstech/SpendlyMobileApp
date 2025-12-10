@@ -78,6 +78,8 @@ export default function BottomTabNavigator({
                 key={tab.id}
                 onPress={onAddClick}
                 style={styles.addButtonContainer}
+                accessibilityLabel={t('addTransaction.addTransactionButton')}
+                accessibilityRole="button"
               >
                 <LinearGradient
                   colors={['#03A9F4', '#0288D1']}

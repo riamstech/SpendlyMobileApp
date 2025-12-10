@@ -41,12 +41,14 @@ import {
 } from 'react-native-chart-kit';
 import { reportsService } from '../api/services/reports';
 import { currenciesService } from '../api/services/currencies';
+import { useCurrencies } from '../hooks/useCurrencies';
 import { categoriesService } from '../api/services/categories';
 import { authService } from '../api/services/auth';
 import { transactionsService } from '../api/services/transactions';
 import { investmentsService } from '../api/services/investments';
 import { getDateRangeFromString, formatDateForAPI, formatDateForDisplay as formatDateForDisplayUtil } from '../api/utils/dateUtils';
 import { translateCategoryName } from '../utils/categoryTranslator';
+import { translateCurrencyName } from '../utils/currencyTranslator';
 import Analytics from '../components/Analytics';
 import { useCategories } from '../hooks/useCategories';
 import { useTheme } from '../contexts/ThemeContext';
@@ -73,6 +75,7 @@ export default function ReportsScreen() {
   const { width } = useWindowDimensions();
   const { isDark, colors } = useTheme();
   const [loading, setLoading] = useState(true);
+  const [languageKey, setLanguageKey] = useState(i18n.language); // Force re-render on language change
   const [refreshing, setRefreshing] = useState(false);
   const [currency, setCurrency] = useState('USD');
   const [selectedCurrency, setSelectedCurrency] = useState('ALL');
@@ -99,7 +102,8 @@ export default function ReportsScreen() {
   // Filter modals
   const [showDateRangeModal, setShowDateRangeModal] = useState(false);
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
-  const [currencies, setCurrencies] = useState<Array<{ code: string; symbol: string; name?: string; flag?: string }>>([]);
+  // Use useCurrencies hook for automatic refetch on language change
+  const { currencies: currenciesData } = useCurrencies();
   // Use useCategories hook for automatic refetch on language change
   const { categories: allCategoriesData } = useCategories();
   const [allCategories, setAllCategories] = useState<Array<{ name: string; color?: string | null }>>([]);
@@ -115,6 +119,15 @@ export default function ReportsScreen() {
     }
   }, [allCategoriesData]);
 
+  const [currencies, setCurrencies] = useState<Array<{ code: string; symbol: string; name?: string; flag?: string; original_name?: string }>>([]);
+  
+  // Sync currencies from hook to local state (for compatibility with existing code)
+  useEffect(() => {
+    if (currenciesData && currenciesData.length > 0) {
+      setCurrencies(currenciesData);
+    }
+  }, [currenciesData]);
+
   const responsiveTextStyles = createResponsiveTextStyles(width);
 
 
@@ -123,32 +136,38 @@ export default function ReportsScreen() {
     loadInitialData();
   }, []);
 
+  // Listen to language changes and force re-render
+  useEffect(() => {
+    const handleLanguageChange = (lng: string) => {
+      setLanguageKey(lng);
+    };
+    
+    i18n.on('languageChanged', handleLanguageChange);
+    
+    return () => {
+      i18n.off('languageChanged', handleLanguageChange);
+    };
+  }, [i18n]);
+
   useEffect(() => {
     if (currency) {
       loadReportsData();
     }
-  }, [dateRange, customDateFrom, customDateTo, selectedCurrency, currency]);
+  }, [dateRange, customDateFrom, customDateTo, selectedCurrency, currency, languageKey]);
 
   const loadInitialData = async () => {
     try {
       // Use Promise.all to fetch initial data in parallel
-      const [userData, currenciesData, categoriesResponse] = await Promise.all([
+      const [userData] = await Promise.all([
         authService.getCurrentUser(),
-        currenciesService.getCurrencies().catch(error => {
-          console.error('Failed to load currencies:', error);
-          return [];
-        }),
-        // Categories are now loaded via useCategories hook, skip here
-        Promise.resolve({ system: [], custom: [] }),
+        // Currencies are now loaded via useCurrencies hook
+        // Categories are now loaded via useCategories hook
       ]);
 
       // Process user currency
       const defaultCurrency = userData.defaultCurrency || 'USD';
       setCurrency(defaultCurrency);
       setSelectedCurrency('ALL');
-
-      // Process currencies
-      setCurrencies(currenciesData);
 
       // Categories are now loaded via useCategories hook, skip manual setting
 
@@ -472,19 +491,21 @@ export default function ReportsScreen() {
     return localeMap[lang] || lang || 'en-US';
   };
 
-  const getDateRangeDisplayText = (value: string): string => {
-    const dateRangeMap: { [key: string]: string } = {
-      'currentMonth': t('reports.currentMonth'),
-      'currentYear': t('reports.currentYear'),
-      '1month': t('reports.lastMonth'),
-      '3months': t('reports.last3Months'),
-      '6months': t('reports.last6Months'),
-      '1year': t('reports.lastYear'),
-      'custom': t('reports.customRange'),
-      'all': t('reports.allTime'),
+  const getDateRangeDisplayText = useMemo(() => {
+    return (value: string): string => {
+      const dateRangeMap: { [key: string]: string } = {
+        'currentMonth': t('reports.currentMonth'),
+        'currentYear': t('reports.currentYear'),
+        '1month': t('reports.lastMonth'),
+        '3months': t('reports.last3Months'),
+        '6months': t('reports.last6Months'),
+        '1year': t('reports.lastYear'),
+        'custom': t('reports.customRange'),
+        'all': t('reports.allTime'),
+      };
+      return dateRangeMap[value] || value;
     };
-    return dateRangeMap[value] || value;
-  };
+  }, [t, languageKey]); // Re-create function when language changes
 
   const displayCurrency = selectedCurrency === 'ALL' ? currency : selectedCurrency;
 
@@ -682,13 +703,13 @@ export default function ReportsScreen() {
       if (canShare) {
         await Sharing.shareAsync(fileUri, {
           mimeType: 'text/csv',
-          dialogTitle: t('reports.shareCsv', { defaultValue: 'Share CSV report' }),
+          dialogTitle: t('reports.shareCsv'),
         });
         console.log('Share dialog opened');
       } else {
         showToast.success(
-          t('reports.csvReadyDescription', { fileUri, defaultValue: `CSV file has been generated at: ${fileUri}` }),
-          t('reports.csvReady', { defaultValue: 'CSV Ready' })
+          t('reports.csvReadyDescription', { fileUri }),
+          t('reports.csvReady')
         );
       }
     } catch (error: any) {
@@ -699,7 +720,7 @@ export default function ReportsScreen() {
         name: error.name,
       });
       showToast.error(
-        error.message || t('reports.csvError', { defaultValue: 'Failed to generate CSV report.' }),
+        error.message || t('reports.csvError'),
         t('common.error', { defaultValue: 'Error' })
       );
     }
@@ -753,13 +774,13 @@ export default function ReportsScreen() {
       if (canShare) {
         await Sharing.shareAsync(uri, {
           mimeType: 'application/pdf',
-          dialogTitle: t('reports.sharePdf', { defaultValue: 'Share PDF report' }),
+          dialogTitle: t('reports.sharePdf'),
         });
         console.log('Share dialog opened');
       } else {
         showToast.success(
-          t('reports.pdfReadyDescription', { uri, defaultValue: `PDF file has been generated at: ${uri}` }),
-          t('reports.pdfReady', { defaultValue: 'PDF Ready' })
+          t('reports.pdfReadyDescription', { uri }),
+          t('reports.pdfReady')
         );
       }
     } catch (error: any) {
@@ -770,7 +791,7 @@ export default function ReportsScreen() {
         name: error.name,
       });
       showToast.error(
-        error.message || t('reports.pdfError', { defaultValue: 'Failed to generate PDF report.' }),
+        error.message || t('reports.pdfError'),
         t('common.error', { defaultValue: 'Error' })
       );
     }
@@ -862,8 +883,8 @@ export default function ReportsScreen() {
       
       {/* Header */}
       <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
-        <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>{t('reports.reportsAnalytics', { defaultValue: 'Reports & Analytics' })}</Text>
-        <Text style={[styles.headerSubtitle, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>{t('reports.trackFinancialTrends', { defaultValue: 'Track your financial trends' })}</Text>
+        <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>{t('reports.reportsAnalytics')}</Text>
+        <Text style={[styles.headerSubtitle, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>{t('reports.trackFinancialTrends')}</Text>
       </View>
 
       {/* Tabs */}
@@ -913,7 +934,7 @@ export default function ReportsScreen() {
         >
           <DollarSign size={18} color={colors.mutedForeground} />
           <Text style={[styles.filterButtonText, { color: colors.foreground }]}>
-            {selectedCurrency === 'ALL' ? t('reports.allCurrencies', { defaultValue: 'All Currencies' }) : selectedCurrency}
+            {selectedCurrency === 'ALL' ? t('reports.allCurrencies') : selectedCurrency}
           </Text>
           <ChevronDown size={18} color={colors.mutedForeground} />
         </Pressable>
@@ -923,11 +944,11 @@ export default function ReportsScreen() {
       <View style={[styles.downloadButtonsContainer, { backgroundColor: colors.card }]}>
         <Pressable style={[styles.downloadButton, { backgroundColor: colors.muted, borderColor: colors.border }]} onPress={handleDownloadCSV}>
           <Download size={16} color={colors.mutedForeground} />
-          <Text style={[styles.downloadButtonText, { color: colors.foreground }]}>{t('reports.csv', { defaultValue: 'CSV' })}</Text>
+          <Text style={[styles.downloadButtonText, { color: colors.foreground }]}>{t('reports.csv')}</Text>
         </Pressable>
         <Pressable style={[styles.downloadButton, { backgroundColor: colors.muted, borderColor: colors.border }]} onPress={handleDownloadPDF}>
           <Download size={16} color={colors.mutedForeground} />
-          <Text style={[styles.downloadButtonText, { color: colors.foreground }]}>{t('reports.pdf', { defaultValue: 'PDF' })}</Text>
+          <Text style={[styles.downloadButtonText, { color: colors.foreground }]}>{t('reports.pdf')}</Text>
         </Pressable>
       </View>
 
@@ -1122,11 +1143,11 @@ export default function ReportsScreen() {
         <View style={[styles.categoryCard, { backgroundColor: colors.card }]}>
           <View style={styles.transactionsHeader}>
             <Text style={[styles.categoryTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>
-              {t('reports.transactions', { defaultValue: 'Transactions' })}
+              {t('reports.transactions')}
             </Text>
             {transactions.length > 0 && (
               <Text style={[styles.transactionCount, { color: colors.mutedForeground }]}>
-                {transactions.length} {transactions.length === 1 ? 'transaction' : 'transactions'}
+                {transactions.length} {transactions.length === 1 ? t('reports.transaction') : t('reports.transactions')}
               </Text>
             )}
           </View>
@@ -1195,7 +1216,7 @@ export default function ReportsScreen() {
         <View style={[styles.categoryCard, { backgroundColor: colors.card }]}>
           <View style={styles.transactionsHeader}>
             <Text style={[styles.categoryTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>
-              {t('reports.investments', { defaultValue: 'Investments' })} ({investments.length})
+              {t('reports.investments')} ({investments.length})
             </Text>
           </View>
           {investments.length > 0 ? (
@@ -1350,7 +1371,7 @@ export default function ReportsScreen() {
                 }}
               >
                 <Text style={[styles.modalItemText, { color: colors.foreground }, selectedCurrency === 'ALL' && [styles.modalItemTextActive, { color: colors.primary }]]}>
-                  {t('reports.allCurrencies', { defaultValue: 'All Currencies' })}
+                  {t('reports.allCurrencies')}
                 </Text>
               </Pressable>
               {currencies
@@ -1372,7 +1393,7 @@ export default function ReportsScreen() {
                     }}
                   >
                     <Text style={[styles.modalItemText, { color: colors.foreground }, selectedCurrency === curr.code && [styles.modalItemTextActive, { color: colors.primary }]]}>
-                      {curr.flag ? `${curr.flag} ` : ''}{curr.code} {curr.name ? `- ${curr.name}` : ''}
+                      {curr.flag ? `${curr.flag} ` : ''}{curr.code} {curr.name ? `- ${translateCurrencyName(curr.name, t, (curr as any).original_name)}` : ''}
                     </Text>
                   </Pressable>
                 ))}

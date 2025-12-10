@@ -70,6 +70,7 @@ import { textStyles, createResponsiveTextStyles, fonts } from '../constants/font
 import StripePaymentDialog from '../components/StripePaymentDialog';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { getCurrencyForCountry, convertUsdToCurrency, formatCurrencyAmount } from '../utils/currencyConverter';
+import { translateCurrencyName } from '../utils/currencyTranslator';
 import { notificationService } from '../services/notificationService';
 
 const LANGUAGE_FLAGS: Record<string, string> = {
@@ -1100,7 +1101,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                     <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
                       {(() => {
                         const curr = currencies.find(c => c.code === selectedCurrency);
-                        return curr ? `${curr.code}${curr.name ? ` - ${curr.name}` : ''}` : selectedCurrency;
+                        return curr ? `${curr.code}${curr.name ? ` - ${translateCurrencyName(curr.name, t, (curr as any).original_name)}` : ''}` : selectedCurrency;
                       })()}
                     </Text>
                   </View>
@@ -1724,7 +1725,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                             { color: colors.foreground },
                             isSelected && [styles.modalItemTextActive, { color: colors.primary }]
                           ]}>
-                            {curr.code} {curr.name ? `- ${curr.name}` : ''}
+                            {curr.code} {curr.name ? `- ${translateCurrencyName(curr.name, t, (curr as any).original_name)}` : ''}
                           </Text>
                           {curr.symbol && (
                             <Text style={[styles.currencySymbol, { color: colors.mutedForeground }]}>

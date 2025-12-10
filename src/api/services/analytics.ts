@@ -11,7 +11,8 @@ export interface SpendingTrend {
 }
 
 export interface CategoryBreakdownItem {
-  category: string;
+  category: string; // Translated category name from backend
+  original_category?: string; // Original English category name (provided by backend)
   icon: string;
   color: string;
   total: number;
