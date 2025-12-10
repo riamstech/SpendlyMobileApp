@@ -47,19 +47,80 @@ export default function Analytics() {
   const loadAnalytics = async () => {
     try {
       setLoading(true);
-      const [insightsData, categoryData, trendsData, healthData] = await Promise.all([
+      // Use Promise.allSettled to handle partial failures
+      const [insightsResult, categoryResult, trendsResult, healthResult] = await Promise.allSettled([
         analyticsService.getInsights(),
         analyticsService.getCategoryBreakdown({ months: 3, type: 'expense' }),
         analyticsService.getSpendingTrends({ period: 'monthly', months: 6 }),
         analyticsService.getHealthScore(),
       ]);
 
-      setInsights(insightsData.insights);
-      setCategoryBreakdown(categoryData.breakdown);
-      setSpendingTrends(trendsData.trends);
-      setHealthScore(healthData);
+      // Handle insights
+      if (insightsResult.status === 'fulfilled') {
+        const insightsData = insightsResult.value;
+        console.log('[Analytics] Insights response:', insightsData);
+        const insightsArray = insightsData?.insights || [];
+        console.log('[Analytics] Insights array length:', insightsArray.length, insightsArray);
+        setInsights(Array.isArray(insightsArray) ? insightsArray : []);
+      } else {
+        console.error('[Analytics] Failed to load insights:', insightsResult.reason);
+        setInsights([]);
+      }
+
+      // Handle category breakdown
+      if (categoryResult.status === 'fulfilled') {
+        const categoryData = categoryResult.value;
+        console.log('[Analytics] Category breakdown response:', categoryData);
+        const breakdownArray = categoryData?.breakdown || [];
+        console.log('[Analytics] Category breakdown array length:', breakdownArray.length, breakdownArray);
+        setCategoryBreakdown(Array.isArray(breakdownArray) ? breakdownArray : []);
+      } else {
+        console.error('[Analytics] Failed to load category breakdown:', categoryResult.reason);
+        setCategoryBreakdown([]);
+      }
+
+      // Handle spending trends
+      if (trendsResult.status === 'fulfilled') {
+        const trendsData = trendsResult.value;
+        console.log('[Analytics] Spending trends response:', JSON.stringify(trendsData, null, 2));
+        const trendsArray = trendsData?.trends || [];
+        console.log('[Analytics] Spending trends array length:', trendsArray.length);
+        if (trendsArray.length > 0) {
+          console.log('[Analytics] First trend item:', JSON.stringify(trendsArray[0], null, 2));
+          console.log('[Analytics] Sample savings rates:', trendsArray.map(t => ({ 
+            label: t.label, 
+            period: t.period,
+            savingsRate: t.savingsRate, 
+            savings_rate: t.savings_rate,
+            income: t.income,
+            expense: t.expense
+          })));
+        } else {
+          console.warn('[Analytics] Spending trends array is empty! Check if there are transactions in the date range.');
+        }
+        setSpendingTrends(Array.isArray(trendsArray) ? trendsArray : []);
+      } else {
+        console.error('[Analytics] Failed to load spending trends:', trendsResult.reason);
+        console.error('[Analytics] Error details:', JSON.stringify(trendsResult.reason, null, 2));
+        setSpendingTrends([]);
+      }
+
+      // Handle health score
+      if (healthResult.status === 'fulfilled') {
+        const healthData = healthResult.value;
+        console.log('[Analytics] Health score response:', healthData);
+        setHealthScore(healthData || null);
+      } else {
+        console.error('[Analytics] Failed to load health score:', healthResult.reason);
+        setHealthScore(null);
+      }
     } catch (error) {
-      console.error('Failed to load analytics:', error);
+      console.error('[Analytics] Unexpected error loading analytics:', error);
+      // Reset all states on unexpected error
+      setInsights([]);
+      setCategoryBreakdown([]);
+      setSpendingTrends([]);
+      setHealthScore(null);
     } finally {
       setLoading(false);
     }
@@ -363,33 +424,46 @@ export default function Analytics() {
                 </View>
                 <View style={[styles.chartCard, { backgroundColor: colors.card }]}>
                   <Text style={[styles.chartTitle, { color: colors.foreground }]}>{t('analytics.savingsRateOverTime')}</Text>
-                  <RNBarChart
-                    data={{
-                      labels: spendingTrends.map(t => t.label),
-                      datasets: [
-                        {
-                          data: spendingTrends.map(t => (t.savingsRate || t.savings_rate || 0)),
+                  {spendingTrends.length > 0 ? (
+                    <RNBarChart
+                      data={{
+                        labels: spendingTrends.map(t => t.label || t.period || ''),
+                        datasets: [
+                          {
+                            data: spendingTrends.map(t => {
+                              const rate = t.savingsRate || t.savings_rate || 0;
+                              return Math.max(0, Number(rate)); // Ensure non-negative numeric values
+                            }),
+                          },
+                        ],
+                      }}
+                      width={width - 64}
+                      height={220}
+                      yAxisLabel=""
+                      yAxisSuffix="%"
+                      chartConfig={{
+                        backgroundColor: colors.card,
+                        backgroundGradientFrom: colors.card,
+                        backgroundGradientTo: colors.card,
+                        decimalPlaces: 1,
+                        color: (opacity = 1) => `rgba(76, 175, 80, ${opacity})`,
+                        labelColor: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
+                        propsForBackgroundLines: {
+                          strokeDasharray: '3, 3',
+                          stroke: isDark ? 'rgba(255, 255, 255, 0.1)' : '#e0e0e0',
                         },
-                      ],
-                    }}
-                    width={width - 64}
-                    height={220}
-                    yAxisLabel=""
-                    yAxisSuffix="%"
-                    chartConfig={{
-                      backgroundColor: colors.card,
-                      backgroundGradientFrom: colors.card,
-                      backgroundGradientTo: colors.card,
-                      decimalPlaces: 1,
-                      color: (opacity = 1) => `rgba(76, 175, 80, ${opacity})`,
-                      labelColor: (opacity = 1) => isDark ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
-                      propsForBackgroundLines: {
-                        strokeDasharray: '3, 3',
-                        stroke: isDark ? 'rgba(255, 255, 255, 0.1)' : '#e0e0e0',
-                      },
-                    }}
-                    style={styles.chart}
-                  />
+                      }}
+                      style={styles.chart}
+                      fromZero={true}
+                      showValuesOnTopOfBars={true}
+                      withHorizontalLabels={true}
+                      withVerticalLabels={true}
+                    />
+                  ) : (
+                    <View style={styles.emptyState}>
+                      <Text style={[styles.emptyStateText, { color: colors.mutedForeground }]}>{t('reports.noSpendingData')}</Text>
+                    </View>
+                  )}
                 </View>
                 <View style={styles.trendsList}>
                   {spendingTrends.map((trend, index) => {
