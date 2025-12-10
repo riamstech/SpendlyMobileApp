@@ -118,31 +118,34 @@ export default function ReportsScreen() {
 
   const loadInitialData = async () => {
     try {
-      // Get user currency
-      const userData = await authService.getCurrentUser();
+      // Use Promise.all to fetch initial data in parallel
+      const [userData, currenciesData, categoriesResponse] = await Promise.all([
+        authService.getCurrentUser(),
+        currenciesService.getCurrencies().catch(error => {
+          console.error('Failed to load currencies:', error);
+          return [];
+        }),
+        categoriesService.getCategories().catch(error => {
+          console.error('Failed to load categories:', error);
+          return { system: [], custom: [] };
+        }),
+      ]);
+
+      // Process user currency
       const defaultCurrency = userData.defaultCurrency || 'USD';
       setCurrency(defaultCurrency);
       setSelectedCurrency('ALL');
-      
-      // Load currencies
-      try {
-        const currenciesData = await currenciesService.getCurrencies();
-        setCurrencies(currenciesData);
-      } catch (error) {
-        console.error('Failed to load currencies:', error);
-      }
-      
-      // Load categories
-      try {
-        const categoriesResponse = await categoriesService.getCategories();
-        const allCats = [
-          ...(categoriesResponse.system || []),
-          ...(categoriesResponse.custom || []),
-        ];
-        setAllCategories(allCats);
-      } catch (error) {
-        console.error('Failed to load categories:', error);
-      }
+
+      // Process currencies
+      setCurrencies(currenciesData);
+
+      // Process categories
+      const allCats = [
+        ...(categoriesResponse.system || []),
+        ...(categoriesResponse.custom || []),
+      ];
+      setAllCategories(allCats);
+
     } catch (error) {
       console.error('Failed to load initial data:', error);
     }
@@ -170,17 +173,54 @@ export default function ReportsScreen() {
       // Determine API currency filter
       const apiCurrencyFilter = selectedCurrency === 'ALL' ? undefined : selectedCurrency;
       
-      // Fetch category report
-      const categoryReport = await reportsService.getCategoryReport(from, to, apiCurrencyFilter);
-      const categoryReportData = Array.isArray(categoryReport.data) ? categoryReport.data : [];
+      // Build promises for parallel execution
+      const promises: Promise<any>[] = [
+        reportsService.getCategoryReport(from, to, apiCurrencyFilter),
+        // Monthly reports promises
+      ];
       
-      // Process category data
-      // Filter by currency if a specific currency is selected (not ALL)
-      // When ALL is selected, the backend should return all currencies, but we need to handle it properly
+      const fromDate = new Date(from + 'T00:00:00');
+      const toDate = new Date(to + 'T23:59:59');
+      const fromYear = fromDate.getFullYear();
+      const toYear = toDate.getFullYear();
+
+      for (let year = fromYear; year <= toYear; year++) {
+        promises.push(reportsService.getMonthlyReport(year, apiCurrencyFilter));
+      }
+
+      // Transactions promise
+      const transactionFilters: any = {
+        from_date: from,
+        to_date: to,
+        per_page: 1000,
+      };
+      if (apiCurrencyFilter) transactionFilters.currency = apiCurrencyFilter;
+      promises.push(transactionsService.getTransactions(transactionFilters));
+
+      // Investments promise
+      const investmentFilters: any = {
+        date_from: from,
+        date_to: to,
+        per_page: 1000, 
+      };
+      if (apiCurrencyFilter) investmentFilters.currency = apiCurrencyFilter;
+      promises.push(investmentsService.getInvestments(investmentFilters));
+
+      // Execute all promises in parallel
+      const results = await Promise.all(promises);
+
+      // Extract results
+      const categoryReport = results[0];
+      const monthlyReportsStartIdx = 1;
+      const monthlyReportsCount = (toYear - fromYear) + 1;
+      const monthlyReports = results.slice(monthlyReportsStartIdx, monthlyReportsStartIdx + monthlyReportsCount);
+      const transactionsResponse = results[monthlyReportsStartIdx + monthlyReportsCount];
+      const investmentsResponse = results[monthlyReportsStartIdx + monthlyReportsCount + 1];
+
+      // --- Process Category Data ---
+      const categoryReportData = Array.isArray(categoryReport.data) ? categoryReport.data : [];
       const processedCategoryData = categoryReportData
         .map((c: any) => {
-          // If a specific currency is selected, only include categories in that currency
-          // When ALL is selected, include all (backend should handle currency grouping)
           const categoryCurrency = c.currency || currency;
           const shouldInclude = selectedCurrency === 'ALL' || categoryCurrency === selectedCurrency;
           
@@ -188,24 +228,20 @@ export default function ReportsScreen() {
             name: getCategoryDisplayName(c.category),
             value: shouldInclude ? (c.total_spent || 0) : 0,
             color: getCategoryColor(c.category),
-            percentage: 0, // Will calculate after we have total
+            percentage: 0, 
             currency: categoryCurrency,
           };
         })
         .filter(cat => cat.value > 0)
         .sort((a, b) => b.value - a.value);
       
-      // Calculate total expenses from category data (only in selected currency)
-      // Filter categories by selected currency to avoid mixing currencies
       const categoriesInSelectedCurrency = selectedCurrency === 'ALL' 
         ? processedCategoryData 
         : processedCategoryData.filter(cat => cat.currency === selectedCurrency);
       
       const calculatedTotalExpensesFromCategories = categoriesInSelectedCurrency.reduce((sum, cat) => sum + cat.value, 0);
       
-      // Calculate percentages based on total expenses from selected currency only
       processedCategoryData.forEach(cat => {
-        // Only show percentage for categories in selected currency
         const isInSelectedCurrency = selectedCurrency === 'ALL' || cat.currency === selectedCurrency;
         cat.percentage = (isInSelectedCurrency && calculatedTotalExpensesFromCategories > 0)
           ? (cat.value / calculatedTotalExpensesFromCategories) * 100 
@@ -213,21 +249,8 @@ export default function ReportsScreen() {
       });
       
       setCategoryData(processedCategoryData);
-      
-      // Fetch monthly reports
-      const fromDate = new Date(from + 'T00:00:00');
-      const toDate = new Date(to + 'T23:59:59');
-      const fromYear = fromDate.getFullYear();
-      const toYear = toDate.getFullYear();
-      
-      const yearPromises: Promise<any>[] = [];
-      for (let year = fromYear; year <= toYear; year++) {
-        yearPromises.push(reportsService.getMonthlyReport(year, apiCurrencyFilter));
-      }
-      
-      const monthlyReports = await Promise.all(yearPromises);
-      
-      // Combine and filter monthly data
+
+      // --- Process Monthly Data ---
       let allMonthlyData: any[] = [];
       monthlyReports.forEach(report => {
         const reportData = report.data.map((m: any) => {
@@ -252,7 +275,6 @@ export default function ReportsScreen() {
         allMonthlyData = [...allMonthlyData, ...reportData];
       });
       
-      // Filter monthly data based on date range
       const rawFilteredData = allMonthlyData
         .filter(m => {
           const monthStart = new Date(m.monthDate.getFullYear(), m.monthDate.getMonth(), 1);
@@ -261,19 +283,11 @@ export default function ReportsScreen() {
         })
         .sort((a, b) => a.monthDate.getTime() - b.monthDate.getTime());
 
-      // Check if duration is more than 12 months (approx) to decide on aggregation
       const isLongDuration = rawFilteredData.length > 12;
-
       let finalChartData;
 
       if (isLongDuration) {
-        // Aggregate by Year
-        const yearlyMap = new Map<number, {
-          year: number;
-          income: number;
-          expenses: number;
-          savings: number;
-        }>();
+        const yearlyMap = new Map<number, { year: number; income: number; expenses: number; savings: number; }>();
 
         rawFilteredData.forEach(m => {
           const year = m.monthDate.getFullYear();
@@ -289,22 +303,18 @@ export default function ReportsScreen() {
         finalChartData = Array.from(yearlyMap.values())
           .sort((a, b) => a.year - b.year)
           .map(y => ({
-            month: y.year.toString(), // Use year as the label "2023", "2024"
+            month: y.year.toString(),
             income: y.income,
             expenses: y.expenses,
             savings: y.savings,
           }));
 
       } else {
-        // Use monthly data, but improve labels if spanning multiple years
-        // Check if years are different
         const uniqueYears = new Set(rawFilteredData.map(m => m.monthDate.getFullYear()));
         const showYearInLabel = uniqueYears.size > 1;
 
         finalChartData = rawFilteredData.map(m => {
           let label = m.month;
-           // m.month is already short month name from line 242.
-           // If we span multiple years, append year '23, '24 to distinguish
            if (showYearInLabel) {
              const shortYear = m.monthDate.getFullYear().toString().slice(2);
              label = `${m.month} '${shortYear}`;
@@ -321,17 +331,10 @@ export default function ReportsScreen() {
 
       setMonthlyData(finalChartData);
       
-      // Calculate totals from monthly data
-      // Use monthly report data for all totals to ensure consistency
-      // The backend should filter by currency when apiCurrencyFilter is provided
-      // Use rawFilteredData for totals to stay accurate regardless of chart aggregation
       const calculatedTotalIncome = rawFilteredData.reduce((sum, m) => sum + (m.income || 0), 0);
       const calculatedTotalExpensesFromMonthly = rawFilteredData.reduce((sum, m) => sum + (m.expenses || 0), 0);
       const calculatedTotalSavings = rawFilteredData.reduce((sum, m) => sum + (m.savings || 0), 0);
       
-      // Use monthly report expenses for total expenses (more accurate and consistent)
-      // This ensures income, expenses, and savings all come from the same source
-      // Fallback to category report if monthly data is empty
       const finalTotalExpenses = calculatedTotalExpensesFromMonthly > 0 
         ? calculatedTotalExpensesFromMonthly 
         : calculatedTotalExpensesFromCategories;
@@ -340,57 +343,27 @@ export default function ReportsScreen() {
       setTotalIncome(calculatedTotalIncome);
       setTotalSavings(calculatedTotalSavings);
 
-      // Fetch transactions for the date range
-      const transactionFilters: any = {
-        from_date: from,
-        to_date: to,
-        per_page: 1000, // Get more transactions for reports
-      };
-      
-      // Add currency filter if a specific currency is selected
-      if (apiCurrencyFilter) {
-        transactionFilters.currency = apiCurrencyFilter;
-      }
-      
+      // --- Process Transactions ---
       try {
-        const transactionsResponse = await transactionsService.getTransactions(transactionFilters);
-        
-        // Format transactions
         let formattedTransactions = (transactionsResponse.data || []).map((t: any) => ({
           ...t,
           description: t.notes || t.description || '',
           date: formatDateForDisplayUtil(t.date || new Date().toISOString().split('T')[0], i18n.language),
         }));
         
-        // Additional frontend filter as backup to ensure currency filtering works
         if (apiCurrencyFilter && apiCurrencyFilter !== 'ALL') {
           formattedTransactions = formattedTransactions.filter((t: any) => 
             t.currency && t.currency.toUpperCase() === apiCurrencyFilter.toUpperCase()
           );
         }
-        
         setTransactions(formattedTransactions);
       } catch (error) {
-        console.error('Error fetching transactions:', error);
+        console.error('Error processing transactions:', error);
         setTransactions([]);
       }
 
-      // Fetch investments for the date range
-      const investmentFilters: any = {
-        date_from: from,
-        date_to: to,
-        per_page: 1000, // Get more investments for reports
-      };
-      
-      // Add currency filter if a specific currency is selected
-      if (apiCurrencyFilter) {
-        investmentFilters.currency = apiCurrencyFilter;
-      }
-      
+      // --- Process Investments ---
       try {
-        const investmentsResponse = await investmentsService.getInvestments(investmentFilters);
-        
-        // Format investments
         let formattedInvestments = (investmentsResponse.data || []).map((inv: any) => {
           const investedAmount = inv.investedAmount ?? inv.invested_amount ?? 0;
           const currentValue = inv.currentValue ?? inv.current_value ?? 0;
@@ -399,7 +372,6 @@ export default function ReportsScreen() {
           const profitLoss = currentValueNum - investedAmountNum;
           const profitLossPercent = investedAmountNum > 0 ? ((profitLoss / investedAmountNum) * 100) : 0;
           
-          // Extract category name string from category object or string
           const categoryObj = inv.category;
           const categoryName = typeof categoryObj === 'string' 
             ? categoryObj 
@@ -409,23 +381,21 @@ export default function ReportsScreen() {
             ...inv,
             investedAmount: investedAmountNum,
             currentValue: currentValueNum,
-            category: categoryName, // Store as string for translateCategoryName
+            category: categoryName,
             profitLoss,
             profitLossPercent,
             startDate: formatDateForDisplayUtil(inv.startDate || inv.start_date || inv.date || new Date().toISOString().split('T')[0], i18n.language),
           };
         });
         
-        // Additional frontend filter as backup to ensure currency filtering works
         if (apiCurrencyFilter && apiCurrencyFilter !== 'ALL') {
           formattedInvestments = formattedInvestments.filter((inv: any) => 
             inv.currency && inv.currency.toUpperCase() === apiCurrencyFilter.toUpperCase()
           );
         }
-        
         setInvestments(formattedInvestments);
       } catch (error) {
-        console.error('Error fetching investments:', error);
+        console.error('Error processing investments:', error);
         setInvestments([]);
       }
       

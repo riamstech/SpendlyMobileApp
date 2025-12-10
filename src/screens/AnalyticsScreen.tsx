@@ -71,11 +71,25 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
   const loadAnalytics = async () => {
     try {
       setLoading(true);
+      
+      // Fetch all analytics data in parallel with individual error handling
       const [insightsData, categoryData, trendsData, healthData] = await Promise.all([
-        analyticsService.getInsights(),
-        analyticsService.getCategoryBreakdown({ months: 1, type: 'expense' }),
-        analyticsService.getSpendingTrends({ period: 'monthly', months: 6 }),
-        analyticsService.getHealthScore(),
+        analyticsService.getInsights().catch(err => {
+          console.error('Failed to load insights:', err);
+          return { insights: [] };
+        }),
+        analyticsService.getCategoryBreakdown({ months: 1, type: 'expense' }).catch(err => {
+          console.error('Failed to load category breakdown:', err);
+          return { breakdown: [] };
+        }),
+        analyticsService.getSpendingTrends({ period: 'monthly', months: 6 }).catch(err => {
+          console.error('Failed to load spending trends:', err);
+          return { trends: [] };
+        }),
+        analyticsService.getHealthScore().catch(err => {
+          console.error('Failed to load health score:', err);
+          return null;
+        }),
       ]);
 
       setInsights(insightsData.insights || []);
