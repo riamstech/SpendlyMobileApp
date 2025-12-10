@@ -122,6 +122,18 @@ To run on a connected device as a standalone app:
 5.  Click Close.
 6.  Press **Play** (`Cmd + R`) to build and install.
 
+### 5. Generate Release Build (Archive) for App Store
+To create a build for App Store Connect distribution:
+
+1.  **Select "Any iOS Device (arm64)"** as the storage target (instead of a specific connected device).
+2.  In Xcode Menu: **Product** > **Archive**.
+3.  Wait for the archiving process to complete.
+4.  Once the "Organizer" window opens, select your archive and click **Distribute App**.
+5.  Select **App Store Connect** > **Upload** > **Next**.
+6.  Follow the prompts to handle signing and upload the build.
+
+Alternatively, you can export the `.ipa` file and upload it using the **Transporter** app (available on Mac App Store).
+
 ---
 
 ## 🛠 Troubleshooting
