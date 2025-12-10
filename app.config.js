@@ -33,8 +33,8 @@ module.exports = {
           }
         ]
       },
-      appleTeamId: "ENLJM2DLPF",
-      googleServicesFile: "./GoogleService-Info.plist"
+      googleServicesFile: "./GoogleService-Info.plist",
+      appleTeamId: "9YJ79K2L2D"
     },
     android: {
       package: "com.spendly.money",

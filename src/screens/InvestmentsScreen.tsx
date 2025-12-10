@@ -782,13 +782,58 @@ export default function InvestmentsScreen() {
         </ScrollView>
 
         {/* Investment Date Picker */}
-        {showInvestmentDatePicker && (
+        {showInvestmentDatePicker && Platform.OS === 'ios' && (
+          <Modal
+            visible={showInvestmentDatePicker}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={() => setShowInvestmentDatePicker(false)}
+          >
+            <View style={styles.datePickerModal}>
+              <Pressable 
+                style={{ flex: 1 }}
+                onPress={() => setShowInvestmentDatePicker(false)}
+              />
+              <View style={[styles.datePickerContent, { backgroundColor: colors.card }]}>
+                <View style={[styles.datePickerHeader, { borderBottomColor: colors.border }]}>
+                  <Pressable onPress={() => setShowInvestmentDatePicker(false)}>
+                    <Text style={[styles.datePickerCancel, { color: colors.mutedForeground }]}>{t('common.cancel')}</Text>
+                  </Pressable>
+                  <Text style={[styles.datePickerTitle, { color: colors.foreground }]}>{t('investments.selectDate') || 'Select Date'}</Text>
+                  <Pressable
+                    onPress={() => {
+                      const formattedDate = formatDateForAPI(investmentDate);
+                      setFormData({ ...formData, date: formattedDate });
+                      setShowInvestmentDatePicker(false);
+                    }}
+                  >
+                    <Text style={[styles.datePickerDone, { color: colors.primary }]}>{t('common.done')}</Text>
+                  </Pressable>
+                </View>
+                <DateTimePicker
+                  value={investmentDate}
+                  mode="date"
+                  display="spinner"
+                  onChange={(event, selectedDate) => {
+                    if (selectedDate) {
+                      setInvestmentDate(selectedDate);
+                    }
+                  }}
+                  maximumDate={new Date()}
+                  textColor={isDark ? '#fff' : '#000'}
+                  themeVariant={isDark ? 'dark' : 'light'}
+                />
+              </View>
+            </View>
+          </Modal>
+        )}
+        {showInvestmentDatePicker && Platform.OS === 'android' && (
           <DateTimePicker
             value={investmentDate}
             mode="date"
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            display="default"
             onChange={(event, selectedDate) => {
-              setShowInvestmentDatePicker(Platform.OS === 'ios');
+              setShowInvestmentDatePicker(false);
               if (selectedDate) {
                 setInvestmentDate(selectedDate);
                 const formattedDate = formatDateForAPI(selectedDate);
@@ -2226,6 +2271,35 @@ const styles = StyleSheet.create({
     marginTop: 4,
     textAlign: 'center',
     opacity: 0.9,
+  },
+  datePickerModal: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  datePickerContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  datePickerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+  },
+  datePickerCancel: {
+    ...textStyles.body,
+  },
+  datePickerTitle: {
+    ...textStyles.body,
+    fontWeight: '600',
+  },
+  datePickerDone: {
+    ...textStyles.body,
+    fontWeight: '600',
   },
 });
 

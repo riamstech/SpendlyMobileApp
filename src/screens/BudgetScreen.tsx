@@ -614,7 +614,7 @@ export default function BudgetScreen() {
                           {translateCategoryName(category.name, t)}
                         </Text>
                         <View style={styles.budgetMeta}>
-                          <Text style={[styles.budgetAmount, responsiveTextStyles.bodySmall, { color: colors.mutedForeground, fontFamily: fonts.mono }]}>
+                          <Text style={[styles.budgetAmount, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>
                             {getCurrencySymbol(category.currency)} {formatValue(category.spent)} / {formatValue(category.budget)}
                           </Text>
                           <Text style={[styles.budgetCurrency, { color: colors.mutedForeground }]}> ({category.currency})</Text>

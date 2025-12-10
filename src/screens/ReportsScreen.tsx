@@ -232,16 +232,16 @@ export default function ReportsScreen() {
             currency: categoryCurrency,
           };
         })
-        .filter(cat => cat.value > 0)
-        .sort((a, b) => b.value - a.value);
+        .filter((cat: CategoryData) => cat.value > 0)
+        .sort((a: CategoryData, b: CategoryData) => b.value - a.value);
       
       const categoriesInSelectedCurrency = selectedCurrency === 'ALL' 
         ? processedCategoryData 
-        : processedCategoryData.filter(cat => cat.currency === selectedCurrency);
+        : processedCategoryData.filter((cat: CategoryData) => cat.currency === selectedCurrency);
       
-      const calculatedTotalExpensesFromCategories = categoriesInSelectedCurrency.reduce((sum, cat) => sum + cat.value, 0);
+      const calculatedTotalExpensesFromCategories = categoriesInSelectedCurrency.reduce((sum: number, cat: CategoryData) => sum + cat.value, 0);
       
-      processedCategoryData.forEach(cat => {
+      processedCategoryData.forEach((cat: CategoryData) => {
         const isInSelectedCurrency = selectedCurrency === 'ALL' || cat.currency === selectedCurrency;
         cat.percentage = (isInSelectedCurrency && calculatedTotalExpensesFromCategories > 0)
           ? (cat.value / calculatedTotalExpensesFromCategories) * 100 
@@ -331,17 +331,30 @@ export default function ReportsScreen() {
 
       setMonthlyData(finalChartData);
       
-      const calculatedTotalIncome = rawFilteredData.reduce((sum, m) => sum + (m.income || 0), 0);
-      const calculatedTotalExpensesFromMonthly = rawFilteredData.reduce((sum, m) => sum + (m.expenses || 0), 0);
-      const calculatedTotalSavings = rawFilteredData.reduce((sum, m) => sum + (m.savings || 0), 0);
+      // Calculate totals from more precise sources
       
-      const finalTotalExpenses = calculatedTotalExpensesFromMonthly > 0 
-        ? calculatedTotalExpensesFromMonthly 
-        : calculatedTotalExpensesFromCategories;
+      // 1. Income: Calculate from transactions (which are fetched with exact date range)
+      // We use transactions for income because usually there are fewer income entries than expenses,
+      // so the 1000 limit is less likely to be hit.
+      // Also, category reports typically don't include income.
+      let preciseTotalIncome = 0;
+      if (transactionsResponse && transactionsResponse.data) {
+        preciseTotalIncome = transactionsResponse.data
+          .filter((t: any) => t.type === 'income')
+          .reduce((sum: number, t: any) => sum + (parseFloat(t.amount) || 0), 0);
+      }
+
+      // 2. Expenses: Use category report total (backend aggregated, exact dates)
+      // This is generally more accurate for expenses than summing transactions (due to pagination limits)
+      // and definitely more accurate than monthly reports (which are whole-month only)
+      const preciseTotalExpenses = calculatedTotalExpensesFromCategories;
       
-      setTotalExpenses(finalTotalExpenses);
-      setTotalIncome(calculatedTotalIncome);
-      setTotalSavings(calculatedTotalSavings);
+      // 3. Savings
+      const preciseTotalSavings = preciseTotalIncome - preciseTotalExpenses;
+
+      setTotalIncome(preciseTotalIncome);
+      setTotalExpenses(preciseTotalExpenses);
+      setTotalSavings(preciseTotalSavings);
 
       // --- Process Transactions ---
       try {

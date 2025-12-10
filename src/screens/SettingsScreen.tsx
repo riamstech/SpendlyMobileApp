@@ -190,6 +190,8 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [avatarLoadError, setAvatarLoadError] = useState(false);
 
+  const [avatarCacheTimestamp, setAvatarCacheTimestamp] = useState(Date.now());
+
   useEffect(() => {
     loadInitialData();
   }, []);
@@ -865,6 +867,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
         avatar_url: response.avatar_url || response.avatar,
       };
       setUser(updatedUser);
+      setAvatarCacheTimestamp(Date.now());
       // Reset avatar load error to show new image
       setAvatarLoadError(false);
       
@@ -960,7 +963,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                 <View style={styles.avatarContainer}>
                   {getAvatarUrl(user.avatar || (user as any)?.avatar_url) && !avatarLoadError ? (
                     <Image 
-                      source={{ uri: getAvatarUrl(user.avatar || (user as any)?.avatar_url) || '' }} 
+                      source={{ uri: `${getAvatarUrl(user.avatar || (user as any)?.avatar_url)}?t=${avatarCacheTimestamp}` }} 
                       onLoadStart={() => console.log('Loading avatar from:', getAvatarUrl(user.avatar || (user as any)?.avatar_url))}
                       style={styles.avatar}
                       onError={(error) => {
@@ -1523,20 +1526,45 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
         transparent={true}
         onRequestClose={() => setShowChangePassword(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
-            <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
-              <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('settings.changePassword')}</Text>
-              <Pressable onPress={() => setShowChangePassword(false)}>
-                <Text style={[styles.modalClose, { color: colors.mutedForeground }]}>✕</Text>
-              </Pressable>
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.modalOverlay}
+        >
+          <Pressable style={{ flex: 1 }} onPress={() => setShowChangePassword(false)} />
+          <View style={[styles.modalContent, { backgroundColor: colors.card, paddingBottom: 40 }]}>
+            {/* Handle Bar */}
+            <View style={{ alignItems: 'center', paddingTop: 12, paddingBottom: 8 }}>
+              <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: colors.border }} />
             </View>
-            <View style={styles.modalBody}>
+
+            <View style={[styles.modalHeader, { borderBottomWidth: 0, justifyContent: 'center', paddingTop: 0 }]}>
+              <Text style={[styles.modalTitle, { color: colors.foreground, textAlign: 'center' }]}>
+                {t('settings.changePassword')}
+              </Text>
+            </View>
+
+            <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+              <View style={{ alignItems: 'center', marginBottom: 24 }}>
+                <View style={{ 
+                  width: 64, 
+                  height: 64, 
+                  borderRadius: 32, 
+                  backgroundColor: isDark ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)', 
+                  alignItems: 'center', 
+                  justifyContent: 'center' 
+                }}>
+                  <Lock size={32} color={colors.destructive} />
+                </View>
+                <Text style={[textStyles.bodySmall, { color: colors.mutedForeground, textAlign: 'center', marginTop: 12, maxWidth: '80%' }]}>
+                  {t('settings.changePasswordSubtitle') || 'Create a strong password to keep your account secure'}
+                </Text>
+              </View>
+
               <View style={styles.formField}>
                 <Text style={[styles.formLabel, { color: colors.foreground }]}>{t('settings.currentPassword')}</Text>
-                <View style={styles.passwordInputContainer}>
+                <View style={[styles.passwordInputContainer, { backgroundColor: colors.inputBackground, borderWidth: 1, borderColor: colors.border, borderRadius: 12 }]}>
                   <TextInput
-                    style={[styles.formInput, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
+                    style={[styles.formInput, { borderWidth: 0, flex: 1, backgroundColor: 'transparent', paddingRight: 48 }]}
                     value={currentPassword}
                     onChangeText={setCurrentPassword}
                     placeholder={t('settings.currentPassword')}
@@ -1551,11 +1579,12 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                   </Pressable>
                 </View>
               </View>
+
               <View style={styles.formField}>
                 <Text style={[styles.formLabel, { color: colors.foreground }]}>{t('settings.newPassword')}</Text>
-                <View style={styles.passwordInputContainer}>
+                <View style={[styles.passwordInputContainer, { backgroundColor: colors.inputBackground, borderWidth: 1, borderColor: colors.border, borderRadius: 12 }]}>
                   <TextInput
-                    style={[styles.formInput, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
+                    style={[styles.formInput, { borderWidth: 0, flex: 1, backgroundColor: 'transparent', paddingRight: 48 }]}
                     value={newPassword}
                     onChangeText={setNewPassword}
                     placeholder={t('settings.newPassword')}
@@ -1570,11 +1599,12 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                   </Pressable>
                 </View>
               </View>
+
               <View style={styles.formField}>
                 <Text style={[styles.formLabel, { color: colors.foreground }]}>{t('settings.confirmPassword')}</Text>
-                <View style={styles.passwordInputContainer}>
+                <View style={[styles.passwordInputContainer, { backgroundColor: colors.inputBackground, borderWidth: 1, borderColor: colors.border, borderRadius: 12 }]}>
                   <TextInput
-                    style={[styles.formInput, { backgroundColor: colors.inputBackground, borderColor: colors.border, color: colors.foreground }]}
+                    style={[styles.formInput, { borderWidth: 0, flex: 1, backgroundColor: 'transparent', paddingRight: 48 }]}
                     value={confirmPassword}
                     onChangeText={setConfirmPassword}
                     placeholder={t('settings.confirmPassword')}
@@ -1589,28 +1619,42 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                   </Pressable>
                 </View>
               </View>
-            </View>
-            <View style={[styles.modalFooter, { borderTopColor: colors.border }]}>
+            </ScrollView>
+
+            <View style={[styles.modalFooter, { borderTopWidth: 0, paddingHorizontal: 20 }]}>
               <Pressable
-                style={[styles.button, styles.cancelButton, { backgroundColor: colors.muted }]}
-                onPress={() => setShowChangePassword(false)}
-              >
-                <Text style={[styles.cancelButtonText, { color: colors.foreground }]}>{t('settings.cancel')}</Text>
-              </Pressable>
-              <Pressable
-                style={[styles.button, styles.saveButton, { backgroundColor: colors.primary }]}
+                style={[
+                  styles.button, 
+                  { 
+                    backgroundColor: colors.primary, 
+                    borderRadius: 12, 
+                    paddingVertical: 16,
+                    shadowColor: colors.primary,
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.2,
+                    shadowRadius: 8,
+                    elevation: 4,
+                 }
+                ]}
                 onPress={handleChangePassword}
                 disabled={savingPassword}
               >
                 {savingPassword ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text style={styles.saveButtonText}>{t('settings.save')}</Text>
+                  <Text style={[styles.saveButtonText, { fontSize: 16 }]}>{t('settings.updatePassword') || 'Update Password'}</Text>
                 )}
+              </Pressable>
+              
+              <Pressable
+                style={[styles.button, { marginTop: 12, backgroundColor: 'transparent' }]}
+                onPress={() => setShowChangePassword(false)}
+              >
+                <Text style={[styles.cancelButtonText, { color: colors.mutedForeground }]}>{t('settings.cancel')}</Text>
               </Pressable>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* Currency Selection Modal */}
