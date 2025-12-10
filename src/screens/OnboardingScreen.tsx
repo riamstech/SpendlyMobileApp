@@ -6,11 +6,11 @@ import {
   Pressable,
   StyleSheet,
   ScrollView,
-  Alert,
   Image,
   useWindowDimensions,
   ActivityIndicator,
 } from 'react-native';
+import { showToast } from '../utils/toast';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -103,11 +103,7 @@ export default function OnboardingScreen({
     
     // Simulate location fetch (replace with actual expo-location in production)
     setTimeout(() => {
-      Alert.alert(
-        t('onboarding.location'),
-        t('onboarding.locationNotImplemented'),
-        [{ text: t('common.ok') }]
-      );
+      showToast.info(t('onboarding.locationNotImplemented'), t('onboarding.location'));
       setLocationLoading(false);
     }, 1000);
   };

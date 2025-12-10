@@ -31,6 +31,7 @@ import {
   X,
   ChevronDown,
 } from 'lucide-react-native';
+import Toast from 'react-native-toast-message';
 import { LineChart, PieChart } from 'react-native-chart-kit';
 import { investmentsService } from '../api/services/investments';
 import { categoriesService } from '../api/services/categories';
@@ -275,7 +276,11 @@ export default function InvestmentsScreen() {
       }
     } catch (error) {
       console.error('Failed to load investments:', error);
-      Alert.alert(t('common.error'), t('investments.loadError'));
+      Toast.show({
+        type: 'error',
+        text1: t('common.error'),
+        text2: t('investments.loadError')
+      });
     } finally {
       setLoading(false);
     }
@@ -289,7 +294,11 @@ export default function InvestmentsScreen() {
 
   const handleSubmit = async () => {
     if (!formData.name || !formData.category || !formData.type || !formData.investedAmount) {
-      Alert.alert(t('common.error'), t('investments.requiredFieldsError'));
+      Toast.show({
+        type: 'error',
+        text1: t('common.error'),
+        text2: t('investments.requiredFieldsError')
+      });
       return;
     }
 
@@ -320,20 +329,29 @@ export default function InvestmentsScreen() {
       
       if (editingInvestment) {
         await investmentsService.updateInvestment(editingInvestment.id, investmentData);
-        Alert.alert(t('common.success'), t('investments.updateSuccess'));
+        Toast.show({
+          type: 'success',
+          text1: t('common.success'),
+          text2: t('investments.updateSuccess')
+        });
       } else {
         await investmentsService.createInvestment(investmentData);
-        Alert.alert(t('common.success'), t('investments.createSuccess'));
+        Toast.show({
+          type: 'success',
+          text1: t('common.success'),
+          text2: t('investments.createSuccess')
+        });
       }
       
       await loadInvestments();
       handleCancelEdit();
     } catch (error: any) {
       console.error('Error saving investment:', error);
-      Alert.alert(
-        t('common.error'),
-        error.response?.data?.message || t('investments.saveError')
-      );
+      Toast.show({
+        type: 'error',
+        text1: t('common.error'),
+        text2: error.response?.data?.message || t('investments.saveError')
+      });
     } finally {
       setLoading(false);
     }
@@ -370,13 +388,18 @@ export default function InvestmentsScreen() {
       await investmentsService.deleteInvestment(deletingInvestment.id);
       await loadInvestments();
       setDeletingInvestment(null);
-      Alert.alert(t('common.success'), t('investments.deleteSuccess'));
+      Toast.show({
+        type: 'success',
+        text1: t('common.success'),
+        text2: t('investments.deleteSuccess')
+      });
     } catch (error: any) {
       console.error('Error deleting investment:', error);
-      Alert.alert(
-        t('common.error'),
-        error.response?.data?.message || t('investments.deleteError')
-      );
+      Toast.show({
+        type: 'error',
+        text1: t('common.error'),
+        text2: error.response?.data?.message || t('investments.deleteError')
+      });
     } finally {
       setLoading(false);
     }

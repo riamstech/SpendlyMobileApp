@@ -62,6 +62,7 @@ import { dashboardService } from '../api/services/dashboard';
 import { subscriptionsService } from '../api/services/subscriptions';
 import { devicesService } from '../api/services/devices';
 import * as Linking from 'expo-linking';
+import { showToast } from '../utils/toast';
 import { COUNTRIES, US_STATES, CA_PROVINCES } from '../constants/countries';
 import { SUPPORTED_LANGUAGES } from '../i18n';
 import { useTheme } from '../contexts/ThemeContext';
@@ -335,7 +336,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       }
     } catch (error) {
       console.error('Failed to load initial data:', error);
-      Alert.alert(t('settings.error'), t('settings.errorLoadSettings'));
+      showToast.error(t('settings.errorLoadSettings'), t('settings.error'));
     } finally {
       setLoading(false);
     }
@@ -358,22 +359,22 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                          payment_link_id: queryParams.razorpay_payment_link_id
                      });
                      await loadInitialData();
-                     Alert.alert(t('settings.success'), t('settings.successSubscriptionActive') || 'Subscription Activated!');
+                     showToast.success(t('settings.successSubscriptionActive') || 'Subscription Activated!', t('settings.success'));
                 } else {
                      // For Stripe or others, just refresh data (assuming Webhook handled it)
                      // Or wait a bit?
                      // Stripe webhook might take a second.
                      setTimeout(async () => {
                         await loadInitialData();
-                        Alert.alert(t('settings.success'), t('settings.successSubscriptionActive') || 'Payment Successful!');
+                        showToast.success(t('settings.successSubscriptionActive') || 'Payment Successful!', t('settings.success'));
                      }, 2000);
                 }
             } else if (queryParams?.payment === 'cancel') {
-                Alert.alert(t('settings.paymentCancelled') || 'Payment Cancelled', 'You have cancelled the payment.');
+                showToast.info('You have cancelled the payment.', t('settings.paymentCancelled') || 'Payment Cancelled');
             }
         } catch (error) {
             console.error('Deep link handling error:', error);
-            Alert.alert(t('settings.error'), 'Payment verification failed. If you were charged, please contact support.');
+            showToast.error('Payment verification failed. If you were charged, please contact support.', t('settings.error'));
              await loadInitialData(); // Try to load anyway
         } finally {
             setLoading(false);
@@ -415,7 +416,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
 
   const handleSaveProfile = async () => {
     if (!name.trim() || !email.trim()) {
-      Alert.alert(t('settings.error'), t('settings.errorFillNameEmail'));
+      showToast.error(t('settings.errorFillNameEmail'), t('settings.error'));
       return;
     }
 
@@ -430,10 +431,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       
       await loadInitialData();
       setIsEditingProfile(false);
-      Alert.alert(t('settings.success'), t('settings.successProfileUpdated'));
+      showToast.success(t('settings.successProfileUpdated'), t('settings.success'));
     } catch (error: any) {
       console.error('Error updating profile:', error);
-      Alert.alert(t('settings.error'), error.response?.data?.message || t('settings.errorUpdateProfile'));
+      showToast.error(error.response?.data?.message || t('settings.errorUpdateProfile'), t('settings.error'));
     } finally {
       setSaving(false);
     }
@@ -450,10 +451,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       setCountry(newCountry);
       setState(newState);
       await loadInitialData();
-      Alert.alert(t('settings.success'), t('settings.successProfileUpdated'));
+      showToast.success(t('settings.successProfileUpdated'), t('settings.success'));
     } catch (error: any) {
       console.error('Error updating country:', error);
-      Alert.alert(t('settings.error'), error.response?.data?.message || t('settings.errorUpdateProfile'));
+      showToast.error(error.response?.data?.message || t('settings.errorUpdateProfile'), t('settings.error'));
     } finally {
       setSaving(false);
     }
@@ -461,17 +462,17 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
 
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
-      Alert.alert(t('settings.error'), t('settings.errorFillPasswordFields'));
+      showToast.error(t('settings.errorFillPasswordFields'), t('settings.error'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      Alert.alert(t('settings.error'), t('settings.errorPasswordsNotMatch'));
+      showToast.error(t('settings.errorPasswordsNotMatch'), t('settings.error'));
       return;
     }
 
     if (newPassword.length < 8) {
-      Alert.alert(t('settings.error'), t('settings.errorPasswordLength'));
+      showToast.error(t('settings.errorPasswordLength'), t('settings.error'));
       return;
     }
 
@@ -483,14 +484,16 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
         password_confirmation: confirmPassword,
       });
       
-      Alert.alert(t('settings.success'), t('settings.successPasswordChanged'));
+
+      
+      showToast.success(t('settings.successPasswordChanged'), t('settings.success'));
       setShowChangePassword(false);
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (error: any) {
       console.error('Error changing password:', error);
-      Alert.alert(t('settings.error'), error.response?.data?.message || t('settings.errorChangePassword'));
+      showToast.error(error.response?.data?.message || t('settings.errorChangePassword'), t('settings.error'));
     } finally {
       setSavingPassword(false);
     }
@@ -505,10 +508,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       
       setSelectedCurrency(currency);
       await loadInitialData();
-      Alert.alert(t('settings.success'), t('settings.successCurrencyUpdated'));
+      showToast.success(t('settings.successCurrencyUpdated'), t('settings.success'));
     } catch (error: any) {
       console.error('Error updating currency:', error);
-      Alert.alert(t('settings.error'), error.response?.data?.message || t('settings.errorUpdateCurrency'));
+      showToast.error(error.response?.data?.message || t('settings.errorUpdateCurrency'), t('settings.error'));
     } finally {
       setSaving(false);
     }
@@ -523,10 +526,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       
       await i18n.changeLanguage(locale);
       setPreferredLocale(locale);
-      Alert.alert(t('settings.success'), t('settings.successLanguageUpdated'));
+      showToast.success(t('settings.successLanguageUpdated'), t('settings.success'));
     } catch (error: any) {
       console.error('Error updating language:', error);
-      Alert.alert(t('settings.error'), error.response?.data?.message || t('settings.errorUpdateLanguage'));
+      showToast.error(error.response?.data?.message || t('settings.errorUpdateLanguage'), t('settings.error'));
     } finally {
       setSavingLanguage(false);
     }
@@ -540,10 +543,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       });
       
       setBudgetCycleDay(day);
-      Alert.alert(t('settings.success'), t('settings.successBudgetCycleUpdated', { day }));
+      showToast.success(t('settings.successBudgetCycleUpdated', { day }), t('settings.success'));
     } catch (error: any) {
       console.error('Error updating budget cycle:', error);
-      Alert.alert(t('settings.error'), error.response?.data?.message || t('settings.errorUpdateBudgetCycle'));
+      showToast.error(error.response?.data?.message || t('settings.errorUpdateBudgetCycle'), t('settings.error'));
     } finally {
       setSavingBudgetCycle(false);
     }
@@ -557,7 +560,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       await toggleTheme();
     } catch (error: any) {
       console.error('Error updating dark mode:', error);
-      Alert.alert(t('settings.error'), t('settings.errorUpdateDarkMode'));
+      showToast.error(t('settings.errorUpdateDarkMode'), t('settings.error'));
     }
   };
 
@@ -693,10 +696,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
         } catch (error) {
           console.error('Error initializing notifications:', error);
           // Don't fail the toggle if this fails, but show a warning
-          Alert.alert(
-            t('settings.warning') || 'Warning',
-            t('settings.notificationSetupIncomplete') || 'Notifications enabled but device registration failed. You may not receive notifications.'
-          );
+          showToast.info(t('settings.notificationSetupIncomplete') || 'Notifications enabled but device registration failed. You may not receive notifications.', t('settings.warning') || 'Warning');
         }
       }
       
@@ -708,7 +708,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       
     } catch (error: any) {
       console.error('Error updating notifications:', error);
-      Alert.alert(t('settings.error'), error.response?.data?.message || t('settings.errorUpdateNotifications'));
+      showToast.error(error.response?.data?.message || t('settings.errorUpdateNotifications'), t('settings.error'));
       // Revert toggle on error
       setNotifications(!enabled);
     }
@@ -723,7 +723,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       // Note: Biometric lock implementation would go here
     } catch (error: any) {
       console.error('Error updating biometric lock:', error);
-      Alert.alert(t('settings.error'), t('settings.errorUpdateBiometricLock'));
+      showToast.error(t('settings.errorUpdateBiometricLock'), t('settings.error'));
     }
   };
 
@@ -733,11 +733,11 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       const backup = await usersService.backupData();
       
       // In React Native, we'd need to use a file system library to save the file
-      // For now, just show the data
-      Alert.alert('Backup Data', JSON.stringify(backup, null, 2));
+      // For now, simple toast
+      showToast.success('Backup data generated successfully', 'Success');
     } catch (error: any) {
       console.error('Error backing up data:', error);
-      Alert.alert(t('settings.error'), error.response?.data?.message || t('settings.errorBackupData'));
+      showToast.error(error.response?.data?.message || t('settings.errorBackupData'), t('settings.error'));
     } finally {
       setSaving(false);
     }
@@ -756,11 +756,11 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
             try {
               setSaving(true);
               await usersService.deleteAccount();
-              Alert.alert(t('settings.success'), t('settings.successAccountDeleted'));
+              showToast.success(t('settings.successAccountDeleted'), t('settings.success'));
               onLogout();
             } catch (error: any) {
               console.error('Error deleting account:', error);
-              Alert.alert(t('settings.error'), error.response?.data?.message || t('settings.errorDeleteAccount'));
+              showToast.error(error.response?.data?.message || t('settings.errorDeleteAccount'), t('settings.error'));
             } finally {
               setSaving(false);
             }

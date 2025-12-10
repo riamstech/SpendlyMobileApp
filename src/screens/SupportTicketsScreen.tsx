@@ -38,6 +38,7 @@ import {
   AlertCircle,
   FileImage,
 } from 'lucide-react-native';
+import Toast from 'react-native-toast-message';
 import { supportApi, SupportTicket, TicketMessage } from '../api/services/support';
 import { useTheme } from '../contexts/ThemeContext';
 import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
@@ -90,7 +91,11 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
       setTickets(data);
     } catch (error: any) {
       console.error('Failed to load tickets:', error);
-      Alert.alert(t('settings.error') || 'Error', error.response?.data?.message || 'Failed to load support tickets');
+      Toast.show({
+        type: 'error',
+        text1: t('settings.error') || 'Error',
+        text2: error.response?.data?.message || 'Failed to load support tickets'
+      });
     } finally {
       setLoading(false);
     }
@@ -103,13 +108,21 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
       setShowTicketDetail(true);
     } catch (error: any) {
       console.error('Failed to load ticket:', error);
-      Alert.alert(t('settings.error') || 'Error', error.response?.data?.message || 'Failed to load ticket details');
+      Toast.show({
+        type: 'error',
+        text1: t('settings.error') || 'Error',
+        text2: error.response?.data?.message || 'Failed to load ticket details'
+      });
     }
   };
 
   const handleCreateTicket = async () => {
     if (!createSubject.trim() || !createMessage.trim()) {
-      Alert.alert(t('settings.error') || 'Error', 'Please fill in all required fields');
+      Toast.show({
+        type: 'error',
+        text1: t('settings.error') || 'Error',
+        text2: 'Please fill in all required fields'
+      });
       return;
     }
 
@@ -129,7 +142,11 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
         screenshot: screenshotFile,
       });
       
-      Alert.alert(t('settings.success') || 'Success', 'Support ticket created successfully');
+      Toast.show({
+        type: 'success',
+        text1: t('settings.success') || 'Success',
+        text2: 'Support ticket created successfully'
+      });
       setShowCreateModal(false);
       setCreateSubject('');
       setCreateMessage('');
@@ -137,7 +154,11 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
       await loadTickets();
     } catch (error: any) {
       console.error('Failed to create ticket:', error);
-      Alert.alert(t('settings.error') || 'Error', error.response?.data?.message || 'Failed to create support ticket');
+      Toast.show({
+        type: 'error',
+        text1: t('settings.error') || 'Error',
+        text2: error.response?.data?.message || 'Failed to create support ticket'
+      });
     } finally {
       setCreating(false);
     }
@@ -146,7 +167,11 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
   const handleUpdateTicket = async () => {
     if (!selectedTicket) return;
     if (!editSubject.trim() || !editMessage.trim()) {
-      Alert.alert(t('settings.error') || 'Error', 'Please fill in all required fields');
+      Toast.show({
+        type: 'error',
+        text1: t('settings.error') || 'Error',
+        text2: 'Please fill in all required fields'
+      });
       return;
     }
 
@@ -157,13 +182,21 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
         message: editMessage.trim(),
       });
       
-      Alert.alert(t('settings.success') || 'Success', 'Ticket updated successfully');
+      Toast.show({
+        type: 'success',
+        text1: t('settings.success') || 'Success',
+        text2: 'Ticket updated successfully'
+      });
       setShowEditModal(false);
       await loadTickets();
       await loadTicketDetail(selectedTicket.id);
     } catch (error: any) {
       console.error('Failed to update ticket:', error);
-      Alert.alert(t('settings.error') || 'Error', error.response?.data?.message || 'Failed to update ticket');
+      Toast.show({
+        type: 'error',
+        text1: t('settings.error') || 'Error',
+        text2: error.response?.data?.message || 'Failed to update ticket'
+      });
     } finally {
       setEditing(false);
     }
@@ -177,7 +210,11 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
       return;
     }
     if (!replyMessage.trim()) {
-      Alert.alert(t('settings.error') || 'Error', 'Please enter a message');
+      Toast.show({
+        type: 'error',
+        text1: t('settings.error') || 'Error',
+        text2: 'Please enter a message'
+      });
       return;
     }
 
@@ -193,7 +230,11 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
 
       await supportApi.reply(selectedTicket.id, replyMessage.trim(), attachmentFile);
       
-      Alert.alert(t('settings.success') || 'Success', 'Reply sent successfully');
+      Toast.show({
+        type: 'success',
+        text1: t('settings.success') || 'Success',
+        text2: 'Reply sent successfully'
+      });
       setShowReplyModal(false);
       setReplyMessage('');
       setReplyAttachment(null);
@@ -204,10 +245,11 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
       }, 300);
     } catch (error: any) {
       console.error('Failed to reply:', error);
-      Alert.alert(
-        t('settings.error') || 'Error', 
-        error.response?.data?.message || error.message || 'Failed to send reply'
-      );
+      Toast.show({
+        type: 'error',
+        text1: t('settings.error') || 'Error',
+        text2: error.response?.data?.message || error.message || 'Failed to send reply'
+      });
     } finally {
       setReplying(false);
     }
@@ -216,10 +258,11 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
   const handlePickImage = async (isScreenshot: boolean = false) => {
     try {
       if (!isImagePickerAvailable()) {
-        Alert.alert(
-          t('settings.featureUnavailable') || 'Feature Unavailable',
-          'Image picker is not available. Please wait for the app rebuild to complete.'
-        );
+        Toast.show({
+          type: 'error',
+          text1: t('settings.featureUnavailable') || 'Feature Unavailable',
+          text2: 'Image picker is not available. Please wait for the app rebuild to complete.'
+        });
         return;
       }
 
@@ -230,7 +273,11 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
       if (permissionStatus.status !== 'granted') {
         permissionStatus = await requestMediaLibraryPermissionsAsync();
         if (permissionStatus.status !== 'granted') {
-          Alert.alert(t('settings.permissionDenied'), t('settings.permissionDeniedMessage'));
+          Toast.show({
+            type: 'error',
+            text1: t('settings.permissionDenied'),
+            text2: t('settings.permissionDeniedMessage')
+          });
           return;
         }
       }
@@ -265,7 +312,11 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
       }
     } catch (error) {
       console.error('Error picking image:', error);
-      Alert.alert(t('settings.error') || 'Error', 'Failed to pick image');
+      Toast.show({
+        type: 'error',
+        text1: t('settings.error') || 'Error',
+        text2: 'Failed to pick image'
+      });
     }
   };
 
@@ -281,7 +332,11 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
           onPress: async () => {
             try {
               await supportApi.delete(ticket.id);
-              Alert.alert(t('settings.success') || 'Success', 'Ticket deleted successfully');
+              Toast.show({
+                type: 'success',
+                text1: t('settings.success') || 'Success',
+                text2: 'Ticket deleted successfully'
+              });
               await loadTickets();
               if (selectedTicket?.id === ticket.id) {
                 setShowTicketDetail(false);
@@ -289,7 +344,11 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
               }
             } catch (error: any) {
               console.error('Failed to delete ticket:', error);
-              Alert.alert(t('settings.error') || 'Error', error.response?.data?.message || 'Failed to delete ticket');
+              Toast.show({
+                type: 'error',
+                text1: t('settings.error') || 'Error',
+                text2: error.response?.data?.message || 'Failed to delete ticket'
+              });
             }
           },
         },
@@ -328,7 +387,7 @@ export default function SupportTicketsScreen({ onBack }: SupportTicketsScreenPro
 
   const getImageUrl = (path: string | null): string | null => {
     if (!path) return null;
-    return usersService.getAvatarUrl(path);
+    return usersService.getAvatarUrl(path) || null;
   };
 
   if (loading && tickets.length === 0) {

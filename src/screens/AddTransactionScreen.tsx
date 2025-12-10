@@ -120,10 +120,7 @@ export default function AddTransactionScreen({
         }
       } catch (error: any) {
         console.error('AddTransaction: Error loading currencies:', error);
-        Alert.alert(
-          t('common.error'),
-          t('addTransaction.errorLoadingCurrencies')
-        );
+        showToast.error(t('addTransaction.errorLoadingCurrencies'), t('common.error'));
         setCurrencies([]);
         setCurrency('USD');
       } finally {
@@ -164,10 +161,7 @@ export default function AddTransactionScreen({
         }
       } catch (error: any) {
         console.error('AddTransaction: Error loading categories:', error);
-        Alert.alert(
-          t('common.error'),
-          t('addTransaction.errorLoadingCategories')
-        );
+        showToast.error(t('addTransaction.errorLoadingCategories'), t('common.error'));
         setCategories([]);
       } finally {
         setLoadingCategories(false);
@@ -218,7 +212,7 @@ export default function AddTransactionScreen({
 
   const handleSubmit = async () => {
     if (!amount || !category || !description) {
-      Alert.alert(t('common.error'), t('addTransaction.fillRequiredFields'));
+      showToast.error(t('addTransaction.fillRequiredFields'), t('common.error'));
       return;
     }
 
@@ -264,9 +258,9 @@ export default function AddTransactionScreen({
       }
     } catch (error: any) {
       console.error('Error creating transaction:', error);
-      Alert.alert(
-        t('common.error'),
-        error?.response?.data?.message || t('addTransaction.errorCreate')
+      showToast.error(
+        error?.response?.data?.message || t('addTransaction.errorCreate'),
+        t('common.error')
       );
     } finally {
       setSubmitting(false);

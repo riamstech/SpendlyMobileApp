@@ -10,7 +10,6 @@ import {
   Modal,
   ActivityIndicator,
   TextInput,
-  Alert,
   Platform,
   KeyboardAvoidingView,
 } from 'react-native';
@@ -51,6 +50,7 @@ import { translateCategoryName } from '../utils/categoryTranslator';
 import Analytics from '../components/Analytics';
 import { useTheme } from '../contexts/ThemeContext';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { showToast } from '../utils/toast';
 
 interface MonthlyData {
   month: string;
@@ -537,9 +537,9 @@ export default function ReportsScreen() {
       let from: string, to: string;
       if (dateRange === 'custom') {
         if (!customDateFrom || !customDateTo) {
-          Alert.alert(
-            t('common.error') || 'Error',
-            t('reports.selectDateRange') || 'Please select a date range'
+          showToast.error(
+            t('reports.selectDateRange') || 'Please select a date range',
+            t('common.error') || 'Error'
           );
           return;
         }
@@ -595,10 +595,13 @@ export default function ReportsScreen() {
       
       try {
         // Access FileSystem properties - they should be available in development builds
+        // @ts-ignore
         documentDir = FileSystem.documentDirectory;
+        // @ts-ignore
         cacheDir = FileSystem.cacheDirectory;
         
         // Additional check: try to verify FileSystem is working by checking if we can access bundleDirectory
+        // @ts-ignore
         const bundleDir = FileSystem.bundleDirectory;
         console.log('bundleDirectory (check):', bundleDir);
       } catch (error: any) {
@@ -634,16 +637,7 @@ export default function ReportsScreen() {
           errorMessage += 'eas build --profile development --platform ios/android';
         }
         
-        Alert.alert(
-          t('common.error') || 'Error',
-          errorMessage,
-          [
-            {
-              text: 'OK',
-              style: 'default',
-            },
-          ]
-        );
+        showToast.error(errorMessage, t('common.error') || 'Error');
         
         throw new Error('FileSystem directories are not available');
       }
@@ -669,6 +663,7 @@ export default function ReportsScreen() {
 
       // Write the file
       await FileSystem.writeAsStringAsync(fileUri, csvContent, {
+        // @ts-ignore
         encoding: FileSystem.EncodingType.UTF8,
       });
       console.log('File written successfully');
@@ -690,9 +685,9 @@ export default function ReportsScreen() {
         });
         console.log('Share dialog opened');
       } else {
-        Alert.alert(
-          t('reports.csvReady') || 'CSV Ready',
+        showToast.success(
           t('reports.csvReadyDescription') || `CSV file has been generated at: ${fileUri}`,
+          t('reports.csvReady') || 'CSV Ready'
         );
       }
     } catch (error: any) {
@@ -702,9 +697,9 @@ export default function ReportsScreen() {
         stack: error.stack,
         name: error.name,
       });
-      Alert.alert(
-        t('common.error') || 'Error',
+      showToast.error(
         error.message || t('reports.csvError') || 'Failed to generate CSV report.',
+        t('common.error') || 'Error'
       );
     }
   };
@@ -717,9 +712,9 @@ export default function ReportsScreen() {
       let from: string, to: string;
       if (dateRange === 'custom') {
         if (!customDateFrom || !customDateTo) {
-          Alert.alert(
-            t('common.error') || 'Error',
-            t('reports.selectDateRange') || 'Please select a date range'
+          showToast.error(
+            t('reports.selectDateRange') || 'Please select a date range',
+            t('common.error') || 'Error'
           );
           return;
         }
@@ -761,9 +756,9 @@ export default function ReportsScreen() {
         });
         console.log('Share dialog opened');
       } else {
-        Alert.alert(
-          t('reports.pdfReady') || 'PDF Ready',
+        showToast.success(
           t('reports.pdfReadyDescription') || `PDF file has been generated at: ${uri}`,
+          t('reports.pdfReady') || 'PDF Ready'
         );
       }
     } catch (error: any) {
@@ -773,9 +768,9 @@ export default function ReportsScreen() {
         stack: error.stack,
         name: error.name,
       });
-      Alert.alert(
-        t('common.error') || 'Error',
+      showToast.error(
         error.message || t('reports.pdfError') || 'Failed to generate PDF report.',
+        t('common.error') || 'Error'
       );
     }
   };
