@@ -141,20 +141,49 @@ export default function DashboardScreen({
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      
-      // Fetch user data to get default currency
-      const userData = await authService.getCurrentUser();
+      setLoadingFinancial(true);
+
+      // Start fetching all independent data in parallel
+      const [
+        userData,
+        currencies,
+        summary,
+        financial,
+        budgetSummary,
+        transactionsResponse,
+        upcoming,
+        notificationsResponse
+      ] = await Promise.all([
+        authService.getCurrentUser(),
+        currenciesService.getCurrencies(),
+        dashboardService.getSummary(),
+        financialService.getSummary().catch(err => {
+          console.error('Failed to load financial summary:', err);
+          return null;
+        }),
+        budgetsService.getBudgetSummary().catch(err => {
+          console.error('Failed to load budget summary:', err);
+          return { total_budget: 0, total_spent: 0, remaining: 0 };
+        }),
+        transactionsService.getTransactions({ per_page: 10 }),
+        recurringService.getUpcomingPayments(30),
+        notificationsService.getNotifications({ per_page: 10 }).catch(err => {
+          console.error('Failed to load notifications:', err);
+          return { data: [] };
+        })
+      ]);
+
+      // Process User
       setUser(userData);
       const defaultCurrency = userData.defaultCurrency || 'USD';
       setCurrency(defaultCurrency);
-      
-      // Fetch currencies for base currency conversions (exactly like SpendlyApp)
-      const currencies: Currency[] = await currenciesService.getCurrencies();
+
+      // Process Currencies Map
       // Create a map for quick lookup - handle both camelCase and snake_case
-      const currencyMap = new Map(currencies.map(c => {
+      const currencyMap = new Map(currencies.map((c: any) => {
         // Handle both exchangeRate (camelCase) and exchange_rate (snake_case) from API
         // Use nullish coalescing to properly handle 0 values
-        const rate = (c as any).exchangeRate ?? (c as any).exchange_rate ?? 1.0;
+        const rate = c.exchangeRate ?? c.exchange_rate ?? 1.0;
         // Validate rate
         if (rate === null || rate === undefined || !isFinite(rate) || rate < 0) {
           console.warn(`Invalid exchange rate for ${c.code}: ${rate}, using 1.0`);
@@ -162,7 +191,7 @@ export default function DashboardScreen({
         }
         return [c.code, rate];
       }));
-      
+
       // Check license status
       const licenseEndDate = userData.licenseEndDate || (userData as any).license_end_date;
       if (licenseEndDate) {
@@ -177,47 +206,49 @@ export default function DashboardScreen({
           setLicenseStatus('expiring');
           setDaysRemaining(diffDays);
         } else {
-
           setLicenseStatus('active');
         }
       } else {
         setLicenseStatus('active');
       }
-      
-      // Fetch dashboard summary (includes canonical currency)
-      const summary = await dashboardService.getSummary();
+
+      // Process Dashboard Summary
       setTotalIncome(summary.totalIncome || 0);
       setTotalExpenses(summary.totalExpenses || 0);
       setSavings(summary.totalSavings || 0);
       setTotalBalance(summary.totalIncome - summary.totalExpenses);
       setBudgetFromDate(summary.fromDate || null);
       setBudgetToDate(summary.toDate || null);
-      
-      // Fetch financial summary
-      setLoadingFinancial(true);
-      try {
-        const financial = await financialService.getSummary();
+
+      // Process Financial Summary
+      if (financial) {
         setFinancialSummary(financial);
-      } catch (error) {
-        console.error('Failed to load financial summary:', error);
-      } finally {
-        setLoadingFinancial(false);
       }
-      
-      // Fetch budget summary
-      try {
-        const budgetSummary = await budgetsService.getBudgetSummary();
+      setLoadingFinancial(false);
+
+      // Process Budget Summary
+      if (budgetSummary) {
         setMonthlyBudgetTotal(budgetSummary.total_budget || 0);
         setMonthlyBudgetSpent(budgetSummary.total_spent || 0);
         setMonthlyBudgetRemaining(budgetSummary.remaining || 0);
-      } catch (error) {
-        console.error('Failed to load budget summary:', error);
       }
 
-      // Fetch recent transactions (last 10)
-      const transactionsResponse = await transactionsService.getTransactions({
-        per_page: 10,
-      });
+      // Process Notifications
+      if (notificationsResponse && notificationsResponse.data) {
+        const notifs = notificationsResponse.data.map((n: any) => ({
+          id: String(n.id),
+          type: (n.type === 'recurring_payment' ? 'payment' : 
+                 n.type === 'transaction_limit' ? 'alert' :
+                 n.type === 'pro_expiration' ? 'alert' :
+                 n.type === 'referral_reward' ? 'achievement' :
+                 n.type === 'investment_reminder' ? 'transaction' : 'alert') as Notification['type'],
+          title: n.title || '',
+          message: n.message || '',
+          time: n.created_at || '',
+          read: n.is_read || false,
+        }));
+        setNotifications(notifs);
+      }
 
       // Use currency from summary as the source of truth for conversion (exactly like SpendlyApp)
       const targetCurrency = summary.currency || defaultCurrency;
@@ -266,102 +297,86 @@ export default function DashboardScreen({
         return isFinite(converted) ? converted : amount;
       };
       
-      const transactions = transactionsResponse.data.map((tx: any) => {
-        const dateStr = tx.date || tx.createdAt || new Date().toISOString();
-        const amount = Math.abs(tx.amount || 0);
-        const txCurrency = tx.currency || defaultCurrency;
-        const isDefaultCurrency = txCurrency === targetCurrency;
+      // Process Transactions
+      if (transactionsResponse && transactionsResponse.data) {
+        const transactions = transactionsResponse.data.map((tx: any) => {
+          const dateStr = tx.date || tx.createdAt || new Date().toISOString();
+          const amount = Math.abs(tx.amount || 0);
+          const txCurrency = tx.currency || defaultCurrency;
+          const isDefaultCurrency = txCurrency === targetCurrency;
 
-        let convertedAmount: number;
+          let convertedAmount: number;
 
-        // Prefer backend-provided converted amount if present
-        if (typeof tx.base_amount === 'number' && tx.base_amount !== 0) {
-          convertedAmount = tx.base_amount;
-        } else if (typeof tx.baseAmount === 'number' && tx.baseAmount !== 0) {
-          convertedAmount = tx.baseAmount;
-        } else {
-          // Calculate conversion if not default currency
-          if (isDefaultCurrency) {
-            convertedAmount = amount;
+          // Prefer backend-provided converted amount if present
+          if (typeof tx.base_amount === 'number' && tx.base_amount !== 0) {
+            convertedAmount = tx.base_amount;
+          } else if (typeof tx.baseAmount === 'number' && tx.baseAmount !== 0) {
+            convertedAmount = tx.baseAmount;
           } else {
-            convertedAmount = convertToDefault(amount, txCurrency);
-            // If conversion failed (returned original amount), don't show conversion
-            if (convertedAmount === amount && txCurrency !== targetCurrency) {
-              console.warn(`Failed to convert ${amount} ${txCurrency} to ${targetCurrency}`);
+            // Calculate conversion if not default currency
+            if (isDefaultCurrency) {
+              convertedAmount = amount;
+            } else {
+              convertedAmount = convertToDefault(amount, txCurrency);
+              // If conversion failed (returned original amount), don't show conversion
+              if (convertedAmount === amount && txCurrency !== targetCurrency) {
+                console.warn(`Failed to convert ${amount} ${txCurrency} to ${targetCurrency}`);
+              }
             }
           }
-        }
 
-        return {
-          id: String(tx.id),
-          type: tx.type as 'income' | 'expense',
-          amount,
-          currency: txCurrency,
-          category: tx.category || 'Uncategorized',
-          description: tx.notes || tx.description || 'Transaction',
-          date: dateStr,
-          convertedAmount,
-          defaultCurrency: targetCurrency,
-          showConversion: !isDefaultCurrency,
-        };
-      });
-      setRecentTransactions(transactions);
+          return {
+            id: String(tx.id),
+            type: tx.type as 'income' | 'expense',
+            amount,
+            currency: txCurrency,
+            category: tx.category || 'Uncategorized',
+            description: tx.notes || tx.description || 'Transaction',
+            date: dateStr,
+            convertedAmount,
+            defaultCurrency: targetCurrency,
+            showConversion: !isDefaultCurrency,
+          };
+        });
+        setRecentTransactions(transactions);
+      }
       
-      // Fetch upcoming payments
-      const upcoming = await recurringService.getUpcomingPayments(30);
-      const payments = upcoming.map((p: any) => {
-        const dateStr = p.dueDate || p.nextDueDate || new Date().toISOString();
-        const paymentAmount = p.amount || 0;
-        const paymentCurrency = p.currency || defaultCurrency;
-        const isDefaultCurrency = paymentCurrency === targetCurrency;
-        
-        let convertedAmount: number;
-        if (isDefaultCurrency) {
-          convertedAmount = paymentAmount;
-        } else {
-          convertedAmount = convertToDefault(paymentAmount, paymentCurrency);
-        }
-        
-        return {
-          id: String(p.id),
-          name: p.name || 'Recurring Payment',
-          type: (p.type || 'expense') as 'income' | 'expense',
-          amount: paymentAmount,
-          currency: paymentCurrency,
-          dueDate: formatDateForDisplay(dateStr, i18n.language),
-          category: p.category || 'Uncategorized',
-          convertedAmount,
-          defaultCurrency: targetCurrency,
-          showConversion: !isDefaultCurrency,
-        };
-      });
-      setUpcomingPayments(payments);
-      
-      // Fetch notifications
-      try {
-        const notificationsResponse = await notificationsService.getNotifications({ per_page: 10 });
-        const notifs = notificationsResponse.data.map((n: any) => ({
-          id: String(n.id),
-          type: (n.type === 'recurring_payment' ? 'payment' : 
-                 n.type === 'transaction_limit' ? 'alert' :
-                 n.type === 'pro_expiration' ? 'alert' :
-                 n.type === 'referral_reward' ? 'achievement' :
-                 n.type === 'investment_reminder' ? 'transaction' : 'alert') as Notification['type'],
-          title: n.title || '',
-          message: n.message || '',
-          time: n.created_at || '',
-          read: n.is_read || false,
-        }));
-        setNotifications(notifs);
-      } catch (error) {
-        console.error('Failed to load notifications:', error);
+      // Process Upcoming Payments
+      if (upcoming) {
+        const payments = upcoming.map((p: any) => {
+          const dateStr = p.dueDate || p.nextDueDate || new Date().toISOString();
+          const paymentAmount = p.amount || 0;
+          const paymentCurrency = p.currency || defaultCurrency;
+          const isDefaultCurrency = paymentCurrency === targetCurrency;
+          
+          let convertedAmount: number;
+          if (isDefaultCurrency) {
+            convertedAmount = paymentAmount;
+          } else {
+            convertedAmount = convertToDefault(paymentAmount, paymentCurrency);
+          }
+          
+          return {
+            id: String(p.id),
+            name: p.name || 'Recurring Payment',
+            type: (p.type || 'expense') as 'income' | 'expense',
+            amount: paymentAmount,
+            currency: paymentCurrency,
+            dueDate: formatDateForDisplay(dateStr, i18n.language),
+            category: p.category || 'Uncategorized',
+            convertedAmount,
+            defaultCurrency: targetCurrency,
+            showConversion: !isDefaultCurrency,
+          };
+        });
+        setUpcomingPayments(payments);
       }
       
     } catch (error: any) {
       console.error('Failed to load dashboard data:', error);
-      // Don't show alert on initial load, just log
     } finally {
       setLoading(false);
+      setLoadingFinancial(false);
     }
   };
 
