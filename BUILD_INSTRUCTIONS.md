@@ -45,7 +45,44 @@ cd android
 Once the build is successful ("BUILD SUCCESSFUL"), the APK will be located at:
 *   **Path:** `android/app/build/outputs/apk/release/app-release.apk`
 
-*Note: To generate an AAB (App Bundle) for Play Store, run `./gradlew bundleRelease` instead. The output will be in `android/app/build/outputs/bundle/release/`.*
+### 4. Generate AAB (Android App Bundle) Support
+To generate an `.aab` file for Google Play Store submission manually:
+
+```bash
+cd android
+./gradlew bundleRelease
+```
+
+*   **Output Path:** `android/app/build/outputs/bundle/release/app-release.aab`
+
+---
+
+## ☁️ Expo Application Services (EAS) Build
+
+To generate cloud builds using EAS (requires an Expo account):
+
+### 1. Install EAS CLI
+```bash
+npm install -g eas-cli
+```
+
+### 2. Configure Build
+If you haven't already configured the project:
+```bash
+eas build:configure
+```
+
+### 3. Run Build
+*   **Android:**
+    ```bash
+    eas build --platform android --profile production
+    ```
+*   **iOS:**
+    ```bash
+    eas build --platform ios --profile production
+    ```
+
+*Note: Follow the CLI prompts to log in and set up credentials.*
 
 ---
 
