@@ -133,7 +133,8 @@
     "over": "تجاوز",
     "onTrack": "على المسار",
     "totalBudget": "إجمالي الميزانية",
-    "left": "متبقي"
+    "left": "متبقي",
+    "customRange": "نطاق مخصص"
   },
   "reports": {
     "csv": "CSV",
@@ -185,7 +186,8 @@
     "percentage": "Percentage",
     "selectCurrency": "Select Currency",
     "selectDateRange": "Select Date Range",
-    "searchCurrency": "Search currency..."
+    "searchCurrency": "Search currency...",
+    "allCategories": "جميع الفئات"
   },
   "analytics": {
     "insights": "الرؤى",

@@ -133,7 +133,8 @@
     "over": "अधिक",
     "onTrack": "सही रास्ते पर",
     "totalBudget": "कुल बजट",
-    "left": "शेष"
+    "left": "शेष",
+    "customRange": "कस्टम रेंज"
   },
   "reports": {
     "reportsAnalytics": "रिपोर्ट और विश्लेषण",
@@ -185,7 +186,8 @@
     "investment": "Investment",
     "allCurrencies": "All Currencies",
     "selectCurrency": "Select Currency",
-    "selectDateRange": "Select Date Range"
+    "selectDateRange": "Select Date Range",
+    "allCategories": "सभी श्रेणियां"
   },
   "analytics": {
     "insights": "अंतर्दृष्टि",

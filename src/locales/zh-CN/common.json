@@ -133,7 +133,8 @@
     "over": "超支",
     "onTrack": "符合预算",
     "totalBudget": "总预算",
-    "left": "剩余"
+    "left": "剩余",
+    "customRange": "自定义范围"
   },
   "reports": {
     "csv": "CSV",
@@ -185,7 +186,8 @@
     "percentage": "Percentage",
     "selectCurrency": "Select Currency",
     "selectDateRange": "Select Date Range",
-    "searchCurrency": "Search currency..."
+    "searchCurrency": "Search currency...",
+    "allCategories": "所有类别"
   },
   "analytics": {
     "insights": "洞察",

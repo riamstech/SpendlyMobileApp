@@ -133,7 +133,8 @@
     "over": "超過",
     "onTrack": "予算内",
     "totalBudget": "総予算",
-    "left": "残り"
+    "left": "残り",
+    "customRange": "カスタム範囲"
   },
   "reports": {
     "csv": "CSV",
@@ -185,7 +186,8 @@
     "percentage": "Percentage",
     "selectCurrency": "Select Currency",
     "selectDateRange": "Select Date Range",
-    "searchCurrency": "Search currency..."
+    "searchCurrency": "Search currency...",
+    "allCategories": "すべてのカテゴリ"
   },
   "analytics": {
     "insights": "インサイト",

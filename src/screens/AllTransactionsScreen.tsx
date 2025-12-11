@@ -11,10 +11,12 @@ import {
   ActivityIndicator,
   useWindowDimensions,
   Modal,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useTranslation } from 'react-i18next';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -108,6 +110,10 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
     }
   }, [categoriesData]);
   const [showDateRangeModal, setShowDateRangeModal] = useState(false);
+  const [showCustomDatePicker, setShowCustomDatePicker] = useState(false);
+  const [customStartDate, setCustomStartDate] = useState(new Date());
+  const [customEndDate, setCustomEndDate] = useState(new Date());
+  const [pickingDateType, setPickingDateType] = useState<'start' | 'end'>('start');
   
   // Currency Filter
   const [currencies, setCurrencies] = useState<Currency[]>([]);
@@ -487,101 +493,83 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
         </View>
       </View>
 
-      {/* Filter Chips Row */}
-      <View style={[styles.filterChipsContainer, { backgroundColor: colors.background }]}>
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.filterChipsContent}
+      {/* Simplified Filter Row */}
+      <View style={[styles.filterRow, { backgroundColor: colors.background }]}>
+        {/* Date Range Filter */}
+        <Pressable 
+          style={[
+            styles.filterPill, 
+            { backgroundColor: colors.card, borderColor: colors.border }
+          ]}
+          onPress={() => setShowDateRangeModal(true)}
         >
-          {/* Date Filter Chip */}
-          <Pressable 
-            style={[
-              styles.filterChip, 
-              { backgroundColor: filterDateRange !== 'all' ? colors.primary : colors.card, borderColor: colors.border }
-            ]}
-            onPress={() => setShowDateRangeModal(true)}
-          >
-            <Calendar size={14} color={filterDateRange !== 'all' ? '#fff' : colors.foreground} />
-            <Text style={[
-              styles.filterChipText, 
-              { color: filterDateRange !== 'all' ? '#fff' : colors.foreground }
-            ]}>
-              {filterDateRange === 'all' ? (t('common.all') || 'All') :
-               filterDateRange === 'this_month' ? (t('dashboard.thisMonth') || 'This Month') :
-               filterDateRange === 'last_month' ? (t('dashboard.lastMonth') || 'Last Month') :
-               filterDateRange === 'this_year' ? (t('dashboard.thisYear') || 'This Year') : 'Custom'}
-            </Text>
-          </Pressable>
+          <Calendar size={14} color={colors.foreground} />
+          <Text style={[styles.filterPillText, { color: colors.foreground }]} numberOfLines={1}>
+            {filterDateRange === 'all' ? (t('common.all') || 'All') :
+             filterDateRange === 'this_month' ? (t('dashboard.thisMonth') || 'This Month') :
+             filterDateRange === 'last_month' ? (t('dashboard.lastMonth') || 'Last Month') :
+             filterDateRange === 'this_year' ? (t('dashboard.thisYear') || 'This Year') : 
+             (t('dashboard.customRange') || 'Custom')}
+          </Text>
+        </Pressable>
 
-          {/* Currency Filter Chip */}
+        {/* Type Toggle - 3-way toggle */}
+        <View style={[styles.typeToggle, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Pressable 
             style={[
-              styles.filterChip, 
-              { backgroundColor: filterCurrency !== 'all' ? colors.primary : colors.card, borderColor: colors.border }
+              styles.typeToggleBtn,
+              filterType === 'all' && { backgroundColor: colors.primary }
             ]}
-            onPress={() => setShowCurrencyModal(true)}
+            onPress={() => setFilterType('all')}
           >
             <Text style={[
-              styles.filterChipText, 
-              { color: filterCurrency !== 'all' ? '#fff' : colors.foreground }
+              styles.typeToggleText,
+              { color: filterType === 'all' ? '#fff' : colors.mutedForeground }
             ]}>
-              {filterCurrency === 'all' ? (t('reports.allCurrencies') || 'All Currencies') : filterCurrency}
+              {t('common.all') || 'All'}
             </Text>
           </Pressable>
-
-          {/* Category Filter Chip */}
           <Pressable 
             style={[
-              styles.filterChip, 
-              { backgroundColor: filterCategory !== 'all' ? colors.primary : colors.card, borderColor: colors.border }
+              styles.typeToggleBtn,
+              filterType === 'income' && { backgroundColor: '#4CAF50' }
             ]}
-            onPress={() => setShowCategoryModal(true)}
-          >
-            <Filter size={14} color={filterCategory !== 'all' ? '#fff' : colors.foreground} />
-            <Text style={[
-              styles.filterChipText, 
-              { color: filterCategory !== 'all' ? '#fff' : colors.foreground }
-            ]}>
-              {filterCategory === 'all' 
-                ? (t('reports.allCategories') || 'All Categories') 
-                : translateCategoryName(filterCategory, t)}
-            </Text>
-          </Pressable>
-
-          {/* Type Filter Chips */}
-          <Pressable 
-            style={[
-              styles.filterChip, 
-              { backgroundColor: filterType === 'income' ? '#4CAF50' : colors.card, borderColor: colors.border }
-            ]}
-            onPress={() => setFilterType(filterType === 'income' ? 'all' : 'income')}
+            onPress={() => setFilterType('income')}
           >
             <ArrowUpRight size={14} color={filterType === 'income' ? '#fff' : '#4CAF50'} />
-            <Text style={[
-              styles.filterChipText, 
-              { color: filterType === 'income' ? '#fff' : colors.foreground }
-            ]}>
-              {t('dashboard.income') || 'Income'}
-            </Text>
           </Pressable>
-
           <Pressable 
             style={[
-              styles.filterChip, 
-              { backgroundColor: filterType === 'expense' ? '#FF5252' : colors.card, borderColor: colors.border }
+              styles.typeToggleBtn,
+              filterType === 'expense' && { backgroundColor: '#FF5252' }
             ]}
-            onPress={() => setFilterType(filterType === 'expense' ? 'all' : 'expense')}
+            onPress={() => setFilterType('expense')}
           >
             <ArrowDownRight size={14} color={filterType === 'expense' ? '#fff' : '#FF5252'} />
-            <Text style={[
-              styles.filterChipText, 
-              { color: filterType === 'expense' ? '#fff' : colors.foreground }
-            ]}>
-              {t('dashboard.expenses') || 'Expenses'}
-            </Text>
           </Pressable>
-        </ScrollView>
+        </View>
+
+        {/* More Filters */}
+        <Pressable 
+          style={[
+            styles.filterPill, 
+            { 
+              backgroundColor: (filterCategory !== 'all' || filterCurrency !== 'all') ? colors.primary : colors.card, 
+              borderColor: colors.border 
+            }
+          ]}
+          onPress={() => setShowCategoryModal(true)}
+        >
+          <Filter size={14} color={(filterCategory !== 'all' || filterCurrency !== 'all') ? '#fff' : colors.foreground} />
+          <Text style={[
+            styles.filterPillText, 
+            { color: (filterCategory !== 'all' || filterCurrency !== 'all') ? '#fff' : colors.foreground }
+          ]} numberOfLines={1}>
+            {(filterCategory !== 'all' || filterCurrency !== 'all') 
+              ? `${filterCategory !== 'all' ? translateCategoryName(filterCategory, t) : ''}${filterCategory !== 'all' && filterCurrency !== 'all' ? ' • ' : ''}${filterCurrency !== 'all' ? filterCurrency : ''}`
+              : (t('common.filter') || 'Filter')}
+          </Text>
+        </Pressable>
       </View>
 
       {/* Summary Grid */}
@@ -772,48 +760,106 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
         onRequestClose={() => setShowDateRangeModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{t('dashboard.selectDateRange') || 'Select Date Range'}</Text>
+              <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('dashboard.selectDateRange') || 'Select Date Range'}</Text>
               <Pressable onPress={() => setShowDateRangeModal(false)}>
-                <X size={24} color="#666" />
+                <X size={24} color={colors.mutedForeground} />
               </Pressable>
             </View>
             <ScrollView style={styles.modalList}>
-              {['all', 'this_month', 'last_month', 'this_year', 'custom'].map((range) => (
+              {['all', 'this_month', 'last_month', 'this_year'].map((range) => (
                 <Pressable
                   key={range}
                   style={styles.modalItem}
                   onPress={() => {
-                    if (range === 'custom') {
-                      // For custom, we'd need a date picker - simplified for now
-                      showToast.info(t('reports.customRange', { defaultValue: 'Custom date range selection will be implemented with date picker' }), t('reports.customRange', { defaultValue: 'Custom Date Range' }));
-                    } else {
-                      setFilterDateRange(range as any);
-                      setShowDateRangeModal(false);
-                      loadTransactions();
-                    }
+                    setFilterDateRange(range as any);
+                    setShowDateRangeModal(false);
+                    loadTransactions();
                   }}
                 >
-                  <Text style={[styles.modalItemText, filterDateRange === range && styles.modalItemTextActive]}>
+                  <Text style={[styles.modalItemText, { color: colors.foreground }, filterDateRange === range && styles.modalItemTextActive]}>
                     {range === 'all' 
                       ? (t('common.all') || 'All Time')
                       : range === 'this_month'
                       ? (t('dashboard.thisMonth') || 'This Month')
                       : range === 'last_month'
                       ? (t('dashboard.lastMonth') || 'Last Month')
-                      : range === 'this_year'
-                      ? (t('dashboard.thisYear') || 'This Year')
-                      : range === 'custom'
-                      ? (t('dashboard.customRange') || 'Custom Range')
-                      : ''}
+                      : (t('dashboard.thisYear') || 'This Year')}
                   </Text>
                 </Pressable>
               ))}
+              
+              {/* Custom Date Range Section */}
+              <View style={[styles.customDateSection, { borderTopColor: colors.border }]}>
+                <Text style={[styles.customDateTitle, { color: colors.foreground }]}>
+                  {t('dashboard.customRange') || 'Custom Range'}
+                </Text>
+                <View style={styles.customDateRow}>
+                  <Pressable 
+                    style={[styles.datePickerButton, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}
+                    onPress={() => {
+                      setPickingDateType('start');
+                      setShowCustomDatePicker(true);
+                    }}
+                  >
+                    <Calendar size={16} color={colors.foreground} />
+                    <Text style={[styles.datePickerText, { color: colors.foreground }]}>
+                      {customStartDate.toLocaleDateString(i18n.language)}
+                    </Text>
+                  </Pressable>
+                  <Text style={{ color: colors.mutedForeground, marginHorizontal: 8 }}>→</Text>
+                  <Pressable 
+                    style={[styles.datePickerButton, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}
+                    onPress={() => {
+                      setPickingDateType('end');
+                      setShowCustomDatePicker(true);
+                    }}
+                  >
+                    <Calendar size={16} color={colors.foreground} />
+                    <Text style={[styles.datePickerText, { color: colors.foreground }]}>
+                      {customEndDate.toLocaleDateString(i18n.language)}
+                    </Text>
+                  </Pressable>
+                </View>
+                <Pressable 
+                  style={[styles.applyCustomDateBtn, { backgroundColor: colors.primary }]}
+                  onPress={() => {
+                    setFilterDateRange('custom');
+                    setCustomDateFrom(customStartDate.toISOString().split('T')[0]);
+                    setCustomDateTo(customEndDate.toISOString().split('T')[0]);
+                    setShowDateRangeModal(false);
+                    loadTransactions();
+                  }}
+                >
+                  <Text style={styles.applyCustomDateText}>
+                    {t('common.apply') || 'Apply'}
+                  </Text>
+                </Pressable>
+              </View>
             </ScrollView>
           </View>
         </View>
       </Modal>
+
+      {/* DateTimePicker for Custom Range */}
+      {showCustomDatePicker && (
+        <DateTimePicker
+          value={pickingDateType === 'start' ? customStartDate : customEndDate}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={(event, selectedDate) => {
+            setShowCustomDatePicker(Platform.OS === 'ios');
+            if (selectedDate) {
+              if (pickingDateType === 'start') {
+                setCustomStartDate(selectedDate);
+              } else {
+                setCustomEndDate(selectedDate);
+              }
+            }
+          }}
+        />
+      )}
       {/* Currency Filter Modal */}
       <Modal
         visible={showCurrencyModal}
@@ -919,6 +965,47 @@ const styles = StyleSheet.create({
   },
   filterChipText: {
     fontSize: 13,
+    fontWeight: '500',
+    fontFamily: fonts.sans,
+  },
+  filterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    gap: 8,
+  },
+  filterPill: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 6,
+  },
+  filterPillText: {
+    fontSize: 12,
+    fontWeight: '500',
+    fontFamily: fonts.sans,
+  },
+  typeToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 12,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  typeToggleBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  typeToggleText: {
+    fontSize: 12,
     fontWeight: '500',
     fontFamily: fonts.sans,
   },
@@ -1122,5 +1209,46 @@ const styles = StyleSheet.create({
   modalItemTextActive: {
     color: '#03A9F4',
     fontWeight: '600',
+  },
+  customDateSection: {
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+  },
+  customDateTitle: {
+    ...textStyles.body,
+    fontWeight: '600',
+    marginBottom: 12,
+  },
+  customDateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  datePickerButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    gap: 8,
+  },
+  datePickerText: {
+    ...textStyles.bodySmall,
+    fontWeight: '500',
+  },
+  applyCustomDateBtn: {
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  applyCustomDateText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
   },
 });

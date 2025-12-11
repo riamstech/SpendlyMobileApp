@@ -133,7 +133,8 @@
     "over": "Überzogen",
     "onTrack": "Im Plan",
     "totalBudget": "Gesamtbudget",
-    "left": "Übrig"
+    "left": "Übrig",
+    "customRange": "Benutzerdefinierter Bereich"
   },
   "reports": {
     "csv": "CSV",
@@ -185,7 +186,8 @@
     "percentage": "Percentage",
     "selectCurrency": "Select Currency",
     "selectDateRange": "Select Date Range",
-    "searchCurrency": "Search currency..."
+    "searchCurrency": "Search currency...",
+    "allCategories": "Alle Kategorien"
   },
   "analytics": {
     "insights": "Erkenntnisse",

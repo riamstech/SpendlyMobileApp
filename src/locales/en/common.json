@@ -133,7 +133,8 @@
     "over": "Over",
     "onTrack": "On Track",
     "totalBudget": "Total Budget",
-    "left": "Left"
+    "left": "Left",
+    "customRange": "Custom Range"
   },
   "reports": {
     "reportsAnalytics": "Reports & Analytics",
@@ -185,7 +186,8 @@
     "pdfReady": "PDF Ready",
     "pdfReadyDescription": "PDF file has been generated at: {{uri}}",
     "pdfError": "Failed to generate PDF report.",
-    "pleaseSelectDateRange": "Please select a date range"
+    "pleaseSelectDateRange": "Please select a date range",
+    "allCategories": "All Categories"
   },
   "analytics": {
     "insights": "Insights",
@@ -805,7 +807,8 @@
     "info": "Info",
     "deleting": "Deleting...",
     "view": "View",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "filter": "Filter"
   },
   "errorBoundary": {
     "somethingWentWrong": "Something went wrong",

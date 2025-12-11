@@ -133,7 +133,8 @@
     "over": "Превышено",
     "onTrack": "В рамках бюджета",
     "totalBudget": "Общий бюджет",
-    "left": "Осталось"
+    "left": "Осталось",
+    "customRange": "Пользовательский диапазон"
   },
   "reports": {
     "csv": "CSV",
@@ -185,7 +186,8 @@
     "percentage": "Percentage",
     "selectCurrency": "Select Currency",
     "selectDateRange": "Select Date Range",
-    "searchCurrency": "Search currency..."
+    "searchCurrency": "Search currency...",
+    "allCategories": "Все категории"
   },
   "analytics": {
     "insights": "Аналитика",

@@ -133,7 +133,8 @@
     "over": "Dépassé",
     "onTrack": "Sur la bonne voie",
     "totalBudget": "Budget Total",
-    "left": "Restant"
+    "left": "Restant",
+    "customRange": "Plage personnalisée"
   },
   "reports": {
     "csv": "CSV",
@@ -185,7 +186,8 @@
     "percentage": "Percentage",
     "selectCurrency": "Select Currency",
     "selectDateRange": "Select Date Range",
-    "searchCurrency": "Search currency..."
+    "searchCurrency": "Search currency...",
+    "allCategories": "Toutes les catégories"
   },
   "analytics": {
     "insights": "Perspectives",
