@@ -441,7 +441,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
             <View style={styles.healthScoreCard}>
               <Award size={48} color="#03A9F4" />
               <Text style={[styles.healthScoreValue, responsiveTextStyles.display]}>
-                {healthScore.score.toFixed(1)}/{healthScore.max_score}
+                {healthScore.score.toFixed(1)}/{healthScore.maxScore ?? healthScore.max_score}
               </Text>
               <View style={styles.gradeRow}>
                 <Text style={styles.healthGrade}>

@@ -126,12 +126,13 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
   };
 
   const filteredNotifications = notifications.filter((notif) => {
-    if (filter === 'unread') return !notif.is_read;
-    if (filter === 'read') return notif.is_read;
+    const isRead = (notif as any).isRead ?? notif.is_read;
+    if (filter === 'unread') return !isRead;
+    if (filter === 'read') return isRead;
     return true;
   });
 
-  const unreadCount = notifications.filter((n) => !n.is_read).length;
+  const unreadCount = notifications.filter((n) => !((n as any).isRead ?? n.is_read)).length;
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -340,7 +341,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
                 style={[
                   styles.notificationCard,
                   {
-                    backgroundColor: !notification.is_read ? colors.accent : colors.card,
+                    backgroundColor: !((notification as any).isRead ?? notification.is_read) ? colors.accent : colors.card,
                     borderColor: colors.border,
                   },
                 ]}
@@ -368,7 +369,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
                       >
                         {notification.title}
                       </Text>
-                      {!notification.is_read && (
+                      {!((notification as any).isRead ?? notification.is_read) && (
                         <View style={[styles.unreadDot, { backgroundColor: colors.primary }]} />
                       )}
                     </View>
@@ -389,10 +390,10 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
                           { color: colors.mutedForeground },
                         ]}
                       >
-                        {formatNotificationTime(notification.created_at || notification.updated_at || '')}
+                        {formatNotificationTime((notification as any).createdAt || notification.created_at || (notification as any).updatedAt || notification.updated_at || '')}
                       </Text>
                       <View style={styles.notificationActions}>
-                        {!notification.is_read && (
+                        {!((notification as any).isRead ?? notification.is_read) && (
                           <Pressable
                             onPress={() => handleMarkAsRead(notification.id)}
                             style={({ pressed }) => [

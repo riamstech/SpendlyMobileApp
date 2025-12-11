@@ -347,9 +347,9 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
         description: fullTransaction.description || fullTransaction.notes || '', // Prefer description, fallback to notes
         notes: fullTransaction.notes || '',
         date: fullTransaction.date,
-        is_recurring: fullTransaction.is_recurring,
-        recurring_frequency: fullTransaction.recurring_frequency,
-        reminder_days: fullTransaction.reminder_days,
+        is_recurring: (fullTransaction as any).isRecurring ?? fullTransaction.is_recurring,
+        recurring_frequency: (fullTransaction as any).recurringFrequency || fullTransaction.recurring_frequency,
+        reminder_days: (fullTransaction as any).reminderDays ?? fullTransaction.reminder_days,
       });
     } catch (error) {
       console.error('Failed to load transaction details:', error);

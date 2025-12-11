@@ -43,7 +43,8 @@ export interface HealthScoreFactor {
 
 export interface HealthScore {
   score: number;
-  max_score: number;
+  max_score?: number;
+  maxScore?: number;
   grade: string;
   factors: HealthScoreFactor[];
   recommendations: string[];
