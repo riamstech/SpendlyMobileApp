@@ -29,7 +29,7 @@ import {
 import { transactionsService } from '../api/services/transactions';
 import { categoriesService } from '../api/services/categories';
 import { authService } from '../api/services/auth';
-import { currenciesService, Currency } from '../api/services/currencies';
+import { currenciesService } from '../api/services/currencies';
 import { formatDateForDisplay } from '../api/utils/dateUtils';
 import EditTransactionScreen from './EditTransactionScreen';
 import { useTheme } from '../contexts/ThemeContext';
@@ -61,6 +61,12 @@ interface Category {
   id: string;
   name: string;
   type: 'income' | 'expense' | 'both';
+}
+
+interface Currency {
+  code: string;
+  name: string;
+  symbol: string;
 }
 
 export default function AllTransactionsScreen({ onBack }: { onBack: () => void }) {
@@ -479,42 +485,103 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
             {filteredTransactions.length} {t('dashboard.totalTransactions') || 'total transactions'}
           </Text>
         </View>
-        
-        {/* Date FIlter Button (Dropdown style) */}
-        <Pressable 
-          style={[styles.filterButton, { flexDirection: 'row', alignItems: 'center', gap: 4, marginRight: 8, backgroundColor: colors.inputBackground, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 }]}
-          onPress={() => setShowDateRangeModal(true)}
-        >
-          <Calendar size={16} color={colors.foreground} />
-          <Text style={{ fontSize: 12, color: colors.foreground }}>
-            {filterDateRange === 'all' ? (t('common.all') || 'All') :
-             filterDateRange === 'this_month' ? (t('dashboard.thisMonth') || 'This Month') :
-             filterDateRange === 'last_month' ? (t('dashboard.lastMonth') || 'Last Month') :
-             filterDateRange === 'this_year' ? (t('dashboard.thisYear') || 'This Year') : 'Custom'}
-          </Text>
-          <Filter size={12} color={colors.mutedForeground} />
-        </Pressable>
+      </View>
 
-        {/* Currency Filter Button */}
-        <Pressable 
-          style={[styles.filterButton, { flexDirection: 'row', alignItems: 'center', gap: 4, marginRight: 8, backgroundColor: colors.inputBackground, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 }]}
-          onPress={() => setShowCurrencyModal(true)}
+      {/* Filter Chips Row */}
+      <View style={[styles.filterChipsContainer, { backgroundColor: colors.background }]}>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterChipsContent}
         >
-          <Text style={{ fontSize: 12, color: colors.foreground }}>
-            {filterCurrency === 'all' ? (t('common.all') || 'All') : filterCurrency}
-          </Text>
-          <Filter size={12} color={colors.mutedForeground} />
-        </Pressable>
+          {/* Date Filter Chip */}
+          <Pressable 
+            style={[
+              styles.filterChip, 
+              { backgroundColor: filterDateRange !== 'all' ? colors.primary : colors.card, borderColor: colors.border }
+            ]}
+            onPress={() => setShowDateRangeModal(true)}
+          >
+            <Calendar size={14} color={filterDateRange !== 'all' ? '#fff' : colors.foreground} />
+            <Text style={[
+              styles.filterChipText, 
+              { color: filterDateRange !== 'all' ? '#fff' : colors.foreground }
+            ]}>
+              {filterDateRange === 'all' ? (t('common.all') || 'All') :
+               filterDateRange === 'this_month' ? (t('dashboard.thisMonth') || 'This Month') :
+               filterDateRange === 'last_month' ? (t('dashboard.lastMonth') || 'Last Month') :
+               filterDateRange === 'this_year' ? (t('dashboard.thisYear') || 'This Year') : 'Custom'}
+            </Text>
+          </Pressable>
 
-        <Pressable 
-          style={styles.filterButton}
-          onPress={() => setShowCategoryModal(true)}
-        >
-          <Filter size={24} color={colors.foreground} />
-          {(filterCategory !== 'all') && (
-            <View style={styles.filterBadge} />
-          )}
-        </Pressable>
+          {/* Currency Filter Chip */}
+          <Pressable 
+            style={[
+              styles.filterChip, 
+              { backgroundColor: filterCurrency !== 'all' ? colors.primary : colors.card, borderColor: colors.border }
+            ]}
+            onPress={() => setShowCurrencyModal(true)}
+          >
+            <Text style={[
+              styles.filterChipText, 
+              { color: filterCurrency !== 'all' ? '#fff' : colors.foreground }
+            ]}>
+              {filterCurrency === 'all' ? (t('reports.allCurrencies') || 'All Currencies') : filterCurrency}
+            </Text>
+          </Pressable>
+
+          {/* Category Filter Chip */}
+          <Pressable 
+            style={[
+              styles.filterChip, 
+              { backgroundColor: filterCategory !== 'all' ? colors.primary : colors.card, borderColor: colors.border }
+            ]}
+            onPress={() => setShowCategoryModal(true)}
+          >
+            <Filter size={14} color={filterCategory !== 'all' ? '#fff' : colors.foreground} />
+            <Text style={[
+              styles.filterChipText, 
+              { color: filterCategory !== 'all' ? '#fff' : colors.foreground }
+            ]}>
+              {filterCategory === 'all' 
+                ? (t('reports.allCategories') || 'All Categories') 
+                : translateCategoryName(filterCategory, t)}
+            </Text>
+          </Pressable>
+
+          {/* Type Filter Chips */}
+          <Pressable 
+            style={[
+              styles.filterChip, 
+              { backgroundColor: filterType === 'income' ? '#4CAF50' : colors.card, borderColor: colors.border }
+            ]}
+            onPress={() => setFilterType(filterType === 'income' ? 'all' : 'income')}
+          >
+            <ArrowUpRight size={14} color={filterType === 'income' ? '#fff' : '#4CAF50'} />
+            <Text style={[
+              styles.filterChipText, 
+              { color: filterType === 'income' ? '#fff' : colors.foreground }
+            ]}>
+              {t('dashboard.income') || 'Income'}
+            </Text>
+          </Pressable>
+
+          <Pressable 
+            style={[
+              styles.filterChip, 
+              { backgroundColor: filterType === 'expense' ? '#FF5252' : colors.card, borderColor: colors.border }
+            ]}
+            onPress={() => setFilterType(filterType === 'expense' ? 'all' : 'expense')}
+          >
+            <ArrowDownRight size={14} color={filterType === 'expense' ? '#fff' : '#FF5252'} />
+            <Text style={[
+              styles.filterChipText, 
+              { color: filterType === 'expense' ? '#fff' : colors.foreground }
+            ]}>
+              {t('dashboard.expenses') || 'Expenses'}
+            </Text>
+          </Pressable>
+        </ScrollView>
       </View>
 
       {/* Summary Grid */}
@@ -833,6 +900,27 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     backgroundColor: '#03A9F4',
+  },
+  filterChipsContainer: {
+    paddingVertical: 12,
+  },
+  filterChipsContent: {
+    paddingHorizontal: 16,
+    gap: 8,
+  },
+  filterChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    gap: 6,
+  },
+  filterChipText: {
+    fontSize: 13,
+    fontWeight: '500',
+    fontFamily: fonts.sans,
   },
   searchContainer: {
     flexDirection: 'row',
