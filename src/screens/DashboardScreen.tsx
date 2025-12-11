@@ -947,24 +947,25 @@ export default function DashboardScreen({
                     {valuesHidden ? '••••' : formatValue(Math.abs(monthlyBudgetRemaining))}
                   </Text>
                 </View>
-                {/* Mini Progress Bar in Left section */}
-                <View style={styles.budgetMiniProgressContainer}>
-                  <View style={[styles.budgetMiniProgressBar, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#e0e0e0' }]}>
-                    <View
-                      style={[
-                        styles.budgetMiniProgressFill,
-                        {
-                          width: `${budgetUsedPercentage}%`,
-                          backgroundColor: isOverBudget ? '#FF5252' : budgetUsedPercentage >= 80 ? '#FF9800' : '#03A9F4',
-                        },
-                      ]}
-                    />
-                  </View>
-                  <Text style={[styles.budgetMiniPercentage, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                    {budgetUsedPercentage.toFixed(0)}%
-                  </Text>
-                </View>
               </View>
+            </View>
+
+            {/* Progress Bar - Separate Row */}
+            <View style={styles.budgetProgressRow}>
+              <View style={[styles.budgetProgressBar, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#e0e0e0', flex: 1 }]}>
+                <View
+                  style={[
+                    styles.budgetProgressFill,
+                    {
+                      width: `${budgetUsedPercentage}%`,
+                      backgroundColor: isOverBudget ? '#FF5252' : budgetUsedPercentage >= 80 ? '#FF9800' : '#03A9F4',
+                    },
+                  ]}
+                />
+              </View>
+              <Text style={[styles.budgetPercentage, responsiveTextStyles.caption, { color: colors.mutedForeground, marginLeft: 10 }]}>
+                {budgetUsedPercentage.toFixed(0)}% {t('dashboard.used') || 'used'}
+              </Text>
             </View>
           </View>
         )}
@@ -2084,6 +2085,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+  },
+  budgetProgressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
   },
   budgetMiniProgressContainer: {
     flexDirection: 'row',
