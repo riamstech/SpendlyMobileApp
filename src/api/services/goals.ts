@@ -2,14 +2,21 @@ import { apiClient } from '../client';
 
 export interface SavingsGoal {
   id: number;
-  user_id: number;
+  userId?: number;
   name: string;
-  target_amount: number;
-  current_amount: number;
-  target_date: string;
+  targetAmount: number;
+  currentAmount: number;
+  targetDate: string;
   status: 'active' | 'completed' | 'cancelled';
-  created_at: string;
-  updated_at: string;
+  createdAt?: string;
+  updatedAt?: string;
+  // Support legacy snake_case for backward compatibility
+  user_id?: number;
+  target_amount?: number;
+  current_amount?: number;
+  target_date?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface CreateGoalRequest {

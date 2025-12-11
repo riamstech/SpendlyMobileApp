@@ -133,7 +133,7 @@ export default function GoalsScreen({ onBack }: GoalsScreenProps) {
     if (Platform.OS === 'ios') {
       Alert.prompt(
         t('goals.updateProgress'),
-        `${t('goals.enterNewAmount')} "${goal.name}" (current: ${currency}${goal.current_amount}):`,
+        `${t('goals.enterNewAmount')} "${goal.name}" (current: ${currency}${goal.currentAmount ?? goal.current_amount}):`,
         [
           { text: t('addTransaction.cancel'), style: 'cancel' },
           {
@@ -152,13 +152,13 @@ export default function GoalsScreen({ onBack }: GoalsScreenProps) {
           },
         ],
         'plain-text',
-        String(goal.current_amount),
+        String(goal.currentAmount ?? goal.current_amount),
         'decimal-pad'
       );
     } else {
       // For Android, show a simple toast with instructions
       showToast.info(
-        `Current amount: ${currency}${goal.current_amount}\n\nTo update, edit the goal and enter the new amount.`,
+        `Current amount: ${currency}${goal.currentAmount ?? goal.current_amount}\n\nTo update, edit the goal and enter the new amount.`,
         t('goals.updateProgress')
       );
     }
@@ -197,8 +197,10 @@ export default function GoalsScreen({ onBack }: GoalsScreenProps) {
   };
 
   const getProgress = (goal: SavingsGoal) => {
-    if (goal.target_amount === 0) return 0;
-    return Math.min((goal.current_amount / goal.target_amount) * 100, 100);
+    const targetAmount = goal.targetAmount ?? goal.target_amount ?? 0;
+    const currentAmount = goal.currentAmount ?? goal.current_amount ?? 0;
+    if (targetAmount === 0) return 0;
+    return Math.min((currentAmount / targetAmount) * 100, 100);
   };
 
   const getDaysRemaining = (targetDateStr: string) => {
@@ -222,7 +224,7 @@ export default function GoalsScreen({ onBack }: GoalsScreenProps) {
 
   const activeGoals = goals.filter(g => g.status === 'active');
   const completedGoals = goals.filter(g => g.status === 'completed');
-  const totalSaved = goals.reduce((sum, g) => sum + g.current_amount, 0);
+  const totalSaved = goals.reduce((sum, g) => sum + (g.currentAmount ?? g.current_amount ?? 0), 0);
 
   const themedStyles = {
     container: { backgroundColor: colors.background },
@@ -316,7 +318,7 @@ export default function GoalsScreen({ onBack }: GoalsScreenProps) {
           <View style={styles.goalsList}>
             {goals.map((goal) => {
               const progress = getProgress(goal);
-              const daysRemaining = getDaysRemaining(goal.target_date);
+              const daysRemaining = getDaysRemaining(goal.targetDate ?? goal.target_date ?? '');
               const isOverdue = daysRemaining < 0;
               const isCompleted = goal.status === 'completed';
               const isCancelled = goal.status === 'cancelled';
@@ -345,7 +347,7 @@ export default function GoalsScreen({ onBack }: GoalsScreenProps) {
                         <View style={styles.metaItem}>
                           <DollarSign size={14} color={colors.mutedForeground} />
                           <Text style={[styles.goalAmount, themedStyles.textMuted]}>
-                            {currency}{goal.current_amount.toLocaleString()} / {currency}{goal.target_amount.toLocaleString()}
+                            {currency}{(goal.currentAmount ?? goal.current_amount ?? 0).toLocaleString()} / {currency}{(goal.targetAmount ?? goal.target_amount ?? 0).toLocaleString()}
                           </Text>
                         </View>
                         <View style={styles.metaItem}>

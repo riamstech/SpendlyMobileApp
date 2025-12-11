@@ -454,11 +454,11 @@ export default function ReceiptsScreen({ onBack }: ReceiptsScreenProps) {
                 </View>
 
                 {/* OCR Text Preview */}
-                {receipt.ocr_text && (
+                {(receipt.ocrText ?? receipt.ocr_text) && (
                   <View style={[styles.ocrPreview, themedStyles.border]}>
                     <Text style={[styles.ocrLabel, themedStyles.textMuted]}>OCR Text:</Text>
                     <Text style={[styles.ocrText, themedStyles.text]} numberOfLines={2}>
-                      {receipt.ocr_text}
+                      {receipt.ocrText ?? receipt.ocr_text}
                     </Text>
                   </View>
                 )}
@@ -468,7 +468,7 @@ export default function ReceiptsScreen({ onBack }: ReceiptsScreenProps) {
                   <View style={styles.categoryBadge}>
                     <Tag size={14} color="#03A9F4" />
                     <Text style={styles.categoryBadgeText}>
-                      {getCategoryName(receipt.category_id)}
+                      {getCategoryName(receipt.categoryId ?? receipt.category_id ?? null)}
                     </Text>
                   </View>
                 </View>
@@ -715,10 +715,10 @@ export default function ReceiptsScreen({ onBack }: ReceiptsScreenProps) {
             {selectedReceipt && (
               <ScrollView style={styles.modalBody}>
                 {/* Receipt Image */}
-                {selectedReceipt.file_path && (
+                {(selectedReceipt.filePath ?? selectedReceipt.file_path) && (
                   <View style={styles.imagePreviewContainer}>
                     <Image
-                      source={{ uri: selectedReceipt.file_path }}
+                      source={{ uri: selectedReceipt.filePath ?? selectedReceipt.file_path }}
                       style={styles.imagePreview}
                       resizeMode="contain"
                     />
@@ -770,20 +770,20 @@ export default function ReceiptsScreen({ onBack }: ReceiptsScreenProps) {
                     <View>
                       <Text style={[styles.detailLabel, themedStyles.textMuted]}>Category</Text>
                       <Text style={[styles.detailValue, themedStyles.text]}>
-                        {getCategoryName(selectedReceipt.category_id)}
+                        {getCategoryName(selectedReceipt.categoryId ?? selectedReceipt.category_id ?? null)}
                       </Text>
                     </View>
                   </View>
                 </View>
 
                 {/* OCR Text */}
-                {selectedReceipt.ocr_text && (
+                {(selectedReceipt.ocrText ?? selectedReceipt.ocr_text) && (
                   <View style={[styles.ocrSection, themedStyles.border]}>
                     <Text style={[styles.ocrSectionTitle, themedStyles.text]}>
                       OCR Extracted Text
                     </Text>
                     <Text style={[styles.ocrFullText, themedStyles.textMuted]}>
-                      {selectedReceipt.ocr_text}
+                      {selectedReceipt.ocrText ?? selectedReceipt.ocr_text}
                     </Text>
                   </View>
                 )}

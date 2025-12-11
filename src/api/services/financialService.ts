@@ -1,18 +1,25 @@
 import { apiClient } from '../client';
 
 export interface FinancialSummary {
-  total_assets: number;
-  total_liabilities: number;
-  net_worth: number;
-  assets?: any[]; // Optional - backend doesn't return array, only totals
+  // Support both camelCase (from API client) and snake_case
+  total_assets?: number;
+  totalAssets?: number;
+  total_liabilities?: number;
+  totalLiabilities?: number;
+  net_worth?: number;
+  netWorth?: number;
+  assets?: any[];
   liabilities: {
     id: number;
     description: string;
     amount: number;
-    remaining_amount: number;
-    paid_amount: number;
+    remaining_amount?: number;
+    remainingAmount?: number;
+    paid_amount?: number;
+    paidAmount?: number;
     progress: number;
-    end_date: string;
+    end_date?: string;
+    endDate?: string;
     type: string;
   }[];
 }

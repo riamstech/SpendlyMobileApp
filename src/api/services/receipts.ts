@@ -2,15 +2,22 @@ import { apiClient } from '../client';
 
 export interface Receipt {
   id: number;
-  user_id: number;
-  file_path: string;
-  ocr_text: string | null;
+  // Support both camelCase (from API client) and snake_case
+  user_id?: number;
+  userId?: number;
+  file_path?: string;
+  filePath?: string;
+  ocr_text?: string | null;
+  ocrText?: string | null;
   amount: number | null;
   merchant: string | null;
   date: string | null;
-  category_id: number | null;
-  created_at: string;
-  updated_at: string;
+  category_id?: number | null;
+  categoryId?: number | null;
+  created_at?: string;
+  createdAt?: string;
+  updated_at?: string;
+  updatedAt?: string;
 }
 
 export interface CreateReceiptRequest {

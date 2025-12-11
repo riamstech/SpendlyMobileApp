@@ -79,12 +79,12 @@ export default function EditTransactionScreen({
   const [description, setDescription] = useState((transaction as any).description || transaction.notes || '');
   const [date, setDate] = useState(parseDate(transaction.date));
   const [notes, setNotes] = useState(transaction.notes || '');
-  const [isRecurring, setIsRecurring] = useState(transaction.is_recurring || false);
+  const [isRecurring, setIsRecurring] = useState((transaction as any).isRecurring ?? transaction.is_recurring ?? false);
   const [frequency, setFrequency] = useState(
-    transaction.recurring_frequency || 'monthly'
+    (transaction as any).recurringFrequency || transaction.recurring_frequency || 'monthly'
   );
   const [reminderDays, setReminderDays] = useState(
-    (transaction.reminder_days || 1).toString()
+    ((transaction as any).reminderDays ?? transaction.reminder_days ?? 1).toString()
   );
 
   // Date Picker State

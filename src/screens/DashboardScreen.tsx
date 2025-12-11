@@ -246,8 +246,8 @@ export default function DashboardScreen({
                  n.type === 'investment_reminder' ? 'transaction' : 'alert') as Notification['type'],
           title: n.title || '',
           message: n.message || '',
-          time: n.created_at || '',
-          read: n.is_read || false,
+          time: n.createdAt || n.created_at || '',
+          read: n.isRead ?? n.is_read ?? false,
         }));
         setNotifications(notifs);
       }
@@ -729,13 +729,13 @@ export default function DashboardScreen({
               </Text>
               <View style={[
                 styles.netWorthBadge,
-                { backgroundColor: financialSummary.net_worth >= 0 ? 'rgba(76,175,80,0.1)' : 'rgba(255,82,82,0.1)' }
+                { backgroundColor: (financialSummary.netWorth ?? financialSummary.net_worth ?? 0) >= 0 ? 'rgba(76,175,80,0.1)' : 'rgba(255,82,82,0.1)' }
               ]}>
                 <Text style={[
                   styles.netWorthText,
-                  { color: financialSummary.net_worth >= 0 ? '#4CAF50' : '#FF5252' }
+                  { color: (financialSummary.netWorth ?? financialSummary.net_worth ?? 0) >= 0 ? '#4CAF50' : '#FF5252' }
                 ]}>
-                  {`${t('dashboard.netWorth') || 'Net Worth:'} ${formatMoney(financialSummary.net_worth)}`}
+                  {`${t('dashboard.netWorth') || 'Net Worth:'} ${formatMoney(financialSummary.netWorth ?? financialSummary.net_worth ?? 0)}`}
                 </Text>
               </View>
             </View>
@@ -774,7 +774,7 @@ export default function DashboardScreen({
                     color: isDark ? '#6EE7B7' : '#047857', // emerald-300 / emerald-700
                   }
                 ]}>
-                  {formatMoney(financialSummary.total_assets)}
+                  {formatMoney(financialSummary.totalAssets ?? financialSummary.total_assets ?? 0)}
                 </Text>
               </View>
 
@@ -812,7 +812,7 @@ export default function DashboardScreen({
                     color: isDark ? '#FDA4AF' : '#BE123C', // rose-300 / rose-700
                   }
                 ]}>
-                  {formatMoney(financialSummary.total_liabilities)}
+                  {formatMoney(financialSummary.totalLiabilities ?? financialSummary.total_liabilities ?? 0)}
                 </Text>
               </View>
             </View>
@@ -840,12 +840,12 @@ export default function DashboardScreen({
                           {loan.description}
                         </Text>
                         <Text style={[styles.loanMeta, { color: colors.mutedForeground }]}>
-                          {loan.type} {t('dashboard.loan') || 'Loan'} • {t('dashboard.ends')} {formatDateForDisplay(loan.end_date, i18n.language)}
+                          {loan.type} {t('dashboard.loan') || 'Loan'} • {t('dashboard.ends')} {formatDateForDisplay(loan.endDate ?? loan.end_date ?? '', i18n.language)}
                         </Text>
                       </View>
                       <View style={styles.loanAmount}>
                         <Text style={[styles.loanAmountText, { color: colors.foreground }]}>
-                          {formatMoney(loan.remaining_amount)}
+                          {formatMoney(loan.remainingAmount ?? loan.remaining_amount ?? 0)}
                         </Text>
                         <Text style={[styles.loanAmountSubtext, { color: colors.mutedForeground }]}>
                           {t('dashboard.of') || 'of'} {formatMoney(loan.amount)}
@@ -858,7 +858,7 @@ export default function DashboardScreen({
                           {Math.round(loan.progress)}% {t('dashboard.paid') || 'Paid'}
                         </Text>
                         <Text style={[styles.loanProgressText, { color: colors.mutedForeground }]}>
-                          {formatMoney(loan.paid_amount)} {t('dashboard.paid') || 'paid'}
+                          {formatMoney(loan.paidAmount ?? loan.paid_amount ?? 0)} {t('dashboard.paid') || 'paid'}
                         </Text>
                       </View>
                       <View style={styles.loanProgressBar}>
