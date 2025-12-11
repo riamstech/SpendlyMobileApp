@@ -878,6 +878,68 @@ export default function DashboardScreen({
           </View>
         )}
 
+        {/* Quick Stats */}
+        <View style={styles.statsRow}>
+          <View style={[styles.statCard, { backgroundColor: colors.card }]}>
+            <View style={styles.statHeader}>
+              <Text style={[styles.statLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                {t('dashboard.savings') || 'Savings'}
+              </Text>
+              <TrendingUp size={16} color="#4CAF50" />
+            </View>
+            <View style={styles.statValueContainer}>
+              {!valuesHidden && (
+                <Text style={[styles.statCurrency, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                  {currency}
+                </Text>
+              )}
+              <Text style={[styles.statValue, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>
+                {formatValue(savings)}
+              </Text>
+            </View>
+          </View>
+          <View style={[styles.statCard, { backgroundColor: colors.card }]}>
+            <View style={styles.statHeader}>
+              <Text style={[styles.statLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                {t('dashboard.spendingRatio') || 'Spending Ratio'}
+              </Text>
+              <TrendingDown size={16} color={spendingRatioColor} />
+            </View>
+            <View style={styles.statValueContainer}>
+              {totalIncome > 0 ? (
+                <>
+                  <Text style={[styles.statValue, responsiveTextStyles.bodySmall, { color: spendingRatioColor }]}>
+                    {spendingRatio.toFixed(1)}%
+                  </Text>
+                  {!valuesHidden && (
+                    <Text style={[styles.statRatioText, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                      {t('dashboard.ofIncome') || 'of income'}
+                    </Text>
+                  )}
+                </>
+              ) : (
+                <Text style={[styles.statValue, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>
+                  N/A
+                </Text>
+              )}
+            </View>
+            {totalIncome > 0 && (
+              <View style={[styles.progressBar, { backgroundColor: '#e0e0e0' }]}>
+                <View
+                  style={[
+                    styles.progressFill,
+                    { 
+                      width: `${Math.min(spendingRatio, 100)}%`, 
+                      backgroundColor: spendingRatioColor,
+                      height: 6,
+                    },
+                  ]}
+                />
+              </View>
+            )}
+          </View>
+        </View>
+
         {/* Monthly Budget Overview - Unified Card */}
         {hasBudget && (
           <View style={[styles.budgetCard, { backgroundColor: colors.card }]}>
@@ -969,70 +1031,6 @@ export default function DashboardScreen({
             </View>
           </View>
         )}
-
-
-
-        {/* Quick Stats */}
-        <View style={styles.statsRow}>
-          <View style={[styles.statCard, { backgroundColor: colors.card }]}>
-            <View style={styles.statHeader}>
-              <Text style={[styles.statLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                {t('dashboard.savings') || 'Savings'}
-              </Text>
-              <TrendingUp size={16} color="#4CAF50" />
-            </View>
-            <View style={styles.statValueContainer}>
-              {!valuesHidden && (
-                <Text style={[styles.statCurrency, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                  {currency}
-                </Text>
-              )}
-              <Text style={[styles.statValue, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>
-                {formatValue(savings)}
-              </Text>
-            </View>
-          </View>
-          <View style={[styles.statCard, { backgroundColor: colors.card }]}>
-            <View style={styles.statHeader}>
-              <Text style={[styles.statLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                {t('dashboard.spendingRatio') || 'Spending Ratio'}
-              </Text>
-              <TrendingDown size={16} color={spendingRatioColor} />
-            </View>
-            <View style={styles.statValueContainer}>
-              {totalIncome > 0 ? (
-                <>
-                  <Text style={[styles.statValue, responsiveTextStyles.bodySmall, { color: spendingRatioColor }]}>
-                    {spendingRatio.toFixed(1)}%
-                  </Text>
-                  {!valuesHidden && (
-                    <Text style={[styles.statRatioText, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                      {t('dashboard.ofIncome') || 'of income'}
-                    </Text>
-                  )}
-                </>
-              ) : (
-                <Text style={[styles.statValue, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>
-                  N/A
-                </Text>
-              )}
-            </View>
-            {totalIncome > 0 && (
-              <View style={[styles.progressBar, { backgroundColor: '#e0e0e0' }]}>
-                <View
-                  style={[
-                    styles.progressFill,
-                    { 
-                      width: `${Math.min(spendingRatio, 100)}%`, 
-                      backgroundColor: spendingRatioColor,
-                      height: 6,
-                    },
-                  ]}
-                />
-              </View>
-            )}
-          </View>
-        </View>
 
         {/* Income vs Expense Chart */}
         <View style={[styles.chartCard, { backgroundColor: colors.card }]}>
