@@ -889,43 +889,6 @@ export default function DashboardScreen({
                   {periodLabel}
                 </Text>
               </View>
-              {/* Status Badge */}
-              <View style={[
-                styles.budgetStatusBadge,
-                { 
-                  backgroundColor: isOverBudget 
-                    ? 'rgba(255, 82, 82, 0.1)' 
-                    : budgetUsedPercentage >= 80 
-                    ? 'rgba(255, 152, 0, 0.1)' 
-                    : 'rgba(76, 175, 80, 0.1)'
-                }
-              ]}>
-                {isOverBudget ? (
-                  <AlertCircle size={14} color={colors.destructive} />
-                ) : budgetUsedPercentage >= 80 ? (
-                  <AlertCircle size={14} color="#FF9800" />
-                ) : (
-                  <CheckCircle size={14} color={colors.success} />
-                )}
-                <Text style={[
-                  styles.budgetStatusText, 
-                  responsiveTextStyles.caption, 
-                  { 
-                    color: isOverBudget 
-                      ? colors.destructive 
-                      : budgetUsedPercentage >= 80 
-                      ? '#FF9800' 
-                      : colors.success,
-                    marginLeft: 4 
-                  }
-                ]}>
-                  {isOverBudget 
-                    ? t('dashboard.overBudget') || 'Over Budget'
-                    : budgetUsedPercentage >= 80
-                    ? t('dashboard.nearLimit') || 'Near Limit'
-                    : t('dashboard.onTrack') || 'On Track'}
-                </Text>
-              </View>
             </View>
 
             {/* Budget Summary Row */}
