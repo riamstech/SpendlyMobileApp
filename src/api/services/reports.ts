@@ -89,8 +89,8 @@ export const reportsService = {
     // Get token and language for headers
     const token = await apiClient.getTokenAsync();
     
-    // Import i18n to get current language
-    const { i18n } = await import('react-i18next');
+    // Import the configured i18n instance to get current language
+    const i18n = (await import('../../i18n')).default;
     const language = i18n.language || 'en';
     
     // Build query string manually to ensure compatibility across all React Native platforms
