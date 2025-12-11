@@ -47,7 +47,7 @@ interface AnalyticsScreenProps {
 type TabType = 'insights' | 'categories' | 'trends' | 'health';
 
 export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const { width } = useWindowDimensions();
   const { isDark, colors } = useTheme();
   
@@ -59,14 +59,26 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
   const [spendingTrends, setSpendingTrends] = useState<SpendingTrend[]>([]);
   const [healthScore, setHealthScore] = useState<HealthScore | null>(null);
   const [showImprovementTips, setShowImprovementTips] = useState(false);
+  const [languageKey, setLanguageKey] = useState(i18n.language); // Force re-render on language change
 
   const responsiveTextStyles = createResponsiveTextStyles(width);
   
-
+  // Listen to language changes and force re-render
+  useEffect(() => {
+    const handleLanguageChange = (lng: string) => {
+      setLanguageKey(lng);
+    };
+    
+    i18n.on('languageChanged', handleLanguageChange);
+    
+    return () => {
+      i18n.off('languageChanged', handleLanguageChange);
+    };
+  }, [i18n]);
 
   useEffect(() => {
     loadAnalytics();
-  }, []);
+  }, [languageKey]);
 
   const loadAnalytics = async () => {
     try {
