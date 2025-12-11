@@ -141,6 +141,51 @@ export default function InvestmentsScreen() {
     { key: 'dividend', label: t('investments.typeDividend') },
   ];
 
+  // Helper function to translate investment type
+  const translateInvestmentType = (type: string): string => {
+    if (!type) return '';
+    
+    const lowerType = type.toLowerCase();
+    
+    // Map common variations to translation keys
+    const typeMap: { [key: string]: string } = {
+      'longterm': 'typeLongTerm',
+      'long-term': 'typeLongTerm',
+      'shortterm': 'typeShortTerm',
+      'short-term': 'typeShortTerm',
+      'fixedincome': 'typeFixedIncome',
+      'fixed-income': 'typeFixedIncome',
+      'growth': 'typeGrowth',
+      'dividend': 'typeDividend',
+      'equity': 'typeEquity',
+      'bond': 'typeBond',
+      'bonds': 'typeBond',
+      'stock': 'typeStock',
+      'stocks': 'typeStock',
+    };
+    
+    // Normalize the type key (handle variations)
+    const normalizedType = lowerType.replace(/[^a-z0-9]/g, '');
+    
+    // Check original type first, then normalized
+    const translationKey = typeMap[lowerType] || typeMap[normalizedType] || `type${type.charAt(0).toUpperCase() + type.slice(1).toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+    const translated = t(`investments.${translationKey}`, { defaultValue: null });
+    
+    // If translation exists and is different from the key, return it
+    if (translated && translated !== `investments.${translationKey}`) {
+      return translated;
+    }
+    
+    // Fallback to finding in investmentTypes array
+    const foundType = investmentTypes.find(it => it.key === type || it.key === lowerType || it.key === normalizedType);
+    if (foundType) {
+      return foundType.label;
+    }
+    
+    // Final fallback: return the original type
+    return type;
+  };
+
   useEffect(() => {
     loadInitialData();
   }, []);
@@ -1330,7 +1375,7 @@ export default function InvestmentsScreen() {
                             {category ? translateCategoryName(category.name, t, (category as any).original_name) : ''}
                           </Text>
                           <Text style={[styles.investmentMetaDot, { color: colors.mutedForeground }]}>•</Text>
-                          <Text style={[styles.investmentMetaText, { color: colors.mutedForeground }]}>{investment.type}</Text>
+                          <Text style={[styles.investmentMetaText, { color: colors.mutedForeground }]}>{translateInvestmentType(investment.type)}</Text>
                           {investment.recurring && (
                             <>
                               <Text style={[styles.investmentMetaDot, { color: colors.mutedForeground }]}>•</Text>

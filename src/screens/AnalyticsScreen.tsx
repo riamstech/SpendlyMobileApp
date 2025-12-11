@@ -250,6 +250,91 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
     return message;
   };
 
+  // Translate month labels like "Oct 2025" to localized format
+  const translateMonthLabel = (label: string): string => {
+    // Match patterns like "Oct 2025", "Nov 2025", "Dec 2025"
+    const monthYearMatch = label.match(/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{4})$/i);
+    if (monthYearMatch) {
+      const monthAbbr = monthYearMatch[1];
+      const year = monthYearMatch[2];
+      
+      // Map English month abbreviations to translation keys
+      const monthMap: { [key: string]: string } = {
+        'Jan': 'january',
+        'Feb': 'february',
+        'Mar': 'march',
+        'Apr': 'april',
+        'May': 'may',
+        'Jun': 'june',
+        'Jul': 'july',
+        'Aug': 'august',
+        'Sep': 'september',
+        'Oct': 'october',
+        'Nov': 'november',
+        'Dec': 'december',
+      };
+      
+      const monthKey = monthMap[monthAbbr];
+      if (monthKey) {
+        const translatedMonth = t(`common.months.${monthKey}`, { defaultValue: monthAbbr });
+        return `${translatedMonth} ${year}`;
+      }
+    }
+    
+    // If no match, return original label
+    return label;
+  };
+
+  // Translate health score factor values
+  const translateFactorValue = (value: string): string => {
+    if (!value) return '';
+    
+    // Match "X transactions" pattern
+    const transactionsMatch = value.match(/^(\d+)\s+transactions?$/i);
+    if (transactionsMatch) {
+      return t('analytics.factorTransactions', { 
+        count: transactionsMatch[1],
+        defaultValue: `${transactionsMatch[1]} transactions`
+      });
+    }
+    
+    // Match "X/Y months active" pattern
+    const monthsActiveMatch = value.match(/^(\d+)\/(\d+)\s+months?\s+active$/i);
+    if (monthsActiveMatch) {
+      return t('analytics.factorMonthsActive', { 
+        active: monthsActiveMatch[1],
+        total: monthsActiveMatch[2],
+        defaultValue: `${monthsActiveMatch[1]}/${monthsActiveMatch[2]} months active`
+      });
+    }
+    
+    // Match "(X months)" pattern
+    const monthsMatch = value.match(/^\((\d+)\s+months?\)$/i);
+    if (monthsMatch) {
+      return t('analytics.factorMonths', { 
+        count: monthsMatch[1],
+        defaultValue: `(${monthsMatch[1]} months)`
+      });
+    }
+    
+    // Match "Try to save at least X% of your income each month."
+    const saveRecommendationMatch = value.match(/Try to save at least ([\d.]+)% of your income each month\./i);
+    if (saveRecommendationMatch) {
+      return t('analytics.recommendationSavePercentage', { 
+        percentage: saveRecommendationMatch[1],
+        defaultValue: `Try to save at least ${saveRecommendationMatch[1]}% of your income each month.`
+      });
+    }
+    
+    // Return original value if no pattern matches
+    return value;
+  };
+
+  // Translate recommendations
+  const translateRecommendation = (recommendation: string): string => {
+    return translateFactorValue(recommendation);
+  };
+
   const themedStyles = {
     container: { backgroundColor: colors.background },
     card: { backgroundColor: colors.card },
@@ -341,7 +426,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
               <View style={[styles.emptyCard, themedStyles.card]}>
                 <BarChart3 size={48} color={colors.mutedForeground} style={{ opacity: 0.3 }} />
                 <Text style={[styles.emptyText, themedStyles.textMuted]}>
-                  No insights available yet
+                  {t('analytics.noInsightsAvailable', { defaultValue: 'No insights available yet' })}
                 </Text>
               </View>
             ) : (
@@ -386,7 +471,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
               <View style={[styles.emptyCard, themedStyles.card]}>
                 <BarChart3 size={48} color={colors.mutedForeground} style={{ opacity: 0.3 }} />
                 <Text style={[styles.emptyText, themedStyles.textMuted]}>
-                  No spending data for this period
+                  {t('analytics.noSpendingData', { defaultValue: 'No spending data for this period' })}
                 </Text>
               </View>
             ) : (
@@ -449,7 +534,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
               <View style={[styles.emptyCard, themedStyles.card]}>
                 <TrendingUp size={48} color={colors.mutedForeground} style={{ opacity: 0.3 }} />
                 <Text style={[styles.emptyText, themedStyles.textMuted]}>
-                  No trend data available
+                  {t('analytics.noTrendData', { defaultValue: 'No trend data available' })}
                 </Text>
               </View>
             ) : (
@@ -459,7 +544,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
                   <View key={index} style={[styles.trendCard, themedStyles.card]}>
                     <View style={styles.trendHeader}>
                       <Text style={[styles.trendLabel, themedStyles.text]}>
-                        {trend.label}
+                        {translateMonthLabel(trend.label)}
                       </Text>
                       <Text
                         style={[
@@ -547,7 +632,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
                       {translateFactorName(factor.name)}
                     </Text>
                     <Text style={[styles.factorValue, themedStyles.textMuted]}>
-                      {factor.value}
+                      {translateFactorValue(factor.value)}
                     </Text>
                   </View>
                   <View style={styles.factorRight}>
@@ -594,7 +679,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
                 <View key={index} style={styles.recommendationItem}>
                   <Text style={styles.recommendationBullet}>•</Text>
                   <Text style={[styles.recommendationText, themedStyles.text]}>
-                    {rec}
+                    {translateRecommendation(rec)}
                   </Text>
                 </View>
               ))}

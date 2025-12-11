@@ -235,11 +235,18 @@
     "tipTracking": "💡 <strong>Tip:</strong> Track at least 20 transactions per month. Use the app regularly to log all your income and expenses for better insights.",
     "tipConsistency": "💡 <strong>Tip:</strong> Make tracking a daily habit. Set a reminder to log transactions regularly to maintain consistency.",
     "tipEmergency": "💡 <strong>Tip:</strong> Build an emergency fund that covers 3-6 months of expenses. Start by saving a small amount each month and gradually increase it.",
-    "actionTrack": "Track all transactions daily for better consistency",
-    "actionReview": "Review your spending patterns and identify unnecessary expenses",
-    "actionGoal": "Set up a monthly savings goal and stick to it",
-    "actionEmergency": "Create an emergency fund investment category and contribute regularly",
-    "actionBudget": "Use the budget feature to plan and control your spending"
+    "actionTrack": "تتبع جميع المعاملات يوميًا لتحسين الاتساق",
+    "actionReview": "راجع أنماط إنفاقك وتحديد النفقات غير الضرورية",
+    "actionGoal": "قم بإعداد هدف توفير شهري والتزم به",
+    "actionEmergency": "أنشئ فئة استثمار صندوق طوارئ وشارك بانتظام",
+    "actionBudget": "استخدم ميزة الميزانية للتخطيط والتحكم في إنفاقك",
+    "noInsightsAvailable": "لا توجد رؤى متاحة بعد",
+    "noSpendingData": "لا توجد بيانات إنفاق لهذه الفترة",
+    "noTrendData": "لا توجد بيانات اتجاه متاحة",
+    "factorTransactions": "{{count}} معاملة",
+    "factorMonthsActive": "{{active}}/{{total}} أشهر نشطة",
+    "factorMonths": "({{count}} أشهر)",
+    "recommendationSavePercentage": "حاول توفير ما لا يقل عن {{percentage}}% من دخلك كل شهر."
   },
   "insights": {
     "amount": "المبلغ ($)",
@@ -282,6 +289,9 @@
     "typeFixedIncome": "دخل ثابت",
     "typeGrowth": "نمو",
     "typeDividend": "أرباح",
+    "typeEquity": "حقوق الملكية",
+    "typeBond": "سند",
+    "typeStock": "أسهم",
     "namePlaceholder": "e.g., Apple Stock, Bitcoin",
     "datePlaceholder": "YYYY-MM-DD",
     "loadError": "Failed to load investments. Please try again.",
@@ -611,7 +621,21 @@
     "info": "معلومات",
     "deleting": "جاري الحذف...",
     "view": "عرض",
-    "dismiss": "رفض"
+    "dismiss": "رفض",
+    "months": {
+      "january": "يناير",
+      "february": "فبراير",
+      "march": "مارس",
+      "april": "أبريل",
+      "may": "مايو",
+      "june": "يونيو",
+      "july": "يوليو",
+      "august": "أغسطس",
+      "september": "سبتمبر",
+      "october": "أكتوبر",
+      "november": "نوفمبر",
+      "december": "ديسمبر"
+    }
   },
   "onboarding": {
     "welcomeToSpendly": "Welcome to Spendly",

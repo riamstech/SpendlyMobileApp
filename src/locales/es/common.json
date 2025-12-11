@@ -239,7 +239,14 @@
     "actionReview": "Review your spending patterns and identify unnecessary expenses",
     "actionGoal": "Set up a monthly savings goal and stick to it",
     "actionEmergency": "Create an emergency fund investment category and contribute regularly",
-    "actionBudget": "Use the budget feature to plan and control your spending"
+    "actionBudget": "Use the budget feature to plan and control your spending",
+    "noInsightsAvailable": "No hay información disponible aún",
+    "noSpendingData": "No hay datos de gastos para este período",
+    "noTrendData": "No hay datos de tendencias disponibles",
+    "factorTransactions": "{{count}} transacciones",
+    "factorMonthsActive": "{{active}}/{{total}} meses activos",
+    "factorMonths": "({{count}} meses)",
+    "recommendationSavePercentage": "Intenta ahorrar al menos {{percentage}}% de tus ingresos cada mes."
   },
   "insights": {
     "amount": "Cantidad ($)",
@@ -282,6 +289,9 @@
     "typeFixedIncome": "Renta Fija",
     "typeGrowth": "Crecimiento",
     "typeDividend": "Dividendo",
+    "typeEquity": "Capital",
+    "typeBond": "Bono",
+    "typeStock": "Acciones",
     "loadError": "No se pudieron cargar las inversiones. Inténtalo de nuevo.",
     "requiredFieldsError": "Por favor completa todos los campos obligatorios.",
     "updateSuccess": "La inversión se actualizó correctamente.",
@@ -792,7 +802,21 @@
     "info": "Información",
     "deleting": "Eliminando...",
     "view": "Ver",
-    "dismiss": "Descartar"
+    "dismiss": "Descartar",
+    "months": {
+      "january": "Ene",
+      "february": "Feb",
+      "march": "Mar",
+      "april": "Abr",
+      "may": "May",
+      "june": "Jun",
+      "july": "Jul",
+      "august": "Ago",
+      "september": "Sep",
+      "october": "Oct",
+      "november": "Nov",
+      "december": "Dic"
+    }
   },
   "errorBoundary": {
     "somethingWentWrong": "Algo salió mal",

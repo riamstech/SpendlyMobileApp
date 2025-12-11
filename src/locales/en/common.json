@@ -244,7 +244,14 @@
     "actionReview": "Review your spending patterns and identify unnecessary expenses",
     "actionGoal": "Set up a monthly savings goal and stick to it",
     "actionEmergency": "Create an emergency fund investment category and contribute regularly",
-    "actionBudget": "Use the budget feature to plan and control your spending"
+    "actionBudget": "Use the budget feature to plan and control your spending",
+    "noInsightsAvailable": "No insights available yet",
+    "noSpendingData": "No spending data for this period",
+    "noTrendData": "No trend data available",
+    "factorTransactions": "{{count}} transactions",
+    "factorMonthsActive": "{{active}}/{{total}} months active",
+    "factorMonths": "({{count}} months)",
+    "recommendationSavePercentage": "Try to save at least {{percentage}}% of your income each month."
   },
   "insights": {
     "amount": "Amount ($)",
@@ -289,6 +296,9 @@
     "typeFixedIncome": "Fixed Income",
     "typeGrowth": "Growth",
     "typeDividend": "Dividend",
+    "typeEquity": "Equity",
+    "typeBond": "Bond",
+    "typeStock": "Stocks",
     "loadError": "Failed to load investments. Please try again.",
     "requiredFieldsError": "Please fill in all required fields.",
     "updateSuccess": "Investment updated successfully.",
@@ -808,7 +818,21 @@
     "deleting": "Deleting...",
     "view": "View",
     "dismiss": "Dismiss",
-    "filter": "Filter"
+    "filter": "Filter",
+    "months": {
+      "january": "Jan",
+      "february": "Feb",
+      "march": "Mar",
+      "april": "Apr",
+      "may": "May",
+      "june": "Jun",
+      "july": "Jul",
+      "august": "Aug",
+      "september": "Sep",
+      "october": "Oct",
+      "november": "Nov",
+      "december": "Dec"
+    }
   },
   "errorBoundary": {
     "somethingWentWrong": "Something went wrong",

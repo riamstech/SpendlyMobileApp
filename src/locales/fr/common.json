@@ -239,7 +239,14 @@
     "actionReview": "Review your spending patterns and identify unnecessary expenses",
     "actionGoal": "Set up a monthly savings goal and stick to it",
     "actionEmergency": "Create an emergency fund investment category and contribute regularly",
-    "actionBudget": "Use the budget feature to plan and control your spending"
+    "actionBudget": "Utilisez la fonction budget pour planifier et contrôler vos dépenses",
+    "noInsightsAvailable": "Aucune information disponible pour le moment",
+    "noSpendingData": "Aucune donnée de dépenses pour cette période",
+    "noTrendData": "Aucune donnée de tendance disponible",
+    "factorTransactions": "{{count}} transactions",
+    "factorMonthsActive": "{{active}}/{{total}} mois actifs",
+    "factorMonths": "({{count}} mois)",
+    "recommendationSavePercentage": "Essayez d'économiser au moins {{percentage}}% de vos revenus chaque mois."
   },
   "insights": {
     "amount": "Montant ($)",
@@ -282,6 +289,9 @@
     "typeFixedIncome": "Revenu Fixe",
     "typeGrowth": "Croissance",
     "typeDividend": "Dividende",
+    "typeEquity": "Actions",
+    "typeBond": "Obligation",
+    "typeStock": "Actions",
     "namePlaceholder": "e.g., Apple Stock, Bitcoin",
     "datePlaceholder": "YYYY-MM-DD",
     "loadError": "Failed to load investments. Please try again.",
@@ -611,7 +621,21 @@
     "info": "Info",
     "deleting": "Suppression...",
     "view": "Voir",
-    "dismiss": "Rejeter"
+    "dismiss": "Rejeter",
+    "months": {
+      "january": "Jan",
+      "february": "Fév",
+      "march": "Mar",
+      "april": "Avr",
+      "may": "Mai",
+      "june": "Jun",
+      "july": "Juil",
+      "august": "Aoû",
+      "september": "Sep",
+      "october": "Oct",
+      "november": "Nov",
+      "december": "Déc"
+    }
   },
   "onboarding": {
     "welcomeToSpendly": "Welcome to Spendly",
