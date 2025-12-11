@@ -167,7 +167,7 @@ export default function ReportsScreen() {
       // Process user currency
       const defaultCurrency = userData.defaultCurrency || 'USD';
       setCurrency(defaultCurrency);
-      setSelectedCurrency('ALL');
+      setSelectedCurrency(defaultCurrency); // Default to user's base currency
 
       // Categories are now loaded via useCategories hook, skip manual setting
 
