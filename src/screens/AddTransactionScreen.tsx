@@ -417,7 +417,7 @@ export default function AddTransactionScreen({
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                     <ActivityIndicator size="small" color={colors.primary} />
                     <Text style={[styles.selectButtonText, { color: colors.mutedForeground }]}>
-                      {t('addTransaction.loadingCurrencies') || 'Loading...'}
+                      {t('addTransaction.loadingCurrencies', { defaultValue: 'Loading...' })}
                     </Text>
                   </View>
                 ) : (
@@ -583,7 +583,7 @@ export default function AddTransactionScreen({
                 keyboardType="number-pad"
               />
               <Text style={[styles.hintTeat, { color: colors.mutedForeground, marginTop: 4, ...textStyles.caption }]}>
-                Days before due date to remind you
+                {t('addTransaction.reminderDaysHint', { defaultValue: 'Days before due date to remind you' })}
               </Text>
             </View>
           )}
@@ -616,7 +616,7 @@ export default function AddTransactionScreen({
                   onPress={() => openDatePicker('warranty')}
                 >
                   <Text style={{ flex: 1, color: warrantyExpiryDate ? colors.foreground : colors.mutedForeground }}>
-                    {warrantyExpiryDate || 'YYYY-MM-DD'}
+                    {warrantyExpiryDate || t('addTransaction.datePlaceholder', { defaultValue: 'YYYY-MM-DD' })}
                   </Text>
                   <Calendar size={18 * scale} color={colors.mutedForeground} />
                 </Pressable>
@@ -678,7 +678,7 @@ export default function AddTransactionScreen({
                     onPress={() => openDatePicker('loan')}
                   >
                      <Text style={{ flex: 1, color: loanEndDate ? colors.foreground : colors.mutedForeground }}>
-                      {loanEndDate || 'YYYY-MM-DD'}
+                      {loanEndDate || t('addTransaction.datePlaceholder', { defaultValue: 'YYYY-MM-DD' })}
                     </Text>
                     <Calendar size={18 * scale} color={colors.mutedForeground} />
                   </Pressable>
@@ -784,7 +784,7 @@ export default function AddTransactionScreen({
                       }
                     ]}
                   >
-                    {cat.name}
+                    {translateCategoryName(cat.name, t, cat.original_name)}
                   </Text>
                 </Pressable>
               );
@@ -828,7 +828,7 @@ export default function AddTransactionScreen({
                     color: colors.foreground,
                   }
                 ]}
-                placeholder={t('addTransaction.searchCurrency') || 'Search currency...'}
+                placeholder={t('addTransaction.searchCurrency', { defaultValue: 'Search currency...' })}
                 placeholderTextColor={colors.mutedForeground}
                 value={currencySearch}
                 onChangeText={setCurrencySearch}
@@ -838,11 +838,11 @@ export default function AddTransactionScreen({
               {loadingCurrencies ? (
                 <View style={styles.loadingContainer}>
                   <ActivityIndicator size="small" color={colors.primary} />
-                  <Text style={[styles.loadingText, { color: colors.foreground }]}>{t('addTransaction.loadingCurrencies') || 'Loading currencies...'}</Text>
+                  <Text style={[styles.loadingText, { color: colors.foreground }]}>{t('addTransaction.loadingCurrencies', { defaultValue: 'Loading currencies...' })}</Text>
                 </View>
               ) : currencies.length === 0 ? (
                 <View style={styles.loadingContainer}>
-                  <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>{t('addTransaction.noCurrenciesAvailable') || 'No currencies available'}</Text>
+                  <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>{t('addTransaction.noCurrenciesAvailable', { defaultValue: 'No currencies available' })}</Text>
                 </View>
               ) : (
                 currencies

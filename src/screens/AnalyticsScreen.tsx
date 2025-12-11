@@ -188,6 +188,68 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
     return titleMap[title] || title;
   };
 
+  const translateInsightMessage = (message: string): string => {
+    // Match "You're saving X% of your income this month."
+    const savingsRateMatch = message.match(/You're saving ([\d.]+)% of your income this month\./i);
+    if (savingsRateMatch) {
+      return t('analytics.insightSavingPercentage', { 
+        percentage: savingsRateMatch[1],
+        defaultValue: `You're saving ${savingsRateMatch[1]}% of your income this month.`
+      });
+    }
+    
+    // Match "You've spent X% less compared to last month."
+    const spendingTrendMatch = message.match(/You've spent ([\d.]+)% less compared to last month\./i);
+    if (spendingTrendMatch) {
+      return t('analytics.insightSpendingLess', { 
+        percentage: spendingTrendMatch[1],
+        defaultValue: `You've spent ${spendingTrendMatch[1]}% less compared to last month.`
+      });
+    }
+    
+    // Match "You've spent X% more compared to last month."
+    const spendingMoreMatch = message.match(/You've spent ([\d.]+)% more compared to last month\./i);
+    if (spendingMoreMatch) {
+      return t('analytics.insightSpendingMore', { 
+        percentage: spendingMoreMatch[1],
+        defaultValue: `You've spent ${spendingMoreMatch[1]}% more compared to last month.`
+      });
+    }
+    
+    // Match "At your current pace, you'll spend $X this month."
+    const spendingPaceMatch = message.match(/At your current pace, you'll spend \$?([\d,]+\.?\d*) this month\./i);
+    if (spendingPaceMatch) {
+      return t('analytics.insightSpendingPace', { 
+        amount: spendingPaceMatch[1],
+        defaultValue: `At your current pace, you'll spend $${spendingPaceMatch[1]} this month.`
+      });
+    }
+    
+    // Match "Great job! Your emergency fund covers X months of expenses."
+    const emergencyFundMatch = message.match(/Great job! Your emergency fund covers ([\d.]+) months? of expenses\./i);
+    if (emergencyFundMatch) {
+      return t('analytics.insightEmergencyFund', { 
+        months: emergencyFundMatch[1],
+        defaultValue: `Great job! Your emergency fund covers ${emergencyFundMatch[1]} months of expenses.`
+      });
+    }
+    
+    // Match "X is your biggest expense at Y% of total spending."
+    const topCategoryMatch = message.match(/(.+?) is your biggest expense at ([\d.]+)% of total spending\./i);
+    if (topCategoryMatch) {
+      const categoryName = topCategoryMatch[1];
+      const translatedCategory = translateCategoryName(categoryName, t);
+      return t('analytics.insightTopCategory', { 
+        category: translatedCategory, 
+        percentage: topCategoryMatch[2],
+        defaultValue: `${translatedCategory} is your biggest expense at ${topCategoryMatch[2]}% of total spending.`
+      });
+    }
+    
+    // If message doesn't match any pattern, return original message
+    return message;
+  };
+
   const themedStyles = {
     container: { backgroundColor: colors.background },
     card: { backgroundColor: colors.card },
@@ -304,7 +366,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
                         {translateInsightTitle(insight.title)}
                       </Text>
                       <Text style={[styles.insightMessage, { color: sentimentStyles.text }]}>
-                        {insight.message}
+                        {translateInsightMessage(insight.message)}
                       </Text>
                     </View>
                   </View>

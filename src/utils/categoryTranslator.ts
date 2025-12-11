@@ -21,25 +21,25 @@ export function translateCategoryName(
     return categoryName; // Backend already translated it
   }
   
-  // Priority 2: Try frontend translation for custom categories or fallback cases
-  // Normalize the name for translation key lookup
+  // Priority 2: Try frontend translation using original name (if available) or category name
+  // Always use originalName for translation lookup if available, as it's the English name
   const nameToTranslate = originalName || categoryName;
+  
+  // Normalize the name for translation key lookup (remove spaces, special chars, lowercase)
   const normalizedName = nameToTranslate.toLowerCase().replace(/[^a-z0-9]/g, '');
   const translationKey = `categories.${normalizedName}`;
   
   // Try to translate using i18n
-  const translated = t(translationKey, { defaultValue: categoryName });
+  const translated = t(translationKey, { defaultValue: null });
   
-  // If translation exists and is different from the key, use it
-  if (translated && translated !== translationKey && translated !== categoryName) {
+  // If translation exists and is different from the key and the original name, use it
+  if (translated && translated !== translationKey && translated !== nameToTranslate) {
     return translated;
   }
   
-  // Priority 3: Fallback to original name with capitalized first letter
-  // Handle multi-word names (e.g., "Dining Out" -> "Dining Out")
-  return categoryName
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
+  // Priority 3: If backend didn't translate and frontend translation doesn't exist,
+  // return the category name as-is (it might already be translated by backend)
+  // or return the original name if available
+  return originalName || categoryName;
 }
 

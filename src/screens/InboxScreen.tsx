@@ -58,7 +58,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
       setNotifications(notificationsList);
     } catch (error) {
       console.error('Failed to load notifications:', error);
-      showToast.error(t('inbox.failedToLoad') || 'Failed to load notifications', 'Error');
+      showToast.error(t('inbox.failedToLoad', { defaultValue: 'Failed to load notifications' }), t('common.error', { defaultValue: 'Error' }));
     } finally {
       setLoading(false);
     }
@@ -80,7 +80,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
       // No need to reload, we updated locally. But can reload silently if needed.
     } catch (error) {
       console.error('Failed to mark as read:', error);
-      showToast.error(t('inbox.errorMarkingRead') || 'Failed to mark as read', 'Error');
+      showToast.error(t('inbox.errorMarkingRead', { defaultValue: 'Failed to mark as read' }), t('common.error', { defaultValue: 'Error' }));
       // Revert if failed (optional, but good practice)
       loadNotifications(); 
     }
@@ -93,7 +93,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
       await loadNotifications();
     } catch (error) {
       console.error('Failed to mark all as read:', error);
-      showToast.error(t('inbox.errorMarkingAllRead') || 'Failed to mark all as read', 'Error');
+      showToast.error(t('inbox.errorMarkingAllRead', { defaultValue: 'Failed to mark all as read' }), t('common.error', { defaultValue: 'Error' }));
     } finally {
       setLoading(false);
     }
@@ -101,12 +101,12 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
 
   const handleDelete = async (id: number) => {
     Alert.alert(
-      t('common.delete') || 'Delete',
-      t('inbox.confirmDelete') || 'Are you sure you want to delete this notification?',
+      t('common.delete', { defaultValue: 'Delete' }),
+      t('inbox.confirmDelete', { defaultValue: 'Are you sure you want to delete this notification?' }),
       [
-        { text: t('common.cancel') || 'Cancel', style: 'cancel' },
+        { text: t('common.cancel', { defaultValue: 'Cancel' }), style: 'cancel' },
         {
-          text: t('common.delete') || 'Delete',
+          text: t('common.delete', { defaultValue: 'Delete' }),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -115,7 +115,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
               await loadNotifications();
             } catch (error) {
               console.error('Failed to delete:', error);
-              showToast.error(t('inbox.errorDeleting') || 'Failed to delete notification', 'Error');
+              showToast.error(t('inbox.errorDeleting', { defaultValue: 'Failed to delete notification' }), t('common.error', { defaultValue: 'Error' }));
             } finally {
               setDeletingId(null);
             }
@@ -212,7 +212,7 @@ export default function InboxScreen({ onBack }: InboxScreenProps) {
         <StatusBar style={isDark ? 'light' : 'dark'} />
         <LoadingSpinner 
           size="large" 
-          text={t('common.loading') || 'Loading...'} 
+          text={t('common.loading', { defaultValue: 'Loading...' })} 
           fullScreen={true}
         />
       </SafeAreaView>

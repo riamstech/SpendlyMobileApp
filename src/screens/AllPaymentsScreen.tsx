@@ -30,6 +30,7 @@ import { formatDateForDisplay } from '../api/utils/dateUtils';
 import { useTheme } from '../contexts/ThemeContext';
 import { CategoryIcon } from '../components/CategoryIcon';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { translateCategoryName } from '../utils/categoryTranslator';
 
 interface AllPaymentsScreenProps {
   onBack: () => void;
@@ -41,7 +42,8 @@ interface UpcomingPayment {
   amount: number;
   currency: string;
   dueDate: string;
-  category: string;
+  category: string; // Translated category name from backend
+  original_category?: string; // Original English category name (for reference)
   icon?: string;
   type: 'income' | 'expense';
 }
@@ -93,7 +95,8 @@ export default function AllPaymentsScreen({ onBack }: AllPaymentsScreenProps) {
         amount: payment.amount || 0,
         currency: payment.currency || defaultCurrency,
         dueDate: formatDateForDisplay(payment.nextDueDate || payment.dueDate, i18n.language),
-        category: payment.category || t('categories.others', { defaultValue: 'Other' }),
+        category: payment.category || payment.original_category || t('categories.others', { defaultValue: 'Other' }), // Use translated category from backend
+        original_category: payment.original_category, // Keep original for reference
         icon: payment.icon,
         type: payment.type || 'expense',
       }));
@@ -207,7 +210,7 @@ export default function AllPaymentsScreen({ onBack }: AllPaymentsScreenProps) {
                       </Text>
                       <View style={styles.paymentMeta}>
                         <Text style={[styles.paymentCategory, { color: colors.mutedForeground }]}>
-                          {payment.category}
+                          {translateCategoryName(payment.category, t, payment.original_category)}
                         </Text>
                         <Text style={[styles.paymentSeparator, { color: colors.mutedForeground }]}>•</Text>
                         <Text style={[styles.paymentDate, { color: '#FFC107' }]}>

@@ -47,7 +47,8 @@ interface Transaction {
   type: 'income' | 'expense';
   amount: number;
   currency: string;
-  category: string;
+  category: string; // Translated category name from backend
+  original_category?: string; // Original English category name (for filtering/matching)
   description: string;
   date: string;
   convertedAmount?: number;
@@ -262,7 +263,8 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
           type: tx.type as 'income' | 'expense',
           amount,
           currency: txCurrency,
-          category: tx.category || t('categories.others', { defaultValue: 'Uncategorized' }),
+          category: tx.category || tx.original_category || t('categories.others', { defaultValue: 'Uncategorized' }), // Use translated category from backend
+          original_category: tx.original_category, // Keep original for filtering/matching
           description: tx.notes || tx.description || t('dashboard.transactions', { defaultValue: 'Transaction' }),
           date: formatDateForDisplay(dateStr, i18n.language),
           convertedAmount,
@@ -646,7 +648,7 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
                     {transaction.description}
                   </Text>
                   <Text style={[styles.transactionMeta, responsiveTextStyles.small, { color: colors.mutedForeground }]}>
-                    {translateCategoryName(transaction.category, t)} • {transaction.date}
+                    {translateCategoryName(transaction.category, t, transaction.original_category)} • {transaction.date}
                   </Text>
                 </View>
                 <View style={styles.transactionActions}>
@@ -738,11 +740,12 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
                   key={category.id}
                   style={styles.modalItem}
                   onPress={() => {
-                    setFilterCategory(category.id);
+                    // Use translated category name for filtering (matches tx.category from backend)
+                    setFilterCategory(category.name);
                     setShowCategoryModal(false);
                   }}
                 >
-                  <Text style={[styles.modalItemText, filterCategory === category.id && styles.modalItemTextActive]}>
+                  <Text style={[styles.modalItemText, filterCategory === category.name && styles.modalItemTextActive]}>
                     {translateCategoryName(category.name, t, (category as any).original_name)}
                   </Text>
                 </Pressable>

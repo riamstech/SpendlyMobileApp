@@ -57,7 +57,8 @@ interface Transaction {
   type: 'income' | 'expense';
   amount: number;
   currency: string;
-  category: string;
+  category: string; // Translated category name from backend
+  original_category?: string; // Original English category name (for reference)
   description: string;
   date: string;
   convertedAmount?: number;
@@ -72,7 +73,8 @@ interface UpcomingPayment {
   amount: number;
   currency: string;
   dueDate: string;
-  category: string;
+  category: string; // Translated category name from backend
+  original_category?: string; // Original English category name (for reference)
   convertedAmount?: number;
   defaultCurrency?: string;
   showConversion?: boolean;
@@ -138,7 +140,7 @@ export default function DashboardScreen({
 
   useEffect(() => {
     loadDashboardData();
-  }, []);
+  }, [i18n.language]); // Reload when language changes
 
   const loadDashboardData = async () => {
     try {
@@ -333,7 +335,8 @@ export default function DashboardScreen({
             type: tx.type as 'income' | 'expense',
             amount,
             currency: txCurrency,
-            category: tx.category || 'Uncategorized',
+            category: tx.category || tx.original_category || 'Uncategorized', // Use translated category from backend
+            original_category: tx.original_category, // Preserve original for reference
             description: tx.notes || tx.description || 'Transaction',
             date: dateStr,
             convertedAmount,
@@ -347,6 +350,7 @@ export default function DashboardScreen({
       // Process Upcoming Payments
       if (upcoming) {
         const payments = upcoming.map((p: any) => {
+          // p.category should already be translated by backend, but preserve original_category
           const dateStr = p.dueDate || p.nextDueDate || new Date().toISOString();
           const paymentAmount = p.amount || 0;
           const paymentCurrency = p.currency || defaultCurrency;
@@ -366,7 +370,8 @@ export default function DashboardScreen({
             amount: paymentAmount,
             currency: paymentCurrency,
             dueDate: formatDateForDisplay(dateStr, i18n.language),
-            category: p.category || 'Uncategorized',
+            category: p.category || p.original_category || 'Uncategorized', // Use translated category from backend
+            original_category: p.original_category, // Preserve original for reference
             convertedAmount,
             defaultCurrency: targetCurrency,
             showConversion: !isDefaultCurrency,
@@ -437,7 +442,7 @@ export default function DashboardScreen({
   };
 
   const formatNotificationTime = (timeString: string): string => {
-    if (!timeString) return t('inbox.justNow') || 'Just now';
+    if (!timeString) return t('inbox.justNow', { defaultValue: 'Just now' });
     try {
       const date = new Date(timeString);
       if (isNaN(date.getTime())) return timeString;
@@ -445,18 +450,18 @@ export default function DashboardScreen({
       const now = new Date();
       const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
       
-      if (diffInSeconds < 60) return t('inbox.justNow') || 'Just now';
+      if (diffInSeconds < 60) return t('inbox.justNow', { defaultValue: 'Just now' });
       if (diffInSeconds < 3600) {
         const minutes = Math.floor(diffInSeconds / 60);
-        return `${minutes} ${t('inbox.minutesAgo') || 'minutes ago'}`;
+        return t('inbox.minutesAgo', { count: minutes, defaultValue: `${minutes} minutes ago` });
       }
       if (diffInSeconds < 86400) {
         const hours = Math.floor(diffInSeconds / 3600);
-        return `${hours} ${t('inbox.hoursAgo') || 'hours ago'}`;
+        return t('inbox.hoursAgo', { count: hours, defaultValue: `${hours} hours ago` });
       }
       if (diffInSeconds < 604800) {
         const days = Math.floor(diffInSeconds / 86400);
-        return `${days} ${t('inbox.daysAgo') || 'days ago'}`;
+        return t('inbox.daysAgo', { count: days, defaultValue: `${days} days ago` });
       }
       return formatDateForDisplay(timeString, i18n.language);
     } catch {
@@ -1363,12 +1368,12 @@ export default function DashboardScreen({
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{t('inbox.notifications') || 'Notifications'}</Text>
+              <Text style={styles.modalTitle}>{t('inbox.notifications', { defaultValue: 'Notifications' })}</Text>
               <View style={styles.modalActions}>
                 {unreadCount > 0 && (
                   <Pressable onPress={handleMarkAllAsRead} style={styles.markAllButton}>
                     <Text style={[styles.markAllText, { color: colors.primary }]}>
-                      {t('inbox.markAllAsRead') || 'Mark all as read'}
+                      {t('inbox.markAllAsRead', { defaultValue: 'Mark all as read' })}
                     </Text>
                   </Pressable>
                 )}
@@ -1417,7 +1422,7 @@ export default function DashboardScreen({
               ) : (
                 <View style={styles.emptyNotifications}>
                   <Text style={[styles.emptyNotificationsText, { color: colors.mutedForeground }]}>
-                    {t('inbox.noNotifications') || 'No notifications'}
+                    {t('inbox.noNotifications', { defaultValue: 'No notifications yet' })}
                   </Text>
                 </View>
               )}

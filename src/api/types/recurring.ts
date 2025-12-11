@@ -3,7 +3,8 @@ export interface RecurringPayment {
   type: 'income' | 'expense';
   amount: number;
   currency: string;
-  category: string;
+  category: string; // Translated category name from backend (based on Accept-Language header)
+  original_category?: string; // Original English category name (provided by backend)
   frequency: 'monthly' | 'weekly' | 'custom';
   next_due_date: string;
   reminder_days: number;

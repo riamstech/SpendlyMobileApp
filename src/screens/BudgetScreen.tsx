@@ -46,7 +46,8 @@ import { showToast } from '../utils/toast';
 
 interface CategoryBudget {
   id: string;
-  name: string;
+  name: string; // Translated category name from backend
+  original_category?: string; // Original English category name (for reference)
   icon: string;
   spent: number;
   budget: number;
@@ -97,7 +98,8 @@ export default function BudgetScreen() {
   const [budgetValue, setBudgetValue] = useState('');
   
   // Add budget form
-  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategoryName, setNewCategoryName] = useState(''); // Translated name for display
+  const [newCategoryOriginalName, setNewCategoryOriginalName] = useState(''); // Original name for API calls
   const [newCategoryBudget, setNewCategoryBudget] = useState('');
   const [newCategoryCurrency, setNewCategoryCurrency] = useState(currency);
   
@@ -119,7 +121,7 @@ export default function BudgetScreen() {
     if (currency) {
       loadBudgetData();
     }
-  }, [currency]);
+  }, [currency, i18n.language]); // Reload budgets when language changes
 
   const loadInitialData = async () => {
     try {
@@ -160,13 +162,46 @@ export default function BudgetScreen() {
       
       // Transform budgets to match the expected format
       const transformedBudgets = budgetsResponse.data.map((b: any) => {
-        const category = availableCategories.find(c => c.name === b.category);
+        // Backend should return translated category in b.category and original in b.original_category
+        // If backend didn't translate, b.category will be English and we need to find the original
+        const backendCategoryName = b.category || '';
+        const backendOriginalCategory = b.original_category || '';
+        
+        // Try to find matching category from available categories
+        // First try to match by original_name (if available), then by name
+        const category = availableCategories.find(c => {
+          const catOriginalName = (c as any).original_name;
+          const catName = c.name;
+          // Match by original_name if available
+          if (catOriginalName) {
+            return catOriginalName === backendOriginalCategory || 
+                   catOriginalName === backendCategoryName;
+          }
+          // Fallback: match by name
+          return catName === backendOriginalCategory || 
+                 catName === backendCategoryName ||
+                 catName === backendCategoryName;
+        });
+        
+        // Determine the original English category name
+        // Priority: backend original_category > category original_name > backend category > category name
+        const originalCategoryName = backendOriginalCategory || 
+                                     (category as any)?.original_name || 
+                                     backendCategoryName || 
+                                     category?.name || 
+                                     '';
+        
+        // Use backend translated name if available, otherwise use the name from available categories
+        // The display name will be translated by translateCategoryName using originalCategoryName
+        const displayCategoryName = backendCategoryName || category?.name || originalCategoryName;
+        
         return {
           id: String(b.id),
-          name: b.category,
+          name: displayCategoryName, // This will be translated when displayed
+          original_category: originalCategoryName, // Always preserve original English name for translation
           icon: b.icon || category?.icon || 'CircleEllipsis',
           spent: b.spent || 0,
-          budget: b.budgetAmount || b.budget || 0,
+          budget: b.budgetAmount || b.budget_amount || b.budget || 0,
           color: b.color || category?.color || '#03A9F4',
           currency: b.currency || currency,
         };
@@ -203,9 +238,12 @@ export default function BudgetScreen() {
       const cycleDay = budgetCycleDay || 1;
       const budgetPeriod = getBudgetPeriodFromCycleDay(cycleDay);
 
-      // Check for duplicate budget before submitting
+      // Use original category name for API call (backend expects English name)
+      const categoryNameForAPI = newCategoryOriginalName || name;
+      
+      // Check for duplicate budget before submitting (compare by original name)
       const existingBudget = categoryBudgets.find(
-        (b) => b.name.toLowerCase() === name.toLowerCase()
+        (b) => (b.original_category || b.name).toLowerCase() === categoryNameForAPI.toLowerCase()
       );
       
       if (existingBudget) {
@@ -218,7 +256,7 @@ export default function BudgetScreen() {
       }
 
       await budgetsService.createCategoryBudget({
-        category: name,
+        category: categoryNameForAPI, // Use original English name for backend
         budget_amount: budget,
         currency: newCategoryCurrency,
         period: 'monthly',
@@ -231,6 +269,7 @@ export default function BudgetScreen() {
       await loadBudgetData();
       setIsAdding(false);
       setNewCategoryName('');
+      setNewCategoryOriginalName('');
       setNewCategoryBudget('');
       setNewCategoryCurrency(currency);
       if (Platform.OS === 'web') {
@@ -480,6 +519,7 @@ export default function BudgetScreen() {
                 onPress={() => {
                   setIsAdding(false);
                   setNewCategoryName('');
+                  setNewCategoryOriginalName('');
                   setNewCategoryBudget('');
                 }}
               >
@@ -616,7 +656,7 @@ export default function BudgetScreen() {
                       </View>
                       <View style={styles.budgetInfo}>
                         <Text style={[styles.budgetName, responsiveTextStyles.body, { color: colors.foreground, fontWeight: '600' }]}>
-                          {translateCategoryName(category.name, t, (category as any).original_name)}
+                          {translateCategoryName(category.name, t, category.original_category)}
                         </Text>
                         <View style={styles.budgetMeta}>
                           <Text style={[styles.budgetAmount, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>
@@ -751,7 +791,8 @@ export default function BudgetScreen() {
                     key={category.id}
                     style={[styles.modalItem, { borderBottomColor: colors.border }]}
                     onPress={() => {
-                      setNewCategoryName(category.name);
+                      setNewCategoryName(category.name); // Translated name for display
+                      setNewCategoryOriginalName((category as any).original_name || category.name); // Original name for API
                       setShowCategoryModal(false);
                       setCategorySearch('');
                     }}
