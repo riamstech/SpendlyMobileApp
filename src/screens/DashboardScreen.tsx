@@ -36,6 +36,7 @@ import {
   CheckCircle,
   Edit2,
   Trash2,
+  PiggyBank,
 } from 'lucide-react-native';
 import { authService } from '../api/services/auth';
 import { dashboardService } from '../api/services/dashboard';
@@ -877,30 +878,79 @@ export default function DashboardScreen({
           </View>
         )}
 
-        {/* Monthly Budget Overview */}
+        {/* Monthly Budget Overview - Unified Card */}
         {hasBudget && (
           <View style={[styles.budgetCard, { backgroundColor: colors.card }]}>
+            {/* Header Row */}
             <View style={styles.budgetHeader}>
-              <View>
-                <Text style={[styles.budgetLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+              <View style={styles.budgetTitleRow}>
+                <PiggyBank size={20} color="#03A9F4" />
+                <Text style={[styles.budgetLabel, responsiveTextStyles.bodySmall, { color: colors.foreground, fontWeight: '600' }]}>
                   {periodLabel}
                 </Text>
-                <View style={styles.budgetTotalContainer}>
+              </View>
+              {/* Status Badge */}
+              <View style={[
+                styles.budgetStatusBadge,
+                { 
+                  backgroundColor: isOverBudget 
+                    ? 'rgba(255, 82, 82, 0.1)' 
+                    : budgetUsedPercentage >= 80 
+                    ? 'rgba(255, 152, 0, 0.1)' 
+                    : 'rgba(76, 175, 80, 0.1)'
+                }
+              ]}>
+                {isOverBudget ? (
+                  <AlertCircle size={14} color={colors.destructive} />
+                ) : budgetUsedPercentage >= 80 ? (
+                  <AlertCircle size={14} color="#FF9800" />
+                ) : (
+                  <CheckCircle size={14} color={colors.success} />
+                )}
+                <Text style={[
+                  styles.budgetStatusText, 
+                  responsiveTextStyles.caption, 
+                  { 
+                    color: isOverBudget 
+                      ? colors.destructive 
+                      : budgetUsedPercentage >= 80 
+                      ? '#FF9800' 
+                      : colors.success,
+                    marginLeft: 4 
+                  }
+                ]}>
+                  {isOverBudget 
+                    ? t('dashboard.overBudget') || 'Over Budget'
+                    : budgetUsedPercentage >= 80
+                    ? t('dashboard.nearLimit') || 'Near Limit'
+                    : t('dashboard.onTrack') || 'On Track'}
+                </Text>
+              </View>
+            </View>
+
+            {/* Budget Summary Row */}
+            <View style={styles.budgetSummaryRow}>
+              <View style={styles.budgetSummaryItem}>
+                <Text style={[styles.budgetSummaryLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                  {t('dashboard.totalBudget') || 'Total Budget'}
+                </Text>
+                <View style={styles.budgetAmountRow}>
                   {!valuesHidden && (
                     <Text style={[styles.budgetCurrency, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
                       {currency}{' '}
                     </Text>
                   )}
-                  <Text style={[styles.budgetTotal, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>
+                  <Text style={[styles.budgetTotal, responsiveTextStyles.h4, { color: colors.foreground, fontWeight: '700' }]}>
                     {formatValue(monthlyBudgetTotal)}
                   </Text>
                 </View>
               </View>
-              <View style={styles.budgetSpent}>
-                <Text style={[styles.budgetSpentLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                  {t('dashboard.spentThisPeriod') || 'Spent This Period'}
+              <View style={[styles.budgetDivider, { backgroundColor: colors.border }]} />
+              <View style={styles.budgetSummaryItem}>
+                <Text style={[styles.budgetSummaryLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                  {t('dashboard.spent') || 'Spent'}
                 </Text>
-                <View style={styles.budgetSpentValueContainer}>
+                <View style={styles.budgetAmountRow}>
                   {!valuesHidden && (
                     <Text style={[styles.budgetCurrency, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
                       {currency}{' '}
@@ -908,105 +958,56 @@ export default function DashboardScreen({
                   )}
                   <Text style={[
                     styles.budgetSpentValue,
-                    responsiveTextStyles.bodySmall,
-                    { color: isOverBudget ? colors.destructive : colors.foreground }
+                    responsiveTextStyles.h4,
+                    { color: isOverBudget ? colors.destructive : colors.foreground, fontWeight: '700' }
                   ]}>
                     {formatValue(monthlyBudgetSpent)}
                   </Text>
                 </View>
               </View>
+              <View style={[styles.budgetDivider, { backgroundColor: colors.border }]} />
+              <View style={styles.budgetSummaryItem}>
+                <Text style={[styles.budgetSummaryLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                  {isOverBudget ? (t('dashboard.over') || 'Over') : (t('dashboard.left') || 'Left')}
+                </Text>
+                <View style={styles.budgetAmountRow}>
+                  {!valuesHidden && (
+                    <Text style={[styles.budgetCurrency, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                      {currency}{' '}
+                    </Text>
+                  )}
+                  <Text style={[
+                    styles.budgetTotal, 
+                    responsiveTextStyles.h4, 
+                    { color: isOverBudget ? colors.destructive : colors.success, fontWeight: '700' }
+                  ]}>
+                    {valuesHidden ? '••••' : formatValue(Math.abs(monthlyBudgetRemaining))}
+                  </Text>
+                </View>
+              </View>
             </View>
-            <View style={[styles.budgetProgressBar, { backgroundColor: '#e0e0e0' }]}>
-              <View
-                style={[
-                  styles.budgetProgressFill,
-                  {
-                    width: `${budgetUsedPercentage}%`,
-                    backgroundColor: isOverBudget ? '#FF5252' : '#03A9F4',
-                  },
-                ]}
-              />
-            </View>
-            <View style={styles.budgetFooter}>
+
+            {/* Progress Bar */}
+            <View style={styles.budgetProgressContainer}>
+              <View style={[styles.budgetProgressBar, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#e0e0e0' }]}>
+                <View
+                  style={[
+                    styles.budgetProgressFill,
+                    {
+                      width: `${budgetUsedPercentage}%`,
+                      backgroundColor: isOverBudget ? '#FF5252' : budgetUsedPercentage >= 80 ? '#FF9800' : '#03A9F4',
+                    },
+                  ]}
+                />
+              </View>
               <Text style={[styles.budgetPercentage, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                {budgetUsedPercentage.toFixed(1)}% {t('dashboard.used') || 'used'}
-              </Text>
-              <Text style={[styles.budgetRemaining, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                {valuesHidden ? '••••' : (
-                  isOverBudget
-                    ? `${t('dashboard.overBy') || 'Over by'} ${currency} ${formatValue(monthlyBudgetSpent - monthlyBudgetTotal)}`
-                    : `${currency} ${formatValue(monthlyBudgetRemaining)} ${t('dashboard.remaining') || 'remaining'}`
-                )}
+                {budgetUsedPercentage.toFixed(0)}% {t('dashboard.used') || 'used'}
               </Text>
             </View>
           </View>
         )}
 
-        {/* Budget Insights Section */}
-        {hasBudget && (
-          <View style={[styles.budgetInsightsCard, { backgroundColor: colors.card }]}>
-            <View style={styles.budgetInsightsHeader}>
-              <Text style={[styles.budgetInsightsTitle, responsiveTextStyles.h4, { color: colors.foreground }]}>
-                {t('dashboard.budgetInsights') || 'Budget Insights'}
-              </Text>
-            </View>
-            <View style={styles.budgetInsightsContent}>
-              <View style={styles.budgetInsightItem}>
-                <View style={styles.budgetInsightIconContainer}>
-                  {isOverBudget ? (
-                    <AlertCircle size={20} color={colors.destructive} />
-                  ) : budgetUsedPercentage >= 80 ? (
-                    <AlertCircle size={20} color={colors.warning} />
-                  ) : (
-                    <CheckCircle size={20} color={colors.success} />
-                  )}
-                </View>
-                <View style={styles.budgetInsightText}>
-                  <Text style={[styles.budgetInsightLabel, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>
-                    {isOverBudget 
-                      ? t('dashboard.overBudget') || 'Over Budget'
-                      : budgetUsedPercentage >= 80
-                      ? t('dashboard.nearBudgetLimit') || 'Near Budget Limit'
-                      : t('dashboard.onTrack') || 'On Track'}
-                  </Text>
-                  <Text style={[styles.budgetInsightValue, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                    {budgetUsedPercentage.toFixed(1)}% {t('dashboard.ofBudgetUsed') || 'of budget used'}
-                  </Text>
-                </View>
-              </View>
-              {monthlyBudgetRemaining > 0 && !isOverBudget && (
-                <View style={styles.budgetInsightItem}>
-                  <View style={styles.budgetInsightIconContainer}>
-                    <DollarSign size={20} color={colors.success} />
-                  </View>
-                  <View style={styles.budgetInsightText}>
-                    <Text style={[styles.budgetInsightLabel, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>
-                      {t('dashboard.remainingBudget') || 'Remaining Budget'}
-                    </Text>
-                    <Text style={[styles.budgetInsightValue, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                      {valuesHidden ? '••••' : `${currency} ${formatValue(monthlyBudgetRemaining)}`}
-                    </Text>
-                  </View>
-                </View>
-              )}
-              {isOverBudget && (
-                <View style={styles.budgetInsightItem}>
-                  <View style={styles.budgetInsightIconContainer}>
-                    <AlertCircle size={20} color={colors.destructive} />
-                  </View>
-                  <View style={styles.budgetInsightText}>
-                    <Text style={[styles.budgetInsightLabel, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>
-                      {t('dashboard.overByAmount') || 'Over Budget By'}
-                    </Text>
-                    <Text style={[styles.budgetInsightValue, responsiveTextStyles.caption, { color: colors.destructive }]}>
-                      {valuesHidden ? '••••' : `${currency} ${formatValue(monthlyBudgetSpent - monthlyBudgetTotal)}`}
-                    </Text>
-                  </View>
-                </View>
-              )}
-            </View>
-          </View>
-        )}
+
 
         {/* Quick Stats */}
         <View style={styles.statsRow}>
@@ -2073,6 +2074,54 @@ const styles = StyleSheet.create({
   budgetRemaining: {
     ...baseTextStyles.caption,
     color: '#666',
+  },
+  // New unified budget card styles
+  budgetTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  budgetStatusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 16,
+  },
+  budgetStatusText: {
+    fontFamily: fonts.sans,
+    fontWeight: '600',
+    fontSize: 12,
+  },
+  budgetSummaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginTop: 16,
+    marginBottom: 16,
+  },
+  budgetSummaryItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  budgetSummaryLabel: {
+    fontFamily: fonts.sans,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  budgetAmountRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  budgetDivider: {
+    width: 1,
+    height: 40,
+    marginHorizontal: 8,
+  },
+  budgetProgressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   chartCard: {
     borderRadius: 12,
