@@ -164,7 +164,7 @@ export default function DashboardScreen({
         }),
         budgetsService.getBudgetSummary().catch(err => {
           console.error('Failed to load budget summary:', err);
-          return { total_budget: 0, total_spent: 0, remaining: 0 };
+          return { totalBudget: 0, totalSpent: 0, remaining: 0 };
         }),
         transactionsService.getTransactions({ per_page: 10 }),
         recurringService.getUpcomingPayments(30),
@@ -229,9 +229,10 @@ export default function DashboardScreen({
 
       // Process Budget Summary
       if (budgetSummary) {
-        setMonthlyBudgetTotal(budgetSummary.total_budget || 0);
-        setMonthlyBudgetSpent(budgetSummary.total_spent || 0);
-        setMonthlyBudgetRemaining(budgetSummary.remaining || 0);
+        const bs = budgetSummary as any;
+        setMonthlyBudgetTotal(bs.totalBudget || bs.total_budget || 0);
+        setMonthlyBudgetSpent(bs.totalSpent || bs.total_spent || 0);
+        setMonthlyBudgetRemaining(bs.remaining || 0);
       }
 
       // Process Notifications

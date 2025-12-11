@@ -33,8 +33,11 @@ export interface UpdateCategoryBudgetRequest {
 }
 
 export interface BudgetSummary {
-  total_budget: number;
-  total_spent: number;
+  // Support both snake_case (raw API) and camelCase (transformed by API client)
+  total_budget?: number;
+  totalBudget?: number;
+  total_spent?: number;
+  totalSpent?: number;
   remaining: number;
   currency: string;
 }

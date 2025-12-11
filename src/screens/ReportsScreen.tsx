@@ -251,7 +251,7 @@ export default function ReportsScreen() {
           
           return {
             name: getCategoryDisplayName(c.category),
-            value: shouldInclude ? (c.total_spent || 0) : 0,
+            value: shouldInclude ? (c.totalSpent || c.total_spent || 0) : 0,
             color: getCategoryColor(c.category),
             percentage: 0, 
             currency: categoryCurrency,
