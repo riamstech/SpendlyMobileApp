@@ -128,7 +128,10 @@
     "deleteTransactionConfirm": "Are you sure you want to delete this transaction?",
     "thisMonth": "This Month",
     "lastMonth": "Last Month",
-    "thisYear": "This Year"
+    "thisYear": "This Year",
+    "spent": "المصروفات",
+    "over": "تجاوز",
+    "onTrack": "على المسار"
   },
   "reports": {
     "csv": "CSV",
