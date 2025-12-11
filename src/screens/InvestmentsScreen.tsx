@@ -448,6 +448,7 @@ export default function InvestmentsScreen() {
   }).filter(item => item.value > 0);
 
   // Calculate monthly portfolio growth from actual backend investment data
+  // Improved calculation: Show portfolio value over time (cumulative invested vs current value)
   const monthlyData = useMemo(() => {
     if (investments.length === 0) return [];
     
@@ -466,19 +467,27 @@ export default function InvestmentsScreen() {
       });
     }
     
-    // Group investments by month based on start_date
+    // Calculate portfolio value for each month
+    // For each month, sum up:
+    // - invested: total amount invested up to that month
+    // - current: current value of all investments that existed by that month
     investments.forEach((inv: any) => {
       if (!inv.start_date) return;
       
       const startDate = new Date(inv.start_date);
       const investedAmount = inv.invested_amount ?? inv.investedAmount ?? 0;
       const currentValue = inv.current_value ?? inv.currentValue ?? investedAmount;
+      const investedNum = typeof investedAmount === 'number' ? investedAmount : parseFloat(String(investedAmount)) || 0;
+      const currentNum = typeof currentValue === 'number' ? currentValue : parseFloat(String(currentValue)) || 0;
       
-      // Find all months from investment start date to current month
+      // For each month from investment start date onwards, add this investment's values
       months.forEach((monthData) => {
-        if (startDate <= monthData.monthDate) {
-          monthData.invested += typeof investedAmount === 'number' ? investedAmount : parseFloat(String(investedAmount)) || 0;
-          monthData.current += typeof currentValue === 'number' ? currentValue : parseFloat(String(currentValue)) || 0;
+        const monthEnd = new Date(monthData.monthDate.getFullYear(), monthData.monthDate.getMonth() + 1, 0);
+        // Only include investments that started before or during this month
+        if (startDate <= monthEnd) {
+          monthData.invested += investedNum;
+          // Use current value for all months (showing current portfolio value)
+          monthData.current += currentNum;
         }
       });
     });
@@ -1186,17 +1195,28 @@ export default function InvestmentsScreen() {
         {investments.length > 0 && monthlyData.length > 0 && (
           <View style={[styles.chartCard, { backgroundColor: colors.card }]}>
             <Text style={[styles.chartTitle, { color: colors.foreground }]}>{t('investments.portfolioGrowth')}</Text>
+            {/* Chart Legend */}
+            <View style={styles.chartLegend}>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendDot, { backgroundColor: '#03A9F4' }]} />
+                <Text style={[styles.legendText, { color: colors.foreground }]}>{t('investments.invested') || 'Invested'}</Text>
+              </View>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendDot, { backgroundColor: '#4CAF50' }]} />
+                <Text style={[styles.legendText, { color: colors.foreground }]}>{t('investments.currentValue') || 'Current Value'}</Text>
+              </View>
+            </View>
             <LineChart
               data={{
                 labels: monthlyData.map(d => d.month),
                 datasets: [
                   {
-                    data: monthlyData.map(d => d.invested),
+                    data: monthlyData.map(d => d.invested > 0 ? d.invested : 0.01),
                     color: (opacity = 1) => `rgba(3, 169, 244, ${opacity})`,
                     strokeWidth: 2,
                   },
                   {
-                    data: monthlyData.map(d => d.current),
+                    data: monthlyData.map(d => d.current > 0 ? d.current : 0.01),
                     color: (opacity = 1) => `rgba(76, 175, 80, ${opacity})`,
                     strokeWidth: 2,
                   },
@@ -1822,6 +1842,26 @@ const styles = StyleSheet.create({
   chart: {
     marginVertical: 8,
     borderRadius: 16,
+  },
+  chartLegend: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 24,
+    marginBottom: 12,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  legendDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  legendText: {
+    ...textStyles.caption,
+    color: '#666',
   },
   investmentsSection: {
     marginBottom: 16,

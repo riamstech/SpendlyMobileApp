@@ -77,6 +77,8 @@ export const reportsService = {
   /**
    * Export CSV report from backend
    * Returns CSV string
+   * Similar to exportPdf but returns CSV text instead of HTML
+   * Uses fetch with Accept-Language header to ensure translations work
    */
   async exportCsv(fromDate?: string, toDate?: string, currency?: string): Promise<string> {
     const params: Record<string, string> = {};
@@ -84,8 +86,12 @@ export const reportsService = {
     if (toDate) params.to_date = toDate;
     if (currency) params.currency = currency;
     
-    // Use fetch directly to get CSV response
+    // Get token and language for headers
     const token = await apiClient.getTokenAsync();
+    
+    // Import i18n to get current language
+    const { i18n } = await import('react-i18next');
+    const language = i18n.language || 'en';
     
     // Build query string manually to ensure compatibility across all React Native platforms
     const queryParts: string[] = [];
@@ -99,12 +105,15 @@ export const reportsService = {
     
     console.log('CSV export URL:', url);
     console.log('CSV export params:', params);
+    console.log('CSV export language:', language);
     
+    // Use fetch with Accept-Language header to ensure backend translates content
     const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Accept': 'text/csv',
+        'Accept-Language': language,
         'Content-Type': 'application/json',
       },
     });

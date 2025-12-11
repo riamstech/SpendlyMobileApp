@@ -65,7 +65,14 @@ export default function EditTransactionScreen({
   const [transactionType, setTransactionType] = useState<'income' | 'expense'>(
     transaction.type
   );
-  const [amount, setAmount] = useState(Math.abs(transaction.amount).toString());
+  const [amount, setAmount] = useState(() => {
+    const amt = Math.abs(transaction.amount);
+    // Preserve decimal places - if it's a whole number, show as is, otherwise preserve decimals
+    if (amt % 1 === 0) {
+      return amt.toString();
+    }
+    return amt.toFixed(2);
+  });
   const [category, setCategory] = useState(transaction.category);
   const [currency, setCurrency] = useState(transaction.currency);
   // Use description if available (cast to any as it's not in shared type yet), fallback to notes

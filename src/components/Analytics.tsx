@@ -83,22 +83,40 @@ export default function Analytics() {
       if (trendsResult.status === 'fulfilled') {
         const trendsData = trendsResult.value;
         console.log('[Analytics] Spending trends response:', JSON.stringify(trendsData, null, 2));
-        const trendsArray = trendsData?.trends || [];
+        // Handle different response structures
+        let trendsArray: SpendingTrend[] = [];
+        if (trendsData?.trends && Array.isArray(trendsData.trends)) {
+          trendsArray = trendsData.trends;
+        } else if (Array.isArray(trendsData)) {
+          trendsArray = trendsData as SpendingTrend[];
+        }
+        
         console.log('[Analytics] Spending trends array length:', trendsArray.length);
         if (trendsArray.length > 0) {
           console.log('[Analytics] First trend item:', JSON.stringify(trendsArray[0], null, 2));
           console.log('[Analytics] Sample savings rates:', trendsArray.map(t => ({ 
-            label: t.label, 
+            label: t.label || t.period, 
             period: t.period,
-            savingsRate: t.savingsRate, 
-            savings_rate: t.savings_rate,
-            income: t.income,
-            expense: t.expense
+            savingsRate: t.savingsRate || t.savings_rate || 0, 
+            savings_rate: t.savings_rate || t.savingsRate || 0,
+            income: t.income || 0,
+            expense: t.expense || 0,
+            net: t.net || ((t.income || 0) - (t.expense || 0))
           })));
         } else {
           console.warn('[Analytics] Spending trends array is empty! Check if there are transactions in the date range.');
         }
-        setSpendingTrends(Array.isArray(trendsArray) ? trendsArray : []);
+        // Ensure all trends have required fields with defaults
+        const processedTrends = trendsArray.map(t => ({
+          ...t,
+          label: t.label || t.period || '',
+          income: t.income || 0,
+          expense: t.expense || 0,
+          net: t.net !== undefined ? t.net : ((t.income || 0) - (t.expense || 0)),
+          savingsRate: t.savingsRate !== undefined ? t.savingsRate : (t.savings_rate !== undefined ? t.savings_rate : 0),
+          savings_rate: t.savings_rate !== undefined ? t.savings_rate : (t.savingsRate !== undefined ? t.savingsRate : 0),
+        }));
+        setSpendingTrends(processedTrends);
       } else {
         console.error('[Analytics] Failed to load spending trends:', trendsResult.reason);
         console.error('[Analytics] Error details:', JSON.stringify(trendsResult.reason, null, 2));
@@ -510,7 +528,12 @@ export default function Analytics() {
               </>
             ) : (
               <View style={styles.emptyState}>
-                <Text style={[styles.emptyStateText, { color: colors.mutedForeground }]}>{t('reports.noSpendingData')}</Text>
+                <Text style={[styles.emptyStateText, { color: colors.mutedForeground, marginBottom: 8 }]}>
+                  {t('reports.noSpendingData', { defaultValue: 'No spending data available' })}
+                </Text>
+                <Text style={[styles.emptyStateText, { color: colors.mutedForeground, fontSize: 13 }]}>
+                  {t('analytics.addTransactionsForTrends', { defaultValue: 'Add income and expense transactions to see your spending trends over time' })}
+                </Text>
               </View>
             )}
           </>

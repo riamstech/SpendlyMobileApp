@@ -30,7 +30,8 @@ import {
 import { PieChart } from 'react-native-chart-kit';
 import { budgetsService } from '../api/services/budgets';
 import { categoriesService } from '../api/services/categories';
-import { currenciesService, Currency } from '../api/services/currencies';
+import { currenciesService } from '../api/services/currencies';
+import { Currency } from '../api/types/category';
 import { dashboardService } from '../api/services/dashboard';
 import { authService } from '../api/services/auth';
 import { getBudgetPeriodFromCycleDay, formatDateForDisplay } from '../api/utils/dateUtils';
@@ -441,7 +442,10 @@ export default function BudgetScreen() {
                   {(() => {
                     const selectedCurrency = currencies.find(c => c.code === newCategoryCurrency);
                     if (selectedCurrency) {
-                      return `${selectedCurrency.flag ? selectedCurrency.flag + ' ' : ''}${selectedCurrency.code} (${selectedCurrency.symbol})`;
+                      const currencyName = selectedCurrency.name 
+                        ? translateCurrencyName(selectedCurrency.name, t, (selectedCurrency as any).original_name)
+                        : '';
+                      return `${selectedCurrency.flag ? selectedCurrency.flag + ' ' : ''}${selectedCurrency.code}${currencyName ? ` - ${currencyName}` : ''} (${selectedCurrency.symbol})`;
                     }
                     return newCategoryCurrency;
                   })()}
@@ -705,7 +709,11 @@ export default function BudgetScreen() {
           setCategorySearch('');
         }}
       >
-        <View style={[styles.modalOverlay, { backgroundColor: isDark ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.5)' }]}>
+        <KeyboardAvoidingView
+          style={[styles.modalOverlay, { backgroundColor: isDark ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.5)' }]}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        >
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
               <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('budget.chooseCategory') || 'Choose Category'}</Text>
@@ -725,7 +733,7 @@ export default function BudgetScreen() {
                 onChangeText={setCategorySearch}
               />
             </View>
-            <ScrollView style={styles.modalList}>
+            <ScrollView style={styles.modalList} keyboardShouldPersistTaps="handled">
               {availableCategories
                 .filter(cat => {
                   // Filter by type
@@ -762,14 +770,14 @@ export default function BudgetScreen() {
                         />
                       </View>
                       <Text style={[styles.modalItemText, { color: colors.foreground }, newCategoryName === category.name && [styles.modalItemTextActive, { color: colors.primary }]]}>
-                        {translateCategoryName(category.name, t)}
+                        {translateCategoryName(category.name, t, (category as any).original_name)}
                       </Text>
                     </View>
                   </Pressable>
                 ))}
             </ScrollView>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* Currency Selection Modal */}
@@ -1205,14 +1213,16 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-end', // Keep at bottom, KeyboardAvoidingView handles the rest
   },
   modalContent: {
     backgroundColor: '#fff',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    maxHeight: '70%',
+    maxHeight: '80%',
+    minHeight: 300,
     paddingTop: 20,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 20, // Safe area bottom padding
   },
   modalHeader: {
     flexDirection: 'row',

@@ -38,6 +38,7 @@ import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { showToast } from '../utils/toast';
 import { translateCategoryName } from '../utils/categoryTranslator';
 import { translateCurrencyName } from '../utils/currencyTranslator';
+import { useCategories } from '../hooks/useCategories';
 
 interface Transaction {
   id: string;

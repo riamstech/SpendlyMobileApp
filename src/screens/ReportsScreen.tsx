@@ -354,6 +354,13 @@ export default function ReportsScreen() {
         });
       }
 
+      console.log('[Reports] Monthly data processed:', {
+        allMonthlyDataCount: allMonthlyData.length,
+        rawFilteredDataCount: rawFilteredData.length,
+        finalChartDataCount: finalChartData.length,
+        dateRange: { from, to },
+      });
+
       setMonthlyData(finalChartData);
       
       // Calculate totals from more precise sources
@@ -382,7 +389,16 @@ export default function ReportsScreen() {
       // 2. Expenses: Use category report total (backend aggregated, exact dates)
       // This is generally more accurate for expenses than summing transactions (due to pagination limits)
       // and definitely more accurate than monthly reports (which are whole-month only)
-      const preciseTotalExpenses = calculatedTotalExpensesFromCategories;
+      // When selectedCurrency is 'ALL', we need to sum all category expenses regardless of currency
+      // When a specific currency is selected, only sum expenses in that currency
+      let preciseTotalExpenses = 0;
+      if (selectedCurrency === 'ALL') {
+        // Sum all expenses from all categories (all currencies)
+        preciseTotalExpenses = processedCategoryData.reduce((sum: number, cat: CategoryData) => sum + cat.value, 0);
+      } else {
+        // Sum only expenses in the selected currency
+        preciseTotalExpenses = calculatedTotalExpensesFromCategories;
+      }
       
       // 3. Savings
       const preciseTotalSavings = preciseTotalIncome - preciseTotalExpenses;
@@ -510,10 +526,10 @@ export default function ReportsScreen() {
   const displayCurrency = selectedCurrency === 'ALL' ? currency : selectedCurrency;
 
   const formatValue = (value: number): string => {
-    // Match Cordova: whole numbers for report amounts
+    // Preserve 2 decimal places for accurate totals (e.g., 7.90 should show as 7.90, not 8)
     return value.toLocaleString(i18n.language, {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     });
   };
 
@@ -581,6 +597,10 @@ export default function ReportsScreen() {
       const csvContent = await reportsService.exportCsv(from, to, apiCurrencyFilter);
       console.log('CSV content received, length:', csvContent?.length);
 
+      if (!csvContent) {
+        throw new Error(t('reports.csvError', { defaultValue: 'Failed to generate CSV content' }));
+      }
+
       if (Platform.OS === 'web') {
         // Web-specific download logic
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -595,132 +615,62 @@ export default function ReportsScreen() {
           link.click();
           document.body.removeChild(link);
         }
+        showToast.success(
+          t('reports.csvDownloaded', { defaultValue: 'CSV downloaded successfully' }),
+          t('common.success', { defaultValue: 'Success' })
+        );
         return;
       }
 
-      // Native logic - save to file and share
+      // Native logic - save to file and share (simplified approach like PDF)
       console.log('FileSystem available:', !!FileSystem);
       console.log('Sharing available:', !!Sharing);
-      
-      // Check execution environment
-      const executionEnvironment = Constants.executionEnvironment;
-      const isExpoGo = Constants.ExecutionEnvironment && executionEnvironment === Constants.ExecutionEnvironment.StoreClient;
-      console.log('Execution environment:', executionEnvironment, 'Is Expo Go:', isExpoGo);
 
-      // Use documentDirectory for persistent, shareable files
-      // Check both properties directly (they're synchronous properties in expo-file-system)
-      // Note: These can be null in development builds if native module isn't linked
-      let documentDir: string | null = null;
-      let cacheDir: string | null = null;
+      // Use cacheDirectory for temporary sharing files
+      const cacheDir = (FileSystem as any).cacheDirectory as string | null;
       
-      try {
-        // Access FileSystem properties - they should be available in development builds
-        // @ts-ignore
-        documentDir = FileSystem.documentDirectory;
-        // @ts-ignore
-        cacheDir = FileSystem.cacheDirectory;
-        
-        // Additional check: try to verify FileSystem is working by checking if we can access bundleDirectory
-        // @ts-ignore
-        const bundleDir = FileSystem.bundleDirectory;
-        console.log('bundleDirectory (check):', bundleDir);
-      } catch (error: any) {
-        console.error('Error accessing FileSystem directories:', error);
-      }
-      
-      console.log('documentDirectory:', documentDir);
-      console.log('cacheDirectory:', cacheDir);
-      console.log('Platform:', Platform.OS);
-      console.log('FileSystem object:', Object.keys(FileSystem).slice(0, 10));
-      
-      // Prefer cacheDirectory for temporary sharing files to avoid permission issues
-      // and prevent cluttering document storage
-      const targetDir = cacheDir || documentDir;
-      
-      if (!targetDir) {
-        // ... (error handling remains same)
-        // Provide specific error message based on environment
-        let errorMessage = 'FileSystem directories are not available. ';
-        
-        if (isExpoGo) {
-          errorMessage += '\n\nexpo-file-system is not supported in Expo Go. ';
-          errorMessage += '\n\nPlease create a development build:\n';
-          errorMessage += 'eas build --profile development --platform ios (or android)';
-        } else {
-          errorMessage += '\n\nThe native module may not be properly linked. ';
-          errorMessage += '\n\nPlease rebuild your app:\n\n';
-          if (Platform.OS === 'ios') {
-            errorMessage += 'cd ios && pod install && cd ..\n';
-            errorMessage += 'npx expo run:ios\n\n';
-          } else {
-            errorMessage += 'npx expo run:android\n\n';
-          }
-          errorMessage += 'Or create a development build:\n';
-          errorMessage += 'eas build --profile development --platform ios/android';
-        }
-        
-        showToast.error(errorMessage, t('common.error', { defaultValue: 'Error' }));
-        
-        throw new Error('FileSystem directories are not available');
+      if (!cacheDir) {
+        // Fallback: Try to share without file system by alerting user
+        showToast.error(
+          t('reports.fileSystemNotAvailable', { 
+            defaultValue: 'File system not available. Please rebuild the app with: npx expo run:ios/android' 
+          }),
+          t('common.error', { defaultValue: 'Error' })
+        );
+        return;
       }
 
-      // Ensure directory path ends with a slash
-      const dirPath = targetDir.endsWith('/') ? targetDir : `${targetDir}/`;
       const fileName = `financial_report_${from}_to_${to}.csv`;
-      const fileUri = `${dirPath}${fileName}`;
+      const fileUri = `${cacheDir}${fileName}`;
       
-      console.log('Writing to:', fileUri);
-
-      // Verify directory exists or create it
-      try {
-        const dirInfo = await FileSystem.getInfoAsync(dirPath);
-        if (!dirInfo.exists) {
-          console.log('Creating directory:', dirPath);
-          await FileSystem.makeDirectoryAsync(dirPath, { intermediates: true });
-        }
-      } catch (dirError) {
-        console.warn('Directory check/create warning:', dirError);
-        // Continue anyway - writeAsStringAsync will create directories if needed
-      }
+      console.log('Writing CSV to:', fileUri);
 
       // Write the file
       await FileSystem.writeAsStringAsync(fileUri, csvContent, {
-        // @ts-ignore
-        encoding: FileSystem.EncodingType.UTF8,
+        encoding: (FileSystem as any).EncodingType.UTF8,
       });
-      console.log('File written successfully');
+      console.log('CSV file written successfully');
 
-      // Verify file was written
-      const fileInfo = await FileSystem.getInfoAsync(fileUri);
-      if (!fileInfo.exists) {
-        throw new Error('File was not created successfully');
-      }
-      console.log('File verified, size:', fileInfo.size, 'bytes');
-
+      // Share the file
       const canShare = await Sharing.isAvailableAsync();
       console.log('Can share:', canShare);
       
       if (canShare) {
         await Sharing.shareAsync(fileUri, {
           mimeType: 'text/csv',
-          dialogTitle: t('reports.shareCsv'),
+          dialogTitle: t('reports.shareCsv', { defaultValue: 'Share CSV Report' }),
         });
         console.log('Share dialog opened');
       } else {
         showToast.success(
-          t('reports.csvReadyDescription', { fileUri }),
-          t('reports.csvReady')
+          t('reports.csvSaved', { defaultValue: 'CSV saved successfully' }),
+          t('common.success', { defaultValue: 'Success' })
         );
       }
     } catch (error: any) {
       console.error('Failed to generate CSV export:', error);
-      console.error('Error details:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name,
-      });
       showToast.error(
-        error.message || t('reports.csvError'),
+        error.message || t('reports.csvError', { defaultValue: 'Failed to generate CSV' }),
         t('common.error', { defaultValue: 'Error' })
       );
     }
@@ -1197,7 +1147,10 @@ export default function ReportsScreen() {
                       ]}
                     >
                       {transaction.type === 'income' ? '+' : '-'}
-                      {transaction.currency || displayCurrency} {formatValue(Math.abs(transaction.amount))}
+                      {transaction.currency || displayCurrency} {Math.abs(transaction.amount).toLocaleString(i18n.language, {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 2,
+                      })}
                     </Text>
                   </View>
                 </View>
@@ -1292,8 +1245,11 @@ export default function ReportsScreen() {
 
         {categoryData.length === 0 && monthlyData.length === 0 && transactions.length === 0 && investments.length === 0 && !loading && (
           <View style={styles.emptyState}>
-            <Text style={[styles.emptyStateText, { color: colors.mutedForeground }]}>
+            <Text style={[styles.emptyStateText, { color: colors.mutedForeground, marginBottom: 8 }]}>
               {t('reports.noSpendingData', { defaultValue: 'No spending data available for the selected date range' })}
+            </Text>
+            <Text style={[styles.emptyStateText, { color: colors.mutedForeground, fontSize: 13 }]}>
+              {t('reports.addTransactionsToSeeReports', { defaultValue: 'Add transactions to see your financial reports and analytics' })}
             </Text>
           </View>
         )}

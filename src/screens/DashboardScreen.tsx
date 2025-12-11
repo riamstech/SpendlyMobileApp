@@ -43,7 +43,8 @@ import { transactionsService } from '../api/services/transactions';
 import { recurringService } from '../api/services/recurring';
 import { financialService, FinancialSummary } from '../api/services/financialService';
 import { budgetsService } from '../api/services/budgets';
-import { currenciesService, Currency } from '../api/services/currencies';
+import { currenciesService } from '../api/services/currencies';
+import { Currency } from '../api/types/category';
 import { notificationsService } from '../api/services/notifications';
 import { formatDateForDisplay } from '../api/utils/dateUtils';
 import { translateCategoryName } from '../utils/categoryTranslator';
@@ -394,6 +395,30 @@ export default function DashboardScreen({
     return value.toLocaleString(i18n.language, {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
+    });
+  };
+
+  // Format transaction amounts with decimals preserved
+  const formatTransactionAmount = (value: number): string => {
+    if (valuesHidden) {
+      return '••••';
+    }
+    // Preserve decimal places for transaction amounts (e.g., 7.9 should show as 7.9, not 8)
+    // Use minimumFractionDigits: 2 to ensure consistent display
+    return value.toLocaleString(i18n.language, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
+  // Format payment amounts with decimals preserved
+  const formatPaymentAmount = (value: number): string => {
+    if (valuesHidden) {
+      return '••••';
+    }
+    return value.toLocaleString(i18n.language, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     });
   };
 
@@ -916,6 +941,72 @@ export default function DashboardScreen({
           </View>
         )}
 
+        {/* Budget Insights Section */}
+        {hasBudget && (
+          <View style={[styles.budgetInsightsCard, { backgroundColor: colors.card }]}>
+            <View style={styles.budgetInsightsHeader}>
+              <Text style={[styles.budgetInsightsTitle, responsiveTextStyles.h4, { color: colors.foreground }]}>
+                {t('dashboard.budgetInsights') || 'Budget Insights'}
+              </Text>
+            </View>
+            <View style={styles.budgetInsightsContent}>
+              <View style={styles.budgetInsightItem}>
+                <View style={styles.budgetInsightIconContainer}>
+                  {isOverBudget ? (
+                    <AlertCircle size={20} color={colors.destructive} />
+                  ) : budgetUsedPercentage >= 80 ? (
+                    <AlertCircle size={20} color={colors.warning} />
+                  ) : (
+                    <CheckCircle size={20} color={colors.success} />
+                  )}
+                </View>
+                <View style={styles.budgetInsightText}>
+                  <Text style={[styles.budgetInsightLabel, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>
+                    {isOverBudget 
+                      ? t('dashboard.overBudget') || 'Over Budget'
+                      : budgetUsedPercentage >= 80
+                      ? t('dashboard.nearBudgetLimit') || 'Near Budget Limit'
+                      : t('dashboard.onTrack') || 'On Track'}
+                  </Text>
+                  <Text style={[styles.budgetInsightValue, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                    {budgetUsedPercentage.toFixed(1)}% {t('dashboard.ofBudgetUsed') || 'of budget used'}
+                  </Text>
+                </View>
+              </View>
+              {monthlyBudgetRemaining > 0 && !isOverBudget && (
+                <View style={styles.budgetInsightItem}>
+                  <View style={styles.budgetInsightIconContainer}>
+                    <DollarSign size={20} color={colors.success} />
+                  </View>
+                  <View style={styles.budgetInsightText}>
+                    <Text style={[styles.budgetInsightLabel, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>
+                      {t('dashboard.remainingBudget') || 'Remaining Budget'}
+                    </Text>
+                    <Text style={[styles.budgetInsightValue, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                      {valuesHidden ? '••••' : `${currency} ${formatValue(monthlyBudgetRemaining)}`}
+                    </Text>
+                  </View>
+                </View>
+              )}
+              {isOverBudget && (
+                <View style={styles.budgetInsightItem}>
+                  <View style={styles.budgetInsightIconContainer}>
+                    <AlertCircle size={20} color={colors.destructive} />
+                  </View>
+                  <View style={styles.budgetInsightText}>
+                    <Text style={[styles.budgetInsightLabel, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>
+                      {t('dashboard.overByAmount') || 'Over Budget By'}
+                    </Text>
+                    <Text style={[styles.budgetInsightValue, responsiveTextStyles.caption, { color: colors.destructive }]}>
+                      {valuesHidden ? '••••' : `${currency} ${formatValue(monthlyBudgetSpent - monthlyBudgetTotal)}`}
+                    </Text>
+                  </View>
+                </View>
+              )}
+            </View>
+          </View>
+        )}
+
         {/* Quick Stats */}
         <View style={styles.statsRow}>
           <View style={[styles.statCard, { backgroundColor: colors.card }]}>
@@ -1119,7 +1210,7 @@ export default function DashboardScreen({
                           </Text>
                         </View>
                         <Text style={[styles.paymentMetaText, responsiveTextStyles.small, { color: colors.mutedForeground }]}>
-                          {translateCategoryName(payment.category, t)}
+                          {translateCategoryName(payment.category, t, (payment as any).original_category)}
                         </Text>
                         <Text style={[styles.paymentMetaDot, { color: colors.mutedForeground }]}>•</Text>
                         <Text style={[
@@ -1140,7 +1231,7 @@ export default function DashboardScreen({
                           { color: payment.type === 'income' ? '#4CAF50' : colors.foreground },
                         ]}
                       >
-                      {valuesHidden ? '••••' : `${payment.currency} ${formatValue(payment.amount)}`}
+                      {valuesHidden ? '••••' : `${payment.currency} ${formatPaymentAmount(payment.amount)}`}
                       </Text>
                         {!valuesHidden &&
                           payment.showConversion &&
@@ -1226,7 +1317,7 @@ export default function DashboardScreen({
                       </Text>
                       <View style={styles.transactionMetaRow}>
                         <Text style={[styles.transactionMetaText, responsiveTextStyles.small, { color: colors.mutedForeground }]}>
-                          {translateCategoryName(transaction.category, t)}
+                          {translateCategoryName(transaction.category, t, (transaction as any).original_category)}
                         </Text>
                         <Text style={[styles.transactionMetaDot, { color: colors.mutedForeground }]}>•</Text>
                         <Text style={[styles.transactionMetaText, responsiveTextStyles.small, { color: colors.mutedForeground }]}>
@@ -1245,7 +1336,7 @@ export default function DashboardScreen({
                         >
                           {valuesHidden
                             ? '••••'
-                            : `${transaction.type === 'income' ? '+' : '-'}${transaction.currency} ${formatValue(transaction.amount)}`}
+                            : `${transaction.type === 'income' ? '+' : '-'}${transaction.currency} ${formatTransactionAmount(transaction.amount)}`}
                         </Text>
                         {!valuesHidden &&
                           transaction.showConversion &&
@@ -1954,7 +2045,6 @@ const styles = StyleSheet.create({
     marginTop: 4, // mt-1 (4px)
   },
   budgetSpentValue: {
-    fontWeight: 'bold',
     fontWeight: '600',
     color: '#333',
   },
@@ -2196,6 +2286,50 @@ const styles = StyleSheet.create({
   },
   emptyNotificationsText: {
     ...baseTextStyles.bodySmall,
+  },
+  budgetInsightsCard: {
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  budgetInsightsHeader: {
+    marginBottom: 16,
+  },
+  budgetInsightsTitle: {
+    ...baseTextStyles.h3,
+    fontWeight: '600',
+  },
+  budgetInsightsContent: {
+    gap: 12,
+  },
+  budgetInsightItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  budgetInsightIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(3, 169, 244, 0.1)',
+  },
+  budgetInsightText: {
+    flex: 1,
+  },
+  budgetInsightLabel: {
+    ...baseTextStyles.bodySmall,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  budgetInsightValue: {
+    ...baseTextStyles.caption,
   },
 });
 

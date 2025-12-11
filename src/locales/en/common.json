@@ -629,7 +629,8 @@
     "refunds": "Refunds",
     "pocketmoney": "Pocket Money",
     "governmentaid": "Government Aid",
-    "otherincome": "Other Income"
+    "otherincome": "Other Income",
+    "internationaltransfer": "International Transfer"
   },
   "addTransaction": {
     "title": "Add Transaction",
@@ -834,33 +835,6 @@
     "updateSuccess": "Transaction updated successfully",
     "updateError": "Failed to update transaction",
     "fillRequired": "Please fill in all required fields"
-  },
-  "payment": {
-    "payWithCard": "Pay with Card",
-    "payWithUPI": "Pay with UPI",
-    "completePlanPayment": "Complete your {{plan}} plan payment",
-    "selectPlan": "Select Plan",
-    "plan": "Plan",
-    "method": "Method",
-    "monthly": "Monthly",
-    "yearly": "Yearly",
-    "card": "Card",
-    "processing": "Processing Payment",
-    "redirectingToStripe": "You will be redirected to complete your payment.",
-    "continue": "Continue",
-    "payNow": "Pay Now",
-    "mobileNote": "One-time payment. You will be redirected to complete your payment securely.",
-    "failed": "Payment failed",
-    "razorpay": "Razorpay Payment",
-    "razorpayNotSupported": "Razorpay integration for mobile is coming soon.",
-    "oneMonthAccess": "1 Month Access",
-    "oneYearAccess": "1 Year Access",
-    "savePercent": "Save {{percent}}%",
-    "cannotOpenRazorpayUrl": "Cannot open Razorpay URL",
-    "upiPaymentLinkNotReady": "UPI Payment Link not ready. Please try Card.",
-    "amountCurrencyRequired": "Amount and currency are required for payment. Please try again.",
-    "cannotOpenStripeUrl": "Cannot open Stripe URL",
-    "noCheckoutUrl": "No checkout URL returned"
   },
   "mySupportTickets": "My Support Tickets",
   "mySupportTicketsSubtitle": "View and manage your tickets",
