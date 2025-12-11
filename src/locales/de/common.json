@@ -131,7 +131,9 @@
     "thisYear": "This Year",
     "spent": "Ausgegeben",
     "over": "Überzogen",
-    "onTrack": "Im Plan"
+    "onTrack": "Im Plan",
+    "totalBudget": "Gesamtbudget",
+    "left": "Übrig"
   },
   "reports": {
     "csv": "CSV",

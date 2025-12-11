@@ -131,7 +131,9 @@
     "thisYear": "This Year",
     "spent": "已支出",
     "over": "超支",
-    "onTrack": "符合预算"
+    "onTrack": "符合预算",
+    "totalBudget": "总预算",
+    "left": "剩余"
   },
   "reports": {
     "csv": "CSV",

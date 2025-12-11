@@ -131,7 +131,9 @@
     "thisYear": "This Year",
     "spent": "المصروفات",
     "over": "تجاوز",
-    "onTrack": "على المسار"
+    "onTrack": "على المسار",
+    "totalBudget": "إجمالي الميزانية",
+    "left": "متبقي"
   },
   "reports": {
     "csv": "CSV",

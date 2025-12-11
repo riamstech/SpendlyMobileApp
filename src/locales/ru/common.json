@@ -131,7 +131,9 @@
     "thisYear": "This Year",
     "spent": "Потрачено",
     "over": "Превышено",
-    "onTrack": "В рамках бюджета"
+    "onTrack": "В рамках бюджета",
+    "totalBudget": "Общий бюджет",
+    "left": "Осталось"
   },
   "reports": {
     "csv": "CSV",

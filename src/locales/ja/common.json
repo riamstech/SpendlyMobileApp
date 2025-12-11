@@ -131,7 +131,9 @@
     "thisYear": "This Year",
     "spent": "支出",
     "over": "超過",
-    "onTrack": "予算内"
+    "onTrack": "予算内",
+    "totalBudget": "総予算",
+    "left": "残り"
   },
   "reports": {
     "csv": "CSV",

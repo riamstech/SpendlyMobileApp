@@ -131,7 +131,9 @@
     "thisYear": "This Year",
     "spent": "Spent",
     "over": "Over",
-    "onTrack": "On Track"
+    "onTrack": "On Track",
+    "totalBudget": "Total Budget",
+    "left": "Left"
   },
   "reports": {
     "reportsAnalytics": "Reports & Analytics",

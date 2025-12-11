@@ -131,7 +131,9 @@
     "thisYear": "This Year",
     "spent": "खर्च",
     "over": "अधिक",
-    "onTrack": "सही रास्ते पर"
+    "onTrack": "सही रास्ते पर",
+    "totalBudget": "कुल बजट",
+    "left": "शेष"
   },
   "reports": {
     "reportsAnalytics": "रिपोर्ट और विश्लेषण",

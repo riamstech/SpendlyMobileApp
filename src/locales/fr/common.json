@@ -131,7 +131,9 @@
     "thisYear": "This Year",
     "spent": "Dépensé",
     "over": "Dépassé",
-    "onTrack": "Sur la bonne voie"
+    "onTrack": "Sur la bonne voie",
+    "totalBudget": "Budget Total",
+    "left": "Restant"
   },
   "reports": {
     "csv": "CSV",
