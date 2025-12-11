@@ -73,7 +73,21 @@
     "signInProgress": "Sign in already in progress",
     "playServicesNotAvailable": "Google Play Services not available",
     "googleSignUpError": "An error occurred during Google Sign-Up",
-    "googleSignUpFailed": "Google Sign-Up Failed"
+    "googleSignUpFailed": "Google Sign-Up Failed",
+    "resetPassword": "Сбросить Пароль",
+    "enterNewPassword": "Введите новый пароль ниже",
+    "newPassword": "Новый Пароль",
+    "enterNewPasswordPlaceholder": "Введите новый пароль",
+    "passwordMin8": "Пароль должен содержать не менее 8 символов",
+    "passwordMin8Hint": "Должен содержать не менее 8 символов",
+    "passwordResetSuccessful": "Пароль Успешно Сброшен!",
+    "passwordResetSuccessMessage": "Ваш пароль был успешно сброшен.",
+    "canLoginWithNewPassword": "Теперь вы можете войти с новым паролем.",
+    "resetting": "Сброс...",
+    "invalidResetLink": "Недействительная ссылка для сброса пароля. Пожалуйста, запросите новую.",
+    "invalidLink": "Недействительная Ссылка",
+    "resetPasswordFailed": "Не удалось сбросить пароль. Ссылка могла истечь. Пожалуйста, запросите новую.",
+    "notProvided": "Не предоставлено"
   },
   "footer": {
     "tagline": "Отслеживай. Копи. Расти.",
@@ -239,7 +253,16 @@
     "actionReview": "Review your spending patterns and identify unnecessary expenses",
     "actionGoal": "Set up a monthly savings goal and stick to it",
     "actionEmergency": "Create an emergency fund investment category and contribute regularly",
-    "actionBudget": "Use the budget feature to plan and control your spending"
+    "actionBudget": "Use the budget feature to plan and control your spending",
+    "factorTransactions": "{{count}} транзакций",
+    "factorMonthsActive": "{{active}}/{{total}} месяцев активно",
+    "factorMonths": "({{count}} месяцев)",
+    "recommendationSavePercentage": "Старайтесь экономить не менее {{percentage}}% вашего дохода каждый месяц.",
+    "recommendationTrackExpenses": "Отслеживайте все свои расходы, чтобы получить лучшие идеи.",
+    "recommendationTrackRegularly": "Сделайте привычкой регулярно отслеживать расходы.",
+    "recommendationEmergencyFundRange": "Создайте резервный фонд, покрывающий {{min}}-{{max}} месяцев расходов.",
+    "recommendationEmergencyFund": "Создайте резервный фонд, покрывающий {{months}} месяцев расходов.",
+    "recommendationEmergencyFundGeneral": "Создайте резервный фонд, покрывающий 3-6 месяцев расходов."
   },
   "insights": {
     "amount": "Сумма ($)",

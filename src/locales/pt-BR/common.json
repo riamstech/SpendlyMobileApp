@@ -73,7 +73,21 @@
     "signInProgress": "Sign in already in progress",
     "playServicesNotAvailable": "Google Play Services not available",
     "googleSignUpError": "An error occurred during Google Sign-Up",
-    "googleSignUpFailed": "Google Sign-Up Failed"
+    "googleSignUpFailed": "Google Sign-Up Failed",
+    "resetPassword": "Redefinir Senha",
+    "enterNewPassword": "Digite sua nova senha abaixo",
+    "newPassword": "Nova Senha",
+    "enterNewPasswordPlaceholder": "Digite a nova senha",
+    "passwordMin8": "A senha deve ter pelo menos 8 caracteres",
+    "passwordMin8Hint": "Deve ter pelo menos 8 caracteres",
+    "passwordResetSuccessful": "Senha Redefinida com Sucesso!",
+    "passwordResetSuccessMessage": "Sua senha foi redefinida com sucesso.",
+    "canLoginWithNewPassword": "Agora você pode fazer login com sua nova senha.",
+    "resetting": "Redefinindo...",
+    "invalidResetLink": "Link de redefinição de senha inválido. Por favor, solicite um novo.",
+    "invalidLink": "Link Inválido",
+    "resetPasswordFailed": "Falha ao redefinir a senha. O link pode ter expirado. Por favor, solicite um novo.",
+    "notProvided": "Não fornecido"
   },
   "footer": {
     "tagline": "Acompanhe. Economize. Cresça.",
@@ -239,7 +253,16 @@
     "actionReview": "Review your spending patterns and identify unnecessary expenses",
     "actionGoal": "Set up a monthly savings goal and stick to it",
     "actionEmergency": "Create an emergency fund investment category and contribute regularly",
-    "actionBudget": "Use the budget feature to plan and control your spending"
+    "actionBudget": "Use the budget feature to plan and control your spending",
+    "factorTransactions": "{{count}} transações",
+    "factorMonthsActive": "{{active}}/{{total}} meses ativos",
+    "factorMonths": "({{count}} meses)",
+    "recommendationSavePercentage": "Tente economizar pelo menos {{percentage}}% da sua renda a cada mês.",
+    "recommendationTrackExpenses": "Rastreie todas as suas despesas para obter melhores insights.",
+    "recommendationTrackRegularly": "Faça um hábito rastrear despesas regularmente.",
+    "recommendationEmergencyFundRange": "Construa um fundo de emergência cobrindo {{min}}-{{max}} meses de despesas.",
+    "recommendationEmergencyFund": "Construa um fundo de emergência cobrindo {{months}} meses de despesas.",
+    "recommendationEmergencyFundGeneral": "Construa um fundo de emergência cobrindo 3-6 meses de despesas."
   },
   "insights": {
     "amount": "Valor ($)",

@@ -71,7 +71,9 @@ import StripePaymentDialog from '../components/StripePaymentDialog';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { getCurrencyForCountry, convertUsdToCurrency, formatCurrencyAmount } from '../utils/currencyConverter';
 import { translateCurrencyName } from '../utils/currencyTranslator';
+import { translateCountryName } from '../utils/countryTranslator';
 import { notificationService } from '../services/notificationService';
+import { countriesService, Country } from '../api/services/countries';
 
 const LANGUAGE_FLAGS: Record<string, string> = {
   en: '🇺🇸',
@@ -104,6 +106,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [currencies, setCurrencies] = useState<Currency[]>([]);
+  const [countries, setCountries] = useState<Country[]>([]);
   const [budgetCycleDay, setBudgetCycleDay] = useState(1);
 
 
@@ -1048,7 +1051,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                   <Text style={[styles.profileEmail, { color: colors.mutedForeground }]}>{user.email || t('settings.noEmail')}</Text>
                   {(user.country || user.state) && (
                     <Text style={[styles.profileLocation, { color: colors.mutedForeground }]}>
-                      {user.country && COUNTRIES.find(c => c.code === user.country)?.name}
+                      {user.country && (() => {
+                        const countryData = countries.find(c => c.code === user.country) || COUNTRIES.find(c => c.code === user.country);
+                        return countryData ? translateCountryName(countryData.name, t, countryData.original_name) : user.country;
+                      })()}
                       {user.country && user.state && ', '}
                       {user.state}
                     </Text>
@@ -1281,7 +1287,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                       {t('settings.country') || 'Country'}
                     </Text>
                     <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
-                      {country ? COUNTRIES.find(c => c.code === country)?.name : t('settings.notSpecified') || 'Not specified'}
+                      {country ? (() => {
+                        const countryData = countries.find(c => c.code === country) || COUNTRIES.find(c => c.code === country);
+                        return countryData ? translateCountryName(countryData.name, t, countryData.original_name) : country;
+                      })() : t('settings.notSpecified', { defaultValue: 'Not specified' })}
                     </Text>
                   </View>
                 </View>

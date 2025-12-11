@@ -406,6 +406,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 12,
+    width: '100%',
   },
   backButtonText: {
     ...textStyles.button,

@@ -73,7 +73,21 @@
     "signInProgress": "Sign in already in progress",
     "playServicesNotAvailable": "Google Play Services not available",
     "googleSignUpError": "An error occurred during Google Sign-Up",
-    "googleSignUpFailed": "Google Sign-Up Failed"
+    "googleSignUpFailed": "Google Sign-Up Failed",
+    "resetPassword": "Reset Password",
+    "enterNewPassword": "Enter your new password below",
+    "newPassword": "New Password",
+    "enterNewPasswordPlaceholder": "Enter new password",
+    "passwordMin8": "Password must be at least 8 characters",
+    "passwordMin8Hint": "Must be at least 8 characters",
+    "passwordResetSuccessful": "Password Reset Successful!",
+    "passwordResetSuccessMessage": "Your password has been reset successfully.",
+    "canLoginWithNewPassword": "You can now log in with your new password.",
+    "resetting": "Resetting...",
+    "invalidResetLink": "Invalid password reset link. Please request a new one.",
+    "invalidLink": "Invalid Link",
+    "resetPasswordFailed": "Failed to reset password. The link may have expired. Please request a new one.",
+    "notProvided": "Not provided"
   },
   "footer": {
     "tagline": "Track. Save. Grow.",
@@ -251,7 +265,12 @@
     "factorTransactions": "{{count}} transactions",
     "factorMonthsActive": "{{active}}/{{total}} months active",
     "factorMonths": "({{count}} months)",
-    "recommendationSavePercentage": "Try to save at least {{percentage}}% of your income each month."
+    "recommendationSavePercentage": "Try to save at least {{percentage}}% of your income each month.",
+    "recommendationTrackExpenses": "Track all your expenses to get better insights.",
+    "recommendationTrackRegularly": "Make it a habit to track expenses regularly.",
+    "recommendationEmergencyFundRange": "Build an emergency fund covering {{min}}-{{max}} months of expenses.",
+    "recommendationEmergencyFund": "Build an emergency fund covering {{months}} months of expenses.",
+    "recommendationEmergencyFundGeneral": "Build an emergency fund covering 3-6 months of expenses."
   },
   "insights": {
     "amount": "Amount ($)",

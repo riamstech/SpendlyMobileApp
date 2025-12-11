@@ -15,8 +15,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { currenciesService } from '../api/services/currencies';
+import { countriesService, Country } from '../api/services/countries';
 import { usersService } from '../api/services/users';
 import { authService } from '../api/services/auth';
+import { translateCountryName } from '../utils/countryTranslator';
 import {
   Wallet,
   TrendingUp,
@@ -53,6 +55,7 @@ export default function OnboardingScreen({
   const [country, setCountry] = useState('');
   const [state, setState] = useState('');
   const [currencies, setCurrencies] = useState<Array<{ code: string; symbol: string; flag: string; name: string }>>([]);
+  const [countries, setCountries] = useState<Country[]>([]);
   const [loadingCurrencies, setLoadingCurrencies] = useState(true);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -64,11 +67,13 @@ export default function OnboardingScreen({
   const isSmallScreen = width < 375;
   const isLargeScreen = width > 430;
 
-  // Load currencies
+  // Load currencies and countries
   useEffect(() => {
-    const loadCurrencies = async () => {
+    const loadData = async () => {
       try {
         setLoadingCurrencies(true);
+        
+        // Load currencies
         const currenciesData = await currenciesService.getCurrencies();
         if (currenciesData && currenciesData.length > 0) {
           setCurrencies(currenciesData);
@@ -76,13 +81,30 @@ export default function OnboardingScreen({
             setCurrency(propDefaultCurrency || currenciesData[0].code);
           }
         }
+        
+        // Load countries
+        try {
+          const countriesData = await countriesService.getCountries();
+          if (countriesData && countriesData.length > 0) {
+            setCountries(countriesData);
+          } else {
+            // Fallback to hardcoded countries
+            const { COUNTRIES } = require('../constants/countries');
+            setCountries(COUNTRIES.map((c: any) => ({ code: c.code, name: c.name, original_name: c.name })));
+          }
+        } catch (error) {
+          console.error('Error loading countries:', error);
+          // Fallback to hardcoded countries
+          const { COUNTRIES } = require('../constants/countries');
+          setCountries(COUNTRIES.map((c: any) => ({ code: c.code, name: c.name, original_name: c.name })));
+        }
       } catch (error) {
-        console.error('Error loading currencies:', error);
+        console.error('Error loading data:', error);
       } finally {
         setLoadingCurrencies(false);
       }
     };
-    loadCurrencies();
+    loadData();
   }, []);
 
   // Auto-transition from splash
@@ -430,12 +452,19 @@ export default function OnboardingScreen({
   // Location Selection Screen
   if (step === 'location') {
     const { COUNTRIES } = require('../constants/countries');
-    const allCountries = COUNTRIES.sort((a: any, b: any) => a.name.localeCompare(b.name));
+    const allCountries = (countries.length > 0 ? countries : COUNTRIES.map((c: any) => ({ code: c.code, name: c.name, original_name: c.name })))
+      .sort((a: any, b: any) => {
+        const nameA = translateCountryName(a.name, t, a.original_name);
+        const nameB = translateCountryName(b.name, t, b.original_name);
+        return nameA.localeCompare(nameB);
+      });
     
     // Filter countries based on search query
     const filteredCountries = allCountries.filter((c: any) => {
       const query = countrySearchQuery.toLowerCase();
+      const displayName = translateCountryName(c.name, t, c.original_name).toLowerCase();
       return (
+        displayName.includes(query) ||
         c.name.toLowerCase().includes(query) ||
         c.code.toLowerCase().includes(query)
       );
@@ -487,21 +516,24 @@ export default function OnboardingScreen({
                 </View>
               ) : (
                 <ScrollView style={styles.countryList} nestedScrollEnabled>
-                  {filteredCountries.map((c: any) => (
-                    <Pressable
-                      key={c.code}
-                      style={[
-                        styles.countryItem,
-                        { backgroundColor: country === c.code ? colors.accent : 'transparent' },
-                      ]}
-                      onPress={() => setCountry(c.code)}
-                    >
-                      <Text style={[styles.countryName, { color: colors.foreground }]}>{c.name}</Text>
+                  {filteredCountries.map((c: any) => {
+                    const displayName = translateCountryName(c.name, t, c.original_name);
+                    return (
+                      <Pressable
+                        key={c.code}
+                        style={[
+                          styles.countryItem,
+                          { backgroundColor: country === c.code ? colors.accent : 'transparent' },
+                        ]}
+                        onPress={() => setCountry(c.code)}
+                      >
+                        <Text style={[styles.countryName, { color: colors.foreground }]}>{displayName}</Text>
                       {country === c.code && (
                         <Check size={20 * scale} color={colors.primary} />
                       )}
                     </Pressable>
-                  ))}
+                  );
+                })}
                 </ScrollView>
               )}
 

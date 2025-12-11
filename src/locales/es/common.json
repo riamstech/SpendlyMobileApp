@@ -73,7 +73,21 @@
     "signInProgress": "Sign in already in progress",
     "playServicesNotAvailable": "Google Play Services not available",
     "googleSignUpError": "An error occurred during Google Sign-Up",
-    "googleSignUpFailed": "Google Sign-Up Failed"
+    "googleSignUpFailed": "Google Sign-Up Failed",
+    "resetPassword": "Restablecer Contraseña",
+    "enterNewPassword": "Ingresa tu nueva contraseña a continuación",
+    "newPassword": "Nueva Contraseña",
+    "enterNewPasswordPlaceholder": "Ingresa nueva contraseña",
+    "passwordMin8": "La contraseña debe tener al menos 8 caracteres",
+    "passwordMin8Hint": "Debe tener al menos 8 caracteres",
+    "passwordResetSuccessful": "¡Contraseña Restablecida Exitosamente!",
+    "passwordResetSuccessMessage": "Tu contraseña ha sido restablecida exitosamente.",
+    "canLoginWithNewPassword": "Ahora puedes iniciar sesión con tu nueva contraseña.",
+    "resetting": "Restableciendo...",
+    "invalidResetLink": "Enlace de restablecimiento de contraseña inválido. Por favor solicita uno nuevo.",
+    "invalidLink": "Enlace Inválido",
+    "resetPasswordFailed": "Error al restablecer la contraseña. El enlace puede haber expirado. Por favor solicita uno nuevo.",
+    "notProvided": "No proporcionado"
   },
   "footer": {
     "tagline": "Controla. Ahorra. Crece.",
@@ -246,7 +260,12 @@
     "factorTransactions": "{{count}} transacciones",
     "factorMonthsActive": "{{active}}/{{total}} meses activos",
     "factorMonths": "({{count}} meses)",
-    "recommendationSavePercentage": "Intenta ahorrar al menos {{percentage}}% de tus ingresos cada mes."
+    "recommendationSavePercentage": "Intenta ahorrar al menos {{percentage}}% de tus ingresos cada mes.",
+    "recommendationTrackExpenses": "Rastrea todos tus gastos para obtener mejores perspectivas.",
+    "recommendationTrackRegularly": "Haz un hábito rastrear gastos regularmente.",
+    "recommendationEmergencyFundRange": "Construye un fondo de emergencia que cubra {{min}}-{{max}} meses de gastos.",
+    "recommendationEmergencyFund": "Construye un fondo de emergencia que cubra {{months}} meses de gastos.",
+    "recommendationEmergencyFundGeneral": "Construye un fondo de emergencia que cubra 3-6 meses de gastos."
   },
   "insights": {
     "amount": "Cantidad ($)",

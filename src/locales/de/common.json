@@ -73,7 +73,21 @@
     "signInProgress": "Sign in already in progress",
     "playServicesNotAvailable": "Google Play Services not available",
     "googleSignUpError": "An error occurred during Google Sign-Up",
-    "googleSignUpFailed": "Google Sign-Up Failed"
+    "googleSignUpFailed": "Google Sign-Up Failed",
+    "resetPassword": "Passwort Zurücksetzen",
+    "enterNewPassword": "Geben Sie unten Ihr neues Passwort ein",
+    "newPassword": "Neues Passwort",
+    "enterNewPasswordPlaceholder": "Neues Passwort eingeben",
+    "passwordMin8": "Das Passwort muss mindestens 8 Zeichen lang sein",
+    "passwordMin8Hint": "Muss mindestens 8 Zeichen lang sein",
+    "passwordResetSuccessful": "Passwort Erfolgreich Zurückgesetzt!",
+    "passwordResetSuccessMessage": "Ihr Passwort wurde erfolgreich zurückgesetzt.",
+    "canLoginWithNewPassword": "Sie können sich jetzt mit Ihrem neuen Passwort anmelden.",
+    "resetting": "Zurücksetzen...",
+    "invalidResetLink": "Ungültiger Passwort-Zurücksetzen-Link. Bitte fordern Sie einen neuen an.",
+    "invalidLink": "Ungültiger Link",
+    "resetPasswordFailed": "Passwort konnte nicht zurückgesetzt werden. Der Link ist möglicherweise abgelaufen. Bitte fordern Sie einen neuen an.",
+    "notProvided": "Nicht angegeben"
   },
   "footer": {
     "tagline": "Verfolgen. Sparen. Wachsen.",
@@ -239,7 +253,16 @@
     "actionReview": "Review your spending patterns and identify unnecessary expenses",
     "actionGoal": "Set up a monthly savings goal and stick to it",
     "actionEmergency": "Create an emergency fund investment category and contribute regularly",
-    "actionBudget": "Use the budget feature to plan and control your spending"
+    "actionBudget": "Use the budget feature to plan and control your spending",
+    "factorTransactions": "{{count}} Transaktionen",
+    "factorMonthsActive": "{{active}}/{{total}} Monate aktiv",
+    "factorMonths": "({{count}} Monate)",
+    "recommendationSavePercentage": "Versuchen Sie, jeden Monat mindestens {{percentage}}% Ihres Einkommens zu sparen.",
+    "recommendationTrackExpenses": "Verfolgen Sie alle Ihre Ausgaben, um bessere Einblicke zu erhalten.",
+    "recommendationTrackRegularly": "Machen Sie es sich zur Gewohnheit, Ausgaben regelmäßig zu verfolgen.",
+    "recommendationEmergencyFundRange": "Bauen Sie einen Notfallfonds auf, der {{min}}-{{max}} Monate Ausgaben abdeckt.",
+    "recommendationEmergencyFund": "Bauen Sie einen Notfallfonds auf, der {{months}} Monate Ausgaben abdeckt.",
+    "recommendationEmergencyFundGeneral": "Bauen Sie einen Notfallfonds auf, der 3-6 Monate Ausgaben abdeckt."
   },
   "insights": {
     "amount": "Betrag ($)",

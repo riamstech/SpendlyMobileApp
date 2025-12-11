@@ -332,7 +332,55 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
 
   // Translate recommendations
   const translateRecommendation = (recommendation: string): string => {
-    return translateFactorValue(recommendation);
+    if (!recommendation) return '';
+    
+    // First try translateFactorValue for patterns like "X transactions", "X/Y months active", etc.
+    const factorTranslated = translateFactorValue(recommendation);
+    if (factorTranslated !== recommendation) {
+      return factorTranslated;
+    }
+    
+    // Handle full sentence recommendations
+    const lowerRec = recommendation.toLowerCase().trim();
+    
+    // "Track all your expenses to get better insights."
+    if (lowerRec.includes('track all your expenses') && lowerRec.includes('better insights')) {
+      return t('analytics.recommendationTrackExpenses', { 
+        defaultValue: 'Track all your expenses to get better insights.'
+      });
+    }
+    
+    // "Make it a habit to track expenses regularly."
+    if (lowerRec.includes('make it a habit') && lowerRec.includes('track expenses regularly')) {
+      return t('analytics.recommendationTrackRegularly', { 
+        defaultValue: 'Make it a habit to track expenses regularly.'
+      });
+    }
+    
+    // "Build an emergency fund covering 3-6 months of expenses."
+    if (lowerRec.includes('build an emergency fund') && lowerRec.includes('months of expenses')) {
+      const monthsMatch = recommendation.match(/(\d+)-(\d+)\s+months/i) || recommendation.match(/(\d+)\s+months/i);
+      if (monthsMatch) {
+        if (monthsMatch[2]) {
+          return t('analytics.recommendationEmergencyFundRange', { 
+            min: monthsMatch[1],
+            max: monthsMatch[2],
+            defaultValue: `Build an emergency fund covering ${monthsMatch[1]}-${monthsMatch[2]} months of expenses.`
+          });
+        } else {
+          return t('analytics.recommendationEmergencyFund', { 
+            months: monthsMatch[1],
+            defaultValue: `Build an emergency fund covering ${monthsMatch[1]} months of expenses.`
+          });
+        }
+      }
+      return t('analytics.recommendationEmergencyFundGeneral', { 
+        defaultValue: 'Build an emergency fund covering 3-6 months of expenses.'
+      });
+    }
+    
+    // Return original if no pattern matches
+    return recommendation;
   };
 
   const themedStyles = {

@@ -73,7 +73,21 @@
     "signInProgress": "Sign in already in progress",
     "playServicesNotAvailable": "Google Play Services not available",
     "googleSignUpError": "An error occurred during Google Sign-Up",
-    "googleSignUpFailed": "Google Sign-Up Failed"
+    "googleSignUpFailed": "Google Sign-Up Failed",
+    "resetPassword": "Réinitialiser le Mot de Passe",
+    "enterNewPassword": "Entrez votre nouveau mot de passe ci-dessous",
+    "newPassword": "Nouveau Mot de Passe",
+    "enterNewPasswordPlaceholder": "Entrez le nouveau mot de passe",
+    "passwordMin8": "Le mot de passe doit contenir au moins 8 caractères",
+    "passwordMin8Hint": "Doit contenir au moins 8 caractères",
+    "passwordResetSuccessful": "Mot de Passe Réinitialisé avec Succès!",
+    "passwordResetSuccessMessage": "Votre mot de passe a été réinitialisé avec succès.",
+    "canLoginWithNewPassword": "Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.",
+    "resetting": "Réinitialisation...",
+    "invalidResetLink": "Lien de réinitialisation de mot de passe invalide. Veuillez en demander un nouveau.",
+    "invalidLink": "Lien Invalide",
+    "resetPasswordFailed": "Échec de la réinitialisation du mot de passe. Le lien a peut-être expiré. Veuillez en demander un nouveau.",
+    "notProvided": "Non fourni"
   },
   "footer": {
     "tagline": "Suivre. Économiser. Grandir.",
@@ -246,7 +260,12 @@
     "factorTransactions": "{{count}} transactions",
     "factorMonthsActive": "{{active}}/{{total}} mois actifs",
     "factorMonths": "({{count}} mois)",
-    "recommendationSavePercentage": "Essayez d'économiser au moins {{percentage}}% de vos revenus chaque mois."
+    "recommendationSavePercentage": "Essayez d'économiser au moins {{percentage}}% de vos revenus chaque mois.",
+    "recommendationTrackExpenses": "Suivez toutes vos dépenses pour obtenir de meilleures informations.",
+    "recommendationTrackRegularly": "Faites-en une habitude de suivre les dépenses régulièrement.",
+    "recommendationEmergencyFundRange": "Construisez un fonds d'urgence couvrant {{min}}-{{max}} mois de dépenses.",
+    "recommendationEmergencyFund": "Construisez un fonds d'urgence couvrant {{months}} mois de dépenses.",
+    "recommendationEmergencyFundGeneral": "Construisez un fonds d'urgence couvrant 3-6 mois de dépenses."
   },
   "insights": {
     "amount": "Montant ($)",

@@ -22,6 +22,7 @@ import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
 import { GoogleSignin, statusCodes } from '../utils/googleSignin';
 import { config } from '../config/env';
 import { showToast } from '../utils/toast';
+import { GoogleLogo } from '../components/GoogleLogo';
 
 interface LoginScreenProps {
   onLoginSuccess?: (isNewUser?: boolean) => void;
@@ -319,8 +320,8 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
               ]}
               onPress={handleGoogleLogin}
             >
-              <View style={styles.googleIconCircle}>
-                <Text style={styles.googleIconText}>G</Text>
+              <View style={styles.googleIconContainer}>
+                <GoogleLogo size={24} />
               </View>
               <Text style={[styles.googleButtonText, responsiveTextStyles.button, { color: colors.foreground }]}>{t('auth.continueWithGoogle')}</Text>
             </Pressable>
@@ -494,19 +495,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     backgroundColor: '#ffffff',
   },
-  googleIconCircle: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#EA4335',
+  googleIconContainer: {
+    marginRight: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
-  },
-  googleIconText: {
-    ...textStyles.bodySmall,
-    color: '#ffffff',
-    fontWeight: 'bold',
   },
   googleButtonText: {
     ...textStyles.bodySmall,

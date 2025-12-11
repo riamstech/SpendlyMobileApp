@@ -73,7 +73,21 @@
     "signInProgress": "Sign in already in progress",
     "playServicesNotAvailable": "Google Play Services not available",
     "googleSignUpError": "An error occurred during Google Sign-Up",
-    "googleSignUpFailed": "Google Sign-Up Failed"
+    "googleSignUpFailed": "Google Sign-Up Failed",
+    "resetPassword": "パスワードをリセット",
+    "enterNewPassword": "新しいパスワードを以下に入力してください",
+    "newPassword": "新しいパスワード",
+    "enterNewPasswordPlaceholder": "新しいパスワードを入力",
+    "passwordMin8": "パスワードは8文字以上である必要があります",
+    "passwordMin8Hint": "8文字以上である必要があります",
+    "passwordResetSuccessful": "パスワードのリセットが成功しました！",
+    "passwordResetSuccessMessage": "パスワードが正常にリセットされました。",
+    "canLoginWithNewPassword": "新しいパスワードでログインできるようになりました。",
+    "resetting": "リセット中...",
+    "invalidResetLink": "無効なパスワードリセットリンク。新しいリンクをリクエストしてください。",
+    "invalidLink": "無効なリンク",
+    "resetPasswordFailed": "パスワードのリセットに失敗しました。リンクの有効期限が切れている可能性があります。新しいリンクをリクエストしてください。",
+    "notProvided": "提供されていません"
   },
   "footer": {
     "tagline": "記録する。貯める。成長する。",
@@ -239,7 +253,16 @@
     "actionReview": "Review your spending patterns and identify unnecessary expenses",
     "actionGoal": "Set up a monthly savings goal and stick to it",
     "actionEmergency": "Create an emergency fund investment category and contribute regularly",
-    "actionBudget": "Use the budget feature to plan and control your spending"
+    "actionBudget": "Use the budget feature to plan and control your spending",
+    "factorTransactions": "{{count}} 取引",
+    "factorMonthsActive": "{{active}}/{{total}} か月アクティブ",
+    "factorMonths": "({{count}} か月)",
+    "recommendationSavePercentage": "毎月、収入の少なくとも {{percentage}}% を節約するようにしてください。",
+    "recommendationTrackExpenses": "すべての支出を追跡して、より良い洞察を得ましょう。",
+    "recommendationTrackRegularly": "定期的に支出を追跡する習慣をつけましょう。",
+    "recommendationEmergencyFundRange": "{{min}}-{{max}} か月分の支出をカバーする緊急資金を構築してください。",
+    "recommendationEmergencyFund": "{{months}} か月分の支出をカバーする緊急資金を構築してください。",
+    "recommendationEmergencyFundGeneral": "3-6 か月分の支出をカバーする緊急資金を構築してください。"
   },
   "insights": {
     "amount": "金額 ($)",

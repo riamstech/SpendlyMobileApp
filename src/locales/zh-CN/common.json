@@ -73,7 +73,21 @@
     "signInProgress": "Sign in already in progress",
     "playServicesNotAvailable": "Google Play Services not available",
     "googleSignUpError": "An error occurred during Google Sign-Up",
-    "googleSignUpFailed": "Google Sign-Up Failed"
+    "googleSignUpFailed": "Google Sign-Up Failed",
+    "resetPassword": "重置密码",
+    "enterNewPassword": "请在下方输入您的新密码",
+    "newPassword": "新密码",
+    "enterNewPasswordPlaceholder": "输入新密码",
+    "passwordMin8": "密码必须至少8个字符",
+    "passwordMin8Hint": "必须至少8个字符",
+    "passwordResetSuccessful": "密码重置成功！",
+    "passwordResetSuccessMessage": "您的密码已成功重置。",
+    "canLoginWithNewPassword": "您现在可以使用新密码登录。",
+    "resetting": "重置中...",
+    "invalidResetLink": "无效的密码重置链接。请请求新的链接。",
+    "invalidLink": "无效链接",
+    "resetPasswordFailed": "重置密码失败。链接可能已过期。请请求新链接。",
+    "notProvided": "未提供"
   },
   "footer": {
     "tagline": "记录 · 储蓄 · 成长",
@@ -239,7 +253,16 @@
     "actionReview": "Review your spending patterns and identify unnecessary expenses",
     "actionGoal": "Set up a monthly savings goal and stick to it",
     "actionEmergency": "Create an emergency fund investment category and contribute regularly",
-    "actionBudget": "Use the budget feature to plan and control your spending"
+    "actionBudget": "Use the budget feature to plan and control your spending",
+    "factorTransactions": "{{count}} 笔交易",
+    "factorMonthsActive": "{{active}}/{{total}} 个月活跃",
+    "factorMonths": "({{count}} 个月)",
+    "recommendationSavePercentage": "尝试每月至少节省您收入的 {{percentage}}%。",
+    "recommendationTrackExpenses": "跟踪您的所有支出以获得更好的见解。",
+    "recommendationTrackRegularly": "养成定期跟踪支出的习惯。",
+    "recommendationEmergencyFundRange": "建立一个覆盖 {{min}}-{{max}} 个月支出的应急基金。",
+    "recommendationEmergencyFund": "建立一个覆盖 {{months}} 个月支出的应急基金。",
+    "recommendationEmergencyFundGeneral": "建立一个覆盖 3-6 个月支出的应急基金。"
   },
   "insights": {
     "amount": "金额 ($)",

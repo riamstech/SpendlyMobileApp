@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
 import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
 import { showToast } from '../utils/toast';
+import { GoogleLogo } from '../components/GoogleLogo';
 
 interface SignupScreenProps {
   onSignupSuccess?: (isNewUser?: boolean) => void;
@@ -524,9 +525,9 @@ export default function SignupScreen({
                   {acceptedTerms && <Check size={14} color="#fff" />}
                 </Pressable>
                 <Text style={[styles.termsText, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                  I agree to the{' '}
+                  {t('auth.agreeToTerms', { defaultValue: 'I agree to the' })}{' '}
                   <Text style={[styles.termsLink, { color: colors.primary }]}>{t('auth.termsOfService')}</Text>
-                  {' and '}
+                  {' '}{t('auth.and', { defaultValue: 'and' })}{' '}
                   <Text style={[styles.termsLink, { color: colors.primary }]}>{t('auth.privacyPolicy')}</Text>
                 </Text>
               </View>
@@ -562,8 +563,8 @@ export default function SignupScreen({
                 ]}
                 onPress={handleGoogleSignup}
               >
-                <View style={styles.googleIconCircle}>
-                  <Text style={styles.googleIconText}>G</Text>
+                <View style={styles.googleIconContainer}>
+                  <GoogleLogo size={24} />
                 </View>
                 <Text style={[styles.googleButtonText, responsiveTextStyles.button, { color: colors.foreground }]}>{t('auth.continueWithGoogle')}</Text>
               </Pressable>
@@ -755,19 +756,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 16,
   },
-  googleIconCircle: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#EA4335',
+  googleIconContainer: {
+    marginRight: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
-  },
-  googleIconText: {
-    ...textStyles.button,
-    color: '#ffffff',
-    fontWeight: 'bold',
   },
   googleButtonText: {
     ...textStyles.button,

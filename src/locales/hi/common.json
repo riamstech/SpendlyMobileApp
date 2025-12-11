@@ -73,7 +73,21 @@
     "signInProgress": "Sign in already in progress",
     "playServicesNotAvailable": "Google Play Services not available",
     "googleSignUpError": "An error occurred during Google Sign-Up",
-    "googleSignUpFailed": "Google Sign-Up Failed"
+    "googleSignUpFailed": "Google Sign-Up Failed",
+    "resetPassword": "पासवर्ड रीसेट करें",
+    "enterNewPassword": "नीचे अपना नया पासवर्ड दर्ज करें",
+    "newPassword": "नया पासवर्ड",
+    "enterNewPasswordPlaceholder": "नया पासवर्ड दर्ज करें",
+    "passwordMin8": "पासवर्ड कम से कम 8 अक्षरों का होना चाहिए",
+    "passwordMin8Hint": "कम से कम 8 अक्षर होने चाहिए",
+    "passwordResetSuccessful": "पासवर्ड सफलतापूर्वक रीसेट!",
+    "passwordResetSuccessMessage": "आपका पासवर्ड सफलतापूर्वक रीसेट कर दिया गया है।",
+    "canLoginWithNewPassword": "अब आप अपने नए पासवर्ड से लॉगिन कर सकते हैं।",
+    "resetting": "रीसेट हो रहा है...",
+    "invalidResetLink": "अमान्य पासवर्ड रीसेट लिंक। कृपया एक नया अनुरोध करें।",
+    "invalidLink": "अमान्य लिंक",
+    "resetPasswordFailed": "पासवर्ड रीसेट करने में विफल। लिंक समाप्त हो गया हो सकता है। कृपया एक नया अनुरोध करें।",
+    "notProvided": "प्रदान नहीं किया गया"
   },
   "footer": {
     "tagline": "ट्रैक करें. बचत करें. बढ़ें.",
@@ -239,7 +253,16 @@
     "actionReview": "Review your spending patterns and identify unnecessary expenses",
     "actionGoal": "Set up a monthly savings goal and stick to it",
     "actionEmergency": "Create an emergency fund investment category and contribute regularly",
-    "actionBudget": "Use the budget feature to plan and control your spending"
+    "actionBudget": "Use the budget feature to plan and control your spending",
+    "factorTransactions": "{{count}} लेनदेन",
+    "factorMonthsActive": "{{active}}/{{total}} महीने सक्रिय",
+    "factorMonths": "({{count}} महीने)",
+    "recommendationSavePercentage": "हर महीने अपनी आय का कम से कम {{percentage}}% बचाने की कोशिश करें।",
+    "recommendationTrackExpenses": "बेहतर अंतर्दृष्टि पाने के लिए अपने सभी खर्चों को ट्रैक करें।",
+    "recommendationTrackRegularly": "खर्चों को नियमित रूप से ट्रैक करना एक आदत बनाएं।",
+    "recommendationEmergencyFundRange": "{{min}}-{{max}} महीने के खर्चों को कवर करने वाला आपातकालीन निधि बनाएं।",
+    "recommendationEmergencyFund": "{{months}} महीने के खर्चों को कवर करने वाला आपातकालीन निधि बनाएं।",
+    "recommendationEmergencyFundGeneral": "3-6 महीने के खर्चों को कवर करने वाला आपातकालीन निधि बनाएं।"
   },
   "insights": {
     "amount": "राशि ($)",
@@ -462,10 +485,10 @@
     "deleteConfirm": "क्या आप वाकई इस बजट को हटाना चाहते हैं?",
     "left": "बचा",
     "searchCategory": "श्रेणी खोजें...",
-    "noBudgets": "No budgets set yet. Add a budget to start tracking your spending.",
-    "duplicateBudgetTitle": "Duplicate Budget",
-    "duplicateBudgetMessage": "A budget for \"{{category}}\" already exists. Please edit the existing budget or choose a different category.",
-    "error": "Error"
+    "noBudgets": "अभी तक कोई बजट सेट नहीं किया गया है। अपने खर्च को ट्रैक करना शुरू करने के लिए एक बजट जोड़ें।",
+    "duplicateBudgetTitle": "डुप्लिकेट बजट",
+    "duplicateBudgetMessage": "\"{{category}}\" के लिए एक बजट पहले से मौजूद है। कृपया मौजूदा बजट को संपादित करें या एक अलग श्रेणी चुनें।",
+    "error": "त्रुटि"
   },
   "settings": {
     "title": "सेटिंग्स",
