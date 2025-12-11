@@ -122,7 +122,7 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [i18n.language]);
 
   useEffect(() => {
     applyFilters();

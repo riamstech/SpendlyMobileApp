@@ -49,7 +49,7 @@ export default function AddTransactionScreen({
   onSuccess,
   onCancel,
 }: AddTransactionScreenProps) {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const { width } = useWindowDimensions();
   const { isDark, colors } = useTheme();
   const [transactionType, setTransactionType] = useState<'income' | 'expense'>('expense');
@@ -136,7 +136,7 @@ export default function AddTransactionScreen({
       }
     };
     loadData();
-  }, []);
+  }, [i18n.language]);
 
   // Categories are now loaded automatically via useCategories hook
   // This hook automatically refetches categories when language changes

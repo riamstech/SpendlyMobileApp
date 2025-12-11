@@ -126,7 +126,7 @@ export default function EditTransactionScreen({
       }
     };
     loadCurrencies();
-  }, []);
+  }, [i18n.language]);
 
   // Categories are now loaded automatically via useCategories hook
   // This hook automatically refetches categories when language changes
