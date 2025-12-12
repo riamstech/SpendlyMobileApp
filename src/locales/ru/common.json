@@ -136,7 +136,7 @@
     "type": "Type",
     "category": "Category",
     "dateRange": "Date Range",
-    "selectCategory": "Select Category",
+    "selectCategory": "Выберите категорию",
     "selectDateRange": "Select Date Range",
     "deleteTransaction": "Delete Transaction",
     "deleteTransactionConfirm": "Are you sure you want to delete this transaction?",

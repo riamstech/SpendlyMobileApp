@@ -576,11 +576,11 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
             styles.filterPillText, 
             { color: (filterCategory !== 'all' || filterCurrency !== 'all') ? '#fff' : colors.foreground }
           ]} numberOfLines={1}>
-            {(filterCategory !== 'all' || filterCurrency !== 'all') 
-              ? `${filterCategory !== 'all' ? (() => {
+            {filterCategory !== 'all' 
+              ? (() => {
                   const cat = categories.find(c => c.name === filterCategory);
                   return translateCategoryName(filterCategory, t, cat?.original_name);
-                })() : ''}${filterCategory !== 'all' && filterCurrency !== 'all' ? ' • ' : ''}${filterCurrency !== 'all' ? filterCurrency : ''}`
+                })()
               : (t('common.filter') || 'Filter')}
           </Text>
         </Pressable>
