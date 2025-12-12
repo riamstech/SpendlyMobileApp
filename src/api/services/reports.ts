@@ -32,11 +32,12 @@ export const reportsService = {
    * Export PDF report from backend
    * Returns HTML string that can be converted to PDF
    */
-  async exportPdf(fromDate?: string, toDate?: string, currency?: string): Promise<string> {
+  async exportPdf(fromDate?: string, toDate?: string, currency?: string, language: string = 'en'): Promise<string> {
     const params: Record<string, string> = {};
     if (fromDate) params.from_date = fromDate;
     if (toDate) params.to_date = toDate;
     if (currency) params.currency = currency;
+    if (language) params.locale = language;
     
     // Use fetch directly to get HTML response
     const token = await apiClient.getTokenAsync();
@@ -59,6 +60,7 @@ export const reportsService = {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Accept': 'text/html',
+        'Accept-Language': language,
         'Content-Type': 'application/json',
       },
     });
@@ -80,17 +82,12 @@ export const reportsService = {
    * Similar to exportPdf but returns CSV text instead of HTML
    * Uses fetch with Accept-Language header to ensure translations work
    */
-  /**
-   * Export CSV report from backend
-   * Returns CSV string
-   * Similar to exportPdf but returns CSV text instead of HTML
-   * Uses fetch with Accept-Language header to ensure translations work
-   */
   async exportCsv(fromDate?: string, toDate?: string, currency?: string, language: string = 'en'): Promise<string> {
     const params: Record<string, string> = {};
     if (fromDate) params.from_date = fromDate;
     if (toDate) params.to_date = toDate;
     if (currency) params.currency = currency;
+    if (language) params.locale = language;
     
     // Get token for headers
     const token = await apiClient.getTokenAsync();

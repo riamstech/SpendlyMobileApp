@@ -705,7 +705,7 @@ export default function ReportsScreen() {
 
       console.log('Fetching PDF HTML from API...');
       // Call backend API to get PDF HTML
-      const htmlContent = await reportsService.exportPdf(from, to, apiCurrencyFilter);
+      const htmlContent = await reportsService.exportPdf(from, to, apiCurrencyFilter, i18n.language);
       console.log('HTML content received, length:', htmlContent?.length);
       
       console.log('Print module available:', !!Print);
