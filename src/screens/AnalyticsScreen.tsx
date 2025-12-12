@@ -188,9 +188,17 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
     return titleMap[title] || title;
   };
 
+  // Helper to normalize strings (replace curly quotes, etc.)
+  const normalizeText = (text: string): string => {
+    return text.replace(/[\u2018\u2019]/g, "'").trim();
+  };
+
   const translateInsightMessage = (message: string): string => {
-    // Match "You're saving X% of your income this month." (Allow negative numbers, optional period)
-    const savingsRateMatch = message.match(/You're saving\s+([-]?[\d.,]+)\s*%\s+of your income this month/i);
+    const normMessage = normalizeText(message);
+    
+    // Match "You're saving X% of your income this month." 
+    // Very Relaxed: looking for "... % of your income" to handle prefix variations
+    const savingsRateMatch = normMessage.match(/([-]?[\d.,]+)\s*%\s+of\s+your\s+income/i);
     if (savingsRateMatch) {
       return t('analytics.insightSavingPercentage', { 
         percentage: savingsRateMatch[1],
@@ -199,7 +207,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
     }
     
     // Match "You've spent X% less compared to last month."
-    const spendingTrendMatch = message.match(/You've spent\s+([\d.,]+)\s*%\s+less compared to last month/i);
+    const spendingTrendMatch = normMessage.match(/spent\s+([\d.,]+)\s*%\s+less\s+compared/i);
     if (spendingTrendMatch) {
       return t('analytics.insightSpendingLess', { 
         percentage: spendingTrendMatch[1],
@@ -208,7 +216,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
     }
     
     // Match "You've spent X% more compared to last month."
-    const spendingMoreMatch = message.match(/You've spent\s+([\d.,]+)\s*%\s+more compared to last month/i);
+    const spendingMoreMatch = normMessage.match(/spent\s+([\d.,]+)\s*%\s+more\s+compared/i);
     if (spendingMoreMatch) {
       return t('analytics.insightSpendingMore', { 
         percentage: spendingMoreMatch[1],
@@ -217,7 +225,8 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
     }
     
     // Match "At your current pace, you'll spend $X this month."
-    const spendingPaceMatch = message.match(/At your current pace, you'll spend\s+\$?([\d,]+\.?\d*)\s+this month/i);
+    // Relaxed: "pace ... spend ... this month"
+    const spendingPaceMatch = normMessage.match(/pace.*?spend\s+\$?([\d,]+\.?\d*)\s+this\s+month/i);
     if (spendingPaceMatch) {
       return t('analytics.insightSpendingPace', { 
         amount: spendingPaceMatch[1],
@@ -226,7 +235,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
     }
     
     // Match "Great job! Your emergency fund covers X months of expenses."
-    const emergencyFundMatch = message.match(/Great job! Your emergency fund covers\s+([\d.]+)\s+months?/i);
+    const emergencyFundMatch = normMessage.match(/emergency\s+fund\s+covers\s+([\d.]+)\s+months?/i);
     if (emergencyFundMatch) {
       return t('analytics.insightEmergencyFund', { 
         months: emergencyFundMatch[1],
@@ -235,7 +244,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
     }
     
     // Match "X is your biggest expense at Y% of total spending."
-    const topCategoryMatch = message.match(/(.+?)\s+is your biggest expense at\s+([\d.]+)\s*%\s+of total spending/i);
+    const topCategoryMatch = normMessage.match(/(.+?)\s+is\s+your\s+biggest\s+expense\s+at\s+([\d.]+)\s*%\s+of\s+total/i);
     if (topCategoryMatch) {
       const categoryName = topCategoryMatch[1];
       const translatedCategory = translateCategoryName(categoryName, t);
@@ -288,9 +297,10 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
   // Translate health score factor values
   const translateFactorValue = (value: string): string => {
     if (!value) return '';
+    const normValue = normalizeText(value);
     
     // Match "X transactions" pattern
-    const transactionsMatch = value.match(/^(\d+)\s+transactions?$/i);
+    const transactionsMatch = normValue.match(/^(\d+)\s+transactions?$/i);
     if (transactionsMatch) {
       return t('analytics.factorTransactions', { 
         count: transactionsMatch[1],
@@ -299,7 +309,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
     }
     
     // Match "X/Y months active" pattern
-    const monthsActiveMatch = value.match(/^(\d+)\/(\d+)\s+months?\s+active$/i);
+    const monthsActiveMatch = normValue.match(/^(\d+)\/(\d+)\s+months?\s+active$/i);
     if (monthsActiveMatch) {
       return t('analytics.factorMonthsActive', { 
         active: monthsActiveMatch[1],
@@ -309,7 +319,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
     }
     
     // Match "(X months)" pattern
-    const monthsMatch = value.match(/^\((\d+)\s+months?\)$/i);
+    const monthsMatch = normValue.match(/^\((\d+)\s+months?\)$/i);
     if (monthsMatch) {
       return t('analytics.factorMonths', { 
         count: monthsMatch[1],
@@ -319,7 +329,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
 
     // Match "Amount (X months)" pattern e.g. "$39,900.00 (4.1 months)"
     // Matches currency symbol or code optional, amount, and months in parens
-    const amountMonthsMatch = value.match(/^([^\(]+)\s+\(([\d.]+)\s+months?\)$/i);
+    const amountMonthsMatch = normValue.match(/^([^\(]+)\s+\(([\d.]+)\s+months?\)$/i);
     if (amountMonthsMatch) {
       return `${amountMonthsMatch[1]} ${t('analytics.factorMonths', { 
         count: amountMonthsMatch[2],
@@ -328,7 +338,8 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
     }
     
     // Match "Try to save at least X% of your income each month."
-    const saveRecommendationMatch = value.match(/Try to save at least ([\d.]+)% of your income each month/i);
+    // Relaxed: "save at least ... % of your income"
+    const saveRecommendationMatch = normValue.match(/save\s+at\s+least\s+([\d.,]+)\s*%\s+of\s+your\s+income/i);
     if (saveRecommendationMatch) {
       return t('analytics.recommendationSavePercentage', { 
         percentage: saveRecommendationMatch[1],
@@ -700,11 +711,11 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
                     <View
                       style={[
                         styles.statusBadge,
-                        { backgroundColor: getStatusColor(factor.status) + '20' },
+                        { backgroundColor: getStatusColor(factor.status) },
                       ]}
                     >
                       <Text
-                        style={[styles.statusText, { color: getStatusColor(factor.status) }]}
+                        style={[styles.statusText, { color: '#FFFFFF' }]}
                       >
                         {getStatusLabel(factor.status)}
                       </Text>
@@ -726,17 +737,17 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
             ))}
 
             {/* Recommendations */}
-            <View style={[styles.recommendationsCard, themedStyles.card]}>
+            <View style={styles.recommendationsCard}>
               <View style={styles.recommendationsHeader}>
-                <AlertTriangle size={20} color="#03A9F4" />
-                <Text style={[styles.recommendationsTitle, themedStyles.text]}>
+                <AlertTriangle size={20} color="#FFFFFF" />
+                <Text style={[styles.recommendationsTitle, { color: '#FFFFFF' }]}>
                   {t('analytics.recommendations')}
                 </Text>
               </View>
               {healthScore.recommendations.map((rec, index) => (
                 <View key={index} style={styles.recommendationItem}>
-                  <Text style={styles.recommendationBullet}>•</Text>
-                  <Text style={[styles.recommendationText, themedStyles.text]}>
+                  <Text style={[styles.recommendationBullet, { color: '#FFFFFF' }]}>•</Text>
+                  <Text style={[styles.recommendationText, { color: '#FFFFFF' }]}>
                     {translateRecommendation(rec)}
                   </Text>
                 </View>
@@ -1112,9 +1123,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     marginTop: 16,
-    backgroundColor: '#E3F2FD',
-    borderWidth: 1,
-    borderColor: '#90CAF9',
+    backgroundColor: '#1565C0',
   },
   recommendationsHeader: {
     flexDirection: 'row',

@@ -594,7 +594,7 @@ export default function ReportsScreen() {
 
       console.log('Fetching CSV from API...');
       // Call backend API to get CSV content
-      const csvContent = await reportsService.exportCsv(from, to, apiCurrencyFilter);
+      const csvContent = await reportsService.exportCsv(from, to, apiCurrencyFilter, i18n.language);
       console.log('CSV content received, length:', csvContent?.length);
 
       if (!csvContent) {
