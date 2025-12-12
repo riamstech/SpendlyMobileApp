@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   Platform,
   Modal as RNModal,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { showToast } from '../utils/toast';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -35,6 +36,7 @@ import { getEmojiFromIcon } from '../utils/iconMapper';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatDateForDisplay } from '../api/utils/dateUtils';
 import { translateCategoryName } from '../utils/categoryTranslator';
+import { translateCurrencyName } from '../utils/currencyTranslator';
 import { useCategories } from '../hooks/useCategories';
 
 interface EditTransactionScreenProps {
@@ -62,29 +64,47 @@ export default function EditTransactionScreen({
     return new Date().toISOString().split('T')[0];
   };
 
+  // Helper to safely get transaction data (handle potential { data: ... } wrapper)
+  const txData = (transaction as any).data || transaction;
+
   const [transactionType, setTransactionType] = useState<'income' | 'expense'>(
-    transaction.type
+    txData.type || 'expense'
   );
+  
   const [amount, setAmount] = useState(() => {
-    const amt = Math.abs(transaction.amount);
-    // Preserve decimal places - if it's a whole number, show as is, otherwise preserve decimals
-    if (amt % 1 === 0) {
-      return amt.toString();
+    // Handle number, string, or missing amount
+    const val = txData.amount;
+    if (val === undefined || val === null || val === '') return '';
+    
+    const num = Number(val);
+    if (isNaN(num)) return '';
+    
+    // Use absolute value
+    const absVal = Math.abs(num);
+    
+    // Preserve decimal places
+    if (absVal % 1 === 0) {
+      return absVal.toString();
     }
-    return amt.toFixed(2);
+    return absVal.toFixed(2);
   });
-  const [category, setCategory] = useState(transaction.category);
-  const [currency, setCurrency] = useState(transaction.currency);
-  // Use description if available (cast to any as it's not in shared type yet), fallback to notes
-  const [description, setDescription] = useState((transaction as any).description || transaction.notes || '');
-  const [date, setDate] = useState(parseDate(transaction.date));
-  const [notes, setNotes] = useState(transaction.notes || '');
-  const [isRecurring, setIsRecurring] = useState((transaction as any).isRecurring ?? transaction.is_recurring ?? false);
+
+  const [category, setCategory] = useState(txData.category || '');
+  const [currency, setCurrency] = useState(txData.currency || 'USD');
+  // Use description if available, fallback to notes
+  const [description, setDescription] = useState((txData as any).description || txData.notes || '');
+  
+  const [date, setDate] = useState(() => {
+    return parseDate(txData.date || new Date().toISOString());
+  });
+  
+  const [notes, setNotes] = useState(txData.notes || '');
+  const [isRecurring, setIsRecurring] = useState((txData as any).isRecurring ?? txData.is_recurring ?? false);
   const [frequency, setFrequency] = useState(
-    (transaction as any).recurringFrequency || transaction.recurring_frequency || 'monthly'
+    (txData as any).recurringFrequency || txData.recurring_frequency || 'monthly'
   );
   const [reminderDays, setReminderDays] = useState(
-    ((transaction as any).reminderDays ?? transaction.reminder_days ?? 1).toString()
+    ((txData as any).reminderDays ?? txData.reminder_days ?? 1).toString()
   );
 
   // Date Picker State
@@ -105,22 +125,46 @@ export default function EditTransactionScreen({
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [currencySearch, setCurrencySearch] = useState('');
 
   // Responsive scaling
   const scale = Math.min(width / 375, 1);
   const isSmallScreen = width < 375;
 
-  // Load currencies... (keep existing)
+  // Load currencies with fallback
   useEffect(() => {
     const loadCurrencies = async () => {
       try {
         setLoadingCurrencies(true);
+        console.log('Loading currencies for EditTransactionScreen...');
         const currenciesData = await currenciesService.getCurrencies();
-        if (currenciesData.length > 0) {
+        console.log('Loaded currencies:', currenciesData?.length);
+        
+        if (currenciesData && currenciesData.length > 0) {
           setCurrencies(currenciesData);
+        } else {
+          console.warn('No currencies returned from API, using fallback');
+          setCurrencies([
+            { code: 'USD', symbol: '$', flag: '🇺🇸', name: 'US Dollar' },
+            { code: 'EUR', symbol: '€', flag: '🇪🇺', name: 'Euro' },
+            { code: 'GBP', symbol: '£', flag: '🇬🇧', name: 'British Pound' },
+            { code: 'JPY', symbol: '¥', flag: '🇯🇵', name: 'Japanese Yen' },
+            { code: 'CAD', symbol: 'CA$', flag: '🇨🇦', name: 'Canadian Dollar' },
+            { code: 'AUD', symbol: 'A$', flag: '🇦🇺', name: 'Australian Dollar' },
+            { code: 'CNY', symbol: '¥', flag: '🇨🇳', name: 'Chinese Yuan' },
+            { code: 'INR', symbol: '₹', flag: '🇮🇳', name: 'Indian Rupee' },
+            { code: 'SGD', symbol: 'S$', flag: '🇸🇬', name: 'Singapore Dollar' },
+          ]);
         }
       } catch (error) {
         console.error('Error loading currencies:', error);
+        // Fallback on error too
+        setCurrencies([
+          { code: 'USD', symbol: '$', flag: '🇺🇸', name: 'US Dollar' },
+          { code: 'EUR', symbol: '€', flag: '🇪🇺', name: 'Euro' },
+          { code: 'GBP', symbol: '£', flag: '🇬🇧', name: 'British Pound' },
+          { code: 'SGD', symbol: 'S$', flag: '🇸🇬', name: 'Singapore Dollar' },
+        ]);
       } finally {
         setLoadingCurrencies(false);
       }
@@ -142,11 +186,19 @@ export default function EditTransactionScreen({
 
   // Reset category... (keep existing)
   useEffect(() => {
+    // Only reset category if we have categories loaded and the current one isn't valid
     if (
       category &&
+      filteredCategories.length > 0 && 
       !filteredCategories.find((c) => c.name === category)
     ) {
-      setCategory('');
+      // Don't reset if it matches the original category passed in (might need translation match)
+      // Or if it's a legacy category that exists in transaction but not in current loaded list (edge case)
+      // For now, being safer: only reset if we are sure it's invalid
+      
+      // Actually, if we are editing, we probably want to keep the existing category even if it's not in the list
+      // So let's disable this auto-reset logic for EditScreen
+      // setCategory('');
     }
   }, [transactionType, filteredCategories]);
 
@@ -176,7 +228,7 @@ export default function EditTransactionScreen({
 
     try {
       setSubmitting(true);
-      await transactionsService.updateTransaction(transaction.id, {
+      await transactionsService.updateTransaction(Number(txData.id), {
         type: transactionType,
         amount: parseFloat(amount),
         category,
@@ -221,7 +273,7 @@ export default function EditTransactionScreen({
           onPress: async () => {
             try {
               setDeleting(true);
-              await transactionsService.deleteTransaction(transaction.id);
+              await transactionsService.deleteTransaction(Number(txData.id));
               showToast.success(t('editTransaction.deleteSuccess', { defaultValue: 'Transaction deleted successfully' }), t('common.success', { defaultValue: 'Success' }));
               if (onSuccess) {
                 setTimeout(() => {
@@ -247,14 +299,14 @@ export default function EditTransactionScreen({
   const selectedCurrency = currencies.find((c) => c.code === currency);
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <StatusBar style="dark" />
-      <View style={styles.header}>
-        <Text style={[styles.headerTitle, responsiveTextStyles.h3]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <StatusBar style={isDark ? "light" : "dark"} />
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+        <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>
           {t('editTransaction.title', { defaultValue: 'Edit Transaction' })}
         </Text>
         <Pressable onPress={onCancel} style={styles.closeButton}>
-          <X size={24 * scale} color="#666" />
+          <X size={24 * scale} color={colors.mutedForeground} />
         </Pressable>
       </View>
 
@@ -264,8 +316,8 @@ export default function EditTransactionScreen({
         showsVerticalScrollIndicator={false}
       >
         {/* Transaction Type */}
-        <Card style={{ marginBottom: 16 }}>
-          <Text style={styles.label}>
+        <Card style={{ marginBottom: 16, backgroundColor: colors.card }}>
+          <Text style={[styles.label, { color: colors.foreground }]}>
             {t('addTransaction.transactionType')}
           </Text>
           <View style={styles.typeContainer}>
@@ -275,26 +327,26 @@ export default function EditTransactionScreen({
                 transactionType === 'income' && styles.typeButtonActive,
                 {
                   borderColor:
-                    transactionType === 'income' ? '#4CAF50' : '#E5E7EB',
+                    transactionType === 'income' ? '#4CAF50' : colors.border,
                 },
                 {
                   backgroundColor:
                     transactionType === 'income'
                       ? 'rgba(76, 175, 80, 0.1)'
-                      : 'transparent',
+                      : colors.inputBackground,
                 },
               ]}
               onPress={() => setTransactionType('income')}
             >
               <DollarSign
                 size={20 * scale}
-                color={transactionType === 'income' ? '#4CAF50' : '#9CA3AF'}
+                color={transactionType === 'income' ? '#4CAF50' : colors.mutedForeground}
               />
               <Text
                 style={[
                   styles.typeButtonText,
                   {
-                    color: transactionType === 'income' ? '#4CAF50' : '#9CA3AF',
+                    color: transactionType === 'income' ? '#4CAF50' : colors.mutedForeground,
                   },
                 ]}
               >
@@ -307,26 +359,26 @@ export default function EditTransactionScreen({
                 transactionType === 'expense' && styles.typeButtonActive,
                 {
                   borderColor:
-                    transactionType === 'expense' ? '#FF5252' : '#E5E7EB',
+                    transactionType === 'expense' ? '#FF5252' : colors.border,
                 },
                 {
                   backgroundColor:
                     transactionType === 'expense'
                       ? 'rgba(255, 82, 82, 0.1)'
-                      : 'transparent',
+                      : colors.inputBackground,
                 },
               ]}
               onPress={() => setTransactionType('expense')}
             >
               <CreditCard
                 size={20 * scale}
-                color={transactionType === 'expense' ? '#FF5252' : '#9CA3AF'}
+                color={transactionType === 'expense' ? '#FF5252' : colors.mutedForeground}
               />
               <Text
                 style={[
                   styles.typeButtonText,
                   {
-                    color: transactionType === 'expense' ? '#FF5252' : '#9CA3AF',
+                    color: transactionType === 'expense' ? '#FF5252' : colors.mutedForeground,
                   },
                 ]}
               >
@@ -337,43 +389,57 @@ export default function EditTransactionScreen({
         </Card>
 
         {/* Amount & Currency */}
-        <Card style={{ marginBottom: 16 }}>
+        <Card style={{ marginBottom: 16, backgroundColor: colors.card }}>
           <View style={styles.amountRow}>
             <View style={styles.amountInputContainer}>
-              <Text style={styles.label}>{t('addTransaction.amount')}</Text>
+               <Text style={[styles.label, { color: colors.foreground }]}>{t('addTransaction.amount')}</Text>
               <TextInput
                 style={[
                   styles.amountInput,
                   responsiveTextStyles.body,
+                  { 
+                    backgroundColor: colors.inputBackground, 
+                    color: colors.foreground,
+                    borderColor: colors.border,
+                    fontFamily: undefined 
+                  }
                 ]}
                 placeholder={t('addTransaction.amountPlaceholder') || "0.00"}
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={colors.mutedForeground}
                 value={amount}
                 onChangeText={setAmount}
                 keyboardType="decimal-pad"
               />
             </View>
             <View style={styles.currencyContainer}>
-              <Text style={styles.label}>{t('addTransaction.currency')}</Text>
+               <Text style={[styles.label, { color: colors.foreground }]}>{t('addTransaction.currency')}</Text>
               <Pressable
-                style={styles.selectButton}
-                onPress={() => setShowCurrencyModal(true)}
-                disabled={loadingCurrencies}
+                style={[
+                  styles.selectButton,
+                  { 
+                    backgroundColor: colors.inputBackground, 
+                    borderColor: colors.border 
+                  }
+                ]}
+                onPress={() => {
+                  console.log('Currency button pressed. Loading:', loadingCurrencies, 'Count:', currencies.length);
+                  setShowCurrencyModal(true);
+                }}
               >
-                <Text style={styles.selectButtonText}>
+                <Text style={[styles.selectButtonText, { color: colors.foreground }]}>
                   {loadingCurrencies
-                    ? '...'
-                    : selectedCurrency?.flag || currency || 'USD'}
+                    ? t('common.loading', { defaultValue: 'Loading...' })
+                    : (selectedCurrency?.flag ? `${selectedCurrency.flag} ` : '') + (currency || 'USD')}
                 </Text>
-                <ChevronDown size={16 * scale} color="#666" />
+                <ChevronDown size={16 * scale} color={colors.mutedForeground} />
               </Pressable>
             </View>
           </View>
         </Card>
 
         {/* Category */}
-        <Card style={{ marginBottom: 16 }}>
-          <Text style={styles.label}>{t('addTransaction.category')}</Text>
+        <Card style={{ marginBottom: 16, backgroundColor: colors.card }}>
+           <Text style={[styles.label, { color: colors.foreground }]}>{t('addTransaction.category')}</Text>
           {loadingCategories ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="small" color={colors.primary} />
@@ -382,12 +448,18 @@ export default function EditTransactionScreen({
               </Text>
             </View>
           ) : filteredCategories.length === 0 ? (
-            <Text style={styles.emptyText}>
+            <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
               {t('addTransaction.noCategoriesAvailable')}
             </Text>
           ) : (
             <Pressable
-              style={styles.selectButton}
+              style={[
+                styles.selectButton,
+                { 
+                  backgroundColor: colors.inputBackground, 
+                  borderColor: colors.border 
+                }
+              ]}
               onPress={() => setShowCategoryModal(true)}
             >
               <View style={styles.selectedCategoryContainer}>
@@ -396,36 +468,43 @@ export default function EditTransactionScreen({
                     {getEmojiFromIcon(selectedCategory.icon || '')}
                   </Text>
                 )}
-                <Text style={styles.selectButtonText}>
+                <Text style={[styles.selectButtonText, { color: colors.foreground }]}>
                   {selectedCategory?.name ||
                     t('addTransaction.selectCategory')}
                 </Text>
               </View>
-              <ChevronDown size={16 * scale} color="#666" />
+              <ChevronDown size={16 * scale} color={colors.mutedForeground} />
             </Pressable>
           )}
         </Card>
 
         {/* Description & Date */}
-        <Card style={{ marginBottom: 16 }}>
+        {/* Description & Date */}
+        <Card style={{ marginBottom: 16, backgroundColor: colors.card }}>
           <Input
-            label={t('addTransaction.description')}
-            placeholder={t('addTransaction.descriptionPlaceholder')}
+            label={t('addTransaction.description', { defaultValue: 'Description' })}
+            placeholder={t('addTransaction.descriptionPlaceholder', { defaultValue: 'What is this for?' })}
             value={description}
             onChangeText={setDescription}
             containerStyle={{ marginBottom: 16 }}
           />
           <View>
-            <Text style={styles.label}>{t('addTransaction.date')}</Text>
+            <Text style={[styles.label, { color: colors.foreground }]}>{t('addTransaction.date')}</Text>
             <Pressable
-              style={styles.selectButton}
+              style={[
+                styles.selectButton,
+                { 
+                  backgroundColor: colors.inputBackground, 
+                  borderColor: colors.border 
+                }
+              ]}
               onPress={openDatePicker}
             >
               <View style={styles.selectedCategoryContainer}>
-                <Calendar size={18 * scale} color="#666" />
-                <Text style={styles.selectButtonText}>{formatDateForDisplay(date, i18n.language)}</Text>
+                <Calendar size={18 * scale} color={colors.mutedForeground} />
+                <Text style={[styles.selectButtonText, { color: colors.foreground }]}>{formatDateForDisplay(date, i18n.language)}</Text>
               </View>
-              <ChevronDown size={16 * scale} color="#666" />
+              <ChevronDown size={16 * scale} color={colors.mutedForeground} />
             </Pressable>
           </View>
         </Card>
@@ -435,12 +514,20 @@ export default function EditTransactionScreen({
         {/* For now, hiding Notes field to avoid confusion if we merge them. 
             Or keep it and fix the merge logic. 
             Let's keep it but ensure it's saved. */}
-        <Card style={{ marginBottom: 16 }}>
-          <Text style={styles.label}>{t('addTransaction.notes')}</Text>
+        <Card style={{ marginBottom: 16, backgroundColor: colors.card }}>
+           <Text style={[styles.label, { color: colors.foreground }]}>{t('addTransaction.notes')}</Text>
           <TextInput
-            style={[styles.notesInput, responsiveTextStyles.body]}
+            style={[
+              styles.notesInput, 
+              responsiveTextStyles.body,
+              { 
+                backgroundColor: colors.inputBackground, 
+                color: colors.foreground,
+                borderColor: colors.border 
+              }
+            ]}
             placeholder={t('addTransaction.notesPlaceholder')}
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.mutedForeground}
             value={notes}
             onChangeText={setNotes}
             multiline
@@ -488,13 +575,13 @@ export default function EditTransactionScreen({
             style={styles.modalOverlay} 
             onPress={() => setShowDateModal(false)}
           >
-            <View style={styles.datePickerContainer}>
-              <View style={styles.datePickerHeader}>
+            <View style={[styles.datePickerContainer, { backgroundColor: colors.card }]}>
+              <View style={[styles.datePickerHeader, { borderBottomColor: colors.border }]}>
                 <Pressable onPress={() => setShowDateModal(false)}>
-                  <Text style={styles.datePickerButton}>{t('common.cancel')}</Text>
+                  <Text style={[styles.datePickerButton, { color: colors.primary }]}>{t('common.cancel')}</Text>
                 </Pressable>
                 <Pressable onPress={() => setShowDateModal(false)}>
-                  <Text style={[styles.datePickerButton, { fontWeight: 'bold' }]}>{t('common.done')}</Text>
+                  <Text style={[styles.datePickerButton, { fontWeight: 'bold', color: colors.primary }]}>{t('common.done')}</Text>
                 </Pressable>
               </View>
               <DateTimePicker
@@ -535,6 +622,10 @@ export default function EditTransactionScreen({
                   style={[
                     styles.categoryItem,
                     isSelected && styles.categoryItemSelected,
+                    {
+                      borderColor: isSelected ? colors.primary : colors.border,
+                      backgroundColor: isSelected ? `${colors.primary}20` : colors.card,
+                    }
                   ]}
                   onPress={() => {
                     setCategory(cat.name);
@@ -548,6 +639,9 @@ export default function EditTransactionScreen({
                     style={[
                       styles.categoryItemText,
                       isSelected && styles.categoryItemTextSelected,
+                      {
+                        color: isSelected ? colors.primary : colors.mutedForeground,
+                      }
                     ]}
                   >
                     {translateCategoryName(cat.name, t, cat.original_name)}
@@ -560,36 +654,97 @@ export default function EditTransactionScreen({
       </Modal>
 
       {/* Currency Selection Modal */}
-      <Modal
+      {/* Currency Selection Modal */}
+      <RNModal
         visible={showCurrencyModal}
-        onClose={() => setShowCurrencyModal(false)}
-        title={t('addTransaction.selectCurrency')}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => {
+          setShowCurrencyModal(false);
+          setCurrencySearch('');
+        }}
       >
-        <ScrollView>
-          {currencies.map((curr) => (
-            <Pressable
-              key={curr.code}
-              style={[
-                styles.currencyItem,
-                currency === curr.code && styles.currencyItemSelected,
-              ]}
-              onPress={() => {
-                setCurrency(curr.code);
+        <KeyboardAvoidingView
+          style={styles.modalOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        >
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+              <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('addTransaction.selectCurrency')}</Text>
+              <Pressable onPress={() => {
                 setShowCurrencyModal(false);
-              }}
-            >
-              <Text style={styles.currencyFlag}>{curr.flag}</Text>
-              <View style={styles.currencyInfo}>
-                <Text style={styles.currencyCode}>{curr.code}</Text>
-                <Text style={styles.currencyName}>{curr.name}</Text>
-              </View>
-              {currency === curr.code && (
-                <Text style={styles.checkmark}>✓</Text>
+                setCurrencySearch('');
+              }}>
+                <X size={24} color={colors.mutedForeground} />
+              </Pressable>
+            </View>
+            <View style={[styles.currencySearchContainer, { borderBottomColor: colors.border }]}>
+              <TextInput
+                style={[
+                  styles.currencySearchInput,
+                  {
+                    backgroundColor: colors.inputBackground,
+                    borderColor: colors.border,
+                    color: colors.foreground,
+                    fontFamily: undefined,
+                  }
+                ]}
+                placeholder={t('addTransaction.searchCurrency', { defaultValue: 'Search currency...' })}
+                placeholderTextColor={colors.mutedForeground}
+                value={currencySearch}
+                onChangeText={setCurrencySearch}
+              />
+            </View>
+            <ScrollView style={styles.modalList} keyboardShouldPersistTaps="handled">
+              {loadingCurrencies ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="small" color={colors.primary} />
+                  <Text style={[styles.loadingText, { color: colors.foreground }]}>{t('addTransaction.loadingCurrencies', { defaultValue: 'Loading currencies...' })}</Text>
+                </View>
+              ) : currencies.length === 0 ? (
+                <View style={styles.loadingContainer}>
+                   <Text style={{ padding: 20, textAlign: 'center', color: colors.mutedForeground }}>
+                    {t('addTransaction.noCurrencies', { defaultValue: 'No currencies available' })}
+                  </Text>
+                </View>
+              ) : (
+                currencies
+                  .filter((curr) => {
+                    if (!currencySearch.trim()) return true;
+                    const q = currencySearch.toLowerCase();
+                    return (
+                      curr.code.toLowerCase().includes(q) ||
+                      (curr.name || '').toLowerCase().includes(q)
+                    );
+                  })
+                  .map((curr) => {
+                    const isSelected = currency === curr.code;
+                    return (
+                      <Pressable
+                        key={curr.code}
+                        style={[
+                          styles.modalItem,
+                          { borderBottomColor: colors.border },
+                          isSelected && { backgroundColor: `${colors.primary}20` },
+                        ]}
+                        onPress={() => {
+                          setCurrency(curr.code);
+                          setShowCurrencyModal(false);
+                          setCurrencySearch('');
+                        }}
+                      >
+                        <Text style={[styles.modalItemText, { color: colors.foreground }, isSelected && { color: colors.primary, fontWeight: '600' }]}>
+                          {curr.flag ? `${curr.flag} ` : ''}{curr.code} {curr.name ? `- ${translateCurrencyName(curr.name, t)}` : ''}
+                        </Text>
+                      </Pressable>
+                    );
+                  })
               )}
-            </Pressable>
-          ))}
-        </ScrollView>
-      </Modal>
+            </ScrollView>
+          </View>
+        </KeyboardAvoidingView>
+      </RNModal>
     </SafeAreaView>
   );
 }
@@ -775,10 +930,59 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   currencyCode: {
-    ...textStyles.h3,
+    ...textStyles.body,
     fontWeight: '600',
-    color: '#212121',
-    marginBottom: 2,
+    marginBottom: 4,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '70%',
+    paddingTop: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+  },
+  modalTitle: {
+    ...textStyles.h3,
+    fontWeight: 'bold',
+    flex: 1,
+  },
+  modalList: {
+    maxHeight: 400,
+  },
+  modalItem: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+  },
+  modalItemText: {
+    ...textStyles.body,
+  },
+  currencySearchContainer: {
+    marginBottom: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+    paddingHorizontal: 20,
+  },
+  currencySearchInput: {
+    ...textStyles.bodySmall,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
   currencyName: {
     ...textStyles.caption,
@@ -792,11 +996,7 @@ const styles = StyleSheet.create({
   deleteButton: {
     borderColor: '#FF5252',
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
+
   datePickerContainer: {
     backgroundColor: 'white',
     borderTopLeftRadius: 20,

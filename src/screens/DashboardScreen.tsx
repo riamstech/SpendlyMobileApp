@@ -94,6 +94,8 @@ interface DashboardScreenProps {
   onViewAllPayments?: () => void;
   onViewInbox?: () => void;
   onRenewLicense?: () => void;
+  onEditTransaction?: (id: string) => void;
+  onDeleteTransaction?: (id: string) => void;
 }
 
 export default function DashboardScreen({ 
@@ -101,6 +103,8 @@ export default function DashboardScreen({
   onViewAllPayments,
   onViewInbox,
   onRenewLicense,
+  onEditTransaction,
+  onDeleteTransaction,
 }: DashboardScreenProps = {}) {
   const { t, i18n } = useTranslation('common');
   const { width } = useWindowDimensions();
@@ -1328,7 +1332,7 @@ export default function DashboardScreen({
                           <Pressable
                             style={styles.transactionActionButton}
                             onPress={() => {
-                              onViewAllTransactions && onViewAllTransactions();
+                              onEditTransaction && onEditTransaction(transaction.id);
                             }}
                           >
                             <Edit2 size={16} color={colors.mutedForeground} />
@@ -1336,7 +1340,7 @@ export default function DashboardScreen({
                           <Pressable
                             style={styles.transactionActionButton}
                             onPress={() => {
-                              onViewAllTransactions && onViewAllTransactions();
+                              onDeleteTransaction && onDeleteTransaction(transaction.id);
                             }}
                           >
                             <Trash2 size={16} color={colors.destructive} />

@@ -63,6 +63,7 @@ interface Transaction {
 interface Category {
   id: string;
   name: string;
+  original_name?: string;
   type: 'income' | 'expense' | 'both';
 }
 
@@ -106,6 +107,7 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
       setCategories(categoriesData.map((cat: any) => ({
         id: String(cat.id || cat.name),
         name: cat.name,
+        original_name: cat.original_name,
         type: cat.type || 'both',
       })));
     }
@@ -126,8 +128,10 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
   }, [i18n.language]);
 
   useEffect(() => {
+    // Only apply client-side filters (search, type, category, currency)
+    // Date range filtering happens on the server via loadTransactions
     applyFilters();
-  }, [transactions, searchQuery, filterType, filterCategory, filterDateRange, filterCurrency, customDateFrom, customDateTo]);
+  }, [transactions, searchQuery, filterType, filterCategory, filterCurrency]);
 
   const loadData = async () => {
     try {
@@ -325,8 +329,13 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
     }
     
     // Category filter (already applied in API, but keep for consistency)
+    // Category filter
     if (filterCategory !== 'all') {
-      filtered = filtered.filter(tx => tx.category === filterCategory);
+      filtered = filtered.filter(tx => 
+        tx.category === filterCategory || 
+        tx.original_category === filterCategory ||
+        (tx.category && tx.category.toLowerCase() === filterCategory.toLowerCase())
+      );
     }
 
     if (filterCurrency !== 'all') {
@@ -568,7 +577,10 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
             { color: (filterCategory !== 'all' || filterCurrency !== 'all') ? '#fff' : colors.foreground }
           ]} numberOfLines={1}>
             {(filterCategory !== 'all' || filterCurrency !== 'all') 
-              ? `${filterCategory !== 'all' ? translateCategoryName(filterCategory, t) : ''}${filterCategory !== 'all' && filterCurrency !== 'all' ? ' • ' : ''}${filterCurrency !== 'all' ? filterCurrency : ''}`
+              ? `${filterCategory !== 'all' ? (() => {
+                  const cat = categories.find(c => c.name === filterCategory);
+                  return translateCategoryName(filterCategory, t, cat?.original_name);
+                })() : ''}${filterCategory !== 'all' && filterCurrency !== 'all' ? ' • ' : ''}${filterCurrency !== 'all' ? filterCurrency : ''}`
               : (t('common.filter') || 'Filter')}
           </Text>
         </Pressable>
@@ -746,7 +758,7 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
                   }}
                 >
                   <Text style={[styles.modalItemText, filterCategory === category.name && styles.modalItemTextActive]}>
-                    {translateCategoryName(category.name, t, (category as any).original_name)}
+                    {translateCategoryName(category.name, t, category.original_name)}
                   </Text>
                 </Pressable>
               ))}
@@ -846,13 +858,49 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
       </Modal>
 
       {/* DateTimePicker for Custom Range */}
-      {showCustomDatePicker && (
+      {/* DateTimePicker for Custom Range */}
+      {showCustomDatePicker && Platform.OS === 'ios' ? (
+        <Modal
+          visible={showCustomDatePicker}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowCustomDatePicker(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={[styles.datePickerContainer, { backgroundColor: colors.card }]}>
+              <View style={[styles.datePickerHeader, { borderBottomColor: colors.border }]}>
+                <Pressable onPress={() => setShowCustomDatePicker(false)}>
+                  <Text style={[styles.datePickerButton, { color: colors.primary }]}>{t('common.cancel')}</Text>
+                </Pressable>
+                <Pressable onPress={() => setShowCustomDatePicker(false)}>
+                  <Text style={[styles.datePickerButton, { fontWeight: 'bold', color: colors.primary }]}>{t('common.done')}</Text>
+                </Pressable>
+              </View>
+              <DateTimePicker
+                value={pickingDateType === 'start' ? customStartDate : customEndDate}
+                mode="date"
+                display="spinner"
+                onChange={(event, selectedDate) => {
+                  if (selectedDate) {
+                    if (pickingDateType === 'start') {
+                      setCustomStartDate(selectedDate);
+                    } else {
+                      setCustomEndDate(selectedDate);
+                    }
+                  }
+                }}
+                textColor={isDark ? 'white' : 'black'}
+              />
+            </View>
+          </View>
+        </Modal>
+      ) : showCustomDatePicker && (
         <DateTimePicker
           value={pickingDateType === 'start' ? customStartDate : customEndDate}
           mode="date"
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          display="default"
           onChange={(event, selectedDate) => {
-            setShowCustomDatePicker(Platform.OS === 'ios');
+            setShowCustomDatePicker(false);
             if (selectedDate) {
               if (pickingDateType === 'start') {
                 setCustomStartDate(selectedDate);
@@ -1253,5 +1301,23 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
     fontSize: 14,
+  },
+  datePickerContainer: {
+    backgroundColor: 'white',
+    // Position at bottom like a sheet
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: 20,
+  },
+  datePickerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
 });

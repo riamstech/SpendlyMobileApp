@@ -199,35 +199,35 @@
     "fileSystemNotAvailable": "نظام الملفات غير متوفر"
   },
   "analytics": {
-    "insights": "الرؤى",
+    "insights": "رؤى",
     "categories": "الفئات",
     "trends": "الاتجاهات",
-    "health": "الصحة",
+    "health": "الصحة المالية",
     "smartInsights": "رؤى ذكية",
     "noInsights": "لا توجد رؤى متاحة. ابدأ بإضافة المعاملات لرؤية الرؤى الذكية.",
     "spendingByCategory": "الإنفاق حسب الفئة",
     "categoryDistribution": "توزيع الفئات",
     "transactions": "معاملات",
-    "spendingTrends": "اتجاهات الإنفاق",
+    "spendingTrends": "جاهات الإنفاق",
     "incomeVsExpenses": "الدخل مقابل المصروفات",
-    "net": "الصافي",
+    "net": "صافي",
     "savingsRateOverTime": "معدل التوفير مع مرور الوقت",
     "savingsRate": "معدل الادخار",
-    "saved": "موفر",
-    "financialHealthScore": "نقاط الصحة المالية",
-    "grade": "الدرجة:",
-    "scoreBreakdown": "تفصيل النقاط",
-    "recommendations": "التوصيات",
-    "improveFinancialHealth": "حسّن صحتك المالية",
-    "currentGrade": "الدرجة الحالية:",
-    "keyAreasToFocusOn": "المجالات الرئيسية للتركيز عليها:",
+    "saved": "توفير",
+    "financialHealthScore": "درجة الصحة المالية",
+    "grade": "التقدير",
+    "scoreBreakdown": "تحليل الدرجة",
+    "recommendations": "توصيات",
+    "improveFinancialHealth": "تحسين الصحة المالية",
+    "currentGrade": "الدرجة الحالية",
+    "keyAreasToFocusOn": "مجالات رئيسية للتركيز عليها",
     "points": "نقاط",
-    "current": "الحالي:",
-    "quickWinsToImproveScore": "مكاسب سريعة لتحسين نقاطك:",
+    "current": "الحالي",
+    "quickWinsToImproveScore": "خطوات سريعة لتحسين الدرجة",
     "gotIt": "فهمت!",
     "tipsToImprove": "نصائح لتحسين صحتك المالية",
     "spendingTrend": "اتجاه الإنفاق",
-    "topSpendingCategory": "أهم فئات الإنفاق",
+    "topSpendingCategory": "أعلى فئة إنفاق",
     "spendingPace": "وتيرة الإنفاق",
     "solidEmergencyFund": "صندوق طوارئ قوي",
     "emergencyFund": "صندوق الطوارئ",
@@ -240,9 +240,9 @@
     "insightSavingPercentage": "أنت توفر {{percentage}}% من دخلك هذا الشهر.",
     "insightSpendingLess": "لقد أنفقت {{percentage}}% أقل مقارنة بالشهر الماضي.",
     "insightSpendingMore": "لقد أنفقت {{percentage}}% أكثر مقارنة بالشهر الماضي.",
-    "insightSpendingPace": "بوتيرتك الحالية، ستنفق ${{amount}} هذا الشهر.",
+    "insightSpendingPace": "بمعدلك الحالي، ستنفق ${{amount}} هذا الشهر.",
     "insightEmergencyFund": "عمل رائع! صندوق الطوارئ الخاص بك يغطي {{months}} أشهر من النفقات.",
-    "insightTopCategory": "{{category}} هو أكبر نفقتك بنسبة {{percentage}}% من إجمالي الإنفاق.",
+    "insightTopCategory": "{{category}} هي أكبر نفقاتك بنسبة {{percentage}}% من إجمالي الإنفاق.",
     "unknownInsight": "{{defaultValue}}",
     "score": "النتيجة",
     "tipSavings": "💡 <strong>Tip:</strong> Aim to save at least 20% of your income. Start by tracking all expenses and identifying areas where you can cut back.",
@@ -254,18 +254,22 @@
     "actionGoal": "قم بإعداد هدف توفير شهري والتزم به",
     "actionEmergency": "أنشئ فئة استثمار صندوق طوارئ وشارك بانتظام",
     "actionBudget": "استخدم ميزة الميزانية للتخطيط والتحكم في إنفاقك",
-    "noInsightsAvailable": "لا توجد رؤى متاحة بعد",
+    "noInsightsAvailable": "لا توجد رؤى متاحة حتى الآن",
     "noSpendingData": "لا توجد بيانات إنفاق لهذه الفترة",
-    "noTrendData": "لا توجد بيانات اتجاه متاحة",
-    "factorTransactions": "{{count}} معاملة",
+    "noTrendData": "لا توجد بيانات متاحة",
+    "factorTransactions": "{{count}} معاملات",
     "factorMonthsActive": "{{active}}/{{total}} أشهر نشطة",
     "factorMonths": "({{count}} أشهر)",
     "recommendationSavePercentage": "حاول توفير ما لا يقل عن {{percentage}}% من دخلك كل شهر.",
     "recommendationTrackExpenses": "تتبع جميع نفقاتك للحصول على رؤى أفضل.",
-    "recommendationTrackRegularly": "اجعل من تتبع النفقات عادة منتظمة.",
-    "recommendationEmergencyFundRange": "أنشئ صندوق طوارئ يغطي {{min}}-{{max}} أشهر من النفقات.",
-    "recommendationEmergencyFund": "أنشئ صندوق طوارئ يغطي {{months}} شهر من النفقات.",
-    "recommendationEmergencyFundGeneral": "أنشئ صندوق طوارئ يغطي 3-6 أشهر من النفقات."
+    "recommendationTrackRegularly": "اجعل تتبع النفقات عادة منتظمة.",
+    "recommendationEmergencyFundRange": "قم بإنشاء صندوق طوارئ يغطي {{min}}-{{max}} أشهر من النفقات.",
+    "recommendationEmergencyFund": "قم بإنشاء صندوق طوارئ يغطي {{months}} أشهر من النفقات.",
+    "recommendationEmergencyFundGeneral": "قم بإنشاء صندوق طوارئ يغطي 3-6 أشهر من النفقات.",
+    "title": "التقارير والتحليلات",
+    "trackTrends": "تتبع اتجاهاتك المالية",
+    "income": "دخل",
+    "expenses": "مصاريف"
   },
   "insights": {
     "amount": "المبلغ ($)",
@@ -578,18 +582,18 @@
     "failedToLoad": "Failed to load referral data"
   },
   "payment": {
-    "oneMonthAccess": "وصول لمدة شهر واحد",
-    "oneYearAccess": "وصول لمدة سنة واحدة",
+    "oneMonthAccess": "وصول لمدة شهر",
+    "oneYearAccess": "وصول لمدة سنة",
     "savePercent": "وفر {{percent}}%",
     "cannotOpenRazorpayUrl": "لا يمكن فتح رابط Razorpay",
     "upiPaymentLinkNotReady": "رابط الدفع UPI غير جاهز. يرجى المحاولة باستخدام البطاقة.",
     "amountCurrencyRequired": "المبلغ والعملة مطلوبان للدفع. يرجى المحاولة مرة أخرى.",
     "cannotOpenStripeUrl": "لا يمكن فتح رابط Stripe",
     "noCheckoutUrl": "لم يتم إرجاع رابط الدفع",
-    "payWithCard": "Pay with Card",
-    "payWithUPI": "Pay with UPI",
+    "payWithCard": "الدفع بالبطاقة",
+    "payWithUPI": "الدفع عبر UPI",
     "completePlanPayment": "Complete your {{plan}} plan payment",
-    "selectPlan": "Select Plan",
+    "selectPlan": "اختر الخطة",
     "plan": "Plan",
     "method": "Method",
     "monthly": "Monthly",
@@ -598,7 +602,7 @@
     "processing": "Processing Payment",
     "redirectingToStripe": "You will be redirected to complete your payment.",
     "continue": "Continue",
-    "payNow": "Pay Now",
+    "payNow": "ادفع الآن",
     "mobileNote": "One-time payment. You will be redirected to complete your payment securely.",
     "failed": "Payment failed",
     "razorpay": "Razorpay Payment",

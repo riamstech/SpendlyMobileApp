@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import DashboardScreen from './DashboardScreen';
 import AddTransactionScreen from './AddTransactionScreen';
+import EditTransactionScreen from './EditTransactionScreen';
 import AllTransactionsScreen from './AllTransactionsScreen';
 import AllPaymentsScreen from './AllPaymentsScreen';
 import ReportsScreen from './ReportsScreen';
@@ -18,9 +19,15 @@ import SupportTicketsScreen from './SupportTicketsScreen';
 import BottomTabNavigator from '../components/BottomTabNavigator';
 import StripePaymentDialog from '../components/StripePaymentDialog';
 import { usersService } from '../api/services/users';
-import { currenciesService, Currency } from '../api/services/currencies';
+import { currenciesService } from '../api/services/currencies';
+import { Currency } from '../api/types/category';
 import { getCurrencyForCountry, convertUsdToCurrency, formatCurrencyAmount } from '../utils/currencyConverter';
 import i18n from '../i18n';
+import { Transaction } from '../api/types/transaction';
+import { transactionsService } from '../api/services/transactions';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { Alert } from 'react-native';
+import { authService } from '../api/services/auth';
 
 interface MainScreenProps {
   onLogout?: () => void;
@@ -55,6 +62,11 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
     currencyCode: string;
   } | null>(null);
 
+  const [showEditTransaction, setShowEditTransaction] = useState(false);
+  const [transactionToEdit, setTransactionToEdit] = useState<Transaction | null>(null);
+  const [loadingTransaction, setLoadingTransaction] = useState(false);
+  const [dashboardRefreshKey, setDashboardRefreshKey] = useState(0);
+
   // Handle initial screen from notification
   React.useEffect(() => {
     if (initialScreen === 'inbox') {
@@ -68,8 +80,8 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
       setLoadingPricing(true);
       console.log('Loading user and currencies...');
       const [userData, currenciesData] = await Promise.all([
-        usersService.getCurrentUser(),
-        currenciesService.getAll(),
+        authService.getCurrentUser(),
+        currenciesService.getCurrencies(),
       ]);
       console.log('Loaded - user:', userData?.email || 'no user', 'currencies:', currenciesData?.length || 0);
       setUser(userData);
@@ -160,6 +172,44 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
     setShowAddTransaction(false);
   };
 
+  const handleEditTransaction = async (id: string) => {
+    try {
+      setLoadingTransaction(true);
+      const transaction = await transactionsService.getTransaction(Number(id));
+      setTransactionToEdit(transaction);
+      setShowEditTransaction(true);
+    } catch (error) {
+       console.error('Failed to load transaction for editing:', error);
+       Alert.alert('Error', 'Failed to load transaction details');
+    } finally {
+      setLoadingTransaction(false);
+    }
+  };
+
+  const handleDeleteTransaction = async (id: string) => {
+    Alert.alert(
+      'Delete Transaction',
+      'Are you sure you want to delete this transaction?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+             try {
+               await transactionsService.deleteTransaction(Number(id));
+               setDashboardRefreshKey(prev => prev + 1);
+             } catch (error) {
+               console.error('Failed to delete transaction:', error);
+               Alert.alert('Error', 'Failed to delete transaction');
+             }
+          }
+        }
+      ]
+    );
+  };
+
+
   const renderScreen = () => {
     switch (activeTab) {
       case 'home':
@@ -193,6 +243,27 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
       <AddTransactionScreen
         onSuccess={handleAddTransactionSuccess}
         onCancel={handleAddTransactionCancel}
+      />
+    );
+  }
+
+  if (loadingTransaction) {
+    return <LoadingSpinner size="large" text="Loading transaction..." fullScreen />;
+  }
+
+  if (showEditTransaction && transactionToEdit) {
+    return (
+      <EditTransactionScreen
+        transaction={transactionToEdit}
+        onSuccess={() => {
+          setShowEditTransaction(false);
+          setTransactionToEdit(null);
+          setDashboardRefreshKey(prev => prev + 1);
+        }}
+        onCancel={() => {
+          setShowEditTransaction(false);
+          setTransactionToEdit(null);
+        }}
       />
     );
   }
@@ -266,9 +337,12 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
       <View style={styles.content}>
         {activeTab === 'home' ? (
           <DashboardScreen
+            key={dashboardRefreshKey}
             onViewAllTransactions={() => setShowAllTransactions(true)}
             onViewAllPayments={() => setShowAllPayments(true)}
             onViewInbox={() => setShowInbox(true)}
+            onEditTransaction={handleEditTransaction}
+            onDeleteTransaction={handleDeleteTransaction}
             onRenewLicense={async () => {
               console.log('Renew clicked - pricingData:', pricingData, 'user:', !!user, 'currencies:', currencies.length);
               

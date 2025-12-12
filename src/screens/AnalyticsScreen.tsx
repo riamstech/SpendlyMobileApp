@@ -189,8 +189,8 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
   };
 
   const translateInsightMessage = (message: string): string => {
-    // Match "You're saving X% of your income this month."
-    const savingsRateMatch = message.match(/You're saving ([\d.]+)% of your income this month\./i);
+    // Match "You're saving X% of your income this month." (Allow negative numbers, optional period)
+    const savingsRateMatch = message.match(/You're saving\s+([-]?[\d.,]+)\s*%\s+of your income this month/i);
     if (savingsRateMatch) {
       return t('analytics.insightSavingPercentage', { 
         percentage: savingsRateMatch[1],
@@ -199,7 +199,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
     }
     
     // Match "You've spent X% less compared to last month."
-    const spendingTrendMatch = message.match(/You've spent ([\d.]+)% less compared to last month\./i);
+    const spendingTrendMatch = message.match(/You've spent\s+([\d.,]+)\s*%\s+less compared to last month/i);
     if (spendingTrendMatch) {
       return t('analytics.insightSpendingLess', { 
         percentage: spendingTrendMatch[1],
@@ -208,7 +208,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
     }
     
     // Match "You've spent X% more compared to last month."
-    const spendingMoreMatch = message.match(/You've spent ([\d.]+)% more compared to last month\./i);
+    const spendingMoreMatch = message.match(/You've spent\s+([\d.,]+)\s*%\s+more compared to last month/i);
     if (spendingMoreMatch) {
       return t('analytics.insightSpendingMore', { 
         percentage: spendingMoreMatch[1],
@@ -217,7 +217,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
     }
     
     // Match "At your current pace, you'll spend $X this month."
-    const spendingPaceMatch = message.match(/At your current pace, you'll spend \$?([\d,]+\.?\d*) this month\./i);
+    const spendingPaceMatch = message.match(/At your current pace, you'll spend\s+\$?([\d,]+\.?\d*)\s+this month/i);
     if (spendingPaceMatch) {
       return t('analytics.insightSpendingPace', { 
         amount: spendingPaceMatch[1],
@@ -226,7 +226,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
     }
     
     // Match "Great job! Your emergency fund covers X months of expenses."
-    const emergencyFundMatch = message.match(/Great job! Your emergency fund covers ([\d.]+) months? of expenses\./i);
+    const emergencyFundMatch = message.match(/Great job! Your emergency fund covers\s+([\d.]+)\s+months?/i);
     if (emergencyFundMatch) {
       return t('analytics.insightEmergencyFund', { 
         months: emergencyFundMatch[1],
@@ -235,7 +235,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
     }
     
     // Match "X is your biggest expense at Y% of total spending."
-    const topCategoryMatch = message.match(/(.+?) is your biggest expense at ([\d.]+)% of total spending\./i);
+    const topCategoryMatch = message.match(/(.+?)\s+is your biggest expense at\s+([\d.]+)\s*%\s+of total spending/i);
     if (topCategoryMatch) {
       const categoryName = topCategoryMatch[1];
       const translatedCategory = translateCategoryName(categoryName, t);
@@ -316,9 +316,19 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
         defaultValue: `(${monthsMatch[1]} months)`
       });
     }
+
+    // Match "Amount (X months)" pattern e.g. "$39,900.00 (4.1 months)"
+    // Matches currency symbol or code optional, amount, and months in parens
+    const amountMonthsMatch = value.match(/^([^\(]+)\s+\(([\d.]+)\s+months?\)$/i);
+    if (amountMonthsMatch) {
+      return `${amountMonthsMatch[1]} ${t('analytics.factorMonths', { 
+        count: amountMonthsMatch[2],
+        defaultValue: `(${amountMonthsMatch[2]} months)`
+      })}`;
+    }
     
     // Match "Try to save at least X% of your income each month."
-    const saveRecommendationMatch = value.match(/Try to save at least ([\d.]+)% of your income each month\./i);
+    const saveRecommendationMatch = value.match(/Try to save at least ([\d.]+)% of your income each month/i);
     if (saveRecommendationMatch) {
       return t('analytics.recommendationSavePercentage', { 
         percentage: saveRecommendationMatch[1],
