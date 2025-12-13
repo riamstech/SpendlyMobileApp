@@ -16,9 +16,9 @@ module.exports = {
       backgroundColor: "#ffffff"
     },
     ios: {
-      supportsTablet: true,
+      supportsTablet: false,
       bundleIdentifier: "com.spendly.mobile",
-      buildNumber: "5",
+      buildNumber: "7",
       deploymentTarget: "13.4",
       icon: "./assets/icon.png",
       displayName: "Spendly Money",
