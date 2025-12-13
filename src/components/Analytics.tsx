@@ -86,18 +86,7 @@ export default function Analytics() {
           trendsArray = trendsData as SpendingTrend[];
         }
         
-        if (trendsArray.length > 0) {
-            label: t.label || t.period, 
-            period: t.period,
-            savingsRate: t.savingsRate || t.savings_rate || 0, 
-            savings_rate: t.savings_rate || t.savingsRate || 0,
-            income: t.income || 0,
-            expense: t.expense || 0,
-            net: t.net || ((t.income || 0) - (t.expense || 0))
-          })));
-        } else {
-          console.warn('[Analytics] Spending trends array is empty! Check if there are transactions in the date range.');
-        }
+
         // Ensure all trends have required fields with defaults
         const processedTrends = trendsArray.map(t => ({
           ...t,
