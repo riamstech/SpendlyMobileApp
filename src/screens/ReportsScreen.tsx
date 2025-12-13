@@ -362,11 +362,7 @@ export default function ReportsScreen() {
         });
       }
 
-        allMonthlyDataCount: allMonthlyData.length,
-        rawFilteredDataCount: rawFilteredData.length,
-        finalChartDataCount: finalChartData.length,
-        dateRange: { from, to },
-      });
+
 
       setMonthlyData(finalChartData);
       
