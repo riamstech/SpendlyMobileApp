@@ -158,12 +158,9 @@ export default function OnboardingScreen({
           updateData.state = state.trim();
         }
         
-        console.log('[Onboarding] Saving user data:', JSON.stringify(updateData, null, 2));
-        console.log('[Onboarding] User ID:', currentUser.id);
         
         // Make API call to save user preferences
         const result = await usersService.updateUser(currentUser.id, updateData);
-        console.log('[Onboarding] API response:', JSON.stringify(result, null, 2));
         
         showToast.success(
           t('onboarding.setupComplete', { defaultValue: 'Setup complete!' }),

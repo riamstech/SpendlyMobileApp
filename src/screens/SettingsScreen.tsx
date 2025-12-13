@@ -244,7 +244,6 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
     if (AppState.addEventListener) {
       appStateSubscription = AppState.addEventListener('change', (nextAppState) => {
         if (nextAppState === 'active') {
-          console.log('📱 App became active - checking notification permission status...');
           checkPermissionOnFocus();
         }
       });
@@ -321,7 +320,6 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
             setNotifications(false);
             // If backend says enabled but system permission is not granted, update backend
             if (backendNotificationsEnabled) {
-              console.log('⚠️ Backend has notifications enabled but system permission is not granted. Syncing...');
               try {
                 await usersService.updateUserSettings({
                   notifications_enabled: false,
@@ -578,7 +576,6 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       
       // If permission is denied, always open settings (regardless of toggle direction)
       if (currentStatus === 'denied') {
-        console.log('📱 Permission denied - opening device settings...');
         Alert.alert(
           t('settings.notificationPermissionDenied') || 'Notification Permission Required',
           t('settings.notificationPermissionDeniedMessage') || 
@@ -594,7 +591,6 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                 try {
                   // Open device settings
                   await Linking.openSettings();
-                  console.log('✅ Opened device settings');
                 } catch (error) {
                   console.error('Error opening settings:', error);
                   Alert.alert(
@@ -613,7 +609,6 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       
       // If enabling notifications, request system permissions first
       if (enabled) {
-        console.log('🔔 Enabling notifications - requesting system permissions...');
         setNotificationPermissionStatus('checking');
         
         // Request permissions (will show dialog if undetermined)
@@ -621,8 +616,6 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
         setNotificationPermissionStatus(permissionResult.status as 'granted' | 'denied' | 'undetermined');
         
         if (!permissionResult.granted) {
-          console.log('⚠️ Notification permissions not granted');
-          console.log('📊 Permission status:', permissionResult.status);
           
           // If still not granted after request, open settings
           if (permissionResult.status === 'denied') {
@@ -642,7 +635,6 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                     try {
                       // Open device settings
                       await Linking.openSettings();
-                      console.log('✅ Opened device settings');
                       setNotifications(false);
                     } catch (error) {
                       console.error('Error opening settings:', error);
@@ -688,7 +680,6 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
           }
         }
         
-        console.log('✅ Notification permissions granted');
         
         // If permission granted, get push token and register device
         try {
@@ -697,7 +688,6 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
             const deviceUUID = await notificationService.getDeviceUUID();
             // Register device with backend
             await devicesService.registerDevice(deviceUUID, pushToken);
-            console.log('✅ Notifications enabled and device registered');
           }
         } catch (error) {
           console.error('Error initializing notifications:', error);
@@ -853,7 +843,6 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
         name: imageName,
       } as any);
 
-      console.log('Uploading avatar:', { 
         imageUri, 
         imageName, 
         imageType, 
@@ -968,16 +957,13 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                   {getAvatarUrl(user.avatar || (user as any)?.avatar_url) && !avatarLoadError ? (
                     <Image 
                       source={{ uri: `${getAvatarUrl(user.avatar || (user as any)?.avatar_url)}?t=${avatarCacheTimestamp}` }} 
-                      onLoadStart={() => console.log('Loading avatar from:', getAvatarUrl(user.avatar || (user as any)?.avatar_url))}
                       style={styles.avatar}
                       onError={(error) => {
                         // Fallback to placeholder if image fails to load
-                        console.log('Avatar image failed to load:', error.nativeEvent);
                         setAvatarLoadError(true);
                       }}
                       onLoad={() => {
                         // Reset error state if image loads successfully
-                        console.log('Avatar loaded successfully');
                         setAvatarLoadError(false);
                       }}
                     />
@@ -1170,7 +1156,6 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                   if (notificationPermissionStatus === 'denied') {
                     try {
                       await Linking.openSettings();
-                      console.log('✅ Opened device settings from notification item');
                     } catch (error) {
                       console.error('Error opening settings:', error);
                       Alert.alert(

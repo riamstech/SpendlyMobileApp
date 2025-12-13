@@ -41,19 +41,14 @@ export const notificationService = {
    */
   async requestPermissions(): Promise<NotificationPermissionStatus> {
     try {
-      console.log('🔔 Checking notification permissions...');
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      console.log('📋 Current permission status:', existingStatus);
       
       let finalStatus = existingStatus;
       
       if (existingStatus !== 'granted') {
-        console.log('📱 Requesting notification permissions...');
         const { status } = await Notifications.requestPermissionsAsync();
         finalStatus = status;
-        console.log('✅ Permission request result:', status);
       } else {
-        console.log('✅ Notifications already granted');
       }
       
       const result = {
@@ -62,7 +57,6 @@ export const notificationService = {
         status: finalStatus,
       };
       
-      console.log('📊 Permission result:', result);
       return result;
     } catch (error) {
       console.error('❌ Error requesting notification permissions:', error);
@@ -105,7 +99,6 @@ export const notificationService = {
         projectId,
       });
 
-      console.log('✅ Expo Push Token:', token.data);
       return token.data;
     } catch (error) {
       console.error('Error getting Expo push token:', error);
@@ -163,7 +156,6 @@ export const notificationService = {
           }))
         );
       }
-      console.log('✅ Notification categories set');
     } catch (error) {
       console.error('Error setting notification categories:', error);
     }

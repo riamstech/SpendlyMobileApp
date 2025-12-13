@@ -58,9 +58,7 @@ export default function Analytics() {
       // Handle insights
       if (insightsResult.status === 'fulfilled') {
         const insightsData = insightsResult.value;
-        console.log('[Analytics] Insights response:', insightsData);
         const insightsArray = insightsData?.insights || [];
-        console.log('[Analytics] Insights array length:', insightsArray.length, insightsArray);
         setInsights(Array.isArray(insightsArray) ? insightsArray : []);
       } else {
         console.error('[Analytics] Failed to load insights:', insightsResult.reason);
@@ -70,9 +68,7 @@ export default function Analytics() {
       // Handle category breakdown
       if (categoryResult.status === 'fulfilled') {
         const categoryData = categoryResult.value;
-        console.log('[Analytics] Category breakdown response:', categoryData);
         const breakdownArray = categoryData?.breakdown || [];
-        console.log('[Analytics] Category breakdown array length:', breakdownArray.length, breakdownArray);
         setCategoryBreakdown(Array.isArray(breakdownArray) ? breakdownArray : []);
       } else {
         console.error('[Analytics] Failed to load category breakdown:', categoryResult.reason);
@@ -82,7 +78,6 @@ export default function Analytics() {
       // Handle spending trends
       if (trendsResult.status === 'fulfilled') {
         const trendsData = trendsResult.value;
-        console.log('[Analytics] Spending trends response:', JSON.stringify(trendsData, null, 2));
         // Handle different response structures
         let trendsArray: SpendingTrend[] = [];
         if (trendsData?.trends && Array.isArray(trendsData.trends)) {
@@ -91,10 +86,7 @@ export default function Analytics() {
           trendsArray = trendsData as SpendingTrend[];
         }
         
-        console.log('[Analytics] Spending trends array length:', trendsArray.length);
         if (trendsArray.length > 0) {
-          console.log('[Analytics] First trend item:', JSON.stringify(trendsArray[0], null, 2));
-          console.log('[Analytics] Sample savings rates:', trendsArray.map(t => ({ 
             label: t.label || t.period, 
             period: t.period,
             savingsRate: t.savingsRate || t.savings_rate || 0, 
@@ -126,7 +118,6 @@ export default function Analytics() {
       // Handle health score
       if (healthResult.status === 'fulfilled') {
         const healthData = healthResult.value;
-        console.log('[Analytics] Health score response:', healthData);
         setHealthScore(healthData || null);
       } else {
         console.error('[Analytics] Failed to load health score:', healthResult.reason);

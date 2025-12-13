@@ -136,9 +136,7 @@ export default function EditTransactionScreen({
     const loadCurrencies = async () => {
       try {
         setLoadingCurrencies(true);
-        console.log('Loading currencies for EditTransactionScreen...');
         const currenciesData = await currenciesService.getCurrencies();
-        console.log('Loaded currencies:', currenciesData?.length);
         
         if (currenciesData && currenciesData.length > 0) {
           setCurrencies(currenciesData);
@@ -422,7 +420,6 @@ export default function EditTransactionScreen({
                   }
                 ]}
                 onPress={() => {
-                  console.log('Currency button pressed. Loading:', loadingCurrencies, 'Count:', currencies.length);
                   setShowCurrencyModal(true);
                 }}
               >

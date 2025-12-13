@@ -18,7 +18,6 @@ export function useCategories(type?: 'income' | 'expense' | 'investment') {
       setLoading(true);
       setError(null);
       
-      console.log(`[useCategories] Loading categories (type: ${type || 'all'}, language: ${i18n.language})...`);
       const response = await categoriesService.getCategories(type);
       
       // Handle different response formats
@@ -34,7 +33,6 @@ export function useCategories(type?: 'income' | 'expense' | 'investment') {
         allCategories = response;
       }
       
-      console.log(`[useCategories] Loaded ${allCategories.length} categories`);
       setCategories(allCategories);
     } catch (err: any) {
       console.error('[useCategories] Error loading categories:', err);
@@ -53,7 +51,6 @@ export function useCategories(type?: 'income' | 'expense' | 'investment') {
   // Listen to language changes and refetch categories
   useEffect(() => {
     const handleLanguageChange = (lng: string) => {
-      console.log(`[useCategories] Language changed to ${lng}, refetching categories...`);
       loadCategories();
     };
 

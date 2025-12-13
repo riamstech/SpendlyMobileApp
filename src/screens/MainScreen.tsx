@@ -78,18 +78,15 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
   const loadUserAndCurrencies = async () => {
     try {
       setLoadingPricing(true);
-      console.log('Loading user and currencies...');
       const [userData, currenciesData] = await Promise.all([
         authService.getCurrentUser(),
         currenciesService.getCurrencies(),
       ]);
-      console.log('Loaded - user:', userData?.email || 'no user', 'currencies:', currenciesData?.length || 0);
       setUser(userData);
       setCurrencies(currenciesData);
       
       // Apply user's preferred language if available and different from current
       if (userData?.preferredLocale && userData.preferredLocale !== i18n.language) {
-        console.log('[MainScreen] Applying user preferred language:', userData.preferredLocale);
         await i18n.changeLanguage(userData.preferredLocale);
       }
       
@@ -109,19 +106,16 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
   // Calculate pricing based on user's country/currency
   const pricingData = React.useMemo(() => {
     if (!user) {
-      console.log('PricingData: No user available');
       return null;
     }
     
     if (currencies.length === 0) {
-      console.log('PricingData: No currencies available');
       return null;
     }
     
     // Default to USD if checking country fails or currencies not loaded
     // Prioritize user's selected defaultCurrency if available, otherwise fallback to country-based currency
     const userCurrencyCode = user.defaultCurrency || getCurrencyForCountry(user.country) || 'USD';
-    console.log('PricingData: Calculating for currency:', userCurrencyCode);
     
     // Use base prices from Web App logic: $2/mo and $10/yr
     const monthlyPrice = convertUsdToCurrency(2, userCurrencyCode, currencies);
@@ -135,15 +129,12 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
       currencyCode: userCurrencyCode
     };
     
-    console.log('PricingData calculated:', result);
     return result;
   }, [user, currencies]);
 
   // Show payment dialog when pricing data becomes available after loading
   React.useEffect(() => {
-    console.log('useEffect triggered - pendingPaymentDialog:', pendingPaymentDialog, 'pricingData:', !!pricingData, 'loadingPricing:', loadingPricing);
     if (pendingPaymentDialog && pricingData && !loadingPricing) {
-      console.log('Pricing data ready, showing payment dialog:', pricingData);
       setStripePaymentData({
         planType: 'monthly',
         paymentMethod: 'card',
@@ -151,7 +142,6 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
       setShowStripePayment(true);
       setPendingPaymentDialog(false);
     } else if (pendingPaymentDialog && !loadingPricing && !pricingData) {
-      console.log('Still waiting for pricing data... user:', !!user, 'currencies:', currencies.length);
     }
   }, [pricingData, pendingPaymentDialog, loadingPricing, user, currencies]);
 
@@ -344,11 +334,9 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
             onEditTransaction={handleEditTransaction}
             onDeleteTransaction={handleDeleteTransaction}
             onRenewLicense={async () => {
-              console.log('Renew clicked - pricingData:', pricingData, 'user:', !!user, 'currencies:', currencies.length);
               
               // If pricing data is already available, show dialog immediately
               if (pricingData) {
-                console.log('Pricing data available, showing dialog immediately');
                 setStripePaymentData({
                   planType: 'monthly',
                   paymentMethod: 'card',
@@ -358,11 +346,9 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
               }
 
               // Always try to load/reload data to ensure we have the latest
-              console.log('Loading user and currencies data...');
               try {
                 setPendingPaymentDialog(true);
                 const loadedData = await loadUserAndCurrencies();
-                console.log('Data loaded - user:', !!loadedData.userData, 'currencies:', loadedData.currenciesData.length);
                 
                 // Calculate pricing directly from loaded data
                 if (loadedData.userData && loadedData.currenciesData.length > 0) {
@@ -378,7 +364,6 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
                     currencyCode: userCurrencyCode
                   };
                   
-                  console.log('Calculated pricing directly:', calculatedPricing);
                   
                   // Store calculated pricing and show dialog
                   setManualPricingData(calculatedPricing);
@@ -389,7 +374,6 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
                   setShowStripePayment(true);
                   setPendingPaymentDialog(false);
                 } else {
-                  console.log('User or currencies missing after load');
                   setPendingPaymentDialog(false);
                   setActiveTab('settings');
                 }

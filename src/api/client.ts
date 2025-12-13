@@ -169,11 +169,8 @@ class ApiClient {
 
   // HTTP methods
   async get<T>(url: string, config?: any): Promise<T> {
-    console.log(`API Client: Making GET request to ${this.client.defaults.baseURL}${url}`);
-    console.log(`API Client: Request config:`, config);
     try {
       const response = await this.client.get<T>(url, config);
-      console.log(`API Client: GET response received from ${url}:`, response);
       return response.data;
     } catch (error: any) {
       console.error(`API Client: GET request failed for ${url}:`, error);
@@ -182,11 +179,8 @@ class ApiClient {
   }
 
   async post<T>(url: string, data?: any, config?: any): Promise<T> {
-    console.log(`API Client: Making POST request to ${this.client.defaults.baseURL}${url}`);
-    console.log(`API Client: Request data:`, data);
     try {
       const response = await this.client.post<T>(url, data, config);
-      console.log(`API Client: POST response received from ${url}:`, response);
       return response.data;
     } catch (error: any) {
       console.error(`API Client: POST request failed for ${url}:`, error);

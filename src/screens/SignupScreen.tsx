@@ -10,6 +10,7 @@ import {
   ScrollView,
   Image,
   useWindowDimensions,
+  Linking,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
@@ -225,14 +226,12 @@ export default function SignupScreen({
         device_name: deviceName
       });
 
-      console.log('[SignupScreen] Social login response:', 'is_new_user:', response.is_new_user, 'isNewUser:', response.isNewUser);
 
       // Check if this is a new user - if so, show onboarding, otherwise go to dashboard
       // When user signs up via signup page, if account already exists, backend returns is_new_user: false
       // API client transforms snake_case to camelCase, so check both
       const isNewUser = response.isNewUser !== false && response.is_new_user !== false; // Default to true if undefined, only false if explicitly false
       
-      console.log('[SignupScreen] Determined isNewUser:', isNewUser);
       
       if (onSignupSuccess) {
         onSignupSuccess(isNewUser);
@@ -528,7 +527,12 @@ export default function SignupScreen({
                   {t('auth.agreeToTerms', { defaultValue: 'I agree to the' })}{' '}
                   <Text style={[styles.termsLink, { color: colors.primary }]}>{t('auth.termsOfService')}</Text>
                   {' '}{t('auth.and', { defaultValue: 'and' })}{' '}
-                  <Text style={[styles.termsLink, { color: colors.primary }]}>{t('auth.privacyPolicy')}</Text>
+                  <Text 
+                    style={[styles.termsLink, { color: colors.primary }]}
+                    onPress={() => Linking.openURL('https://spendly.money/privacy.html')}
+                  >
+                    {t('auth.privacyPolicy')}
+                  </Text>
                 </Text>
               </View>
               {errors.terms && <Text style={[styles.errorText, responsiveTextStyles.caption, { color: colors.destructive }]}>{errors.terms}</Text>}

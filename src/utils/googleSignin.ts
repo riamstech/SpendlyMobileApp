@@ -3,10 +3,8 @@ import { Platform } from 'react-native';
 // Default mock implementation
 let GoogleSigninModule: any = {
   configure: (params?: any) => {
-    console.log('GoogleSignin.configure called with:', params);
   },
   hasPlayServices: async (params?: any) => {
-    console.log('GoogleSignin.hasPlayServices called');
     return Promise.resolve(true);
   },
   signIn: async () => {

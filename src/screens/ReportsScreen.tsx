@@ -362,7 +362,6 @@ export default function ReportsScreen() {
         });
       }
 
-      console.log('[Reports] Monthly data processed:', {
         allMonthlyDataCount: allMonthlyData.length,
         rawFilteredDataCount: rawFilteredData.length,
         finalChartDataCount: finalChartData.length,
@@ -727,7 +726,6 @@ export default function ReportsScreen() {
         to = dateRangeResult.to;
       }
 
-      console.log('Date range:', { from, to });
 
       // Determine API currency filter
       const apiCurrencyFilter = selectedCurrency === 'ALL' ? undefined : selectedCurrency;

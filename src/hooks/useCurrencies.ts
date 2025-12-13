@@ -18,10 +18,8 @@ export function useCurrencies() {
       setLoading(true);
       setError(null);
       
-      console.log(`[useCurrencies] Loading currencies (language: ${i18n.language})...`);
       const response = await currenciesService.getCurrencies();
       
-      console.log(`[useCurrencies] Loaded ${response.length} currencies`);
       setCurrencies(response);
     } catch (err: any) {
       console.error('[useCurrencies] Error loading currencies:', err);
@@ -40,7 +38,6 @@ export function useCurrencies() {
   // Listen to language changes and refetch currencies
   useEffect(() => {
     const handleLanguageChange = (lng: string) => {
-      console.log(`[useCurrencies] Language changed to ${lng}, refetching currencies...`);
       loadCurrencies();
     };
 

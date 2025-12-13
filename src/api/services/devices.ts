@@ -33,7 +33,6 @@ export const devicesService = {
       };
 
       const response = await apiClient.post<DeviceRegistrationResponse>('/devices', data);
-      console.log('Device registered successfully:', response);
       return response;
     } catch (error: any) {
       console.error('Error registering device:', error);

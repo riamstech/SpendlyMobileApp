@@ -110,9 +110,7 @@ export default function AddTransactionScreen({
 
         // Load currencies from API
         setLoadingCurrencies(true);
-        console.log('AddTransaction: Loading currencies from API...');
         const currenciesData = await currenciesService.getCurrencies();
-        console.log('AddTransaction: Received currencies:', currenciesData?.length || 0);
         
         if (currenciesData && currenciesData.length > 0) {
           setCurrencies(currenciesData);
@@ -408,8 +406,6 @@ export default function AddTransactionScreen({
                   }
                 ]}
                 onPress={() => {
-                  console.log('Currency button pressed, currencies:', currencies.length);
-                  console.log('Loading currencies:', loadingCurrencies);
                   setShowCurrencyModal(true);
                 }}
               >

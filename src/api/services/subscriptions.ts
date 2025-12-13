@@ -23,7 +23,6 @@ export const subscriptionsService = {
         payload.currency = currency.toLowerCase();
       }
       
-      console.log('Checkout payload:', JSON.stringify(payload));
       
       const response = await fetch(`${config.apiBaseUrl}/pro-subscriptions/checkout`, {
         method: 'POST',

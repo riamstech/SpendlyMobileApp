@@ -114,45 +114,34 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
   };
 
   const handleGoogleLogin = async () => {
-    console.log('handleGoogleLogin called, Platform:', Platform.OS);
     
     if (Platform.OS === 'web') {
       // Web implementation or redirect
-      console.log('Web platform detected, skipping Google Sign-In');
       if (onLoginSuccess) onLoginSuccess();
       return;
     }
 
     try {
-      console.log('Starting Google Sign-In flow...');
       setIsLoading(true);
       
-      console.log('Checking Play Services...');
       await GoogleSignin.hasPlayServices();
       
-      console.log('Initiating Google Sign-In...');
       const userInfo = await GoogleSignin.signIn();
-      console.log('Google Sign-In successful, user:', userInfo.data?.user?.email);
       
-      console.log('Getting tokens...');
       const tokens = await GoogleSignin.getTokens();
-      console.log('Tokens received, idToken length:', tokens.idToken?.length);
       
       // Send token to backend
       const deviceName = `${Platform.OS} ${Platform.Version} - React Native`;
-      console.log('Sending token to backend...');
       const response = await authService.googleLogin({
         token: tokens.idToken,
         device_name: deviceName
       });
-      console.log('Backend authentication successful', 'is_new_user:', response.is_new_user, 'isNewUser:', response.isNewUser, 'full response:', JSON.stringify(response));
 
       // Check if this is a new user - if so, show onboarding, otherwise go to dashboard
       // When user logs in via login page but doesn't have account, backend creates account and returns is_new_user: true
       // API client transforms snake_case to camelCase, so check both
       const isNewUser = response.isNewUser === true || response.is_new_user === true;
       
-      console.log('[LoginScreen] Determined isNewUser:', isNewUser);
       
       if (onLoginSuccess) {
         onLoginSuccess(isNewUser);
@@ -163,9 +152,7 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
       console.error('Error message:', error.message);
       
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        console.log('User cancelled the login flow');
       } else if (error.code === statusCodes.IN_PROGRESS) {
-        console.log('Sign in already in progress');
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
         showToast.error('Google Play Services not available', 'Error');
       } else {
@@ -200,7 +187,6 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
         scopes: ['email', 'profile'],
       });
       
-      console.log(`🔐 Google Sign-In configured for ${Platform.OS} with webClientId: ${webClientId.substring(0, 30)}...`);
     }
   }, []);
 
@@ -217,7 +203,6 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
           <Pressable 
             style={[styles.languageButton, { backgroundColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(255, 255, 255, 0.25)' }]}
             onPress={() => {
-              console.log('Language button pressed');
               setShowLanguageModal(true);
             }}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}

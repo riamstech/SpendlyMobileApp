@@ -271,8 +271,6 @@ export default function DashboardScreen({
       // Debug: Log currency map for troubleshooting (first 5 entries)
       if (currencyMap.size > 0) {
         const sampleEntries = Array.from(currencyMap.entries()).slice(0, 5);
-        console.log('Currency map sample:', sampleEntries);
-        console.log('Target currency for conversion:', targetCurrency);
       }
 
       // Helper for conversion (exactly matching SpendlyApp logic)
