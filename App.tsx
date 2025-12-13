@@ -197,7 +197,14 @@ function AppContent() {
     console.log('AppContent mounted, currentScreen:', currentScreen);
   }, [currentScreen]);
 
-  const handleSplashFinish = useCallback(() => {
+  const handleSplashFinish = useCallback(async () => {
+    // Load saved language preference from AsyncStorage before proceeding
+    try {
+      const { loadSavedLanguage } = await import('./src/i18n');
+      await loadSavedLanguage();
+    } catch (error) {
+      // Ignore error, continue with default language
+    }
     setCurrentScreen('login');
   }, []);
 
@@ -222,10 +229,15 @@ function AppContent() {
       const user = await authService.getCurrentUser();
       console.log('[handleLoginSuccess] User profile:', { country: user.country, defaultCurrency: user.defaultCurrency });
       
-      // Apply user's preferred language if available
-      if (user.preferredLocale && user.preferredLocale !== i18n.language) {
-        console.log('[handleLoginSuccess] Applying user preferred language:', user.preferredLocale);
-        await i18n.changeLanguage(user.preferredLocale);
+      // Apply user's preferred language if available (check both fields)
+      const userLang = user.preferredLocale || (user as any).language || (user as any).preferred_locale;
+      if (userLang && userLang !== i18n.language) {
+        console.log('[handleLoginSuccess] Applying user preferred language:', userLang);
+        await i18n.changeLanguage(userLang);
+      } else {
+        // Fallback to AsyncStorage saved language
+        const { loadSavedLanguage } = await import('./src/i18n');
+        await loadSavedLanguage();
       }
       
       // If user doesn't have country set, they need onboarding
@@ -263,10 +275,15 @@ function AppContent() {
       const { authService } = await import('./src/api/services/auth');
       const user = await authService.getCurrentUser();
       
-      // Apply user's preferred language if available
-      if (user.preferredLocale && user.preferredLocale !== i18n.language) {
-        console.log('[handleSignupSuccess] Applying user preferred language:', user.preferredLocale);
-        await i18n.changeLanguage(user.preferredLocale);
+      // Apply user's preferred language if available (check both fields)
+      const userLang = user.preferredLocale || (user as any).language || (user as any).preferred_locale;
+      if (userLang && userLang !== i18n.language) {
+        console.log('[handleSignupSuccess] Applying user preferred language:', userLang);
+        await i18n.changeLanguage(userLang);
+      } else {
+        // Fallback to AsyncStorage saved language
+        const { loadSavedLanguage } = await import('./src/i18n');
+        await loadSavedLanguage();
       }
       
       // If user doesn't have country set, they need onboarding

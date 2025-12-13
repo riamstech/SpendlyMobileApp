@@ -151,7 +151,15 @@ export default function ReportsScreen() {
 
   useEffect(() => {
     if (currency) {
-      loadReportsData();
+      // For custom date range, only reload when BOTH dates are set
+      if (dateRange === 'custom') {
+        if (customDateFrom && customDateTo) {
+          loadReportsData();
+        }
+        // Don't reload if only one date is set (user is still picking)
+      } else {
+        loadReportsData();
+      }
     }
   }, [dateRange, customDateFrom, customDateTo, selectedCurrency, currency, languageKey]);
 
@@ -567,7 +575,6 @@ export default function ReportsScreen() {
 
   const handleDownloadCSV = async () => {
     try {
-      console.log('Starting CSV download...');
       
       // Get date range
       let from: string, to: string;
@@ -587,15 +594,11 @@ export default function ReportsScreen() {
         to = dateRangeResult.to;
       }
 
-      console.log('Date range:', { from, to });
-
       // Determine API currency filter
       const apiCurrencyFilter = selectedCurrency === 'ALL' ? undefined : selectedCurrency;
 
-      console.log('Fetching CSV from API...');
       // Call backend API to get CSV content
       const csvContent = await reportsService.exportCsv(from, to, apiCurrencyFilter, i18n.language);
-      console.log('CSV content received, length:', csvContent?.length);
 
       if (!csvContent) {
         throw new Error(t('reports.csvError', { defaultValue: 'Failed to generate CSV content' }));
@@ -622,53 +625,80 @@ export default function ReportsScreen() {
         return;
       }
 
-      // Native logic - save to file and share (simplified approach like PDF)
-      console.log('FileSystem available:', !!FileSystem);
-      console.log('Sharing available:', !!Sharing);
-
-      // Use cacheDirectory for temporary sharing files
-      const cacheDir = (FileSystem as any).cacheDirectory as string | null;
-      
-      if (!cacheDir) {
-        // Fallback: Try to share without file system by alerting user
-        showToast.error(
-          t('reports.fileSystemNotAvailable', { 
-            defaultValue: 'File system not available. Please rebuild the app with: npx expo run:ios/android' 
-          }),
-          t('common.error', { defaultValue: 'Error' })
-        );
-        return;
-      }
-
+      // Native logic - try FileSystem first
       const fileName = `financial_report_${from}_to_${to}.csv`;
-      const fileUri = `${cacheDir}${fileName}`;
       
-      console.log('Writing CSV to:', fileUri);
-
-      // Write the file
-      await FileSystem.writeAsStringAsync(fileUri, csvContent, {
-        encoding: (FileSystem as any).EncodingType.UTF8,
-      });
-      console.log('CSV file written successfully');
-
-      // Share the file
-      const canShare = await Sharing.isAvailableAsync();
-      console.log('Can share:', canShare);
+      // Try documentDirectory first, then cacheDirectory
+      let fileDir = FileSystem.documentDirectory || FileSystem.cacheDirectory;
       
-      if (canShare) {
-        await Sharing.shareAsync(fileUri, {
-          mimeType: 'text/csv',
-          dialogTitle: t('reports.shareCsv', { defaultValue: 'Share CSV Report' }),
+      if (fileDir) {
+        // FileSystem is available - use it
+        const fileUri = `${fileDir}${fileName}`;
+        await FileSystem.writeAsStringAsync(fileUri, csvContent, {
+          encoding: FileSystem.EncodingType.UTF8,
         });
-        console.log('Share dialog opened');
+
+        const canShare = await Sharing.isAvailableAsync();
+        if (canShare) {
+          await Sharing.shareAsync(fileUri, {
+            mimeType: 'text/csv',
+            dialogTitle: t('reports.shareCsv', { defaultValue: 'Share CSV Report' }),
+            UTI: 'public.comma-separated-values-text',
+          });
+        } else {
+          showToast.success(
+            t('reports.csvSaved', { defaultValue: 'CSV saved successfully' }),
+            t('common.success', { defaultValue: 'Success' })
+          );
+        }
       } else {
+        // Fallback: Convert CSV to HTML table and use expo-print (works like PDF)
+        const lines = csvContent.split('\n');
+        const htmlRows = lines.map((line, index) => {
+          const cells = line.split(',').map(cell => 
+            `<td style="border: 1px solid #ddd; padding: 8px;">${cell.replace(/"/g, '')}</td>`
+          ).join('');
+          return index === 0 
+            ? `<tr style="background: #f0f0f0; font-weight: bold;">${cells}</tr>`
+            : `<tr>${cells}</tr>`;
+        }).join('');
+        
+        const htmlContent = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="UTF-8">
+            <title>Financial Report</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding: 20px; }
+              h1 { color: #333; }
+              table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+              td { font-size: 12px; }
+            </style>
+          </head>
+          <body>
+            <h1>Financial Report</h1>
+            <p>Period: ${from} to ${to}</p>
+            <table>${htmlRows}</table>
+          </body>
+          </html>
+        `;
+
+        // Use expo-print to create printable/shareable document
+        const { uri } = await Print.printToFileAsync({ html: htmlContent });
+        const canShare = await Sharing.isAvailableAsync();
+        if (canShare) {
+          await Sharing.shareAsync(uri, {
+            mimeType: 'application/pdf',
+            dialogTitle: t('reports.shareCsv', { defaultValue: 'Share Report' }),
+          });
+        }
         showToast.success(
-          t('reports.csvSaved', { defaultValue: 'CSV saved successfully' }),
+          t('reports.csvDownloaded', { defaultValue: 'Report generated successfully (PDF format due to development mode)' }),
           t('common.success', { defaultValue: 'Success' })
         );
       }
     } catch (error: any) {
-      console.error('Failed to generate CSV export:', error);
       showToast.error(
         error.message || t('reports.csvError', { defaultValue: 'Failed to generate CSV' }),
         t('common.error', { defaultValue: 'Error' })
@@ -678,7 +708,6 @@ export default function ReportsScreen() {
 
   const handleDownloadPDF = async () => {
     try {
-      console.log('Starting PDF download...');
       
       // Get date range
       let from: string, to: string;
@@ -703,30 +732,23 @@ export default function ReportsScreen() {
       // Determine API currency filter
       const apiCurrencyFilter = selectedCurrency === 'ALL' ? undefined : selectedCurrency;
 
-      console.log('Fetching PDF HTML from API...');
       // Call backend API to get PDF HTML
       const htmlContent = await reportsService.exportPdf(from, to, apiCurrencyFilter, i18n.language);
-      console.log('HTML content received, length:', htmlContent?.length);
       
-      console.log('Print module available:', !!Print);
       if (!Print || !Print.printToFileAsync) {
         throw new Error('Print module is not available. The app may need to be rebuilt.');
       }
 
-      console.log('Converting HTML to PDF...');
       // Convert HTML to PDF using expo-print
       const { uri } = await Print.printToFileAsync({ html: htmlContent });
-      console.log('PDF generated at:', uri);
 
       const canShare = await Sharing.isAvailableAsync();
-      console.log('Can share:', canShare);
       
       if (canShare) {
         await Sharing.shareAsync(uri, {
           mimeType: 'application/pdf',
           dialogTitle: t('reports.sharePdf'),
         });
-        console.log('Share dialog opened');
       } else {
         showToast.success(
           t('reports.pdfReadyDescription', { uri }),
@@ -934,21 +956,82 @@ export default function ReportsScreen() {
         </View>
       )}
 
-      {/* Date Pickers */}
-      {showStartDatePicker && (
+      {/* Date Pickers - Wrap in Modal for iOS */}
+      {showStartDatePicker && Platform.OS === 'ios' && (
+        <Modal
+          visible={showStartDatePicker}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowStartDatePicker(false)}
+        >
+          <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <View style={{ backgroundColor: colors.card, paddingBottom: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1, borderBottomColor: colors.border }}>
+                <Pressable onPress={() => setShowStartDatePicker(false)}>
+                  <Text style={{ color: colors.mutedForeground, fontSize: 16 }}>{t('common.cancel')}</Text>
+                </Pressable>
+                <Text style={{ color: colors.foreground, fontSize: 16, fontWeight: 'bold' }}>{t('reports.startDate', { defaultValue: 'Start Date' })}</Text>
+                <Pressable onPress={() => setShowStartDatePicker(false)}>
+                  <Text style={{ color: colors.primary, fontSize: 16, fontWeight: 'bold' }}>{t('common.done')}</Text>
+                </Pressable>
+              </View>
+              <DateTimePicker
+                value={startDate}
+                mode="date"
+                display="spinner"
+                onChange={handleStartDateChange}
+                maximumDate={endDate}
+                textColor={isDark ? 'white' : 'black'}
+              />
+            </View>
+          </View>
+        </Modal>
+      )}
+      {showStartDatePicker && Platform.OS === 'android' && (
         <DateTimePicker
           value={startDate}
           mode="date"
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          display="default"
           onChange={handleStartDateChange}
           maximumDate={endDate}
         />
       )}
-      {showEndDatePicker && (
+
+      {showEndDatePicker && Platform.OS === 'ios' && (
+        <Modal
+          visible={showEndDatePicker}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowEndDatePicker(false)}
+        >
+          <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <View style={{ backgroundColor: colors.card, paddingBottom: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1, borderBottomColor: colors.border }}>
+                <Pressable onPress={() => setShowEndDatePicker(false)}>
+                  <Text style={{ color: colors.mutedForeground, fontSize: 16 }}>{t('common.cancel')}</Text>
+                </Pressable>
+                <Text style={{ color: colors.foreground, fontSize: 16, fontWeight: 'bold' }}>{t('reports.endDate', { defaultValue: 'End Date' })}</Text>
+                <Pressable onPress={() => setShowEndDatePicker(false)}>
+                  <Text style={{ color: colors.primary, fontSize: 16, fontWeight: 'bold' }}>{t('common.done')}</Text>
+                </Pressable>
+              </View>
+              <DateTimePicker
+                value={endDate}
+                mode="date"
+                display="spinner"
+                onChange={handleEndDateChange}
+                minimumDate={startDate}
+                textColor={isDark ? 'white' : 'black'}
+              />
+            </View>
+          </View>
+        </Modal>
+      )}
+      {showEndDatePicker && Platform.OS === 'android' && (
         <DateTimePicker
           value={endDate}
           mode="date"
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          display="default"
           onChange={handleEndDateChange}
           minimumDate={startDate}
         />

@@ -14,6 +14,7 @@ import { showToast } from '../utils/toast';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { currenciesService } from '../api/services/currencies';
 import { countriesService, Country } from '../api/services/countries';
 import { usersService } from '../api/services/users';
@@ -28,8 +29,10 @@ import {
   Check,
   MapPin,
   Search,
+  Globe,
 } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
+import i18n, { SUPPORTED_LANGUAGES } from '../i18n';
 import { useTheme } from '../contexts/ThemeContext';
 import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
 
@@ -39,7 +42,7 @@ interface OnboardingScreenProps {
   onComplete: () => void;
 }
 
-type Step = 'splash' | 'welcome' | 'features' | 'currency' | 'location';
+type Step = 'splash' | 'welcome' | 'language' | 'features' | 'currency' | 'location';
 
 export default function OnboardingScreen({
   isAuthenticated = false,
@@ -61,6 +64,8 @@ export default function OnboardingScreen({
   const [locationError, setLocationError] = useState<string | null>(null);
   const [currencySearchQuery, setCurrencySearchQuery] = useState('');
   const [countrySearchQuery, setCountrySearchQuery] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState(i18n.language || 'en');
+  const [saving, setSaving] = useState(false);
 
   // Responsive scaling
   const scale = Math.min(width / 375, height / 812);
@@ -131,30 +136,54 @@ export default function OnboardingScreen({
   };
 
   const handleComplete = async () => {
+    if (saving) return; // Prevent double submission
+    
+    setSaving(true);
     try {
+      // Save language to AsyncStorage for persistence
+      await AsyncStorage.setItem('userLanguage', selectedLanguage);
+      
       if (isAuthenticated) {
         const currentUser = await authService.getCurrentUser();
-        const updateData: any = {};
         
-        if (currency && currency !== currentUser.defaultCurrency) {
-          updateData.defaultCurrency = currency;
-        }
-        if (country) {
-          updateData.country = country;
-        }
-        if (state) {
-          updateData.state = state;
+        // Always send all onboarding data (using snake_case for backend)
+        const updateData: any = {
+          default_currency: currency || currentUser.defaultCurrency,
+          country: country,
+          preferred_locale: selectedLanguage,
+        };
+        
+        // Only include state if user entered one
+        if (state && state.trim()) {
+          updateData.state = state.trim();
         }
         
-        if (Object.keys(updateData).length > 0) {
-          await usersService.updateUser(currentUser.id, updateData);
-        }
+        console.log('[Onboarding] Saving user data:', JSON.stringify(updateData, null, 2));
+        console.log('[Onboarding] User ID:', currentUser.id);
+        
+        // Make API call to save user preferences
+        const result = await usersService.updateUser(currentUser.id, updateData);
+        console.log('[Onboarding] API response:', JSON.stringify(result, null, 2));
+        
+        showToast.success(
+          t('onboarding.setupComplete', { defaultValue: 'Setup complete!' }),
+          t('common.success', { defaultValue: 'Success' })
+        );
       }
       
       onComplete();
-    } catch (error) {
-      console.error('Error completing onboarding:', error);
-      onComplete(); // Still complete even if update fails
+    } catch (error: any) {
+      console.error('[Onboarding] Error saving data:', error);
+      console.error('[Onboarding] Error details:', error?.response?.data || error?.message);
+      
+      // Show error but still complete (user can update settings later)
+      showToast.error(
+        t('onboarding.setupError', { defaultValue: 'Could not save preferences. You can update them in Settings.' }),
+        t('common.error', { defaultValue: 'Error' })
+      );
+      onComplete();
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -230,7 +259,7 @@ export default function OnboardingScreen({
                 styles.primaryButton,
                 { paddingVertical: 14, backgroundColor: isDark ? colors.primary : '#fff' },
               ]}
-              onPress={() => setStep('features')}
+              onPress={() => setStep('language')}
             >
               <Text style={[styles.primaryButtonText, responsiveTextStyles.button, { color: isDark ? '#fff' : '#03A9F4' }]}>
                 {t('onboarding.getStarted')}
@@ -240,9 +269,90 @@ export default function OnboardingScreen({
 
             <Pressable
               style={styles.skipButton}
-              onPress={() => setStep(isAuthenticated ? 'currency' : 'currency')}
+              onPress={() => setStep('language')}
             >
               <Text style={[styles.skipButtonText, { color: isDark ? 'rgba(255, 255, 255, 0.7)' : '#fff' }]}>{t('onboarding.skip')}</Text>
+            </Pressable>
+          </ScrollView>
+        </SafeAreaView>
+      </LinearGradient>
+    );
+  }
+
+  // Language Selection Screen
+  if (step === 'language') {
+    const handleLanguageSelect = async (langCode: string) => {
+      setSelectedLanguage(langCode);
+      i18n.changeLanguage(langCode);
+      // Save to AsyncStorage immediately for persistence
+      try {
+        await AsyncStorage.setItem('userLanguage', langCode);
+      } catch (error) {
+        // Ignore storage errors
+      }
+    };
+
+    return (
+      <LinearGradient colors={gradientColors} style={styles.gradient}>
+        <StatusBar style={isDark ? "light" : "dark"} />
+        <SafeAreaView style={styles.safeArea}>
+          <ScrollView
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingHorizontal: isSmallScreen ? 16 : 24 },
+            ]}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.logoContainer}>
+              <View style={[styles.iconCircle, { backgroundColor: isDark ? colors.card : '#fff' }]}>
+                <Globe size={40 * scale} color="#03A9F4" />
+              </View>
+              <Text style={[styles.headerTitle, responsiveTextStyles.h3, { color: isDark ? '#fff' : '#fff' }]}>
+                {t('onboarding.selectLanguage', { defaultValue: 'Select Language' })}
+              </Text>
+              <Text style={[styles.headerSubtitle, responsiveTextStyles.body, { color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.9)' }]}>
+                {t('onboarding.choosePreferredLanguage', { defaultValue: 'Choose your preferred language' })}
+              </Text>
+            </View>
+
+            <View style={[styles.card, { padding: 20, backgroundColor: colors.card }]}>
+              <ScrollView style={styles.languageList} nestedScrollEnabled>
+                {SUPPORTED_LANGUAGES.map((lang) => (
+                  <Pressable
+                    key={lang.code}
+                    style={[
+                      styles.languageItem,
+                      { backgroundColor: selectedLanguage === lang.code ? colors.accent : 'transparent' },
+                    ]}
+                    onPress={() => handleLanguageSelect(lang.code)}
+                  >
+                    <Text style={[styles.languageName, { color: colors.foreground }]}>{lang.name}</Text>
+                    {selectedLanguage === lang.code && (
+                      <Check size={20 * scale} color={colors.primary} />
+                    )}
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </View>
+
+            <View style={styles.progressDots}>
+              <View style={[styles.dot, { backgroundColor: colors.border }]} />
+              <View style={[styles.dot, styles.dotActive, { backgroundColor: colors.primary }]} />
+              <View style={[styles.dot, { backgroundColor: colors.border }]} />
+              <View style={[styles.dot, { backgroundColor: colors.border }]} />
+            </View>
+
+            <Pressable
+              style={[
+                styles.primaryButton,
+                { paddingVertical: 14, backgroundColor: isDark ? colors.primary : '#fff' },
+              ]}
+              onPress={() => setStep('features')}
+            >
+              <Text style={[styles.primaryButtonText, responsiveTextStyles.button, { color: isDark ? '#fff' : '#03A9F4' }]}>
+                {t('onboarding.continue')}
+              </Text>
+              <ChevronRight size={20 * scale} color={isDark ? '#fff' : '#03A9F4'} style={{ marginLeft: 8 }} />
             </Pressable>
           </ScrollView>
         </SafeAreaView>
@@ -578,15 +688,26 @@ export default function OnboardingScreen({
               style={[
                 styles.primaryButton,
                 { paddingVertical: 14, backgroundColor: isDark ? colors.primary : '#fff' },
-                !country && styles.primaryButtonDisabled,
+                (!country || saving) && styles.primaryButtonDisabled,
               ]}
               onPress={handleComplete}
-              disabled={!country}
+              disabled={!country || saving}
             >
-              <Text style={[styles.primaryButtonText, responsiveTextStyles.button, { color: isDark ? '#fff' : '#03A9F4' }]}>
-                {t('onboarding.completeSetup')}
-              </Text>
-              <Check size={20 * scale} color={isDark ? '#fff' : '#03A9F4'} style={{ marginLeft: 8 }} />
+              {saving ? (
+                <>
+                  <ActivityIndicator size="small" color={isDark ? '#fff' : '#03A9F4'} />
+                  <Text style={[styles.primaryButtonText, responsiveTextStyles.button, { color: isDark ? '#fff' : '#03A9F4', marginLeft: 8 }]}>
+                    {t('onboarding.saving', { defaultValue: 'Saving...' })}
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <Text style={[styles.primaryButtonText, responsiveTextStyles.button, { color: isDark ? '#fff' : '#03A9F4' }]}>
+                    {t('onboarding.completeSetup')}
+                  </Text>
+                  <Check size={20 * scale} color={isDark ? '#fff' : '#03A9F4'} style={{ marginLeft: 8 }} />
+                </>
+              )}
             </Pressable>
           </ScrollView>
         </SafeAreaView>
@@ -864,6 +985,22 @@ const styles = StyleSheet.create({
   errorText: {
     ...textStyles.caption,
     marginTop: 8,
+  },
+  languageList: {
+    maxHeight: 300,
+  },
+  languageItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 6,
+  },
+  languageName: {
+    ...textStyles.body,
+    fontWeight: '500',
   },
 });
 

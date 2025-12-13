@@ -52,9 +52,6 @@ export const reportsService = {
     const queryString = queryParts.length > 0 ? queryParts.join('&') : '';
     const url = `${config.apiBaseUrl}/reports/export/pdf${queryString ? `?${queryString}` : ''}`;
     
-    console.log('PDF export URL:', url);
-    console.log('PDF export params:', params);
-    
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -64,8 +61,6 @@ export const reportsService = {
         'Content-Type': 'application/json',
       },
     });
-    
-    console.log('PDF response status:', response.status, response.statusText);
     
     if (!response.ok) {
       const errorText = await response.text();
@@ -102,10 +97,6 @@ export const reportsService = {
     const queryString = queryParts.length > 0 ? queryParts.join('&') : '';
     const url = `${config.apiBaseUrl}/reports/export/csv${queryString ? `?${queryString}` : ''}`;
     
-    console.log('CSV export URL:', url);
-    console.log('CSV export params:', params);
-    console.log('CSV export language:', language);
-    
     // Use fetch with Accept-Language header to ensure backend translates content
     const response = await fetch(url, {
       method: 'GET',
@@ -116,8 +107,6 @@ export const reportsService = {
         'Content-Type': 'application/json',
       },
     });
-    
-    console.log('CSV response status:', response.status, response.statusText);
     
     if (!response.ok) {
       const errorText = await response.text();

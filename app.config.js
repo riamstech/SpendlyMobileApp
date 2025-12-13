@@ -18,12 +18,15 @@ module.exports = {
     ios: {
       supportsTablet: true,
       bundleIdentifier: "com.spendly.mobile",
-      buildNumber: "1",
+      buildNumber: "4",
       deploymentTarget: "13.4",
       icon: "./assets/icon.png",
       displayName: "Spendly Money",
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
+        NSPhotoLibraryUsageDescription: "Spendly needs photo library access to let you upload receipt images and documents.",
+        NSLocationWhenInUseUsageDescription: "Spendly needs your location to provide location-based features and services.",
+        NSLocationAlwaysAndWhenInUseUsageDescription: "Spendly needs your location to provide location-based features and services.",
         CFBundleURLTypes: [
           {
             CFBundleURLSchemes: [
@@ -38,6 +41,7 @@ module.exports = {
     },
     android: {
       package: "com.spendly.money",
+      versionCode: 4,
       label: "Spendly",
       icon: "./assets/icon.png",
       adaptiveIcon: {
@@ -45,7 +49,11 @@ module.exports = {
         backgroundColor: "#ffffff"
       },
       permissions: [
-        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.POST_NOTIFICATIONS"
       ],
       googleServicesFile: "./google-services.json"
@@ -69,9 +77,16 @@ module.exports = {
       [
         "expo-image-picker",
         {
-          photosPermission: "The app accesses your photos to let you share them.",
-          cameraPermission: "The app accesses your camera to let you take photos.",
-          microphonePermission: "The app accesses your microphone to record videos."
+          photosPermission: "Spendly needs photo library access to let you upload receipt images."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          icon: "./assets/icon.png",
+          color: "#ffffff",
+          sounds: [],
+          mode: "production"
         }
       ],
       [

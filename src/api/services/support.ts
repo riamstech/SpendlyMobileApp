@@ -74,7 +74,8 @@ export const supportApi = {
     formData.append('subject', data.subject);
     formData.append('message', data.message);
     if (data.screenshot) {
-      formData.append('screenshot', data.screenshot);
+      // Use 'as any' for React Native FormData compatibility
+      formData.append('screenshot', data.screenshot as any);
     }
 
     return apiClient.postFormData<SupportTicket>('/support-tickets', formData);
@@ -82,14 +83,12 @@ export const supportApi = {
 
   // Reply to a ticket
   reply: (ticketId: number, message: string, attachment?: File | ReactNativeFile) => {
-    console.log('supportApi.reply called with:', { ticketId, message, hasAttachment: !!attachment });
     const formData = new FormData();
     formData.append('message', message);
     if (attachment) {
-      console.log('Appending attachment:', { uri: attachment.uri, type: attachment.type, name: attachment.name });
-      formData.append('attachment', attachment);
+      // Use 'as any' for React Native FormData compatibility
+      formData.append('attachment', attachment as any);
     }
-    console.log('Sending FormData to:', `/support-tickets/${ticketId}/reply`);
     return apiClient.postFormData<TicketMessage>(`/support-tickets/${ticketId}/reply`, formData);
   },
 

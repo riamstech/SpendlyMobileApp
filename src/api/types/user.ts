@@ -1,9 +1,11 @@
 export interface UpdateUserRequest {
   name?: string;
   email?: string;
-  defaultCurrency?: string;
+  default_currency?: string;
+  defaultCurrency?: string; // Allow both for compatibility
   country?: string;
   state?: string;
+  preferred_locale?: string;
 }
 
 export interface UpdateUserSettingsRequest {

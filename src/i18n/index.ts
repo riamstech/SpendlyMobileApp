@@ -1,6 +1,7 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import * as Localization from 'expo-localization';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import enCommon from '../locales/en/common.json';
 import esCommon from '../locales/es/common.json';
@@ -37,9 +38,22 @@ const resources = {
   de: { common: deCommon },
   ja: { common: jaCommon },
   ru: { common: ruCommon },
-} as const;
+};
 
-const deviceLocale = Localization.locale ?? 'en';
+// Get device locale using the new API
+const getDeviceLocale = (): string => {
+  try {
+    const locales = Localization.getLocales();
+    if (locales && locales.length > 0) {
+      return locales[0].languageTag || 'en';
+    }
+  } catch (e) {
+    // Fallback if getLocales fails
+  }
+  return 'en';
+};
+
+const deviceLocale = getDeviceLocale();
 const normalizedLocale = (() => {
   const lower = deviceLocale.toLowerCase();
   if (lower.startsWith('pt-br')) return 'pt-BR';
@@ -59,11 +73,22 @@ i18n
     ns: ['common'],
     defaultNS: 'common',
     interpolation: { escapeValue: false },
-    compatibilityJSON: 'v3',
-  })
-  .catch((error) => {
-    console.error('Failed to initialize i18n:', error);
-    // Continue with default English if initialization fails
+    compatibilityJSON: 'v4',
   });
+
+// Function to load saved language from AsyncStorage and apply it
+export const loadSavedLanguage = async (): Promise<void> => {
+  try {
+    const savedLanguage = await AsyncStorage.getItem('userLanguage');
+    if (savedLanguage && SUPPORTED_LANGUAGES.some(l => l.code === savedLanguage)) {
+      await i18n.changeLanguage(savedLanguage);
+    }
+  } catch (error) {
+    // Ignore errors, keep default language
+  }
+};
+
+// Auto-load saved language on app start
+loadSavedLanguage();
 
 export default i18n;

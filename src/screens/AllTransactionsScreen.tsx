@@ -127,6 +127,14 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
     loadData();
   }, [i18n.language]);
 
+  // Reload transactions when date range filter changes
+  useEffect(() => {
+    // Only reload if we have already loaded initial data (not first mount)
+    if (!loading && transactions.length >= 0) {
+      loadTransactions();
+    }
+  }, [filterDateRange, customDateFrom, customDateTo]);
+
   useEffect(() => {
     // Only apply client-side filters (search, type, category, currency)
     // Date range filtering happens on the server via loadTransactions
@@ -229,9 +237,7 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
         }
       }
       
-      console.log('Loading transactions with filters:', filters);
       const response: any = await transactionsService.getTransactions(filters);
-      console.log('Transactions response:', JSON.stringify(response, null, 2));
       
       // Handle different response structures
       let transactionsData: any[] = [];
@@ -277,7 +283,6 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
         };
       });
       
-      console.log('Loaded transactions:', formattedTransactions.length);
       setTransactions(formattedTransactions);
       // Apply filters immediately - use the transactions we just loaded
       let filtered = [...formattedTransactions];
@@ -301,7 +306,6 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
         filtered = filtered.filter(tx => tx.category === filterCategory);
       }
       
-      console.log('Setting filtered transactions:', filtered.length);
       setFilteredTransactions(filtered);
     } catch (error) {
       console.error('Failed to load transactions:', error);
@@ -342,7 +346,6 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
       filtered = filtered.filter(tx => tx.currency === filterCurrency);
     }
     
-    console.log('Filtered transactions:', filtered.length, 'from', txList.length);
     setFilteredTransactions(filtered);
   };
 
@@ -360,7 +363,6 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
     // Fetch full transaction details for editing
     try {
       const fullTransaction: any = await transactionsService.getTransaction(Number(transaction.id));
-      console.log('Full transaction details:', fullTransaction);
       setEditingTransaction({
         id: fullTransaction.id.toString(),
         type: fullTransaction.type,
@@ -790,7 +792,6 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
                   onPress={() => {
                     setFilterDateRange(range as any);
                     setShowDateRangeModal(false);
-                    loadTransactions();
                   }}
                 >
                   <Text style={[styles.modalItemText, { color: colors.foreground }, filterDateRange === range && styles.modalItemTextActive]}>
@@ -844,7 +845,6 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
                     setCustomDateFrom(customStartDate.toISOString().split('T')[0]);
                     setCustomDateTo(customEndDate.toISOString().split('T')[0]);
                     setShowDateRangeModal(false);
-                    loadTransactions();
                   }}
                 >
                   <Text style={styles.applyCustomDateText}>

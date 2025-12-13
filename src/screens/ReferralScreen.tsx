@@ -71,12 +71,12 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
       setUserId(user.id);
 
       // Generate referral link if not exists
-      const referralData = await referralsService.generateReferralLink();
+      const referralData = await referralsService.generateReferralLink() as any;
       setReferralCode(referralData.referralCode || referralData.referral_code || '');
       setReferralUrl(referralData.shareUrl || referralData.share_url || '');
 
       // Get reward days
-      const rewardData = await referralsService.getReferralRewardDays();
+      const rewardData = await referralsService.getReferralRewardDays() as any;
       setRewardDays(rewardData.referralRewardDays || rewardData.referral_reward_days || 30);
 
       // Get user referrals
@@ -85,7 +85,7 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
         const refData = referralResponse.referrals || [];
         setReferrals(refData);
         
-        const refStats = referralResponse.stats || {};
+        const refStats = (referralResponse.stats || {}) as any;
         setStats({
           totalReferrals: refStats.total_referrals || refStats.totalReferrals || 0,
           activeReferrals: refStats.active_referrals || refStats.activeReferrals || 0,
@@ -94,7 +94,6 @@ export default function ReferralScreen({ onBack }: ReferralScreenProps) {
         });
       }
     } catch (error) {
-      console.error('Failed to load referral data:', error);
       showToast.error(t('referral.failedToLoad') || 'Failed to load referral data', 'Error');
     } finally {
       setLoading(false);

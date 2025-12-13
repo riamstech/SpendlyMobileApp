@@ -57,9 +57,9 @@ interface ReceiptsScreenProps {
 }
 
 interface Category {
-  id: number;
+  id: number | null;
   name: string;
-  icon: string;
+  icon: string | null;
   type: string;
 }
 

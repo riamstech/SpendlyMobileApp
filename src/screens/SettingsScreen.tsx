@@ -1053,7 +1053,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                     <Text style={[styles.profileLocation, { color: colors.mutedForeground }]}>
                       {user.country && (() => {
                         const countryData = countries.find(c => c.code === user.country) || COUNTRIES.find(c => c.code === user.country);
-                        return countryData ? translateCountryName(countryData.name, t, countryData.original_name) : user.country;
+                        return countryData ? translateCountryName(countryData.name, t, (countryData as any).original_name) : user.country;
                       })()}
                       {user.country && user.state && ', '}
                       {user.state}
@@ -1289,7 +1289,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                     <Text style={[styles.settingItemDescription, { color: colors.mutedForeground }]}>
                       {country ? (() => {
                         const countryData = countries.find(c => c.code === country) || COUNTRIES.find(c => c.code === country);
-                        return countryData ? translateCountryName(countryData.name, t, countryData.original_name) : country;
+                        return countryData ? translateCountryName(countryData.name, t, (countryData as any).original_name) : country;
                       })() : t('settings.notSpecified', { defaultValue: 'Not specified' })}
                     </Text>
                   </View>

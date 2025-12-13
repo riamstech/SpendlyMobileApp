@@ -302,39 +302,32 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
     // Match "X transactions" pattern
     const transactionsMatch = normValue.match(/^(\d+)\s+transactions?$/i);
     if (transactionsMatch) {
-      return t('analytics.factorTransactions', { 
-        count: transactionsMatch[1],
-        defaultValue: `${transactionsMatch[1]} transactions`
-      });
+      const count = transactionsMatch[1];
+      return t('analytics.factorTransactions', `${count} transactions`).replace('{{count}}', count);
     }
     
     // Match "X/Y months active" pattern
     const monthsActiveMatch = normValue.match(/^(\d+)\/(\d+)\s+months?\s+active$/i);
     if (monthsActiveMatch) {
-      return t('analytics.factorMonthsActive', { 
-        active: monthsActiveMatch[1],
-        total: monthsActiveMatch[2],
-        defaultValue: `${monthsActiveMatch[1]}/${monthsActiveMatch[2]} months active`
-      });
+      return t('analytics.factorMonthsActive', `${monthsActiveMatch[1]}/${monthsActiveMatch[2]} months active`)
+        .replace('{{active}}', monthsActiveMatch[1])
+        .replace('{{total}}', monthsActiveMatch[2]);
     }
     
     // Match "(X months)" pattern
     const monthsMatch = normValue.match(/^\((\d+)\s+months?\)$/i);
     if (monthsMatch) {
-      return t('analytics.factorMonths', { 
-        count: monthsMatch[1],
-        defaultValue: `(${monthsMatch[1]} months)`
-      });
+      const count = monthsMatch[1];
+      return t('analytics.factorMonths', `(${count} months)`).replace('{{count}}', count);
     }
 
     // Match "Amount (X months)" pattern e.g. "$39,900.00 (4.1 months)"
     // Matches currency symbol or code optional, amount, and months in parens
     const amountMonthsMatch = normValue.match(/^([^\(]+)\s+\(([\d.]+)\s+months?\)$/i);
     if (amountMonthsMatch) {
-      return `${amountMonthsMatch[1]} ${t('analytics.factorMonths', { 
-        count: amountMonthsMatch[2],
-        defaultValue: `(${amountMonthsMatch[2]} months)`
-      })}`;
+      const count = amountMonthsMatch[2];
+      const monthsText = t('analytics.factorMonths', `(${count} months)`).replace('{{count}}', count);
+      return `${amountMonthsMatch[1]} ${monthsText}`;
     }
     
     // Match "Try to save at least X% of your income each month."
@@ -1117,6 +1110,7 @@ const styles = StyleSheet.create({
   statusText: {
     ...textStyles.labelSmall,
     fontWeight: '500',
+    color: '#FFFFFF', // Always white text on colored badge
   },
   // Recommendations
   recommendationsCard: {

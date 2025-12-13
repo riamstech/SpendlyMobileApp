@@ -1,6 +1,9 @@
 import { apiClient } from '../client';
 import { Currency } from '../types/category';
 
+// Re-export Currency type for use in other files
+export type { Currency };
+
 export const currenciesService = {
   /**
    * Get all active currencies
