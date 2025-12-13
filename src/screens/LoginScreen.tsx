@@ -10,13 +10,16 @@ import {
   ScrollView,
   Image,
   useWindowDimensions,
+  Modal,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authService } from '../api/services/auth';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
+import { Mail, Lock, Eye, EyeOff, Globe, Check, ChevronDown } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
+import i18n, { SUPPORTED_LANGUAGES } from '../i18n';
 import { useTheme } from '../contexts/ThemeContext';
 import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
 import { GoogleSignin, statusCodes } from '../utils/googleSignin';
@@ -39,6 +42,26 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState(i18n.language || 'en');
+
+  // Get current language name
+  const getCurrentLanguageName = () => {
+    const lang = SUPPORTED_LANGUAGES.find(l => l.code === currentLanguage);
+    return lang?.name || 'English';
+  };
+
+  // Handle language change
+  const handleLanguageChange = async (langCode: string) => {
+    setCurrentLanguage(langCode);
+    i18n.changeLanguage(langCode);
+    try {
+      await AsyncStorage.setItem('userLanguage', langCode);
+    } catch (error) {
+      // Ignore storage errors
+    }
+    setShowLanguageModal(false);
+  };
 
   // Responsive scaling factors
   const scale = Math.min(width / 375, height / 812); // Base: iPhone X (375x812)
@@ -188,6 +211,71 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
     >
       <StatusBar style={isDark ? "dark" : "light"} />
       <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+        {/* Header with Language Selector */}
+        <View style={styles.headerRow}>
+          <View style={{ flex: 1 }} />
+          <Pressable 
+            style={[styles.languageButton, { backgroundColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(255, 255, 255, 0.25)' }]}
+            onPress={() => {
+              console.log('Language button pressed');
+              setShowLanguageModal(true);
+            }}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Globe size={16} color={isDark ? colors.foreground : '#fff'} />
+            <Text style={[styles.languageButtonText, { color: isDark ? colors.foreground : '#fff' }]}>
+              {getCurrentLanguageName()}
+            </Text>
+            <ChevronDown size={12} color={isDark ? colors.foreground : '#fff'} />
+          </Pressable>
+        </View>
+
+        {/* Language Selection Modal */}
+        <Modal
+          visible={showLanguageModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowLanguageModal(false)}
+        >
+          <Pressable 
+            style={styles.modalOverlay} 
+            onPress={() => setShowLanguageModal(false)}
+          >
+            <View style={[styles.languageModalContent, { backgroundColor: colors.card }]}>
+              <Text style={[styles.languageModalTitle, { color: colors.foreground }]}>
+                {t('settings.selectLanguage', { defaultValue: 'Select Language' })}
+              </Text>
+              <ScrollView style={styles.languageList} showsVerticalScrollIndicator={false}>
+                {SUPPORTED_LANGUAGES.map((lang) => (
+                  <Pressable
+                    key={lang.code}
+                    style={[
+                      styles.languageItem,
+                      { backgroundColor: currentLanguage === lang.code ? colors.accent : 'transparent' },
+                    ]}
+                    onPress={() => handleLanguageChange(lang.code)}
+                  >
+                    <Text style={[styles.languageItemText, { color: colors.foreground }]}>
+                      {lang.name}
+                    </Text>
+                    {currentLanguage === lang.code && (
+                      <Check size={18} color={colors.primary} />
+                    )}
+                  </Pressable>
+                ))}
+              </ScrollView>
+              <Pressable 
+                style={[styles.languageModalClose, { backgroundColor: colors.primary }]}
+                onPress={() => setShowLanguageModal(false)}
+              >
+                <Text style={styles.languageModalCloseText}>
+                  {t('common.close', { defaultValue: 'Close' })}
+                </Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Modal>
+
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.container}
@@ -508,6 +596,75 @@ const styles = StyleSheet.create({
   footerText: {
     marginTop: 32,
     textAlign: 'center',
+  },
+  // Language Selector Styles
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 8,
+    zIndex: 20,
+  },
+  languageButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    gap: 6,
+  },
+  languageButtonText: {
+    ...textStyles.caption,
+    fontWeight: '500',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  languageModalContent: {
+    width: '100%',
+    maxWidth: 340,
+    borderRadius: 20,
+    padding: 20,
+    maxHeight: '70%',
+  },
+  languageModalTitle: {
+    ...textStyles.h3,
+    textAlign: 'center',
+    marginBottom: 16,
+    fontWeight: '600',
+  },
+  languageList: {
+    maxHeight: 300,
+  },
+  languageItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 6,
+  },
+  languageItemText: {
+    ...textStyles.body,
+    fontWeight: '500',
+  },
+  languageModalClose: {
+    marginTop: 16,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  languageModalCloseText: {
+    ...textStyles.button,
+    color: '#fff',
+    fontWeight: '600',
   },
 });
 
