@@ -843,12 +843,7 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
         name: imageName,
       } as any);
 
-        imageUri, 
-        imageName, 
-        imageType, 
-        platform: Platform.OS,
-        formDataKeys: Object.keys(formData)
-      });
+
 
       setUploadingAvatar(true);
       const response = await usersService.uploadAvatar(formData as any);
