@@ -23,6 +23,7 @@ import i18n, { SUPPORTED_LANGUAGES } from '../i18n';
 import { useTheme } from '../contexts/ThemeContext';
 import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
 import { GoogleSignin, statusCodes } from '../utils/googleSignin';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { config } from '../config/env';
 import { showToast } from '../utils/toast';
 import { GoogleLogo } from '../components/GoogleLogo';
@@ -157,6 +158,59 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
         showToast.error('Google Play Services not available', 'Error');
       } else {
         showToast.error(error.message || 'An error occurred during Google Sign-In', 'Google Sign-In Failed');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAppleLogin = async () => {
+    if (Platform.OS !== 'ios') {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+
+      // identityToken is the JWT that needs to be sent to your backend
+      const { identityToken, email, fullName } = credential;
+
+      if (!identityToken) {
+        throw new Error('No identity token received from Apple');
+      }
+
+      // Send to backend
+      const deviceName = `${Platform.OS} ${Platform.Version} - React Native`;
+      const response = await authService.appleLogin({
+        identityToken,
+        user: email || fullName ? {
+          email: email || undefined,
+          givenName: fullName?.givenName || undefined,
+          familyName: fullName?.familyName || undefined,
+        } : undefined,
+        device_name: deviceName
+      });
+
+      // Check if this is a new user
+      const isNewUser = response.isNewUser === true || response.is_new_user === true;
+
+      if (onLoginSuccess) {
+        onLoginSuccess(isNewUser);
+      }
+    } catch (error: any) {
+      console.error('Apple Sign-In error:', error);
+      
+      if (error.code === 'ERR_CANCELED') {
+        // User canceled, don't show error
+      } else {
+        showToast.error(error.message || 'An error occurred during Apple Sign-In', 'Apple Sign-In Failed');
       }
     } finally {
       setIsLoading(false);
@@ -385,6 +439,17 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
               <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
             </View>
 
+            {/* Apple Sign-In button (iOS only) */}
+            {Platform.OS === 'ios' && (
+              <AppleAuthentication.AppleAuthenticationButton
+                buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+                buttonStyle={isDark ? AppleAuthentication.AppleAuthenticationButtonStyle.WHITE : AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+                cornerRadius={12}
+                style={styles.appleButton}
+                onPress={handleAppleLogin}
+              />
+            )}
+
             {/* Google button */}
             <Pressable
               style={[
@@ -557,6 +622,11 @@ const styles = StyleSheet.create({
     ...textStyles.caption,
     marginHorizontal: 12,
     color: '#9CA3AF',
+  },
+  appleButton: {
+    width: '100%',
+    height: 48,
+    marginBottom: 12,
   },
   googleButton: {
     flexDirection: 'row',

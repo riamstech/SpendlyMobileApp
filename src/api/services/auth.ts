@@ -88,5 +88,26 @@ async googleLogin(data: { token: string; device_name: string }): Promise<AuthRes
     apiClient.setToken(response.token);
   }
   return response;
+  },
+
+  /**
+   * Login with Apple
+   */
+  async appleLogin(data: { 
+    identityToken: string; 
+    user?: { email?: string; familyName?: string; givenName?: string };
+    device_name: string 
+  }): Promise<AuthResponse> {
+    const response = await apiClient.post<AuthResponse>('/auth/social/verify', {
+      provider: 'apple',
+      token: data.identityToken,
+      user: data.user,
+      device_name: data.device_name
+    });
+    // Store token after successful login
+    if (response.token) {
+      apiClient.setToken(response.token);
+    }
+    return response;
   }
 };

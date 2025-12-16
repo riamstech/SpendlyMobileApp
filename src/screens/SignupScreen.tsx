@@ -18,6 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { authService } from '../api/services/auth';
 import { Mail, Lock, User, Eye, EyeOff, Check, Gift } from 'lucide-react-native';
 import { GoogleSignin, statusCodes } from '../utils/googleSignin';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
 import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
@@ -247,6 +248,58 @@ export default function SignupScreen({
         showToast.error(t('auth.playServicesNotAvailable') || 'Google Play Services not available', t('settings.error') || 'Error');
       } else {
         showToast.error(error.message || t('auth.googleSignUpError') || 'An error occurred during Google Sign-Up', t('auth.googleSignUpFailed') || 'Google Sign-Up Failed');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAppleSignup = async () => {
+    if (Platform.OS !== 'ios') {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+
+      const { identityToken, email, fullName } = credential;
+
+      if (!identityToken) {
+        throw new Error('No identity token received from Apple');
+      }
+
+      // Send to backend
+      const deviceName = `${Platform.OS} ${Platform.Version} - React Native`;
+      const response = await authService.appleLogin({
+        identityToken,
+        user: email || fullName ? {
+          email: email || undefined,
+          givenName: fullName?.givenName || undefined,
+          familyName: fullName?.familyName || undefined,
+        } : undefined,
+        device_name: deviceName
+      });
+
+      // Check if this is a new user
+      const isNewUser = response.isNewUser !== false && response.is_new_user !== false;
+
+      if (onSignupSuccess) {
+        onSignupSuccess(isNewUser);
+      }
+    } catch (error: any) {
+      console.error('Apple Sign-Up error:', error);
+      
+      if (error.code === 'ERR_CANCELED') {
+        // User canceled
+      } else {
+        showToast.error(error.message || 'An error occurred during Apple Sign-Up', 'Apple Sign-Up Failed');
       }
     } finally {
       setIsLoading(false);
@@ -559,6 +612,17 @@ export default function SignupScreen({
                 <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
               </View>
 
+              {/* Apple Sign-In button (iOS only) */}
+              {Platform.OS === 'ios' && (
+                <AppleAuthentication.AppleAuthenticationButton
+                  buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_UP}
+                  buttonStyle={isDark ? AppleAuthentication.AppleAuthenticationButtonStyle.WHITE : AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+                  cornerRadius={12}
+                  style={styles.appleButton}
+                  onPress={handleAppleSignup}
+                />
+              )}
+
               {/* Google Button */}
               <Pressable
                 style={[
@@ -751,6 +815,11 @@ const styles = StyleSheet.create({
   dividerText: {
     marginHorizontal: 12,
     ...textStyles.caption,
+  },
+  appleButton: {
+    width: '100%',
+    height: 48,
+    marginBottom: 12,
   },
   googleButton: {
     flexDirection: 'row',
