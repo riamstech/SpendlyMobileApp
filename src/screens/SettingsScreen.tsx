@@ -74,6 +74,7 @@ import { translateCurrencyName } from '../utils/currencyTranslator';
 import { translateCountryName } from '../utils/countryTranslator';
 import { notificationService } from '../services/notificationService';
 import { countriesService, Country } from '../api/services/countries';
+import { iapService } from '../services/inAppPurchase';
 
 const LANGUAGE_FLAGS: Record<string, string> = {
   en: '🇺🇸',
@@ -1440,12 +1441,24 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                       paddingVertical: 8,
                       borderRadius: 20,
                     }}
-                    onPress={() => {
-                      setStripePaymentData({
-                        planType: 'yearly',
-                        paymentMethod: 'card'
-                      });
-                      setShowStripePayment(true);
+                    onPress={async () => {
+                      if (Platform.OS === 'ios') {
+                        // Use Apple In-App Purchase on iOS
+                        try {
+                          showToast.info(t('settings.initiatingPurchase') || 'Initiating purchase...', 'Please wait');
+                          await iapService.purchaseSubscription('com.spendly.mobile.pro.yearly');
+                        } catch (error: any) {
+                          console.error('IAP Error:', error);
+                          showToast.error(t('settings.purchaseFailed') || 'Purchase failed', 'Error');
+                        }
+                      } else {
+                        // Use Stripe on Android/Web
+                        setStripePaymentData({
+                          planType: 'yearly',
+                          paymentMethod: 'card'
+                        });
+                        setShowStripePayment(true);
+                      }
                     }}
                   >
                     <Text style={{ color: '#fff', fontWeight: '600', fontSize: 13 }}>
