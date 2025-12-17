@@ -1,11 +1,5 @@
 import { Platform } from 'react-native';
 import * as RNIap from 'react-native-iap';
-import type {
-  Product,
-  Purchase,
-  PurchaseError,
-  SubscriptionPurchase,
-} from 'react-native-iap';
 
 // Product IDs from App Store Connect
 export const SUBSCRIPTION_PRODUCTS = {
@@ -18,6 +12,7 @@ export const PRODUCT_IDS = Object.values(SUBSCRIPTION_PRODUCTS);
 class InAppPurchaseService {
   private purchaseUpdateSubscription: any = null;
   private purchaseErrorSubscription: any = null;
+  private isInitialized = false;
 
   /**
    * Initialize the IAP connection
@@ -28,15 +23,19 @@ class InAppPurchaseService {
       return;
     }
 
+    if (this.isInitialized) {
+      console.log('[IAP] Already initialized');
+      return;
+    }
+
     try {
       await RNIap.initConnection();
       console.log('[IAP] Connection initialized');
 
       // Set up purchase listeners
       this.setupPurchaseListeners();
-
-      // Finish any pending transactions
-      await this.finishPendingTransactions();
+      
+      this.isInitialized = true;
     } catch (error) {
       console.error('[IAP] Error initializing connection:', error);
       throw error;
@@ -46,9 +45,13 @@ class InAppPurchaseService {
   /**
    * Get available subscription products
    */
-  async getProducts(): Promise<Product[]> {
+  async getProducts(): Promise<any[]> {
     if (Platform.OS !== 'ios') {
       return [];
+    }
+
+    if (!this.isInitialized) {
+      await this.initialize();
     }
 
     try {
@@ -64,19 +67,35 @@ class InAppPurchaseService {
   /**
    * Purchase a subscription
    */
-  async purchaseSubscription(productId: string): Promise<Purchase | null> {
+  async purchaseSubscription(productId: string): Promise<void> {
     if (Platform.OS !== 'ios') {
       console.log('[IAP] Skipping purchase - not on iOS');
-      return null;
+      return;
+    }
+
+    if (!this.isInitialized) {
+      await this.initialize();
     }
 
     try {
       console.log('[IAP] Requesting purchase for:', productId);
-      await RNIap.requestSubscription({ sku: productId });
-      // Purchase result will be handled by the listener
-      return null;
-    } catch (error) {
+      
+      // Use requestSubscription for iOS subscriptions
+      await RNIap.requestSubscription({
+        sku: productId,
+        ...(Platform.OS === 'ios' && {
+          appAccountToken: undefined,
+        }),
+      });
+      
+      console.log('[IAP] Purchase request sent');
+    } catch (error: any) {
       console.error('[IAP] Error purchasing subscription:', error);
+      
+      if (error.code === 'E_USER_CANCELLED') {
+        console.log('[IAP] User cancelled the purchase');
+      }
+      
       throw error;
     }
   }
@@ -84,9 +103,13 @@ class InAppPurchaseService {
   /**
    * Restore purchases
    */
-  async restorePurchases(): Promise<Purchase[]> {
+  async restorePurchases(): Promise<any[]> {
     if (Platform.OS !== 'ios') {
       return [];
+    }
+
+    if (!this.isInitialized) {
+      await this.initialize();
     }
 
     try {
@@ -105,7 +128,7 @@ class InAppPurchaseService {
   private setupPurchaseListeners(): void {
     // Purchase update listener
     this.purchaseUpdateSubscription = RNIap.purchaseUpdatedListener(
-      async (purchase: SubscriptionPurchase) => {
+      async (purchase: any) => {
         console.log('[IAP] Purchase updated:', purchase);
         
         const receipt = purchase.transactionReceipt;
@@ -114,7 +137,7 @@ class InAppPurchaseService {
             // Send receipt to backend for verification
             await this.verifyPurchase(purchase);
 
-            // Acknowledge the purchase
+            // Finish the transaction
             await RNIap.finishTransaction({ purchase, isConsumable: false });
             console.log('[IAP] Purchase finished successfully');
           } catch (error) {
@@ -126,7 +149,7 @@ class InAppPurchaseService {
 
     // Purchase error listener  
     this.purchaseErrorSubscription = RNIap.purchaseErrorListener(
-      (error: PurchaseError) => {
+      (error: any) => {
         console.error('[IAP] Purchase error:', error);
       }
     );
@@ -135,7 +158,7 @@ class InAppPurchaseService {
   /**
    * Verify purchase with backend
    */
-  private async verifyPurchase(purchase: SubscriptionPurchase): Promise<void> {
+  private async verifyPurchase(purchase: any): Promise<void> {
     // This will be implemented to call your backend API
     // For now, just log it
     console.log('[IAP] Verifying purchase with backend:', {
@@ -150,18 +173,6 @@ class InAppPurchaseService {
     //   transactionId: purchase.transactionId,
     //   productId: purchase.productId,
     // });
-  }
-
-  /**
-   * Finish any pending transactions
-   */
-  private async finishPendingTransactions(): Promise<void> {
-    try {
-      await RNIap.flushFailedPurchasesCachedAsPendingAndroid();
-      console.log('[IAP] Pending transactions cleared');
-    } catch (error) {
-      console.error('[IAP] Error clearing pending transactions:', error);
-    }
   }
 
   /**
@@ -181,6 +192,7 @@ class InAppPurchaseService {
     try {
       await RNIap.endConnection();
       console.log('[IAP] Connection ended');
+      this.isInitialized = false;
     } catch (error) {
       console.error('[IAP] Error ending connection:', error);
     }
