@@ -80,8 +80,8 @@ class InAppPurchaseService {
     try {
       console.log('[IAP] Requesting purchase for:', productId);
       
-      // Use requestPurchase for both products and subscriptions in v14
-      await (RNIap.requestPurchase as any)({ sku: productId });
+      // v14 API: Pass productId directly as the parameter
+      await (RNIap.requestPurchase as any)(productId);
       
       console.log('[IAP] Purchase request sent');
     } catch (error: any) {
