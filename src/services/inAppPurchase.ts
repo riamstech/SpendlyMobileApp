@@ -55,7 +55,7 @@ class InAppPurchaseService {
     }
 
     try {
-      const products = await RNIap.getSubscriptions({ skus: PRODUCT_IDS });
+      const products = await RNIap.fetchProducts({ skus: PRODUCT_IDS });
       console.log('[IAP] Available products:', products);
       return products;
     } catch (error) {
@@ -80,17 +80,12 @@ class InAppPurchaseService {
     try {
       console.log('[IAP] Requesting purchase for:', productId);
       
-      // Use requestSubscription for iOS subscriptions
-      await RNIap.requestSubscription({
-        sku: productId,
-        ...(Platform.OS === 'ios' && {
-          appAccountToken: undefined,
-        }),
-      });
+      // Use requestPurchase for both products and subscriptions in v14
+      await (RNIap.requestPurchase as any)({ sku: productId });
       
       console.log('[IAP] Purchase request sent');
     } catch (error: any) {
-      console.error('[IAP] Error purchasing subscription:', error);
+      console.error('[IAP]Error purchasing subscription:', error);
       
       if (error.code === 'E_USER_CANCELLED') {
         console.log('[IAP] User cancelled the purchase');
