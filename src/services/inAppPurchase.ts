@@ -80,9 +80,9 @@ class InAppPurchaseService {
     try {
       console.log('[IAP] Requesting purchase for:', productId);
       
-      // v14 Nitro API: Must pass object with 'request' (productId) and 'type'
+      // v14 Nitro API: Must pass object with 'request' (object with sku) and 'type'
       await (RNIap.requestPurchase as any)({
-        request: productId,
+        request: { sku: productId },
         type: 'subs', // 'subs' for subscriptions, 'in-app' for one-time purchases
       });
       
