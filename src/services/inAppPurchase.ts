@@ -80,12 +80,15 @@ class InAppPurchaseService {
     try {
       console.log('[IAP] Requesting purchase for:', productId);
       
-      // v14 API: Pass productId directly as the parameter
-      await (RNIap.requestPurchase as any)(productId);
+      // v14 Nitro API: Must pass object with 'request' (productId) and 'type'
+      await (RNIap.requestPurchase as any)({
+        request: productId,
+        type: 'subs', // 'subs' for subscriptions, 'in-app' for one-time purchases
+      });
       
       console.log('[IAP] Purchase request sent');
     } catch (error: any) {
-      console.error('[IAP]Error purchasing subscription:', error);
+      console.error('[IAP] Error purchasing subscription:', error);
       
       if (error.code === 'E_USER_CANCELLED') {
         console.log('[IAP] User cancelled the purchase');
