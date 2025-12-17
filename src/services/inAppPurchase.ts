@@ -71,13 +71,14 @@ class InAppPurchaseService {
     }
 
     try {
-      // v14 Nitro API: requires platform-specific nested structure
+      // v14 Nitro API: Non-Renewing Subscriptions use 'inapp' type (not 'subs')
+      // Apple treats Non-Renewing Subscriptions as in-app purchases
       await (RNIap.requestPurchase as any)({
         request: {
           ios: { sku: productId },
           android: { skus: [productId] },
         },
-        type: 'subs',
+        type: 'inapp', // 'inapp' for Non-Renewing, 'subs' for Auto-Renewable
       });
     } catch (error: any) {
       console.error('[IAP] Error purchasing subscription:', error);
