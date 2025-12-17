@@ -18,7 +18,7 @@ module.exports = {
     ios: {
       supportsTablet: false,
       bundleIdentifier: "com.spendly.mobile",
-      buildNumber: "8",
+      buildNumber: "10",
       deploymentTarget: "13.4",
       icon: "./assets/icon.png",
       displayName: "Spendly Money",
@@ -41,7 +41,7 @@ module.exports = {
     },
     android: {
       package: "com.spendly.money",
-      versionCode: 8,
+      versionCode: 10,
       label: "Spendly",
       icon: "./assets/icon.png",
       adaptiveIcon: {
