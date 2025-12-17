@@ -71,8 +71,12 @@ class InAppPurchaseService {
     }
 
     try {
+      // v14 Nitro API: requires platform-specific nested structure
       await (RNIap.requestPurchase as any)({
-        request: { sku: productId },
+        request: {
+          ios: { sku: productId },
+          android: { skus: [productId] },
+        },
         type: 'subs',
       });
     } catch (error: any) {
