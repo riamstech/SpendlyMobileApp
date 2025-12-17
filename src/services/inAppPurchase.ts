@@ -3,8 +3,8 @@ import * as RNIap from 'react-native-iap';
 
 // Product IDs from App Store Connect
 export const SUBSCRIPTION_PRODUCTS = {
-  MONTHLY: 'com.spendly.mobile.pro.monthly',
-  YEARLY: 'com.spendly.mobile.pro.yearly',
+  MONTHLY: 'com.spendly.mobile.pro.1month',
+  YEARLY: 'com.spendly.mobile.pro.1year',
 } as const;
 
 export const PRODUCT_IDS = Object.values(SUBSCRIPTION_PRODUCTS);
