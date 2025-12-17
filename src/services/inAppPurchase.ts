@@ -19,22 +19,16 @@ class InAppPurchaseService {
    */
   async initialize(): Promise<void> {
     if (Platform.OS !== 'ios') {
-      console.log('[IAP] Skipping initialization - not on iOS');
       return;
     }
 
     if (this.isInitialized) {
-      console.log('[IAP] Already initialized');
       return;
     }
 
     try {
       await RNIap.initConnection();
-      console.log('[IAP] Connection initialized');
-
-      // Set up purchase listeners
       this.setupPurchaseListeners();
-      
       this.isInitialized = true;
     } catch (error) {
       console.error('[IAP] Error initializing connection:', error);
@@ -56,7 +50,6 @@ class InAppPurchaseService {
 
     try {
       const products = await RNIap.fetchProducts({ skus: PRODUCT_IDS });
-      console.log('[IAP] Available products:', products);
       return products;
     } catch (error) {
       console.error('[IAP] Error getting products:', error);
@@ -78,22 +71,12 @@ class InAppPurchaseService {
     }
 
     try {
-      console.log('[IAP] Requesting purchase for:', productId);
-      
-      // v14 Nitro API: Must pass object with 'request' (object with sku) and 'type'
       await (RNIap.requestPurchase as any)({
         request: { sku: productId },
-        type: 'subs', // 'subs' for subscriptions, 'in-app' for one-time purchases
+        type: 'subs',
       });
-      
-      console.log('[IAP] Purchase request sent');
     } catch (error: any) {
       console.error('[IAP] Error purchasing subscription:', error);
-      
-      if (error.code === 'E_USER_CANCELLED') {
-        console.log('[IAP] User cancelled the purchase');
-      }
-      
       throw error;
     }
   }
@@ -112,7 +95,6 @@ class InAppPurchaseService {
 
     try {
       const purchases = await RNIap.getAvailablePurchases();
-      console.log('[IAP] Restored purchases:', purchases);
       return purchases;
     } catch (error) {
       console.error('[IAP] Error restoring purchases:', error);
@@ -124,20 +106,13 @@ class InAppPurchaseService {
    * Set up purchase listeners
    */
   private setupPurchaseListeners(): void {
-    // Purchase update listener
     this.purchaseUpdateSubscription = RNIap.purchaseUpdatedListener(
       async (purchase: any) => {
-        console.log('[IAP] Purchase updated:', purchase);
-        
         const receipt = purchase.transactionReceipt;
         if (receipt) {
           try {
-            // Send receipt to backend for verification
             await this.verifyPurchase(purchase);
-
-            // Finish the transaction
             await RNIap.finishTransaction({ purchase, isConsumable: false });
-            console.log('[IAP] Purchase finished successfully');
           } catch (error) {
             console.error('[IAP] Error verifying purchase:', error);
           }
@@ -145,7 +120,6 @@ class InAppPurchaseService {
       }
     );
 
-    // Purchase error listener  
     this.purchaseErrorSubscription = RNIap.purchaseErrorListener(
       (error: any) => {
         console.error('[IAP] Purchase error:', error);
