@@ -49,7 +49,9 @@ class InAppPurchaseService {
     }
 
     try {
+      console.log('[IAP] Fetching products for skus:', PRODUCT_IDS);
       const products = await RNIap.fetchProducts({ skus: PRODUCT_IDS });
+      console.log('[IAP] Products received from Apple:', products.length, products);
       return products;
     } catch (error) {
       console.error('[IAP] Error getting products:', error);
