@@ -217,7 +217,7 @@ export default function AddTransactionScreen({
   };
 
   const handleSubmit = async () => {
-    if (!amount || !category || !description) {
+    if (!amount || !category) {
       showToast.error(t('addTransaction.fillRequiredFields'), t('common.error'));
       return;
     }
@@ -734,7 +734,7 @@ export default function AddTransactionScreen({
         <Button
           title={submitting ? t('common.saving') : t('addTransaction.submit')}
           onPress={handleSubmit}
-          disabled={submitting || !amount || !category || !description}
+          disabled={submitting || !amount || !category}
           loading={submitting}
           fullWidth
           style={{ marginBottom: 24 }}

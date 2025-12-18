@@ -1,4 +1,4 @@
-import { Platform, Alert } from 'react-native';
+import { Platform, Alert, DeviceEventEmitter } from 'react-native';
 import * as RNIap from 'react-native-iap';
 
 // Product IDs from App Store Connect
@@ -34,6 +34,20 @@ class InAppPurchaseService {
       // Pre-fetch products to warm up cache and verify connection
       console.log('[IAP] Initialized. Pre-fetching products...');
       await this.getProducts();
+      
+      // Clear any pending transactions to prevent duplicate purchase dialogs
+      try {
+        const pendingPurchases = await RNIap.getAvailablePurchases();
+        if (pendingPurchases && pendingPurchases.length > 0) {
+          console.log(`[IAP] Found ${pendingPurchases.length} pending transactions, finishing them...`);
+          for (const purchase of pendingPurchases) {
+            await RNIap.finishTransaction({ purchase, isConsumable: false });
+          }
+          console.log('[IAP] Pending transactions cleared');
+        }
+      } catch (pendingError) {
+        console.error('[IAP] Error clearing pending transactions:', pendingError);
+      }
     } catch (error) {
       console.error('[IAP] Error initializing connection:', error);
       throw error;
@@ -244,8 +258,12 @@ class InAppPurchaseService {
       // Refresh user data to get updated license
       try {
         const { authService } = await import('../api/services/auth');
-        await authService.getCurrentUser();
+        const updatedUser = await authService.getCurrentUser();
         console.log('[IAP] User data refreshed successfully');
+        
+        // Emit event to notify UI components to refresh
+        DeviceEventEmitter.emit('userDataUpdated', updatedUser);
+        DeviceEventEmitter.emit('purchaseCompleted');
       } catch (refreshError) {
         console.error('[IAP] Failed to refresh user data:', refreshError);
       }

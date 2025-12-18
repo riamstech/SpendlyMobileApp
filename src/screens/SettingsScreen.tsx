@@ -15,6 +15,7 @@ import {
   Platform,
   AppState,
   KeyboardAvoidingView,
+  DeviceEventEmitter,
 } from 'react-native';
 import {
   requestMediaLibraryPermissionsAsync,
@@ -261,6 +262,23 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       if (appStateSubscription && appStateSubscription.remove) {
         appStateSubscription.remove();
       }
+    };
+  }, []);
+
+  // Listen for purchase completion events
+  useEffect(() => {
+    const purchaseListener = DeviceEventEmitter.addListener('purchaseCompleted', async () => {
+      console.log('[Settings] Purchase completed, refreshing user data...');
+      try {
+        const userData = await authService.getCurrentUser();
+        setUser(userData);
+      } catch (error) {
+        console.error('[Settings] Failed to refresh after purchase:', error);
+      }
+    });
+
+    return () => {
+      purchaseListener.remove();
     };
   }, []);
 

@@ -219,7 +219,7 @@ export default function EditTransactionScreen({
   };
 
   const handleSubmit = async () => {
-    if (!amount || !category || !description) {
+    if (!amount || !category) {
       showToast.error(t('editTransaction.fillRequired', { defaultValue: 'Please fill in all required fields' }), t('common.error', { defaultValue: 'Error' }));
       return;
     }
@@ -538,7 +538,7 @@ export default function EditTransactionScreen({
             submitting ? t('common.saving') : t('editTransaction.update') || 'Update'
           }
           onPress={handleSubmit}
-          disabled={submitting || !amount || !category || !description}
+          disabled={submitting || !amount || !category}
           loading={submitting}
           fullWidth
           style={{ marginBottom: 12 }}
