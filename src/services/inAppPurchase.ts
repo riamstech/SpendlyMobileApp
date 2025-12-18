@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+import { Platform, Alert } from 'react-native';
 import * as RNIap from 'react-native-iap';
 
 // Product IDs from App Store Connect
@@ -127,15 +127,16 @@ class InAppPurchaseService {
       console.error('[IAP] Error purchasing subscription:', error);
       console.error('[IAP] Error details:', JSON.stringify(error));
       
-      // Show user-friendly error
-      const { Alert } = await import('react-native');
-      
+      // Show user-friendly error (Alert is already imported)
       if (error.message?.includes('Sandbox account')) {
         Alert.alert(
           'Sandbox Account Required',
           'To test purchases, please sign in to a Sandbox test account:\n\n1. Open Settings app\n2. Go to App Store\n3. Scroll to "Sandbox Account"\n4. Sign in with your test account',
           [{ text: 'OK' }]
         );
+      } else if (error.message?.includes('dialog did not appear')) {
+        // Timeout error - silently ignore, user likely backed out
+        console.log('[IAP] Purchase dialog timeout - user may have cancelled');
       } else {
         Alert.alert(
           'Purchase Error',
@@ -173,25 +174,46 @@ class InAppPurchaseService {
    * Set up purchase listeners
    */
   private setupPurchaseListeners(): void {
+    console.log('[IAP] Setting up purchase listeners...');
+    
     this.purchaseUpdateSubscription = RNIap.purchaseUpdatedListener(
       async (purchase: any) => {
-        const receipt = purchase.transactionReceipt;
+        console.log('[IAP] ===== PURCHASE UPDATE LISTENER TRIGGERED =====');
+        console.log('[IAP] Purchase object:', JSON.stringify(purchase, null, 2));
+        
+        // In react-native-iap v14 with StoreKit 2, the receipt is in purchaseToken (JWT)
+        const receipt = purchase.purchaseToken || purchase.transactionReceipt;
+        console.log('[IAP] Receipt exists:', !!receipt);
+        console.log('[IAP] Receipt type:', purchase.purchaseToken ? 'purchaseToken (StoreKit 2)' : 'transactionReceipt (StoreKit 1)');
+        console.log('[IAP] Product ID:', purchase.productId);
+        console.log('[IAP] Transaction ID:', purchase.transactionId);
+        
         if (receipt) {
           try {
+            console.log('[IAP] Receipt found, starting verification...');
             await this.verifyPurchase(purchase);
+            console.log('[IAP] Verification complete, finishing transaction...');
             await RNIap.finishTransaction({ purchase, isConsumable: false });
+            console.log('[IAP] Transaction finished successfully');
           } catch (error) {
             console.error('[IAP] Error verifying purchase:', error);
           }
+        } else {
+          console.warn('[IAP] No receipt in purchase object - cannot verify');
         }
       }
     );
 
     this.purchaseErrorSubscription = RNIap.purchaseErrorListener(
       (error: any) => {
+        console.error('[IAP] ===== PURCHASE ERROR LISTENER TRIGGERED =====');
         console.error('[IAP] Purchase error:', error);
+        console.error('[IAP] Error code:', error.code);
+        console.error('[IAP] Error message:', error.message);
       }
     );
+    
+    console.log('[IAP] Purchase listeners set up successfully');
   }
 
   /**
@@ -207,17 +229,19 @@ class InAppPurchaseService {
       // Import apiClient from correct location
       const { apiClient } = await import('../api/client');
       
+      // Get the receipt (StoreKit 2 uses purchaseToken, StoreKit 1 uses transactionReceipt)
+      const receipt = purchase.purchaseToken || purchase.transactionReceipt;
+      
       // Send receipt to backend for verification
       const result = await apiClient.post('/iap/verify-ios', {
-        receipt: purchase.transactionReceipt,
+        receipt: receipt,
         productId: purchase.productId,
         transactionId: purchase.transactionId,
       });
 
       console.log('[IAP] Purchase verified successfully:', (result as any).data);
       
-      // Import Alert to show success message
-      const { Alert } = await import('react-native');
+      // Show success message
       Alert.alert(
         'Purchase Successful! 🎉',
         'Your subscription has been activated. Please close and reopen the app to see your updated license.',
@@ -228,7 +252,6 @@ class InAppPurchaseService {
       console.error('[IAP] Backend verification failed:', error);
       
       // Show error to user
-      const { Alert } = await import('react-native');
       Alert.alert(
         'Verification Error',
         'Your payment was received but we couldn\'t verify it with our servers. Please contact support if your subscription doesn\'t appear within 24 hours.',

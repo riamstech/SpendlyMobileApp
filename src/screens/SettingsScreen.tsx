@@ -1419,10 +1419,10 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
 
             {expandedSections.subscription && (
               <View style={styles.sectionContent}>
-                <View style={[styles.settingItem, { borderBottomColor: 'transparent', paddingVertical: 0 }]}>
-                  <View style={styles.settingItemLeft}>
+                <View style={[styles.settingItem, { borderBottomColor: 'transparent', paddingVertical: 8, flexDirection: 'column', alignItems: 'stretch' }]}>
+                  <View style={{ flexDirection: 'row', marginBottom: 12 }}>
                     <Crown size={20} color="#FFD700" />
-                    <View style={styles.settingItemInfo}>
+                    <View style={{ marginLeft: 12, flex: 1 }}>
                       <Text style={[styles.settingItemLabel, textStyles.caption, { color: colors.foreground }]}>
                         {t('settings.spendlyPremium') || 'Spendly Premium'}
                       </Text>
@@ -1434,12 +1434,47 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                     </View>
                   </View>
                   
+                  {/* Monthly Option */}
+                  <Pressable
+                    style={{
+                      backgroundColor: colors.card,
+                      borderColor: colors.border,
+                      borderWidth: 1,
+                      paddingHorizontal: 16,
+                      paddingVertical: 12,
+                      borderRadius: 8,
+                      marginBottom: 8,
+                    }}
+                    onPress={async () => {
+                      if (Platform.OS === 'ios') {
+                        try {
+                          showToast.info(t('settings.initiatingPurchase') || 'Initiating purchase...', 'Please wait');
+                          await iapService.purchaseSubscription('com.spendly.mobile.premium.monthly');
+                        } catch (error: any) {
+                          console.error('IAP Error:', error);
+                          showToast.error(t('settings.purchaseFailed') || 'Purchase failed', 'Error');
+                        }
+                      } else {
+                        setStripePaymentData({
+                          planType: 'monthly',
+                          paymentMethod: 'card'
+                        });
+                        setShowStripePayment(true);
+                      }
+                    }}
+                  >
+                    <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 14 }}>
+                      1 Month - $2.98
+                    </Text>
+                  </Pressable>
+
+                  {/* Yearly Option */}
                   <Pressable
                     style={{
                       backgroundColor: colors.primary,
                       paddingHorizontal: 16,
-                      paddingVertical: 8,
-                      borderRadius: 20,
+                      paddingVertical: 12,
+                      borderRadius: 8,
                     }}
                     onPress={async () => {
                       if (Platform.OS === 'ios') {
@@ -1459,8 +1494,8 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                       }
                     }}
                   >
-                    <Text style={{ color: '#fff', fontWeight: '600', fontSize: 13 }}>
-                      {t('settings.extendLicense') || t('settings.renew') || 'Extend License'}
+                    <Text style={{ color: '#fff', fontWeight: '600', fontSize: 14 }}>
+                      1 Year - $19.98 (Best Value)
                     </Text>
                   </Pressable>
                 </View>
