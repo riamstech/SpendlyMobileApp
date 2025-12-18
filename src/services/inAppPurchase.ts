@@ -241,10 +241,19 @@ class InAppPurchaseService {
 
       console.log('[IAP] Purchase verified successfully:', (result as any).data);
       
+      // Refresh user data to get updated license
+      try {
+        const { authService } = await import('../api/services/auth');
+        await authService.getCurrentUser();
+        console.log('[IAP] User data refreshed successfully');
+      } catch (refreshError) {
+        console.error('[IAP] Failed to refresh user data:', refreshError);
+      }
+      
       // Show success message
       Alert.alert(
         'Purchase Successful! 🎉',
-        'Your subscription has been activated. Please close and reopen the app to see your updated license.',
+        'Your subscription has been activated and your license has been extended!',
         [{ text: 'OK' }]
       );
       
