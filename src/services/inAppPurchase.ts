@@ -196,9 +196,6 @@ class InAppPurchaseService {
    * Verify purchase with backend
    */
   private async verifyPurchase(purchase: any): Promise<void> {
-      productId: purchase.productId,
-      transactionId: purchase.transactionId,
-    });
 
     try {
       // Import apiClient from correct location
