@@ -18,7 +18,7 @@ module.exports = {
     ios: {
       supportsTablet: false,
       bundleIdentifier: "com.spendly.mobile",
-      buildNumber: "10",
+      buildNumber: "11",
       deploymentTarget: "13.4",
       icon: "./assets/icon.png",
       displayName: "Spendly Money",

@@ -3,8 +3,8 @@ import * as RNIap from 'react-native-iap';
 
 // Product IDs from App Store Connect
 export const SUBSCRIPTION_PRODUCTS = {
-  MONTHLY: 'com.spendly.mobile.pro.1month',
-  YEARLY: 'com.spendly.mobile.pro.1year',
+  MONTHLY: 'com.spendly.mobile.premium.monthly',
+  YEARLY: 'com.spendly.mobile.premium.yearly',
 } as const;
 
 export const PRODUCT_IDS = Object.values(SUBSCRIPTION_PRODUCTS);
@@ -30,6 +30,10 @@ class InAppPurchaseService {
       await RNIap.initConnection();
       this.setupPurchaseListeners();
       this.isInitialized = true;
+      
+      // Pre-fetch products to warm up cache and verify connection
+      console.log('[IAP] Initialized. Pre-fetching products...');
+      await this.getProducts();
     } catch (error) {
       console.error('[IAP] Error initializing connection:', error);
       throw error;
@@ -50,11 +54,28 @@ class InAppPurchaseService {
 
     try {
       console.log('[IAP] Fetching products for skus:', PRODUCT_IDS);
-      const products = await RNIap.fetchProducts({ skus: PRODUCT_IDS });
-      console.log('[IAP] Products received from Apple:', products.length, products);
+      
+      // Use 'all' type to catch both products and subscriptions
+      const products = await RNIap.fetchProducts({ 
+        skus: PRODUCT_IDS,
+        type: 'all' as any // Using 'all' ensures we catch any classification
+      });
+
+      if (!products || products.length === 0) {
+        console.warn('[IAP] WARNING: Apple returned ZERO products for type "all".');
+        return [];
+      }
+
+      console.log('[IAP] Products successfully loaded:', products.length);
+      for (let i = 0; i < products.length; i++) {
+        const p = products[i];
+        console.log(` - ${p.id}: ${p.price} ${p.currency} (Type: ${p.type})`);
+      }
+      
       return products;
-    } catch (error) {
-      console.error('[IAP] Error getting products:', error);
+    } catch (error: any) {
+      console.error('[IAP] Error getting products from Apple:', error);
+      if (error.debugMessage) console.error('[IAP] Debug Message:', error.debugMessage);
       throw error;
     }
   }
@@ -63,27 +84,66 @@ class InAppPurchaseService {
    * Purchase a subscription
    */
   async purchaseSubscription(productId: string): Promise<void> {
+    console.log('[IAP] ===== PURCHASE INITIATED =====');
+    console.log('[IAP] Product ID:', productId);
+    
     if (Platform.OS !== 'ios') {
-      console.log('[IAP] Skipping purchase - not on iOS');
+      console.log('[IAP] Not on iOS, skipping...');
       return;
     }
 
     if (!this.isInitialized) {
+      console.log('[IAP] Not initialized, initializing now...');
       await this.initialize();
     }
 
     try {
-      // v14 Nitro API: Non-Renewing Subscriptions use 'inapp' type (not 'subs')
-      // Apple treats Non-Renewing Subscriptions as in-app purchases
-      await (RNIap.requestPurchase as any)({
+      console.log('[IAP] Calling requestPurchase for:', productId);
+      
+      // Set a flag to track if purchase dialog appears
+      let purchaseStarted = false;
+      
+      const purchasePromise = (RNIap.requestPurchase as any)({
         request: {
           ios: { sku: productId },
           android: { skus: [productId] },
         },
-        type: 'in-app', // 'in-app' for Non-Renewing, 'subs' for Auto-Renewable
+        type: 'in-app',
       });
+
+      // Add a timeout to detect if StoreKit silently fails
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => {
+          if (!purchaseStarted) {
+            reject(new Error('Purchase dialog did not appear after 2 seconds. Please ensure you are signed into a Sandbox account in Settings > App Store > Sandbox Account.'));
+          }
+        }, 2000);
+      });
+
+      await Promise.race([purchasePromise, timeoutPromise]);
+      
+      console.log('[IAP] requestPurchase completed successfully');
     } catch (error: any) {
       console.error('[IAP] Error purchasing subscription:', error);
+      console.error('[IAP] Error details:', JSON.stringify(error));
+      
+      // Show user-friendly error
+      const { Alert } = await import('react-native');
+      
+      if (error.message?.includes('Sandbox account')) {
+        Alert.alert(
+          'Sandbox Account Required',
+          'To test purchases, please sign in to a Sandbox test account:\n\n1. Open Settings app\n2. Go to App Store\n3. Scroll to "Sandbox Account"\n4. Sign in with your test account',
+          [{ text: 'OK' }]
+        );
+      } else {
+        Alert.alert(
+          'Purchase Error',
+          error.message || 'Failed to initiate purchase. Please try again.',
+          [{ text: 'OK' }]
+        );
+      }
+      
       throw error;
     }
   }
@@ -138,20 +198,45 @@ class InAppPurchaseService {
    * Verify purchase with backend
    */
   private async verifyPurchase(purchase: any): Promise<void> {
-    // This will be implemented to call your backend API
-    // For now, just log it
     console.log('[IAP] Verifying purchase with backend:', {
       productId: purchase.productId,
       transactionId: purchase.transactionId,
-      transactionReceipt: purchase.transactionReceipt,
     });
 
-    // TODO: Call backend API to verify receipt
-    // await subscriptionsService.verifyApplePurchase({
-    //   receiptData: purchase.transactionReceipt,
-    //   transactionId: purchase.transactionId,
-    //   productId: purchase.productId,
-    // });
+    try {
+      // Import apiClient from correct location
+      const { apiClient } = await import('../api/client');
+      
+      // Send receipt to backend for verification
+      const result = await apiClient.post('/iap/verify-ios', {
+        receipt: purchase.transactionReceipt,
+        productId: purchase.productId,
+        transactionId: purchase.transactionId,
+      });
+
+      console.log('[IAP] Purchase verified successfully:', (result as any).data);
+      
+      // Import Alert to show success message
+      const { Alert } = await import('react-native');
+      Alert.alert(
+        'Purchase Successful! 🎉',
+        'Your subscription has been activated. Please close and reopen the app to see your updated license.',
+        [{ text: 'OK' }]
+      );
+      
+    } catch (error) {
+      console.error('[IAP] Backend verification failed:', error);
+      
+      // Show error to user
+      const { Alert } = await import('react-native');
+      Alert.alert(
+        'Verification Error',
+        'Your payment was received but we couldn\'t verify it with our servers. Please contact support if your subscription doesn\'t appear within 24 hours.',
+        [{ text: 'OK' }]
+      );
+      
+      throw error;
+    }
   }
 
   /**

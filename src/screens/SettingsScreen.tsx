@@ -1443,16 +1443,14 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
                     }}
                     onPress={async () => {
                       if (Platform.OS === 'ios') {
-                        // Use Apple In-App Purchase on iOS
                         try {
                           showToast.info(t('settings.initiatingPurchase') || 'Initiating purchase...', 'Please wait');
-                          await iapService.purchaseSubscription('com.spendly.mobile.pro.yearly');
+                          await iapService.purchaseSubscription('com.spendly.mobile.premium.yearly');
                         } catch (error: any) {
                           console.error('IAP Error:', error);
                           showToast.error(t('settings.purchaseFailed') || 'Purchase failed', 'Error');
                         }
                       } else {
-                        // Use Stripe on Android/Web
                         setStripePaymentData({
                           planType: 'yearly',
                           paymentMethod: 'card'
