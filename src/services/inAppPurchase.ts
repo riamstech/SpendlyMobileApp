@@ -78,7 +78,7 @@ class InAppPurchaseService {
           ios: { sku: productId },
           android: { skus: [productId] },
         },
-        type: 'inapp', // 'inapp' for Non-Renewing, 'subs' for Auto-Renewable
+        type: 'in-app', // 'in-app' for Non-Renewing, 'subs' for Auto-Renewable
       });
     } catch (error: any) {
       console.error('[IAP] Error purchasing subscription:', error);
