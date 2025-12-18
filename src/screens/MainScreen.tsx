@@ -333,56 +333,8 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
             onViewInbox={() => setShowInbox(true)}
             onEditTransaction={handleEditTransaction}
             onDeleteTransaction={handleDeleteTransaction}
-            onRenewLicense={async () => {
-              
-              // If pricing data is already available, show dialog immediately
-              if (pricingData) {
-                setStripePaymentData({
-                  planType: 'monthly',
-                  paymentMethod: 'card',
-                });
-                setShowStripePayment(true);
-                return;
-              }
-
-              // Always try to load/reload data to ensure we have the latest
-              try {
-                setPendingPaymentDialog(true);
-                const loadedData = await loadUserAndCurrencies();
-                
-                // Calculate pricing directly from loaded data
-                if (loadedData.userData && loadedData.currenciesData.length > 0) {
-                  const userCurrencyCode = loadedData.userData.defaultCurrency || getCurrencyForCountry(loadedData.userData.country) || 'USD';
-                  const monthlyPrice = convertUsdToCurrency(2, userCurrencyCode, loadedData.currenciesData);
-                  const yearlyPrice = convertUsdToCurrency(10, userCurrencyCode, loadedData.currenciesData);
-                  
-                  const calculatedPricing = {
-                    monthly: `${monthlyPrice.symbol}${formatCurrencyAmount(monthlyPrice.amount, monthlyPrice.symbol)}`,
-                    yearly: `${yearlyPrice.symbol}${formatCurrencyAmount(yearlyPrice.amount, yearlyPrice.symbol)}`,
-                    monthlyAmount: monthlyPrice.amount,
-                    yearlyAmount: yearlyPrice.amount,
-                    currencyCode: userCurrencyCode
-                  };
-                  
-                  
-                  // Store calculated pricing and show dialog
-                  setManualPricingData(calculatedPricing);
-                  setStripePaymentData({
-                    planType: 'monthly',
-                    paymentMethod: 'card',
-                  });
-                  setShowStripePayment(true);
-                  setPendingPaymentDialog(false);
-                } else {
-                  setPendingPaymentDialog(false);
-                  setActiveTab('settings');
-                }
-              } catch (error) {
-                console.error('Failed to load pricing data:', error);
-                setPendingPaymentDialog(false);
-                // Fallback to settings if loading fails
-                setActiveTab('settings');
-              }
+            onRenewLicense={() => {
+              setActiveTab('settings');
             }}
           />
         ) : (
