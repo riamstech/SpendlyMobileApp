@@ -578,7 +578,8 @@
     "extendLicense": "延长许可证",
     "oneTimePayment": "一次性付款",
     "oneTimePaymentMonth": "一次性付款，1个月访问权限",
-    "oneTimePaymentYear": "一次性付款，1年访问权限"
+    "oneTimePaymentYear": "一次性付款，1年访问权限",
+    "initiatingPurchase": "正在启动购买..."
   },
   "categories": {
     "groceries": "Groceries",

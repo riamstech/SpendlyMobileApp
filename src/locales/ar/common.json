@@ -578,7 +578,8 @@
     "extendLicense": "تمديد الترخيص",
     "oneTimePayment": "دفعة واحدة",
     "oneTimePaymentMonth": "دفعة واحدة لمدة شهر واحد",
-    "oneTimePaymentYear": "دفعة واحدة لمدة سنة واحدة"
+    "oneTimePaymentYear": "دفعة واحدة لمدة سنة واحدة",
+    "initiatingPurchase": "بدء الشراء..."
   },
   "categories": {
     "groceries": "البقالة",

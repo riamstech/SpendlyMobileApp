@@ -578,7 +578,8 @@
     "extendLicense": "Extend License",
     "oneTimePayment": "One-time payment",
     "oneTimePaymentMonth": "One-time payment for 1 month access",
-    "oneTimePaymentYear": "One-time payment for 1 year access"
+    "oneTimePaymentYear": "One-time payment for 1 year access",
+    "initiatingPurchase": "Initiating purchase..."
   },
   "categories": {
     "groceries": "Groceries",

@@ -578,7 +578,8 @@
     "extendLicense": "Lizenz Verlängern",
     "oneTimePayment": "Einmalzahlung",
     "oneTimePaymentMonth": "Einmalzahlung für 1 Monat Zugang",
-    "oneTimePaymentYear": "Einmalzahlung für 1 Jahr Zugang"
+    "oneTimePaymentYear": "Einmalzahlung für 1 Jahr Zugang",
+    "initiatingPurchase": "Kauf wird eingeleitet..."
   },
   "categories": {
     "groceries": "Lebensmittel",

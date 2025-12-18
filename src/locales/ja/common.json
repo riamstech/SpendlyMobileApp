@@ -578,7 +578,8 @@
     "extendLicense": "ライセンスを延長",
     "oneTimePayment": "一回限りの支払い",
     "oneTimePaymentMonth": "1ヶ月アクセスの一回限りの支払い",
-    "oneTimePaymentYear": "1年アクセスの一回限りの支払い"
+    "oneTimePaymentYear": "1年アクセスの一回限りの支払い",
+    "initiatingPurchase": "購入を開始しています..."
   },
   "categories": {
     "groceries": "Groceries",

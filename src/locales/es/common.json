@@ -578,7 +578,8 @@
     "extendLicense": "Extender Licencia",
     "oneTimePayment": "Pago único",
     "oneTimePaymentMonth": "Pago único por 1 mes de acceso",
-    "oneTimePaymentYear": "Pago único por 1 año de acceso"
+    "oneTimePaymentYear": "Pago único por 1 año de acceso",
+    "initiatingPurchase": "Iniciando compra..."
   },
   "categories": {
     "groceries": "Comestibles",

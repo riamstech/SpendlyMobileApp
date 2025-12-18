@@ -578,7 +578,8 @@
     "extendLicense": "Prolonger la Licence",
     "oneTimePayment": "Paiement unique",
     "oneTimePaymentMonth": "Paiement unique pour 1 mois d'accès",
-    "oneTimePaymentYear": "Paiement unique pour 1 an d'accès"
+    "oneTimePaymentYear": "Paiement unique pour 1 an d'accès",
+    "initiatingPurchase": "Lancement de l'achat..."
   },
   "categories": {
     "groceries": "Épicerie",

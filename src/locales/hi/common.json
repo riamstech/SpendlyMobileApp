@@ -578,7 +578,8 @@
     "extendLicense": "लाइसेंस बढ़ाएं",
     "oneTimePayment": "एक बार का भुगतान",
     "oneTimePaymentMonth": "1 महीने की पहुंच के लिए एक बार का भुगतान",
-    "oneTimePaymentYear": "1 वर्ष की पहुंच के लिए एक बार का भुगतान"
+    "oneTimePaymentYear": "1 वर्ष की पहुंच के लिए एक बार का भुगतान",
+    "initiatingPurchase": "खरीदारी शुरू हो रही है..."
   },
   "categories": {
     "groceries": "किराने का सामान",
