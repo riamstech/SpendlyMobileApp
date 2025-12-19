@@ -579,7 +579,9 @@
     "oneTimePayment": "一回限りの支払い",
     "oneTimePaymentMonth": "1ヶ月アクセスの一回限りの支払い",
     "oneTimePaymentYear": "1年アクセスの一回限りの支払い",
-    "initiatingPurchase": "購入を開始しています..."
+    "initiatingPurchase": "購入を開始しています...",
+    "renewLicense": "ライセンスの更新",
+    "renewInstruction": "プレミアムライセンスを延長するには、以下のサブスクリプションプランを選択してください。"
   },
   "categories": {
     "groceries": "Groceries",

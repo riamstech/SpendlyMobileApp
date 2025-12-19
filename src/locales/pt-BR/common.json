@@ -579,7 +579,9 @@
     "oneTimePayment": "Pagamento único",
     "oneTimePaymentMonth": "Pagamento único por 1 mês de acesso",
     "oneTimePaymentYear": "Pagamento único por 1 ano de acesso",
-    "initiatingPurchase": "Iniciando compra..."
+    "initiatingPurchase": "Iniciando compra...",
+    "renewLicense": "Renovar Licença",
+    "renewInstruction": "Selecione um plano de assinatura abaixo para estender sua licença premium."
   },
   "categories": {
     "groceries": "Groceries",

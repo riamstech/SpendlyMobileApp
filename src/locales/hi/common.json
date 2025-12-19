@@ -579,7 +579,9 @@
     "oneTimePayment": "एक बार का भुगतान",
     "oneTimePaymentMonth": "1 महीने की पहुंच के लिए एक बार का भुगतान",
     "oneTimePaymentYear": "1 वर्ष की पहुंच के लिए एक बार का भुगतान",
-    "initiatingPurchase": "खरीदारी शुरू हो रही है..."
+    "initiatingPurchase": "खरीदारी शुरू हो रही है...",
+    "renewLicense": "लाइसेंस नवीनीकृत करें",
+    "renewInstruction": "अपने प्रीमियम लाइसेंस को बढ़ाने के लिए कृपया नीचे एक सदस्यता योजना चुनें।"
   },
   "categories": {
     "groceries": "किराने का सामान",

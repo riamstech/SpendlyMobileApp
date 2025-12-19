@@ -579,7 +579,9 @@
     "oneTimePayment": "Einmalzahlung",
     "oneTimePaymentMonth": "Einmalzahlung für 1 Monat Zugang",
     "oneTimePaymentYear": "Einmalzahlung für 1 Jahr Zugang",
-    "initiatingPurchase": "Kauf wird eingeleitet..."
+    "initiatingPurchase": "Kauf wird eingeleitet...",
+    "renewLicense": "Lizenz verlängern",
+    "renewInstruction": "Bitte wählen Sie unten einen Abonnementplan aus, um Ihre Premium-Lizenz zu verlängern."
   },
   "categories": {
     "groceries": "Lebensmittel",

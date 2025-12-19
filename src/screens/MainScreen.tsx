@@ -66,6 +66,7 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
   const [transactionToEdit, setTransactionToEdit] = useState<Transaction | null>(null);
   const [loadingTransaction, setLoadingTransaction] = useState(false);
   const [dashboardRefreshKey, setDashboardRefreshKey] = useState(0);
+  const [showRenewInstruction, setShowRenewInstruction] = useState(false);
 
   // Handle initial screen from notification
   React.useEffect(() => {
@@ -221,6 +222,8 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
             onViewAnalytics={() => setShowAnalytics(true)}
             onViewReceipts={() => setShowReceipts(true)}
             onViewSupportTickets={() => setShowSupportTickets(true)}
+            showRenewInstruction={showRenewInstruction}
+            onRenewInstructionShown={() => setShowRenewInstruction(false)}
           />
         );
       default:
@@ -335,6 +338,7 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
             onDeleteTransaction={handleDeleteTransaction}
             onRenewLicense={() => {
               setActiveTab('settings');
+              setShowRenewInstruction(true);
             }}
           />
         ) : (

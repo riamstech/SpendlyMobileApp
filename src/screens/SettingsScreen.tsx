@@ -99,9 +99,21 @@ interface SettingsScreenProps {
   onViewReceipts?: () => void;
   onViewSupportTickets?: () => void;
   onRenewLicense?: () => void;
+  showRenewInstruction?: boolean;
+  onRenewInstructionShown?: () => void;
 }
 
-export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, onViewAnalytics, onViewReceipts, onViewSupportTickets, onRenewLicense }: SettingsScreenProps) {
+export default function SettingsScreen({ 
+  onLogout, 
+  onViewReferral, 
+  onViewGoals, 
+  onViewAnalytics, 
+  onViewReceipts, 
+  onViewSupportTickets, 
+  onRenewLicense,
+  showRenewInstruction,
+  onRenewInstructionShown
+}: SettingsScreenProps) {
   const { t, i18n } = useTranslation('common');
   const { width } = useWindowDimensions();
   const { isDark, colors, toggleTheme } = useTheme();
@@ -288,6 +300,17 @@ export default function SettingsScreen({ onLogout, onViewReferral, onViewGoals, 
       setAvatarLoadError(false);
     }
   }, [user?.avatar, (user as any)?.avatar_url]);
+
+
+  useEffect(() => {
+    if (showRenewInstruction) {
+      Alert.alert(
+        t('settings.renewLicense') || 'Renew License',
+        t('settings.renewInstruction') || 'Please select a subscription plan below to extend your premium license.',
+        [{ text: 'OK', onPress: () => onRenewInstructionShown?.() }]
+      );
+    }
+  }, [showRenewInstruction]);
 
   const loadInitialData = async () => {
     try {

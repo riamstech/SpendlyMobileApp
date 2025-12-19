@@ -579,7 +579,9 @@
     "oneTimePayment": "Одноразовый платеж",
     "oneTimePaymentMonth": "Одноразовый платеж за 1 месяц доступа",
     "oneTimePaymentYear": "Одноразовый платеж за 1 год доступа",
-    "initiatingPurchase": "Инициирование покупки..."
+    "initiatingPurchase": "Инициирование покупки...",
+    "renewLicense": "Продлить лицензию",
+    "renewInstruction": "Пожалуйста, выберите план подписки ниже, чтобы продлить вашу премиум-лицензию."
   },
   "categories": {
     "groceries": "Groceries",

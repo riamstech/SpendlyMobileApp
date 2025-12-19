@@ -579,7 +579,9 @@
     "oneTimePayment": "Paiement unique",
     "oneTimePaymentMonth": "Paiement unique pour 1 mois d'accès",
     "oneTimePaymentYear": "Paiement unique pour 1 an d'accès",
-    "initiatingPurchase": "Lancement de l'achat..."
+    "initiatingPurchase": "Lancement de l'achat...",
+    "renewLicense": "Renouveler la licence",
+    "renewInstruction": "Veuillez sélectionner un plan d'abonnement ci-dessous pour étendre votre licence premium."
   },
   "categories": {
     "groceries": "Épicerie",

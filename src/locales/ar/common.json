@@ -579,7 +579,9 @@
     "oneTimePayment": "دفعة واحدة",
     "oneTimePaymentMonth": "دفعة واحدة لمدة شهر واحد",
     "oneTimePaymentYear": "دفعة واحدة لمدة سنة واحدة",
-    "initiatingPurchase": "بدء الشراء..."
+    "initiatingPurchase": "بدء الشراء...",
+    "renewLicense": "تجديد الترخيص",
+    "renewInstruction": "يرجى تحديد خطة اشتراك أدناه لتمديد الترخيص المميز الخاص بك."
   },
   "categories": {
     "groceries": "البقالة",
