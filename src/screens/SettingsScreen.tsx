@@ -392,6 +392,7 @@ export default function SettingsScreen({
       if (Platform.OS === 'ios') {
         try {
           const products = await iapService.getProducts();
+          console.log('IAP products fetched:', products);
           setIapProducts(products);
         } catch (error) {
           console.error('Failed to load IAP products:', error);
