@@ -1539,7 +1539,7 @@ export default function SettingsScreen({
                     <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 16, textAlign: 'center' }}>
                       {(() => {
                         const monthlyProduct = iapProducts.find(p => p.productId === 'com.spendly.mobile.premium.monthlyextension');
-                        return monthlyProduct ? `1 Month - ${monthlyProduct.priceString}` : t('settings.monthlyPlanPrice', { defaultValue: '1 Month - $2.98' });
+                        return monthlyProduct ? `1 Month - ${monthlyProduct.displayPrice}` : t('settings.monthlyPlanPrice', { defaultValue: '1 Month - $2.98' });
                       })()}
                     </Text>
                   </Pressable>
@@ -1578,7 +1578,7 @@ export default function SettingsScreen({
                     <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16, textAlign: 'center' }}>
                       {(() => {
                         const yearlyProduct = iapProducts.find(p => p.productId === 'com.spendly.mobile.premium.yearlyextension');
-                        return yearlyProduct ? `1 Year - ${yearlyProduct.priceString} (Best Value)` : t('settings.yearlyPlanPrice', { defaultValue: '1 Year - $19.98 (Best Value)' });
+                        return yearlyProduct ? `1 Year - ${yearlyProduct.displayPrice} (Best Value)` : t('settings.yearlyPlanPrice', { defaultValue: '1 Year - $19.98 (Best Value)' });
                       })()}
                     </Text>
                   </Pressable>
