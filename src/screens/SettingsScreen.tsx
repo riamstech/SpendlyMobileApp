@@ -1504,7 +1504,7 @@ export default function SettingsScreen({
                       if (Platform.OS === 'ios') {
                         try {
                           showToast.info(t('settings.initiatingPurchase') || 'Initiating purchase...', 'Please wait');
-                          await iapService.purchaseSubscription('com.spendly.mobile.premium.monthly');
+                          await iapService.purchaseSubscription('com.spendly.mobile.premium.monthlyextension');
                         } catch (error: any) {
                           console.error('IAP Error:', error);
                           showToast.error(t('settings.purchaseFailed') || 'Purchase failed', 'Error');
@@ -1535,7 +1535,7 @@ export default function SettingsScreen({
                       if (Platform.OS === 'ios') {
                         try {
                           showToast.info(t('settings.initiatingPurchase') || 'Initiating purchase...', 'Please wait');
-                          await iapService.purchaseSubscription('com.spendly.mobile.premium.yearly');
+                          await iapService.purchaseSubscription('com.spendly.mobile.premium.yearlyextension');
                         } catch (error: any) {
                           console.error('IAP Error:', error);
                           showToast.error(t('settings.purchaseFailed') || 'Purchase failed', 'Error');
