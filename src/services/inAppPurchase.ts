@@ -183,10 +183,10 @@ class InAppPurchaseService {
       
       console.log('IAP: Initiating new purchase for:', productId);
       
-      // For react-native-iap v14+, use request.apple.sku structure
+      // For react-native-iap v14+, use request.ios.sku structure (not apple!)
       await RNIap.requestPurchase({
         request: {
-          apple: { sku: productId }
+          ios: { sku: productId }
         },
         type: 'in-app'
       });
