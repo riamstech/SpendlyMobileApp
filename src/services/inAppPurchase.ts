@@ -1,10 +1,10 @@
 import { Platform, Alert, DeviceEventEmitter } from 'react-native';
 import * as RNIap from 'react-native-iap';
 
-// Product IDs from App Store Connect
+// Product IDs from App Store Connect (Consumable products for validity extensions)
 export const SUBSCRIPTION_PRODUCTS = {
-  MONTHLY: 'com.spendly.mobile.premium.monthly',
-  YEARLY: 'com.spendly.mobile.premium.yearly',
+  MONTHLY: 'com.spendly.mobile.premium.monthlyextension',
+  YEARLY: 'com.spendly.mobile.premium.yearlyextension',
 } as const;
 
 export const PRODUCT_IDS = Object.values(SUBSCRIPTION_PRODUCTS);
@@ -244,14 +244,14 @@ class InAppPurchaseService {
         // Skip if this transaction was already processed (restored purchase)
         if (transactionId && this.processedTransactionIds.has(transactionId)) {
           console.log('IAP: Skipping already processed transaction:', transactionId);
-          await RNIap.finishTransaction({ purchase, isConsumable: false });
+          await RNIap.finishTransaction({ purchase, isConsumable: true });
           return;
         }
         
         // Skip if we're in restore mode (not a new purchase)
         if (this.isRestoring) {
           console.log('IAP: Skipping transaction during restore');
-          await RNIap.finishTransaction({ purchase, isConsumable: false });
+          await RNIap.finishTransaction({ purchase, isConsumable: true });
           return;
         }
         
@@ -267,7 +267,8 @@ class InAppPurchaseService {
             
             // This is a NEW purchase - verify and show success
             await this.verifyPurchase(purchase, true);
-            await RNIap.finishTransaction({ purchase, isConsumable: false });
+            // Use isConsumable: true to allow users to buy validity extensions multiple times
+            await RNIap.finishTransaction({ purchase, isConsumable: true });
           } catch (error) {
             console.error('IAP: Error processing purchase:', error);
           }
