@@ -208,7 +208,7 @@ export default function SettingsScreen({
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [avatarLoadError, setAvatarLoadError] = useState(false);
 
-  const [avatarCacheTimestamp, setAvatarCacheTimestamp] = useState(Date.now());
+  const [iapProducts, setIapProducts] = useState<any[]>([]);
 
   useEffect(() => {
     loadInitialData();
@@ -384,6 +384,16 @@ export default function SettingsScreen({
         }
       } catch (error) {
         console.error('Failed to load settings:', error);
+      }
+
+      // Fetch IAP products for localized pricing
+      if (Platform.OS === 'ios') {
+        try {
+          const products = await iapService.getProducts();
+          setIapProducts(products);
+        } catch (error) {
+          console.error('Failed to load IAP products:', error);
+        }
       }
     } catch (error) {
       console.error('Failed to load initial data:', error);
@@ -1519,7 +1529,10 @@ export default function SettingsScreen({
                     }}
                   >
                     <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 14 }}>
-                      {t('settings.monthlyPlanPrice', { defaultValue: '1 Month - $2.98' })}
+                      {(() => {
+                        const monthlyProduct = iapProducts.find(p => p.productId === 'com.spendly.mobile.premium.monthlyextension');
+                        return monthlyProduct ? `1 Month - ${monthlyProduct.priceString}` : t('settings.monthlyPlanPrice', { defaultValue: '1 Month - $2.98' });
+                      })()}
                     </Text>
                   </Pressable>
 
@@ -1550,7 +1563,10 @@ export default function SettingsScreen({
                     }}
                   >
                     <Text style={{ color: '#fff', fontWeight: '600', fontSize: 14 }}>
-                      {t('settings.yearlyPlanPrice', { defaultValue: '1 Year - $19.98 (Best Value)' })}
+                      {(() => {
+                        const yearlyProduct = iapProducts.find(p => p.productId === 'com.spendly.mobile.premium.yearlyextension');
+                        return yearlyProduct ? `1 Year - ${yearlyProduct.priceString} (Best Value)` : t('settings.yearlyPlanPrice', { defaultValue: '1 Year - $19.98 (Best Value)' });
+                      })()}
                     </Text>
                   </Pressable>
                 </View>
