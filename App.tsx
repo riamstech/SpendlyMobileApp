@@ -5,6 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import * as Notifications from 'expo-notifications';
+import * as LocalAuthentication from 'expo-local-authentication';
 import Toast from 'react-native-toast-message';
 import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
 import SplashScreen from './src/screens/SplashScreen';
@@ -197,17 +198,6 @@ function AppContent() {
     console.log('AppContent mounted, currentScreen:', currentScreen);
   }, [currentScreen]);
 
-  const handleSplashFinish = useCallback(async () => {
-    // Load saved language preference from AsyncStorage before proceeding
-    try {
-      const { loadSavedLanguage } = await import('./src/i18n');
-      await loadSavedLanguage();
-    } catch (error) {
-      // Ignore error, continue with default language
-    }
-    setCurrentScreen('login');
-  }, []);
-
   const handleLoginSuccess = useCallback(async (isNewUser?: boolean) => {
     console.log('[handleLoginSuccess] isNewUser:', isNewUser);
     
@@ -257,6 +247,66 @@ function AppContent() {
       setCurrentScreen('dashboard');
     }
   }, []);
+
+  const handleSplashFinish = useCallback(async () => {
+    // Load saved language preference from AsyncStorage before proceeding
+    try {
+      const { loadSavedLanguage } = await import('./src/i18n');
+      await loadSavedLanguage();
+    } catch (error) {
+      // Ignore error, continue with default language
+    }
+
+    // Check if user is already logged in
+    try {
+      const { apiClient } = await import('./src/api/client');
+      const token = await apiClient.getTokenAsync();
+      
+      if (token) {
+        // User has token, check biometric settings
+        const { usersService } = await import('./src/api/services/users');
+        const settings = await usersService.getUserSettings();
+        
+        if (settings.settings?.biometricLockEnabled) {
+          // Biometric is enabled, check hardware support
+          const hasHardware = await LocalAuthentication.hasHardwareAsync();
+          const supportedTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
+          
+          if (hasHardware && supportedTypes.length > 0) {
+            // Prompt for biometric authentication
+            const result = await LocalAuthentication.authenticateAsync({
+              promptMessage: 'Authenticate to access the app',
+              disableDeviceFallback: false,
+            });
+            
+            if (result.success) {
+              // Biometric successful, proceed to dashboard
+              await handleLoginSuccess(false);
+              return;
+            } else {
+              // Biometric failed, go to login
+              setCurrentScreen('login');
+              return;
+            }
+          } else {
+            // No biometric hardware, go to login
+            setCurrentScreen('login');
+            return;
+          }
+        } else {
+          // Biometric not enabled, proceed to dashboard
+          await handleLoginSuccess(false);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Error during biometric check:', error);
+      // On error, proceed to login
+    }
+    
+    // No token or error, go to login
+    setCurrentScreen('login');
+  }, [handleLoginSuccess]);
 
   const handleSignupSuccess = useCallback(async (isNewUser?: boolean) => {
     // If isNewUser flag is provided, use it directly

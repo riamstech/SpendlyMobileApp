@@ -97,47 +97,27 @@ class InAppPurchaseService {
     }
 
     try {
-      
-      // Set a flag to track if purchase dialog appears
-      let purchaseStarted = false;
-      
-      const purchasePromise = (RNIap.requestPurchase as any)({
+      await (RNIap.requestPurchase as any)({
         request: {
           ios: { sku: productId },
           android: { skus: [productId] },
         },
         type: 'in-app',
       });
-
-      // Add a timeout to detect if StoreKit silently fails
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => {
-          if (!purchaseStarted) {
-            reject(new Error('Purchase dialog did not appear after 2 seconds. Please ensure you are signed into a Sandbox account in Settings > App Store > Sandbox Account.'));
-          }
-        }, 2000);
-      });
-
-      await Promise.race([purchasePromise, timeoutPromise]);
       
     } catch (error: any) {
       
-      // Show user-friendly error (Alert is already imported)
-      if (error.message?.includes('Sandbox account')) {
-        Alert.alert(
-          'Sandbox Account Required',
-          'To test purchases, please sign in to a Sandbox test account:\n\n1. Open Settings app\n2. Go to App Store\n3. Scroll to "Sandbox Account"\n4. Sign in with your test account',
-          [{ text: 'OK' }]
-        );
-      } else if (error.message?.includes('dialog did not appear')) {
-        // Timeout error - silently ignore, user likely backed out
-      } else {
-        Alert.alert(
-          'Purchase Error',
-          error.message || 'Failed to initiate purchase. Please try again.',
-          [{ text: 'OK' }]
-        );
+      // Handle user cancellation silently
+      if (error.code === 'E_USER_CANCELLED') {
+        return;
       }
+      
+      // Show user-friendly error for other cases
+      Alert.alert(
+        'Purchase Error',
+        error.message || 'Failed to initiate purchase. Please try again.',
+        [{ text: 'OK' }]
+      );
       
       throw error;
     }

@@ -5,7 +5,7 @@ module.exports = {
     name: "Spendly",
     slug: "SpendlyMobileApp",
     scheme: "spendly",
-    version: "1.0.1",
+    version: "1.0.2",
     main: "index.ts",
     orientation: "portrait",
     icon: "./assets/icon.png",

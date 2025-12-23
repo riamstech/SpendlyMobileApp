@@ -1,6 +1,6 @@
 {
   "name": "spendlymobileapp",
-  "version": "1.1.0",
+  "version": "1.0.2",
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
@@ -27,6 +27,7 @@
     "expo-image-picker": "^17.0.9",
     "expo-linear-gradient": "~15.0.7",
     "expo-linking": "^8.0.9",
+    "expo-local-authentication": "^17.0.8",
     "expo-localization": "^17.0.7",
     "expo-notifications": "~0.32.14",
     "expo-print": "^15.0.7",
