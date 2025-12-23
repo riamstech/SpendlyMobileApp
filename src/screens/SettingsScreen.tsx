@@ -210,6 +210,8 @@ export default function SettingsScreen({
 
   const [iapProducts, setIapProducts] = useState<any[]>([]);
 
+  const [avatarCacheTimestamp, setAvatarCacheTimestamp] = useState(Date.now());
+
   useEffect(() => {
     loadInitialData();
   }, []);
