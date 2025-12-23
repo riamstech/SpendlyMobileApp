@@ -1499,16 +1499,21 @@ export default function SettingsScreen({
                     </View>
                   </View>
                   
-                  {/* Monthly Option */}
                   <Pressable
                     style={{
                       backgroundColor: colors.card,
                       borderColor: colors.border,
                       borderWidth: 1,
-                      paddingHorizontal: 16,
-                      paddingVertical: 12,
-                      borderRadius: 8,
-                      marginBottom: 8,
+                      paddingHorizontal: 20,
+                      paddingVertical: 16,
+                      borderRadius: 12,
+                      marginBottom: 12,
+                      shadowColor: colors.foreground,
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.1,
+                      shadowRadius: 4,
+                      elevation: 3,
+                      alignItems: 'center',
                     }}
                     onPress={async () => {
                       if (Platform.OS === 'ios') {
@@ -1528,7 +1533,7 @@ export default function SettingsScreen({
                       }
                     }}
                   >
-                    <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 14 }}>
+                    <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 16, textAlign: 'center' }}>
                       {(() => {
                         const monthlyProduct = iapProducts.find(p => p.productId === 'com.spendly.mobile.premium.monthlyextension');
                         return monthlyProduct ? `1 Month - ${monthlyProduct.priceString}` : t('settings.monthlyPlanPrice', { defaultValue: '1 Month - $2.98' });
@@ -1536,13 +1541,18 @@ export default function SettingsScreen({
                     </Text>
                   </Pressable>
 
-                  {/* Yearly Option */}
                   <Pressable
                     style={{
                       backgroundColor: colors.primary,
-                      paddingHorizontal: 16,
-                      paddingVertical: 12,
-                      borderRadius: 8,
+                      paddingHorizontal: 20,
+                      paddingVertical: 16,
+                      borderRadius: 12,
+                      shadowColor: colors.primary,
+                      shadowOffset: { width: 0, height: 4 },
+                      shadowOpacity: 0.3,
+                      shadowRadius: 6,
+                      elevation: 6,
+                      alignItems: 'center',
                     }}
                     onPress={async () => {
                       if (Platform.OS === 'ios') {
@@ -1562,7 +1572,7 @@ export default function SettingsScreen({
                       }
                     }}
                   >
-                    <Text style={{ color: '#fff', fontWeight: '600', fontSize: 14 }}>
+                    <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16, textAlign: 'center' }}>
                       {(() => {
                         const yearlyProduct = iapProducts.find(p => p.productId === 'com.spendly.mobile.premium.yearlyextension');
                         return yearlyProduct ? `1 Year - ${yearlyProduct.priceString} (Best Value)` : t('settings.yearlyPlanPrice', { defaultValue: '1 Year - $19.98 (Best Value)' });
