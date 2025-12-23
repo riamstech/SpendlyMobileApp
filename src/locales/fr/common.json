@@ -581,7 +581,11 @@
     "oneTimePaymentYear": "Paiement unique pour 1 an d'accès",
     "initiatingPurchase": "Lancement de l'achat...",
     "renewLicense": "Renouveler la licence",
-    "renewInstruction": "Veuillez sélectionner un plan d'abonnement ci-dessous pour étendre votre licence premium."
+    "renewInstruction": "Veuillez sélectionner un plan d'abonnement ci-dessous pour étendre votre licence premium.",
+    "monthlyPlanPrice": "1 Mois - 2,98 $",
+    "yearlyPlanPrice": "1 An - 19,98 $ (Meilleure Offre)",
+    "purchaseFailed": "Échec de l'achat",
+    "pleaseWait": "Veuillez patienter"
   },
   "categories": {
     "groceries": "Épicerie",

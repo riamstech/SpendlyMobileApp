@@ -26,6 +26,7 @@ import i18n from '../i18n';
 import { Transaction } from '../api/types/transaction';
 import { transactionsService } from '../api/services/transactions';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import OfflineIndicator from '../components/OfflineIndicator';
 import { Alert } from 'react-native';
 import { authService } from '../api/services/auth';
 
@@ -327,6 +328,7 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
 
   return (
     <View style={styles.container}>
+      <OfflineIndicator />
       <View style={styles.content}>
         {activeTab === 'home' ? (
           <DashboardScreen

@@ -18,7 +18,7 @@ module.exports = {
     ios: {
       supportsTablet: false,
       bundleIdentifier: "com.spendly.mobile",
-      buildNumber: "11",
+      buildNumber: "1",
       deploymentTarget: "13.4",
       icon: "./assets/icon.png",
       displayName: "Spendly Money",
@@ -102,7 +102,8 @@ module.exports = {
         {
           iosUrlScheme: process.env.GOOGLE_IOS_URL_SCHEME || "com.googleusercontent.apps.913299133500-c6hjl99i7q14h40ne17mm2e2jrh2q9pu"
         }
-      ]
+      ],
+      "expo-secure-store"
     ]
   }
 };

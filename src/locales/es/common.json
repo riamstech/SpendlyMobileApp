@@ -581,7 +581,11 @@
     "oneTimePaymentYear": "Pago único por 1 año de acceso",
     "initiatingPurchase": "Iniciando compra...",
     "renewLicense": "Renovar Licencia",
-    "renewInstruction": "Seleccione un plan de suscripción a continuación para extender su licencia premium."
+    "renewInstruction": "Seleccione un plan de suscripción a continuación para extender su licencia premium.",
+    "monthlyPlanPrice": "1 Mes - $2.98",
+    "yearlyPlanPrice": "1 Año - $19.98 (Mejor Valor)",
+    "purchaseFailed": "Compra fallida",
+    "pleaseWait": "Por favor espere"
   },
   "categories": {
     "groceries": "Comestibles",

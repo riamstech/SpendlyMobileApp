@@ -581,7 +581,11 @@
     "oneTimePaymentYear": "Одноразовый платеж за 1 год доступа",
     "initiatingPurchase": "Инициирование покупки...",
     "renewLicense": "Продлить лицензию",
-    "renewInstruction": "Пожалуйста, выберите план подписки ниже, чтобы продлить вашу премиум-лицензию."
+    "renewInstruction": "Пожалуйста, выберите план подписки ниже, чтобы продлить вашу премиум-лицензию.",
+    "monthlyPlanPrice": "1 месяц - $2.98",
+    "yearlyPlanPrice": "1 год - $19.98 (Лучшая цена)",
+    "purchaseFailed": "Покупка не удалась",
+    "pleaseWait": "Пожалуйста, подождите"
   },
   "categories": {
     "groceries": "Groceries",

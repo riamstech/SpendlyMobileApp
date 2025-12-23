@@ -581,7 +581,11 @@
     "oneTimePaymentYear": "一次性付款，1年访问权限",
     "initiatingPurchase": "正在启动购买...",
     "renewLicense": "续订许可证",
-    "renewInstruction": "请在下方选择订阅计划以延长您的高级许可证。"
+    "renewInstruction": "请在下方选择订阅计划以延长您的高级许可证。",
+    "monthlyPlanPrice": "1个月 - $2.98",
+    "yearlyPlanPrice": "1年 - $19.98 (最佳价值)",
+    "purchaseFailed": "购买失败",
+    "pleaseWait": "请稍候"
   },
   "categories": {
     "groceries": "Groceries",

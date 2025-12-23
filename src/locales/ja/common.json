@@ -581,7 +581,11 @@
     "oneTimePaymentYear": "1年アクセスの一回限りの支払い",
     "initiatingPurchase": "購入を開始しています...",
     "renewLicense": "ライセンスの更新",
-    "renewInstruction": "プレミアムライセンスを延長するには、以下のサブスクリプションプランを選択してください。"
+    "renewInstruction": "プレミアムライセンスを延長するには、以下のサブスクリプションプランを選択してください。",
+    "monthlyPlanPrice": "1ヶ月 - $2.98",
+    "yearlyPlanPrice": "1年 - $19.98 (お得)",
+    "purchaseFailed": "購入に失敗しました",
+    "pleaseWait": "お待ちください"
   },
   "categories": {
     "groceries": "Groceries",

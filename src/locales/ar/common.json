@@ -581,7 +581,11 @@
     "oneTimePaymentYear": "دفعة واحدة لمدة سنة واحدة",
     "initiatingPurchase": "بدء الشراء...",
     "renewLicense": "تجديد الترخيص",
-    "renewInstruction": "يرجى تحديد خطة اشتراك أدناه لتمديد الترخيص المميز الخاص بك."
+    "renewInstruction": "يرجى تحديد خطة اشتراك أدناه لتمديد الترخيص المميز الخاص بك.",
+    "monthlyPlanPrice": "شهر واحد - 2.98 دولار",
+    "yearlyPlanPrice": "سنة واحدة - 19.98 دولار (أفضل قيمة)",
+    "purchaseFailed": "فشل الشراء",
+    "pleaseWait": "يرجى الانتظار"
   },
   "categories": {
     "groceries": "البقالة",

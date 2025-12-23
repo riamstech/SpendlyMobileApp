@@ -1,6 +1,6 @@
 import "./src/i18n";
 import React, { useState, useCallback, ErrorInfo, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
@@ -17,6 +17,7 @@ import ResetPasswordScreen from './src/screens/ResetPasswordScreen';
 import MainScreen from './src/screens/MainScreen';
 import { notificationService } from './src/services/notificationService';
 import { devicesService } from './src/api/services/devices';
+import { hapticService } from './src/services/hapticService';
 import i18n from './src/i18n';
 
 class ErrorBoundary extends React.Component<
@@ -36,18 +37,31 @@ class ErrorBoundary extends React.Component<
     console.error('App Error:', error, errorInfo);
   }
 
+  handleRetry = () => {
+    this.setState({ hasError: false, error: null });
+  };
+
   render() {
     if (this.state.hasError) {
       return (
         <View style={styles.errorContainer}>
+          <Text style={styles.errorIcon}>⚠️</Text>
           <Text style={styles.errorTitle}>
             {i18n.t('errorBoundary.somethingWentWrong', { defaultValue: 'Something went wrong' })}
           </Text>
           <Text style={styles.errorText}>
             {this.state.error?.message || i18n.t('errorBoundary.unknownError', { defaultValue: 'Unknown error' })}
           </Text>
+          <Pressable 
+            style={styles.retryButton}
+            onPress={this.handleRetry}
+          >
+            <Text style={styles.retryButtonText}>
+              {i18n.t('errorBoundary.tryAgain', { defaultValue: 'Try Again' })}
+            </Text>
+          </Pressable>
           <Text style={styles.errorHint}>
-            {i18n.t('errorBoundary.pleaseRestart', { defaultValue: 'Please restart the app' })}
+            {i18n.t('errorBoundary.ifPersists', { defaultValue: 'If the problem persists, please restart the app' })}
           </Text>
         </View>
       );
@@ -263,34 +277,57 @@ function AppContent() {
       const token = await apiClient.getTokenAsync();
       
       if (token) {
-        // User has token, check biometric settings
-        const { usersService } = await import('./src/api/services/users');
-        const settings = await usersService.getUserSettings();
+        // User has token, set it in cache for API calls
+        apiClient.setToken(token);
         
-        if (settings.settings?.biometricLockEnabled) {
+        // Check biometric settings from LOCAL storage (works offline)
+        const { secureStorage } = await import('./src/services/secureStorage');
+        const biometricEnabled = await secureStorage.getBiometricEnabled();
+        
+        console.log('Biometric enabled (local):', biometricEnabled);
+        
+        if (biometricEnabled) {
           // Biometric is enabled, check hardware support
           const hasHardware = await LocalAuthentication.hasHardwareAsync();
           const supportedTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
           
+          console.log('Biometric hardware:', hasHardware, 'types:', supportedTypes);
+          
           if (hasHardware && supportedTypes.length > 0) {
             // Prompt for biometric authentication
             const result = await LocalAuthentication.authenticateAsync({
-              promptMessage: 'Authenticate to access the app',
+              promptMessage: 'Authenticate to access Spendly',
               disableDeviceFallback: false,
+              cancelLabel: 'Cancel',
             });
+            
+            console.log('Biometric result:', result);
             
             if (result.success) {
               // Biometric successful, proceed to dashboard
+              await hapticService.success();
               await handleLoginSuccess(false);
               return;
             } else {
-              // Biometric failed, go to login
+              // Biometric failed, show retry option
+              await hapticService.error();
+              const retryResult = await LocalAuthentication.authenticateAsync({
+                promptMessage: 'Authentication failed. Try again',
+                disableDeviceFallback: false,
+                cancelLabel: 'Use Password',
+              });
+              if (retryResult.success) {
+                await hapticService.success();
+                await handleLoginSuccess(false);
+                return;
+              }
+              // Second attempt failed, go to login
               setCurrentScreen('login');
               return;
             }
           } else {
-            // No biometric hardware, go to login
-            setCurrentScreen('login');
+            // No biometric hardware, proceed to dashboard without biometric
+            await handleLoginSuccess(false);
             return;
           }
         } else {
@@ -456,6 +493,24 @@ const styles = StyleSheet.create({
   errorHint: {
     fontSize: 12,
     color: '#999',
+    textAlign: 'center',
+    marginTop: 16,
+  },
+  errorIcon: {
+    fontSize: 48,
+    marginBottom: 16,
+  },
+  retryButton: {
+    backgroundColor: '#03A9F4',
+    paddingHorizontal: 32,
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 20,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 

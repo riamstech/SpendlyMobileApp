@@ -344,8 +344,13 @@ export default function SettingsScreen({
       try {
         const settings = await usersService.getUserSettings();
         const backendNotificationsEnabled = settings.settings?.notificationsEnabled !== false;
-        setBiometricLock(settings.settings?.biometricLockEnabled || false);
+        const backendBiometricEnabled = settings.settings?.biometricLockEnabled || false;
+        setBiometricLock(backendBiometricEnabled);
         setBudgetCycleDay(settings.settings?.budgetCycleDay || 1);
+        
+        // Sync biometric setting to local storage (for offline access on app launch)
+        const { secureStorage } = await import('../services/secureStorage');
+        await secureStorage.setBiometricEnabled(backendBiometricEnabled);
         
         // Check actual notification permission status (without requesting)
         try {
@@ -754,11 +759,20 @@ export default function SettingsScreen({
 
   const handleToggleBiometricLock = async (enabled: boolean) => {
     try {
+      // Save to backend
       await usersService.updateUserSettings({
         biometric_lock_enabled: enabled,
       });
+      
+      // Save to LOCAL storage for offline access (critical for biometric to work)
+      const { secureStorage } = await import('../services/secureStorage');
+      await secureStorage.setBiometricEnabled(enabled);
+      
       setBiometricLock(enabled);
-      // Note: Biometric lock implementation would go here
+      showToast.success(
+        enabled ? t('settings.biometricEnabled') : t('settings.biometricDisabled'),
+        t('settings.success')
+      );
     } catch (error: any) {
       console.error('Error updating biometric lock:', error);
       showToast.error(t('settings.errorUpdateBiometricLock'), t('settings.error'));
@@ -1505,7 +1519,7 @@ export default function SettingsScreen({
                     }}
                   >
                     <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 14 }}>
-                      1 Month - $2.98
+                      {t('settings.monthlyPlanPrice', { defaultValue: '1 Month - $2.98' })}
                     </Text>
                   </Pressable>
 
@@ -1536,7 +1550,7 @@ export default function SettingsScreen({
                     }}
                   >
                     <Text style={{ color: '#fff', fontWeight: '600', fontSize: 14 }}>
-                      1 Year - $19.98 (Best Value)
+                      {t('settings.yearlyPlanPrice', { defaultValue: '1 Year - $19.98 (Best Value)' })}
                     </Text>
                   </Pressable>
                 </View>

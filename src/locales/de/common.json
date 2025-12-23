@@ -581,7 +581,11 @@
     "oneTimePaymentYear": "Einmalzahlung für 1 Jahr Zugang",
     "initiatingPurchase": "Kauf wird eingeleitet...",
     "renewLicense": "Lizenz verlängern",
-    "renewInstruction": "Bitte wählen Sie unten einen Abonnementplan aus, um Ihre Premium-Lizenz zu verlängern."
+    "renewInstruction": "Bitte wählen Sie unten einen Abonnementplan aus, um Ihre Premium-Lizenz zu verlängern.",
+    "monthlyPlanPrice": "1 Monat - 2,98 $",
+    "yearlyPlanPrice": "1 Jahr - 19,98 $ (Bester Wert)",
+    "purchaseFailed": "Kauf fehlgeschlagen",
+    "pleaseWait": "Bitte warten"
   },
   "categories": {
     "groceries": "Lebensmittel",
