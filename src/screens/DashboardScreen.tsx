@@ -49,7 +49,7 @@ import { Currency } from '../api/types/category';
 import { notificationsService } from '../api/services/notifications';
 import { formatDateForDisplay } from '../api/utils/dateUtils';
 import { translateCategoryName } from '../utils/categoryTranslator';
-import { useTheme } from '../contexts/ThemeContext';
+import { BarChart } from 'react-native-chart-kit';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { useDeviceType, useResponsiveLayout } from '../hooks/useDeviceType';
 import ResponsiveContainer, { ResponsiveGrid, ResponsiveRow, ResponsiveCard } from '../components/ResponsiveContainer';
@@ -156,11 +156,6 @@ export default function DashboardScreen({
   const [periodLabel, setPeriodLabel] = useState('Monthly Budget');
   const [budgetUsedPercentage, setBudgetUsedPercentage] = useState(0);
   const [isOverBudget, setIsOverBudget] = useState(false);
-
-  // Chart
-  const [yAxisTicks, setYAxisTicks] = useState([]);
-  const incomeBarAnim = useRef(new Animated.Value(0)).current;
-  const expenseBarAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     loadDashboardData();
@@ -414,29 +409,6 @@ export default function DashboardScreen({
         });
         setUpcomingPayments(payments);
       }
-      
-      // Calculate chart ticks
-      const maxValue = Math.max(totalIncome, totalExpenses, 1);
-      const ticks = [];
-      for (let i = 0; i <= 5; i++) {
-        const value = (maxValue / 5) * i;
-        const position = (i / 5) * 100;
-        ticks.push({ value, position });
-      }
-      setYAxisTicks(ticks);
-
-      // Animate bars
-      Animated.timing(incomeBarAnim, {
-        toValue: totalIncome > 0 ? (totalIncome / maxValue) * 100 : 0,
-        duration: 1000,
-        useNativeDriver: false,
-      }).start();
-      Animated.timing(expenseBarAnim, {
-        toValue: totalExpenses > 0 ? (totalExpenses / maxValue) * 100 : 0,
-        duration: 1000,
-        useNativeDriver: false,
-      }).start();
-
     } catch (error: any) {
       console.error('Failed to load dashboard data:', error);
     } finally {
@@ -929,66 +901,75 @@ export default function DashboardScreen({
             </Text>
           </View>
           <View style={styles.chartContainer}>
-            <View style={styles.yAxisContainer}>
-              {yAxisTicks.map((tick, index) => (
-                <View key={index} style={[styles.yAxisTick, { top: tick.position }]}>
-                  <View style={[styles.yAxisLine, { backgroundColor: colors.border }]} />
-                  <Text style={[styles.yAxisLabel, { color: colors.mutedForeground }]}>
-                    {valuesHidden ? '••••' : formatValue(tick.value)}
-                  </Text>
-                </View>
-              ))}
-            </View>
-            <View style={styles.chartAreaContainer}>
-              <View style={styles.gridLinesContainer}>
-                {yAxisTicks.map((tick, index) => (
-                  <View 
-                    key={`grid-${index}`} 
-                    style={[
-                      styles.gridLine, 
-                      { 
-                        top: tick.position,
-                        backgroundColor: colors.border,
-                      }
-                    ]} 
-                  />
-                ))}
+            <BarChart
+              data={{
+                labels: [t('dashboard.income') || 'Income', t('dashboard.expenses') || 'Expenses'],
+                datasets: [{
+                  data: [totalIncome, totalExpenses]
+                }]
+              }}
+              width={width - (isTablet ? padding * 2 : 32)}
+              height={220}
+              yAxisLabel={valuesHidden ? '••••' : currency}
+              yAxisSuffix=""
+              chartConfig={{
+                backgroundColor: colors.card,
+                backgroundGradientFrom: colors.card,
+                backgroundGradientTo: colors.card,
+                decimalPlaces: 0,
+                color: (opacity = 1) => `rgba(3, 169, 244, ${opacity})`,
+                labelColor: (opacity = 1) => colors.foreground,
+                style: {
+                  borderRadius: 16,
+                },
+                propsForBackgroundLines: {
+                  strokeWidth: 1,
+                  stroke: colors.border,
+                  strokeDasharray: '',
+                },
+                propsForLabels: {
+                  fontFamily: fonts.sans,
+                },
+                formatYLabel: (value) => valuesHidden ? '••••' : formatValue(parseFloat(value)),
+                fillShadowGradientFrom: '#4CAF50',
+                fillShadowGradientTo: '#FF5252',
+                fillShadowGradientFromOpacity: 0.8,
+                fillShadowGradientToOpacity: 0.8,
+                barPercentage: 0.7,
+                propsForVerticalLabels: {
+                  rotation: 0,
+                  fontSize: 12,
+                  fontFamily: fonts.sans,
+                },
+                propsForHorizontalLabels: {
+                  fontSize: 12,
+                  fontFamily: fonts.sans,
+                },
+              }}
+              style={{
+                marginVertical: 8,
+                borderRadius: 16,
+              }}
+              showBarTops={false}
+              showValuesOnTopOfBars={true}
+              fromZero={true}
+              withHorizontalLabels={true}
+              withVerticalLabels={true}
+              withInnerLines={true}
+              segments={4}
+            />
+            <View style={styles.chartLegend}>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendColor, { backgroundColor: '#4CAF50' }]} />
+                <Text style={[styles.legendText, { color: colors.foreground }]}>
+                  {t('dashboard.income') || 'Income'}: {valuesHidden ? '••••' : `${currency} ${formatValue(totalIncome)}`}
+                </Text>
               </View>
-              <View style={styles.chartBars}>
-                <View style={styles.chartBarContainer}>
-                  <Animated.View
-                    style={[
-                      styles.chartBar,
-                      {
-                        height: incomeBarAnim,
-                        backgroundColor: '#4CAF50',
-                      },
-                    ]}
-                  />
-                  <Text style={[styles.chartBarLabel, { color: colors.foreground }]}>
-                    {t('dashboard.income') || 'Income'}
-                  </Text>
-                  <Text style={[styles.chartBarValue, { color: colors.foreground }]}>
-                    {valuesHidden ? '••••' : `${currency} ${formatValue(totalIncome)}`}
-                  </Text>
-                </View>
-                <View style={styles.chartBarContainer}>
-                  <Animated.View
-                    style={[
-                      styles.chartBar,
-                      {
-                        height: expenseBarAnim,
-                        backgroundColor: '#FF5252',
-                      },
-                    ]}
-                  />
-                  <Text style={[styles.chartBarLabel, { color: colors.foreground }]}>
-                    {t('dashboard.expenses') || 'Expenses'}
-                  </Text>
-                  <Text style={[styles.chartBarValue, { color: colors.foreground }]}>
-                    {valuesHidden ? '••••' : `${currency} ${formatValue(totalExpenses)}`}
-                  </Text>
-                </View>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendColor, { backgroundColor: '#FF5252' }]} />
+                <Text style={[styles.legendText, { color: colors.foreground }]}>
+                  {t('dashboard.expenses') || 'Expenses'}: {valuesHidden ? '••••' : `${currency} ${formatValue(totalExpenses)}`}
+                </Text>
               </View>
             </View>
           </View>
@@ -2014,6 +1995,27 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
     overflow: 'visible', // Allow title to be visible
+  },
+  chartLegend: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 16,
+    paddingHorizontal: 16,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  legendColor: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  legendText: {
+    fontFamily: fonts.sans,
+    fontSize: 14,
+    fontWeight: '500',
   },
   chartTitleContainer: {
     marginBottom: 12, // mb-3 sm:mb-4 (12px base, 16px larger) - using base value
