@@ -76,6 +76,7 @@ import { translateCountryName } from '../utils/countryTranslator';
 import { notificationService } from '../services/notificationService';
 import { countriesService, Country } from '../api/services/countries';
 import { iapService } from '../services/inAppPurchase';
+import { useDeviceType, useResponsiveLayout } from '../hooks/useDeviceType';
 
 const LANGUAGE_FLAGS: Record<string, string> = {
   en: '🇺🇸',
@@ -117,6 +118,8 @@ export default function SettingsScreen({
   const { t, i18n } = useTranslation('common');
   const { width } = useWindowDimensions();
   const { isDark, colors, toggleTheme } = useTheme();
+  const { isTablet } = useDeviceType();
+  const { padding, gap } = useResponsiveLayout();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [currencies, setCurrencies] = useState<Currency[]>([]);
@@ -994,7 +997,7 @@ export default function SettingsScreen({
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingHorizontal: isTablet ? padding : 16, paddingBottom: isTablet ? 40 : 100 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Profile Section */}

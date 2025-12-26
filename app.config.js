@@ -13,10 +13,12 @@ module.exports = {
     splash: {
       image: "./assets/splash-icon.png",
       resizeMode: "contain",
-      backgroundColor: "#ffffff"
+      backgroundColor: "#ffffff",
+      tabletImage: "./assets/splash-icon.png"
     },
     ios: {
-      supportsTablet: false,
+      supportsTablet: true,
+      isTabletOnly: false,
       bundleIdentifier: "com.spendly.mobile",
       buildNumber: "1",
       deploymentTarget: "13.4",

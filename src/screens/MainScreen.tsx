@@ -16,7 +16,7 @@ import GoalsScreen from './GoalsScreen';
 import AnalyticsScreen from './AnalyticsScreen';
 import ReceiptsScreen from './ReceiptsScreen';
 import SupportTicketsScreen from './SupportTicketsScreen';
-import BottomTabNavigator from '../components/BottomTabNavigator';
+import AdaptiveNavigator from '../components/AdaptiveNavigator';
 import StripePaymentDialog from '../components/StripePaymentDialog';
 import { usersService } from '../api/services/users';
 import { currenciesService } from '../api/services/currencies';
@@ -329,29 +329,30 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
   return (
     <View style={styles.container}>
       <OfflineIndicator />
-      <View style={styles.content}>
-        {activeTab === 'home' ? (
-          <DashboardScreen
-            key={dashboardRefreshKey}
-            onViewAllTransactions={() => setShowAllTransactions(true)}
-            onViewAllPayments={() => setShowAllPayments(true)}
-            onViewInbox={() => setShowInbox(true)}
-            onEditTransaction={handleEditTransaction}
-            onDeleteTransaction={handleDeleteTransaction}
-            onRenewLicense={() => {
-              setActiveTab('settings');
-              setShowRenewInstruction(true);
-            }}
-          />
-        ) : (
-          renderScreen()
-        )}
-      </View>
-      <BottomTabNavigator
+      <AdaptiveNavigator
         activeTab={activeTab}
         onTabChange={handleTabChange}
         onAddClick={handleAddClick}
-      />
+      >
+        <View style={styles.content}>
+          {activeTab === 'home' ? (
+            <DashboardScreen
+              key={dashboardRefreshKey}
+              onViewAllTransactions={() => setShowAllTransactions(true)}
+              onViewAllPayments={() => setShowAllPayments(true)}
+              onViewInbox={() => setShowInbox(true)}
+              onEditTransaction={handleEditTransaction}
+              onDeleteTransaction={handleDeleteTransaction}
+              onRenewLicense={() => {
+                setActiveTab('settings');
+                setShowRenewInstruction(true);
+              }}
+            />
+          ) : (
+            renderScreen()
+          )}
+        </View>
+      </AdaptiveNavigator>
       
       {/* Payment Dialog */}
       {stripePaymentData && (

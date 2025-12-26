@@ -54,6 +54,7 @@ import { useCategories } from '../hooks/useCategories';
 import { useTheme } from '../contexts/ThemeContext';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { showToast } from '../utils/toast';
+import { useDeviceType, useResponsiveLayout } from '../hooks/useDeviceType';
 
 interface MonthlyData {
   month: string;
@@ -74,6 +75,8 @@ export default function ReportsScreen() {
   const { t, i18n } = useTranslation('common');
   const { width } = useWindowDimensions();
   const { isDark, colors } = useTheme();
+  const { isTablet } = useDeviceType();
+  const { padding, gap } = useResponsiveLayout();
   const [loading, setLoading] = useState(true);
   const [languageKey, setLanguageKey] = useState(i18n.language); // Force re-render on language change
   const [refreshing, setRefreshing] = useState(false);
@@ -1033,7 +1036,7 @@ export default function ReportsScreen() {
 
       <ScrollView
         style={[styles.scrollView, { backgroundColor: colors.background }]}
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: 80 }]}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: isTablet ? 40 : 80, paddingHorizontal: isTablet ? padding : 16 }]}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
         }

@@ -41,6 +41,7 @@ import { showToast } from '../utils/toast';
 import { translateCategoryName } from '../utils/categoryTranslator';
 import { translateCurrencyName } from '../utils/currencyTranslator';
 import { useCategories } from '../hooks/useCategories';
+import { useDeviceType, useResponsiveLayout } from '../hooks/useDeviceType';
 
 interface Transaction {
   id: string;
@@ -77,6 +78,8 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
   const { t, i18n } = useTranslation('common');
   const { width } = useWindowDimensions();
   const { isDark, colors } = useTheme();
+  const { isTablet } = useDeviceType();
+  const { padding } = useResponsiveLayout();
   const responsiveTextStyles = createResponsiveTextStyles(width);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -618,7 +621,7 @@ export default function AllTransactionsScreen({ onBack }: { onBack: () => void }
       {/* Transactions List */}
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: 80 }]}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: isTablet ? 40 : 80, paddingHorizontal: isTablet ? padding : 16 }]}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
         }
