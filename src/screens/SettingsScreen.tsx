@@ -90,6 +90,8 @@ const LANGUAGE_FLAGS: Record<string, string> = {
   ru: '🇷🇺',
   ja: '🇯🇵',
   de: '🇩🇪',
+  nl: '🇳🇱',
+  it: '🇮🇹',
 };
 
 interface SettingsScreenProps {
