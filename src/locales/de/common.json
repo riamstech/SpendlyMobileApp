@@ -329,7 +329,7 @@
     "createSuccess": "Investition erfolgreich hinzugefügt.",
     "saveError": "Investition konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.",
     "deleteSuccess": "Investition erfolgreich gelöscht.",
-    "deleteError": "Investition konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
+    "deleteError": "Investition konnte nicht gelöscht werden. Bitte versuchen Sie es erneut."
   },
   "offers": {
     "title": "Partner-Angebote",
