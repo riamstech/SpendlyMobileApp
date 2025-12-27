@@ -36,6 +36,22 @@ import i18n, { SUPPORTED_LANGUAGES } from '../i18n';
 import { useTheme } from '../contexts/ThemeContext';
 import { textStyles, createResponsiveTextStyles } from '../constants/fonts';
 
+const LANGUAGE_FLAGS: Record<string, string> = {
+  en: '🇺🇸',
+  es: '🇪🇸',
+  'zh-CN': '🇨🇳',
+  hi: '🇮🇳',
+  ar: '🇸🇦',
+  fr: '🇫🇷',
+  'pt-BR': '🇧🇷',
+  'pt-PT': '🇵🇹',
+  ru: '🇷🇺',
+  ja: '🇯🇵',
+  de: '🇩🇪',
+  nl: '🇳🇱',
+  it: '🇮🇹',
+};
+
 interface OnboardingScreenProps {
   isAuthenticated?: boolean;
   defaultCurrency?: string;
@@ -323,7 +339,7 @@ export default function OnboardingScreen({
                     ]}
                     onPress={() => handleLanguageSelect(lang.code)}
                   >
-                    <Text style={[styles.languageName, { color: colors.foreground }]}>{lang.name}</Text>
+                    <Text style={[styles.languageName, { color: colors.foreground }]}>{LANGUAGE_FLAGS[lang.code] || ''} {lang.name}</Text>
                     {selectedLanguage === lang.code && (
                       <Check size={20 * scale} color={colors.primary} />
                     )}
