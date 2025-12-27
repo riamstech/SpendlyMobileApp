@@ -53,6 +53,7 @@ import { BarChart } from 'react-native-chart-kit';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { useDeviceType, useResponsiveLayout } from '../hooks/useDeviceType';
 import ResponsiveContainer, { ResponsiveGrid, ResponsiveRow, ResponsiveCard } from '../components/ResponsiveContainer';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface Transaction {
   id: string;
@@ -156,6 +157,10 @@ export default function DashboardScreen({
   const [periodLabel, setPeriodLabel] = useState('Monthly Budget');
   const [budgetUsedPercentage, setBudgetUsedPercentage] = useState(0);
   const [isOverBudget, setIsOverBudget] = useState(false);
+
+  // Chart animations
+  const incomeBarHeight = useRef(new Animated.Value(0)).current;
+  const expenseBarHeight = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     loadDashboardData();
@@ -409,6 +414,22 @@ export default function DashboardScreen({
         });
         setUpcomingPayments(payments);
       }
+
+      // Animate chart bars
+      Animated.parallel([
+        Animated.spring(incomeBarHeight, {
+          toValue: 1,
+          tension: 20,
+          friction: 7,
+          useNativeDriver: false,
+        }),
+        Animated.spring(expenseBarHeight, {
+          toValue: 1,
+          tension: 20,
+          friction: 7,
+          useNativeDriver: false,
+        }),
+      ]).start();
     } catch (error: any) {
       console.error('Failed to load dashboard data:', error);
     } finally {
@@ -617,78 +638,78 @@ export default function DashboardScreen({
           </View>
         </LinearGradient>
 
-        {/* Financial Health and Quick Stats - Side by side on iPad */}
-        <View style={[{ marginBottom: 16 }, isTablet && { flexDirection: 'row', gap: gap }]}>
-          {/* Financial Health */}
-          {financialSummary && (
-            <View style={[styles.cardContainer, { flex: isTablet ? 1 : undefined, backgroundColor: colors.card, borderColor: colors.border }]}>
-              <View style={styles.financialHealthHeader}>
-                <Text style={[responsiveTextStyles.h4, { color: colors.foreground }]}>
-                  {t('dashboard.financialHealth') || 'Financial Health'}
+        {/* Financial Health */}
+        {financialSummary && (
+          <View style={[styles.cardContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={styles.financialHealthHeader}>
+              <Text style={[responsiveTextStyles.h4, { color: colors.foreground }]}>
+                {t('dashboard.financialHealth') || 'Financial Health'}
+              </Text>
+              <View style={[
+                styles.netWorthBadge,
+                { backgroundColor: (financialSummary.netWorth ?? financialSummary.net_worth ?? 0) >= 0 ? 'rgba(76,175,80,0.1)' : 'rgba(255,82,82,0.1)' }
+              ]}>
+                <Text style={[
+                  styles.netWorthText,
+                  { color: (financialSummary.netWorth ?? financialSummary.net_worth ?? 0) >= 0 ? '#4CAF50' : '#FF5252' }
+                ]}>
+                  {`${t('dashboard.netWorth') || 'Net Worth:'} ${formatMoney(financialSummary.netWorth ?? financialSummary.net_worth ?? 0)}`}
                 </Text>
-                <View style={[
-                  styles.netWorthBadge,
-                  { backgroundColor: (financialSummary.netWorth ?? financialSummary.net_worth ?? 0) >= 0 ? 'rgba(76,175,80,0.1)' : 'rgba(255,82,82,0.1)' }
-                ]}>
-                  <Text style={[
-                    styles.netWorthText,
-                    { color: (financialSummary.netWorth ?? financialSummary.net_worth ?? 0) >= 0 ? '#4CAF50' : '#FF5252' }
+              </View>
+            </View>
+            
+            {/* Assets and Liabilities Row - Always in one row on iPad */}
+            <View style={[{ gap: 12 }, isTablet && { flexDirection: 'row' }]}>
+              {/* Total Assets Card */}
+              <View style={[
+                styles.assetCard,
+                isTablet && { flex: 1 },
+                {
+                  backgroundColor: isDark ? 'rgba(16, 185, 129, 0.1)' : 'rgba(209, 250, 229, 1)',
+                  borderColor: isDark ? 'rgba(16, 185, 129, 0.2)' : 'rgba(209, 250, 229, 1)',
+                }
+              ]}>
+                <View style={styles.assetHeader}>
+                  <View style={[
+                    styles.assetIconContainer,
+                    { backgroundColor: isDark ? 'rgba(16, 185, 129, 0.3)' : 'rgba(209, 250, 229, 1)' }
                   ]}>
-                    {`${t('dashboard.netWorth') || 'Net Worth:'} ${formatMoney(financialSummary.netWorth ?? financialSummary.net_worth ?? 0)}`}
-                  </Text>
-                </View>
-              </View>
-              <View style={[{ gap: 12 }, isTablet && { flexDirection: 'row' }]}>
-                {/* Total Assets Card */}
-                <View style={[
-                  styles.assetCard,
-                  isTablet && { flex: 1 },
-                  {
-                    backgroundColor: isDark ? 'rgba(16, 185, 129, 0.1)' : 'rgba(209, 250, 229, 1)',
-                    borderColor: isDark ? 'rgba(16, 185, 129, 0.2)' : 'rgba(209, 250, 229, 1)',
-                  }
-                ]}>
-                  <View style={styles.assetHeader}>
-                    <View style={[
-                      styles.assetIconContainer,
-                      { backgroundColor: isDark ? 'rgba(16, 185, 129, 0.3)' : 'rgba(209, 250, 229, 1)' }
-                    ]}>
-                      <TrendingUp size={16} color={isDark ? '#34D399' : '#059669'} />
-                    </View>
-                    <Text style={[styles.assetLabel, responsiveTextStyles.caption, { color: isDark ? '#A7F3D0' : '#064E3B' }]}>
-                      {t('dashboard.totalAssets') || 'Total Assets'}
-                    </Text>
+                    <TrendingUp size={16} color={isDark ? '#34D399' : '#059669'} />
                   </View>
-                  <Text style={[styles.assetValue, responsiveTextStyles.h4, { color: isDark ? '#6EE7B7' : '#047857' }]}>
-                    {formatMoney(financialSummary.totalAssets ?? financialSummary.total_assets ?? 0)}
+                  <Text style={[styles.assetLabel, responsiveTextStyles.caption, { color: isDark ? '#A7F3D0' : '#064E3B' }]}>
+                    {t('dashboard.totalAssets') || 'Total Assets'}
                   </Text>
                 </View>
+                <Text style={[styles.assetValue, responsiveTextStyles.h4, { color: isDark ? '#6EE7B7' : '#047857' }]}>
+                  {formatMoney(financialSummary.totalAssets ?? financialSummary.total_assets ?? 0)}
+                </Text>
+              </View>
 
-                {/* Total Liabilities Card */}
-                <View style={[
-                  styles.assetCard,
-                  isTablet && { flex: 1 },
-                  {
-                    backgroundColor: isDark ? 'rgba(225, 29, 72, 0.1)' : 'rgba(255, 228, 230, 1)',
-                    borderColor: isDark ? 'rgba(225, 29, 72, 0.2)' : 'rgba(255, 228, 230, 1)',
-                  }
-                ]}>
-                  <View style={styles.assetHeader}>
-                    <View style={[
-                      styles.assetIconContainer,
-                      { backgroundColor: isDark ? 'rgba(225, 29, 72, 0.3)' : 'rgba(255, 228, 230, 1)' }
-                    ]}>
-                      <TrendingDown size={16} color={isDark ? '#FB7185' : '#E11D48'} />
-                    </View>
-                    <Text style={[styles.assetLabel, responsiveTextStyles.caption, { color: isDark ? '#FECDD3' : '#9F1239' }]}>
-                      {t('dashboard.totalLiabilities') || 'Total Liabilities'}
-                    </Text>
+              {/* Total Liabilities Card */}
+              <View style={[
+                styles.assetCard,
+                isTablet && { flex: 1 },
+                {
+                  backgroundColor: isDark ? 'rgba(225, 29, 72, 0.1)' : 'rgba(255, 228, 230, 1)',
+                  borderColor: isDark ? 'rgba(225, 29, 72, 0.2)' : 'rgba(255, 228, 230, 1)',
+                }
+              ]}>
+                <View style={styles.assetHeader}>
+                  <View style={[
+                    styles.assetIconContainer,
+                    { backgroundColor: isDark ? 'rgba(225, 29, 72, 0.3)' : 'rgba(255, 228, 230, 1)' }
+                  ]}>
+                    <TrendingDown size={16} color={isDark ? '#FB7185' : '#E11D48'} />
                   </View>
-                  <Text style={[styles.assetValue, responsiveTextStyles.h4, { color: isDark ? '#FDA4AF' : '#BE123C' }]}>
-                    {formatMoney(financialSummary.totalLiabilities ?? financialSummary.total_liabilities ?? 0)}
+                  <Text style={[styles.assetLabel, responsiveTextStyles.caption, { color: isDark ? '#FECDD3' : '#9F1239' }]}>
+                    {t('dashboard.totalLiabilities') || 'Total Liabilities'}
                   </Text>
                 </View>
+                <Text style={[styles.assetValue, responsiveTextStyles.h4, { color: isDark ? '#FDA4AF' : '#BE123C' }]}>
+                  {formatMoney(financialSummary.totalLiabilities ?? financialSummary.total_liabilities ?? 0)}
+                </Text>
               </View>
+            </View>
               
               {/* Active Loans */}
               {financialSummary.liabilities && financialSummary.liabilities.length > 0 && (
@@ -747,61 +768,60 @@ export default function DashboardScreen({
                   ))}
                 </View>
               )}
-            </View>
-          )}
+          </View>
+        )}
 
-          {/* Quick Stats */}
-          <View style={[styles.cardContainer, { flex: isTablet ? 1 : undefined, backgroundColor: colors.card, borderColor: colors.border }]}>
-            <View style={{ flexDirection: 'row', gap: 12 }}>
-              <View style={[styles.statCard, { flex: 1, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' }]}>
-                <View style={styles.statHeader}>
-                  <Text style={[styles.statLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                    {t('dashboard.savings') || 'Savings'}
-                  </Text>
-                  <TrendingUp size={16} color="#4CAF50" />
-                </View>
-                <View style={styles.statValueContainer}>
-                  {!valuesHidden && (
-                    <Text style={[styles.statCurrency, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                      {currency}
-                    </Text>
-                  )}
-                  <Text style={[styles.statValue, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>
-                    {formatValue(savings)}
-                  </Text>
-                </View>
+        {/* Quick Stats - Savings and Spending Ratio in one row on iPad */}
+        <View style={[styles.cardContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={[{ gap: 12 }, isTablet && { flexDirection: 'row' }]}>
+            <View style={[styles.statCard, { flex: 1, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' }]}>
+              <View style={styles.statHeader}>
+                <Text style={[styles.statLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                  {t('dashboard.savings') || 'Savings'}
+                </Text>
+                <TrendingUp size={16} color="#4CAF50" />
               </View>
-              <View style={[styles.statCard, { flex: 1, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' }]}>
-                <View style={styles.statHeader}>
-                  <Text style={[styles.statLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                    {t('dashboard.spendingRatio') || 'Spending Ratio'}
+              <View style={styles.statValueContainer}>
+                {!valuesHidden && (
+                  <Text style={[styles.statCurrency, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                    {currency}
                   </Text>
-                  <TrendingDown size={16} color={spendingRatioColor} />
-                </View>
-                <View style={styles.statValueContainer}>
-                  {totalIncome > 0 ? (
-                    <>
-                      <Text style={[styles.statValue, responsiveTextStyles.bodySmall, { color: spendingRatioColor }]}>
-                        {spendingRatio.toFixed(1)}%
-                      </Text>
-                      {!valuesHidden && (
-                        <Text style={[styles.statRatioText, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                          {t('dashboard.ofIncome') || 'of income'}
-                        </Text>
-                      )}
-                    </>
-                  ) : (
-                    <Text style={[styles.statValue, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>
-                      N/A
+                )}
+                <Text style={[styles.statValue, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>
+                  {formatValue(savings)}
+                </Text>
+              </View>
+            </View>
+            <View style={[styles.statCard, { flex: 1, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' }]}>
+              <View style={styles.statHeader}>
+                <Text style={[styles.statLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                  {t('dashboard.spendingRatio') || 'Spending Ratio'}
+                </Text>
+                <TrendingDown size={16} color={spendingRatioColor} />
+              </View>
+              <View style={styles.statValueContainer}>
+                {totalIncome > 0 ? (
+                  <>
+                    <Text style={[styles.statValue, responsiveTextStyles.bodySmall, { color: spendingRatioColor }]}>
+                      {spendingRatio.toFixed(1)}%
                     </Text>
-                  )}
-                </View>
-                {totalIncome > 0 && (
-                  <View style={[styles.progressBar, { backgroundColor: '#e0e0e0' }]}>
-                    <View style={[styles.progressFill, { width: `${Math.min(spendingRatio, 100)}%`, backgroundColor: spendingRatioColor, height: 6 }]} />
-                  </View>
+                    {!valuesHidden && (
+                      <Text style={[styles.statRatioText, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                        {t('dashboard.ofIncome') || 'of income'}
+                      </Text>
+                    )}
+                  </>
+                ) : (
+                  <Text style={[styles.statValue, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>
+                    N/A
+                  </Text>
                 )}
               </View>
+              {totalIncome > 0 && (
+                <View style={[styles.progressBar, { backgroundColor: '#e0e0e0' }]}>
+                  <View style={[styles.progressFill, { width: `${Math.min(spendingRatio, 100)}%`, backgroundColor: spendingRatioColor, height: 6 }]} />
+                </View>
+              )}
             </View>
           </View>
         </View>
@@ -900,76 +920,87 @@ export default function DashboardScreen({
               {t('dashboard.incomeVsExpenses') || 'Income vs Expenses'}
             </Text>
           </View>
-          <View style={styles.chartContainer}>
-            <BarChart
-              data={{
-                labels: [t('dashboard.income') || 'Income', t('dashboard.expenses') || 'Expenses'],
-                datasets: [{
-                  data: [totalIncome, totalExpenses]
-                }]
-              }}
-              width={width - (isTablet ? padding * 2 : 32)}
-              height={220}
-              yAxisLabel={valuesHidden ? '••••' : currency}
-              yAxisSuffix=""
-              chartConfig={{
-                backgroundColor: colors.card,
-                backgroundGradientFrom: colors.card,
-                backgroundGradientTo: colors.card,
-                decimalPlaces: 0,
-                color: (opacity = 1) => `rgba(3, 169, 244, ${opacity})`,
-                labelColor: (opacity = 1) => colors.foreground,
-                style: {
-                  borderRadius: 16,
-                },
-                propsForBackgroundLines: {
-                  strokeWidth: 1,
-                  stroke: colors.border,
-                  strokeDasharray: '',
-                },
-                propsForLabels: {
-                  fontFamily: fonts.sans,
-                },
-                formatYLabel: (value) => valuesHidden ? '••••' : formatValue(parseFloat(value)),
-                fillShadowGradientFrom: '#4CAF50',
-                fillShadowGradientTo: '#FF5252',
-                fillShadowGradientFromOpacity: 0.8,
-                fillShadowGradientToOpacity: 0.8,
-                barPercentage: 0.7,
-                propsForVerticalLabels: {
-                  rotation: 0,
-                  fontSize: 12,
-                  fontFamily: fonts.sans,
-                },
-                propsForHorizontalLabels: {
-                  fontSize: 12,
-                  fontFamily: fonts.sans,
-                },
-              }}
-              style={{
-                marginVertical: 8,
-                borderRadius: 16,
-              }}
-              showBarTops={false}
-              showValuesOnTopOfBars={true}
-              fromZero={true}
-              withHorizontalLabels={true}
-              withVerticalLabels={true}
-              withInnerLines={true}
-              segments={4}
-            />
-            <View style={styles.chartLegend}>
-              <View style={styles.legendItem}>
-                <View style={[styles.legendColor, { backgroundColor: '#4CAF50' }]} />
-                <Text style={[styles.legendText, { color: colors.foreground }]}>
-                  {t('dashboard.income') || 'Income'}: {valuesHidden ? '••••' : `${currency} ${formatValue(totalIncome)}`}
+          <View style={styles.animatedChartContainer}>
+            <View style={styles.chartBarsContainer}>
+              {/* Income Bar */}
+              <View style={styles.barWrapper}>
+                <View style={styles.barContainer}>
+                  <Animated.View
+                    style={[
+                      styles.animatedBar,
+                      {
+                        height: incomeBarHeight.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: ['0%', `${Math.min((totalIncome / Math.max(totalIncome, totalExpenses, 1)) * 100, 100)}%`]
+                        }),
+                        backgroundColor: '#4CAF50',
+                      }
+                    ]}
+                  >
+                    <LinearGradient
+                      colors={['#66BB6A', '#4CAF50']}
+                      style={styles.barGradient}
+                    />
+                  </Animated.View>
+                </View>
+                <Text style={[styles.barValue, responsiveTextStyles.bodySmall, { color: colors.foreground, fontWeight: '600' }]}>
+                  {valuesHidden ? '••••' : `${currency} ${formatValue(totalIncome)}`}
+                </Text>
+                <Text style={[styles.barLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                  {t('dashboard.income') || 'Income'}
                 </Text>
               </View>
-              <View style={styles.legendItem}>
-                <View style={[styles.legendColor, { backgroundColor: '#FF5252' }]} />
-                <Text style={[styles.legendText, { color: colors.foreground }]}>
-                  {t('dashboard.expenses') || 'Expenses'}: {valuesHidden ? '••••' : `${currency} ${formatValue(totalExpenses)}`}
+              
+              {/* Expense Bar */}
+              <View style={styles.barWrapper}>
+                <View style={styles.barContainer}>
+                  <Animated.View
+                    style={[
+                      styles.animatedBar,
+                      {
+                        height: expenseBarHeight.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: ['0%', `${Math.min((totalExpenses / Math.max(totalIncome, totalExpenses, 1)) * 100, 100)}%`]
+                        }),
+                        backgroundColor: '#FF5252',
+                      }
+                    ]}
+                  >
+                    <LinearGradient
+                      colors={['#FF6B6B', '#FF5252']}
+                      style={styles.barGradient}
+                    />
+                  </Animated.View>
+                </View>
+                <Text style={[styles.barValue, responsiveTextStyles.bodySmall, { color: colors.foreground, fontWeight: '600' }]}>
+                  {valuesHidden ? '••••' : `${currency} ${formatValue(totalExpenses)}`}
                 </Text>
+                <Text style={[styles.barLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                  {t('dashboard.expenses') || 'Expenses'}
+                </Text>
+              </View>
+            </View>
+            
+            {/* Net Savings Display */}
+            <View style={[styles.netSavingsCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)', borderColor: colors.border }]}>
+              <View style={styles.netSavingsContent}>
+                <Text style={[styles.netSavingsLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                  {t('dashboard.netSavings') || 'Net Savings'}
+                </Text>
+                <View style={styles.netSavingsValueRow}>
+                  {savings >= 0 ? (
+                    <TrendingUp size={20} color="#4CAF50" />
+                  ) : (
+                    <TrendingDown size={20} color="#FF5252" />
+                  )}
+                  <Text style={[
+                    styles.netSavingsValue,
+                    responsiveTextStyles.h3,
+                    { color: savings >= 0 ? '#4CAF50' : '#FF5252', fontWeight: '700' }
+                  ]}>
+                    {valuesHidden ? '••••' : `${currency} ${formatValue(Math.abs(savings))}`}
+                  </Text>
+                </View>
               </View>
             </View>
           </View>
@@ -1996,26 +2027,67 @@ const styles = StyleSheet.create({
     elevation: 2,
     overflow: 'visible', // Allow title to be visible
   },
-  chartLegend: {
+  animatedChartContainer: {
+    padding: 20,
+    gap: 20,
+  },
+  chartBarsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginTop: 16,
-    paddingHorizontal: 16,
+    alignItems: 'flex-end',
+    height: 240,
+    gap: 40,
   },
-  legendItem: {
-    flexDirection: 'row',
+  barWrapper: {
+    flex: 1,
     alignItems: 'center',
+    gap: 12,
+  },
+  barContainer: {
+    width: '100%',
+    height: 180,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    borderRadius: 12,
+    overflow: 'hidden',
+    justifyContent: 'flex-end',
+  },
+  animatedBar: {
+    width: '100%',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  barGradient: {
+    flex: 1,
+    width: '100%',
+  },
+  barValue: {
+    textAlign: 'center',
+    fontFamily: fonts.sans,
+  },
+  barLabel: {
+    textAlign: 'center',
+    fontFamily: fonts.sans,
+  },
+  netSavingsCard: {
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  netSavingsContent: {
     gap: 8,
   },
-  legendColor: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-  },
-  legendText: {
+  netSavingsLabel: {
     fontFamily: fonts.sans,
-    fontSize: 14,
-    fontWeight: '500',
+    textAlign: 'center',
+  },
+  netSavingsValueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  netSavingsValue: {
+    fontFamily: fonts.sans,
   },
   chartTitleContainer: {
     marginBottom: 12, // mb-3 sm:mb-4 (12px base, 16px larger) - using base value

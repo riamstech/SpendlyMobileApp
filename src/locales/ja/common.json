@@ -148,7 +148,8 @@
     "onTrack": "予算内",
     "totalBudget": "総予算",
     "left": "残り",
-    "customRange": "カスタム範囲"
+    "customRange": "カスタム範囲",
+    "netSavings": "純貯蓄"
   },
   "reports": {
     "reportsAnalytics": "レポート＆分析",

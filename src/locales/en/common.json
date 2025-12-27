@@ -148,7 +148,8 @@
     "onTrack": "On Track",
     "totalBudget": "Total Budget",
     "left": "Left",
-    "customRange": "Custom Range"
+    "customRange": "Custom Range",
+    "netSavings": "Net Savings"
   },
   "reports": {
     "reportsAnalytics": "Reports & Analytics",

@@ -130,7 +130,7 @@
     "allTransactions": "All Transactions",
     "totalTransactions": "total transactions",
     "totalIncome": "Total Income",
-    "totalExpenses": "Total Expenses",
+    "totalExpenses": "Despesas totais",
     "noTransactions": "Ainda não há transações",
     "noTransactionsFound": "No transactions found",
     "type": "Type",
@@ -148,7 +148,8 @@
     "onTrack": "No caminho certo",
     "totalBudget": "Orçamento Total",
     "left": "Restante",
-    "customRange": "Intervalo personalizado"
+    "customRange": "Intervalo personalizado",
+    "netSavings": "Economia líquida"
   },
   "reports": {
     "reportsAnalytics": "Relatórios e Análises",

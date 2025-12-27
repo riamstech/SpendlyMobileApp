@@ -63,12 +63,11 @@ export default function SidebarNavigator({
     >
       {/* Logo/Brand Area */}
       <View style={styles.brandContainer}>
-        <LinearGradient
-          colors={['#03A9F4', '#0288D1']}
-          style={styles.logoContainer}
-        >
-          <Text style={styles.logoText}>S</Text>
-        </LinearGradient>
+        <Image
+          source={require('../../assets/icon.png')}
+          style={styles.logoImage}
+          resizeMode="contain"
+        />
         <Text style={[styles.brandName, { color: colors.foreground, fontSize: fontSize.xl }]}>
           Spendly
         </Text>
@@ -154,17 +153,10 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     gap: 12,
   },
-  logoContainer: {
+  logoImage: {
     width: 44,
     height: 44,
     borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logoText: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#fff',
   },
   brandName: {
     fontWeight: '700',

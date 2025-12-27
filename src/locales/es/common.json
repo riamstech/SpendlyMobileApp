@@ -130,12 +130,12 @@
     "allTransactions": "All Transactions",
     "totalTransactions": "total transactions",
     "totalIncome": "Total Income",
-    "totalExpenses": "Total Expenses",
+    "totalExpenses": "Gastos totales",
     "noTransactions": "Aún no hay transacciones",
     "noTransactionsFound": "No transactions found",
-    "type": "Type",
-    "category": "Category",
-    "dateRange": "Date Range",
+    "type": "Tipo",
+    "category": "Categoría",
+    "dateRange": "Rango de fechas",
     "selectCategory": "Seleccionar categoría",
     "selectDateRange": "Select Date Range",
     "deleteTransaction": "Delete Transaction",
@@ -148,7 +148,8 @@
     "onTrack": "En buen camino",
     "totalBudget": "Presupuesto Total",
     "left": "Restante",
-    "customRange": "Rango personalizado"
+    "customRange": "Rango personalizado",
+    "netSavings": "Ahorro neto"
   },
   "reports": {
     "reportsAnalytics": "Informes y Análisis",
