@@ -323,13 +323,13 @@
     "typeEquity": "حقوق الملكية",
     "typeBond": "سند",
     "typeStock": "أسهم",
-    "loadError": "Failed to load investments. Please try again.",
-    "requiredFieldsError": "Please fill in all required fields.",
-    "updateSuccess": "Investment updated successfully.",
-    "createSuccess": "Investment added successfully.",
-    "saveError": "Failed to save investment. Please try again.",
-    "deleteSuccess": "Investment deleted successfully.",
-    "deleteError": "Failed to delete investment. Please try again."
+    "loadError": "فشل تحميل الاستثمارات. يرجى المحاولة مرة أخرى.",
+    "requiredFieldsError": "يرجى ملء جميع الحقول المطلوبة.",
+    "updateSuccess": "تم تحديث الاستثمار بنجاح.",
+    "createSuccess": "تمت إضافة الاستثمار بنجاح.",
+    "saveError": "فشل حفظ الاستثمار. يرجى المحاولة مرة أخرى.",
+    "deleteSuccess": "تم حذف الاستثمار بنجاح.",
+    "deleteError": "فشل حذف الاستثمار. يرجى المحاولة مرة أخرى."
   },
   "offers": {
     "title": "عروض الشركاء",

@@ -28,6 +28,22 @@ import { config } from '../config/env';
 import { showToast } from '../utils/toast';
 import { GoogleLogo } from '../components/GoogleLogo';
 
+const LANGUAGE_FLAGS: Record<string, string> = {
+  en: '🇺🇸',
+  es: '🇪🇸',
+  'zh-CN': '🇨🇳',
+  hi: '🇮🇳',
+  ar: '🇸🇦',
+  fr: '🇫🇷',
+  'pt-BR': '🇧🇷',
+  'pt-PT': '🇵🇹',
+  ru: '🇷🇺',
+  ja: '🇯🇵',
+  de: '🇩🇪',
+  nl: '🇳🇱',
+  it: '🇮🇹',
+};
+
 interface LoginScreenProps {
   onLoginSuccess?: (isNewUser?: boolean) => void;
   onSignupClick?: () => void;
@@ -261,9 +277,8 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
             }}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Globe size={16} color={isDark ? colors.foreground : '#fff'} />
             <Text style={[styles.languageButtonText, { color: isDark ? colors.foreground : '#fff' }]}>
-              {getCurrentLanguageName()}
+              {LANGUAGE_FLAGS[currentLanguage] || ''} {getCurrentLanguageName()}
             </Text>
             <ChevronDown size={12} color={isDark ? colors.foreground : '#fff'} />
           </Pressable>
@@ -295,7 +310,7 @@ export default function LoginScreen({ onLoginSuccess, onSignupClick, onForgotPas
                     onPress={() => handleLanguageChange(lang.code)}
                   >
                     <Text style={[styles.languageItemText, { color: colors.foreground }]}>
-                      {lang.name}
+                      {LANGUAGE_FLAGS[lang.code] || ''} {lang.name}
                     </Text>
                     {currentLanguage === lang.code && (
                       <Check size={18} color={colors.primary} />
