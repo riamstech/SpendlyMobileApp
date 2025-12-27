@@ -49,8 +49,11 @@ import { Currency } from '../api/types/category';
 import { notificationsService } from '../api/services/notifications';
 import { formatDateForDisplay } from '../api/utils/dateUtils';
 import { translateCategoryName } from '../utils/categoryTranslator';
-import { useTheme } from '../contexts/ThemeContext';
+import { BarChart } from 'react-native-chart-kit';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { useDeviceType, useResponsiveLayout } from '../hooks/useDeviceType';
+import ResponsiveContainer, { ResponsiveGrid, ResponsiveRow, ResponsiveCard } from '../components/ResponsiveContainer';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface Transaction {
   id: string;
@@ -109,6 +112,8 @@ export default function DashboardScreen({
   const { t, i18n } = useTranslation('common');
   const { width } = useWindowDimensions();
   const { isDark, colors } = useTheme();
+  const { isTablet } = useDeviceType();
+  const { padding, gap, columns, showSidebar } = useResponsiveLayout();
   const responsiveTextStyles = createResponsiveTextStyles(width);
   const [valuesHidden, setValuesHidden] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -140,7 +145,22 @@ export default function DashboardScreen({
   
   // Notifications
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [hoveredTransactionId, setHoveredTransactionId] = useState<string | null>(null);
+
+  // Spending Ratio
+  const [spendingRatio, setSpendingRatio] = useState(0);
+  const [spendingRatioColor, setSpendingRatioColor] = useState('#4CAF50');
+
+  // Budget
+  const [hasBudget, setHasBudget] = useState(false);
+  const [periodLabel, setPeriodLabel] = useState('Monthly Budget');
+  const [budgetUsedPercentage, setBudgetUsedPercentage] = useState(0);
+  const [isOverBudget, setIsOverBudget] = useState(false);
+
+  // Chart animations
+  const incomeBarHeight = useRef(new Animated.Value(0)).current;
+  const expenseBarHeight = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     loadDashboardData();
@@ -228,6 +248,12 @@ export default function DashboardScreen({
       setBudgetFromDate(summary.fromDate || null);
       setBudgetToDate(summary.toDate || null);
 
+      // Calculate spending ratio
+      const ratio = totalIncome > 0 ? (totalExpenses / totalIncome) * 100 : 0;
+      setSpendingRatio(ratio);
+      const color = ratio > 100 ? '#FF5252' : '#4CAF50';
+      setSpendingRatioColor(color);
+
       // Process Financial Summary
       if (financial) {
         setFinancialSummary(financial);
@@ -241,6 +267,11 @@ export default function DashboardScreen({
         setMonthlyBudgetSpent(bs.totalSpent || bs.total_spent || 0);
         setMonthlyBudgetRemaining(bs.remaining || 0);
       }
+
+      // Calculate budget metrics
+      setHasBudget(monthlyBudgetTotal > 0);
+      setBudgetUsedPercentage(monthlyBudgetTotal > 0 ? (monthlyBudgetSpent / monthlyBudgetTotal) * 100 : 0);
+      setIsOverBudget(monthlyBudgetRemaining < 0);
 
       // Process Notifications
       if (notificationsResponse && notificationsResponse.data) {
@@ -257,6 +288,8 @@ export default function DashboardScreen({
           read: n.isRead ?? n.is_read ?? false,
         }));
         setNotifications(notifs);
+        const unreadCount = notifs.filter(n => !n.read).length;
+        setUnreadCount(unreadCount);
       }
 
       // Use currency from summary as the source of truth for conversion (exactly like SpendlyApp)
@@ -381,7 +414,22 @@ export default function DashboardScreen({
         });
         setUpcomingPayments(payments);
       }
-      
+
+      // Animate chart bars
+      Animated.parallel([
+        Animated.spring(incomeBarHeight, {
+          toValue: 1,
+          tension: 20,
+          friction: 7,
+          useNativeDriver: false,
+        }),
+        Animated.spring(expenseBarHeight, {
+          toValue: 1,
+          tension: 20,
+          friction: 7,
+          useNativeDriver: false,
+        }),
+      ]).start();
     } catch (error: any) {
       console.error('Failed to load dashboard data:', error);
     } finally {
@@ -474,81 +522,19 @@ export default function DashboardScreen({
   const handleMarkAsRead = async (id: string) => {
     try {
       await notificationsService.markAsRead(Number(id));
-      setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
-    } catch (error) {
-      console.error('Failed to mark notification as read:', error);
+      setNotifications(prev => prev.map(n => 
+        n.id === id ? { ...n, read: true } : n
+      ));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch {
+      console.error('Failed to mark notification as read');
     }
   };
 
-  const handleMarkAllAsRead = async () => {
-    try {
-      await notificationsService.markAllAsRead();
-      setNotifications(notifications.map(n => ({ ...n, read: true })));
-    } catch (error) {
-      console.error('Failed to mark all as read:', error);
-    }
+  const handleMarkAllAsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    setUnreadCount(0);
   };
-
-  const spendingRatio = totalIncome > 0 ? (totalExpenses / totalIncome) * 100 : 0;
-  const spendingRatioColor =
-    spendingRatio > 90 ? '#FF5252' : spendingRatio > 70 ? '#FFC107' : '#4CAF50';
-  
-  const hasBudget = monthlyBudgetTotal > 0;
-  const budgetUsedPercentage = hasBudget
-    ? Math.min((monthlyBudgetSpent / monthlyBudgetTotal) * 100, 100)
-    : 0;
-  const isOverBudget = hasBudget && monthlyBudgetSpent > monthlyBudgetTotal;
-
-  // Calculate period label for budget section
-  const periodLabel = budgetFromDate && budgetToDate
-    ? `${t('dashboard.currentCycle') || 'Current Cycle'} (${formatDateForDisplay(budgetFromDate, i18n.language)} - ${t('dashboard.today') || 'Today'})`
-    : t('dashboard.monthlyBudget') || 'Monthly Budget';
-  
-  const unreadCount = notifications.filter(n => !n.read).length;
-  
-  // Chart data for Income vs Expense
-  const maxChartValue = Math.max(totalIncome, totalExpenses) || 1;
-  // Use chart bar container height (150px) for bars - labels are in paddingBottom area
-  const chartBarMaxHeight = 150;
-  const incomeBarHeight = maxChartValue > 0 ? (totalIncome / maxChartValue) * chartBarMaxHeight : 4;
-  const expenseBarHeight = maxChartValue > 0 ? (totalExpenses / maxChartValue) * chartBarMaxHeight : 4;
-  
-  // Y-axis tick values (5 ticks: 0, 25%, 50%, 75%, 100%)
-  // Position from top of bar area (150px), with 0 at bottom and 100% at top
-  // Adjust position to account for tick height (subtract half tick height for centering)
-  const yAxisTicks = [0, 0.25, 0.5, 0.75, 1].map(ratio => ({
-    value: maxChartValue * ratio,
-    position: (1 - ratio) * 150, // Position from top (0% at bottom, 100% at top)
-  }));
-
-  // Animated values for Income vs Expenses bars
-  const incomeBarAnim = useRef(new Animated.Value(0)).current;
-  const expenseBarAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    const targetIncome = Math.max(incomeBarHeight, 4);
-    const targetExpense = Math.max(expenseBarHeight, 4);
-
-    incomeBarAnim.setValue(0);
-    expenseBarAnim.setValue(0);
-
-    Animated.parallel([
-      Animated.timing(incomeBarAnim, {
-        toValue: targetIncome,
-        duration: 800,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: false,
-      }),
-      Animated.timing(expenseBarAnim, {
-        toValue: targetExpense,
-        duration: 800,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: false,
-      }),
-    ]).start();
-  }, [incomeBarHeight, expenseBarHeight]);
-  // Responsive typography styles using the centralized typography system
-
 
   if (loading) {
     return (
@@ -567,110 +553,56 @@ export default function DashboardScreen({
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <ScrollView
-        style={[styles.scrollView, { backgroundColor: colors.background }]}
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: 80 }]}
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingHorizontal: isTablet ? padding : 16, paddingBottom: isTablet ? 40 : 32 }
+        ]}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
         }
         showsVerticalScrollIndicator={false}
       >
-        {/* License Status Banner */}
-        {licenseStatus !== 'active' && (
-          <View style={[
-            styles.licenseBanner,
-            {
-              backgroundColor: licenseStatus === 'expired' 
-                ? colors.destructive + '1A' 
-                : colors.warning + '1A',
-              borderColor: licenseStatus === 'expired'
-                ? colors.destructive + '33'
-                : colors.warning + '33',
-            }
-          ]}>
-            <Text style={[
-              styles.licenseBannerText,
-              responsiveTextStyles.caption,
-              { 
-                color: licenseStatus === 'expired' 
-                  ? colors.destructive 
-                  : colors.warning 
-              }
-            ]}>
-              {licenseStatus === 'expired'
-                ? t('dashboard.licenseExpired') || 'Your premium license has expired. You are in View Only mode.'
-                : t('dashboard.licenseExpiring', { days: daysRemaining }) || `Your premium license expires in ${daysRemaining} days.`}
-            </Text>
-            <Pressable
-              onPress={onRenewLicense}
-              style={({ pressed }) => [
-                styles.renewButton,
-                { opacity: pressed ? 0.7 : 1 },
-              ]}
-            >
-              <Text style={[
-                styles.renewButtonText,
-                responsiveTextStyles.small,
-                { 
-                  color: licenseStatus === 'expired' 
-                    ? colors.destructive 
-                    : colors.warning 
-                }
-              ]}>
-                {t('dashboard.renewNow') || 'Renew Now'}
-              </Text>
-            </Pressable>
-          </View>
-        )}
-
         {/* Header */}
         <View style={[styles.header, { backgroundColor: colors.background }]}>
-          <View style={styles.headerLogoContainer}>
-            <Image
-              source={require('../../assets/logo-dark.png')}
-              style={styles.headerLogo}
-              resizeMode="contain"
-            />
-            <Text style={[styles.headerSubtitle, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-              {t('footer.tagline') || 'Track. Save. Grow.'}
-            </Text>
-          </View>
-          <View style={styles.headerActions}>
+          {/* Only show logo when sidebar is not visible */}
+          {!showSidebar && (
+            <View style={styles.headerLogoContainer}>
+              <Image
+                source={require('../../assets/logo-dark.png')}
+                style={styles.headerLogo}
+                resizeMode="contain"
+              />
+              <Text style={[styles.headerSubtitle, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                {t('footer.tagline') || 'Track. Save. Grow.'}
+              </Text>
+            </View>
+          )}
+          <View style={[styles.headerActions, showSidebar && { flex: 1, justifyContent: 'flex-end' }]}>
             <Pressable
               onPress={() => setValuesHidden(!valuesHidden)}
-              style={({ pressed }) => [
-                styles.eyeButton,
-                { opacity: pressed ? 0.7 : 1 },
-              ]}
+              style={({ pressed }) => [styles.eyeButton, { opacity: pressed ? 0.7 : 1 }]}
             >
-              {valuesHidden ? (
-                <EyeOff size={20} color={colors.foreground} />
-              ) : (
-                <Eye size={20} color={colors.foreground} />
-              )}
+              {valuesHidden ? <EyeOff size={20} color={colors.foreground} /> : <Eye size={20} color={colors.foreground} />}
             </Pressable>
             <Pressable
               onPress={() => onViewInbox ? onViewInbox() : setShowNotifications(true)}
-              style={({ pressed }) => [
-                styles.bellButton,
-                { opacity: pressed ? 0.7 : 1 },
-              ]}
+              style={({ pressed }) => [styles.bellButton, { opacity: pressed ? 0.7 : 1 }]}
             >
               <Bell size={20} color={colors.foreground} />
               {unreadCount > 0 && (
                 <View style={[styles.badge, { backgroundColor: colors.destructive }]}>
-                  <Text style={styles.badgeText}>
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </Text>
+                  <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
                 </View>
               )}
             </Pressable>
           </View>
         </View>
 
-        {/* Balance Overview Card */}
+        {/* Balance Overview Card - Full Width */}
         <LinearGradient
           colors={['#03A9F4', '#0288D1']}
-          style={styles.balanceCard}
+          style={[styles.balanceCard, isTablet && { padding: 24 }]}
         >
           <View style={styles.balanceHeader}>
             <Wallet size={16} color="rgba(255,255,255,0.9)" />
@@ -679,50 +611,28 @@ export default function DashboardScreen({
             </Text>
           </View>
           <View style={styles.balanceAmountContainer}>
-            {!valuesHidden && (
-              <Text style={[styles.balanceCurrency, responsiveTextStyles.caption]}>
-                {currency}{' '}
-              </Text>
-            )}
-            <Text style={[styles.balanceAmount, responsiveTextStyles.displaySmall]}>
-              {formatValue(totalBalance)}
-            </Text>
+            {!valuesHidden && <Text style={[styles.balanceCurrency, responsiveTextStyles.caption]}>{currency}{' '}</Text>}
+            <Text style={[styles.balanceAmount, responsiveTextStyles.displaySmall]}>{formatValue(totalBalance)}</Text>
           </View>
-          <View style={styles.balanceStats}>
-            <View style={styles.balanceStatItem}>
+          <View style={[styles.balanceStats, isTablet && { gap: 20 }]}>
+            <View style={[styles.balanceStatItem, isTablet && { padding: 16 }]}>
               <View style={styles.balanceStatHeader}>
                 <ArrowUpRight size={14} color="rgba(255,255,255,0.9)" />
-                <Text style={[styles.balanceStatLabel, responsiveTextStyles.caption]}>
-                  {t('dashboard.income') || 'Income'}
-                </Text>
+                <Text style={[styles.balanceStatLabel, responsiveTextStyles.caption]}>{t('dashboard.income') || 'Income'}</Text>
               </View>
               <View style={styles.balanceStatValueContainer}>
-                {!valuesHidden && (
-                  <Text style={[styles.balanceStatCurrency, responsiveTextStyles.caption]}>
-                    {currency}{' '}
-                  </Text>
-                )}
-                <Text style={[styles.balanceStatValue, responsiveTextStyles.bodySmall]}>
-                  {formatValue(totalIncome)}
-                </Text>
+                {!valuesHidden && <Text style={[styles.balanceStatCurrency, responsiveTextStyles.caption]}>{currency}{' '}</Text>}
+                <Text style={[styles.balanceStatValue, responsiveTextStyles.bodySmall]}>{formatValue(totalIncome)}</Text>
               </View>
             </View>
-            <View style={styles.balanceStatItem}>
+            <View style={[styles.balanceStatItem, isTablet && { padding: 16 }]}>
               <View style={styles.balanceStatHeader}>
                 <ArrowDownRight size={14} color="rgba(255,255,255,0.9)" />
-                <Text style={[styles.balanceStatLabel, responsiveTextStyles.caption]}>
-                  {t('dashboard.expenses') || 'Expenses'}
-                </Text>
+                <Text style={[styles.balanceStatLabel, responsiveTextStyles.caption]}>{t('dashboard.expenses') || 'Expenses'}</Text>
               </View>
               <View style={styles.balanceStatValueContainer}>
-                {!valuesHidden && (
-                  <Text style={[styles.balanceStatCurrency, responsiveTextStyles.caption]}>
-                    {currency}{' '}
-                  </Text>
-                )}
-                <Text style={[styles.balanceStatValue, responsiveTextStyles.bodySmall]}>
-                  {formatValue(totalExpenses)}
-                </Text>
+                {!valuesHidden && <Text style={[styles.balanceStatCurrency, responsiveTextStyles.caption]}>{currency}{' '}</Text>}
+                <Text style={[styles.balanceStatValue, responsiveTextStyles.bodySmall]}>{formatValue(totalExpenses)}</Text>
               </View>
             </View>
           </View>
@@ -730,7 +640,7 @@ export default function DashboardScreen({
 
         {/* Financial Health */}
         {financialSummary && (
-          <View style={[styles.financialHealthCard, { backgroundColor: colors.card }]}>
+          <View style={[styles.cardContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.financialHealthHeader}>
               <Text style={[responsiveTextStyles.h4, { color: colors.foreground }]}>
                 {t('dashboard.financialHealth') || 'Financial Health'}
@@ -747,41 +657,30 @@ export default function DashboardScreen({
                 </Text>
               </View>
             </View>
-            <View style={styles.assetsLiabilitiesRow}>
+            
+            {/* Assets and Liabilities Row - Always in one row on iPad */}
+            <View style={[{ gap: 12 }, isTablet && { flexDirection: 'row' }]}>
               {/* Total Assets Card */}
               <View style={[
                 styles.assetCard,
+                isTablet && { flex: 1 },
                 {
-                  backgroundColor: isDark ? 'rgba(16, 185, 129, 0.1)' : 'rgba(209, 250, 229, 1)', // emerald-50 / emerald-900/10
-                  borderColor: isDark ? 'rgba(16, 185, 129, 0.2)' : 'rgba(209, 250, 229, 1)', // emerald-100 / emerald-900/20
+                  backgroundColor: isDark ? 'rgba(16, 185, 129, 0.1)' : 'rgba(209, 250, 229, 1)',
+                  borderColor: isDark ? 'rgba(16, 185, 129, 0.2)' : 'rgba(209, 250, 229, 1)',
                 }
               ]}>
                 <View style={styles.assetHeader}>
                   <View style={[
                     styles.assetIconContainer,
-                    {
-                      backgroundColor: isDark ? 'rgba(16, 185, 129, 0.3)' : 'rgba(209, 250, 229, 1)', // emerald-100 / emerald-900/30
-                    }
+                    { backgroundColor: isDark ? 'rgba(16, 185, 129, 0.3)' : 'rgba(209, 250, 229, 1)' }
                   ]}>
-                    <TrendingUp size={16} color={isDark ? '#34D399' : '#059669'} /> {/* emerald-400 / emerald-600 */}
+                    <TrendingUp size={16} color={isDark ? '#34D399' : '#059669'} />
                   </View>
-                  <Text style={[
-                    styles.assetLabel,
-                    responsiveTextStyles.caption,
-                    {
-                      color: isDark ? '#A7F3D0' : '#064E3B', // emerald-200 / emerald-900
-                    }
-                  ]}>
+                  <Text style={[styles.assetLabel, responsiveTextStyles.caption, { color: isDark ? '#A7F3D0' : '#064E3B' }]}>
                     {t('dashboard.totalAssets') || 'Total Assets'}
                   </Text>
                 </View>
-                <Text style={[
-                  styles.assetValue,
-                  responsiveTextStyles.h4,
-                  {
-                    color: isDark ? '#6EE7B7' : '#047857', // emerald-300 / emerald-700
-                  }
-                ]}>
+                <Text style={[styles.assetValue, responsiveTextStyles.h4, { color: isDark ? '#6EE7B7' : '#047857' }]}>
                   {formatMoney(financialSummary.totalAssets ?? financialSummary.total_assets ?? 0)}
                 </Text>
               </View>
@@ -789,168 +688,147 @@ export default function DashboardScreen({
               {/* Total Liabilities Card */}
               <View style={[
                 styles.assetCard,
+                isTablet && { flex: 1 },
                 {
-                  backgroundColor: isDark ? 'rgba(225, 29, 72, 0.1)' : 'rgba(255, 228, 230, 1)', // rose-50 / rose-900/10
-                  borderColor: isDark ? 'rgba(225, 29, 72, 0.2)' : 'rgba(255, 228, 230, 1)', // rose-100 / rose-900/20
+                  backgroundColor: isDark ? 'rgba(225, 29, 72, 0.1)' : 'rgba(255, 228, 230, 1)',
+                  borderColor: isDark ? 'rgba(225, 29, 72, 0.2)' : 'rgba(255, 228, 230, 1)',
                 }
               ]}>
                 <View style={styles.assetHeader}>
                   <View style={[
                     styles.assetIconContainer,
-                    {
-                      backgroundColor: isDark ? 'rgba(225, 29, 72, 0.3)' : 'rgba(255, 228, 230, 1)', // rose-100 / rose-900/30
-                    }
+                    { backgroundColor: isDark ? 'rgba(225, 29, 72, 0.3)' : 'rgba(255, 228, 230, 1)' }
                   ]}>
-                    <TrendingDown size={16} color={isDark ? '#FB7185' : '#E11D48'} /> {/* rose-400 / rose-600 */}
+                    <TrendingDown size={16} color={isDark ? '#FB7185' : '#E11D48'} />
                   </View>
-                  <Text style={[
-                    styles.assetLabel,
-                    responsiveTextStyles.caption,
-                    {
-                      color: isDark ? '#FECDD3' : '#9F1239', // rose-200 / rose-900
-                    }
-                  ]}>
+                  <Text style={[styles.assetLabel, responsiveTextStyles.caption, { color: isDark ? '#FECDD3' : '#9F1239' }]}>
                     {t('dashboard.totalLiabilities') || 'Total Liabilities'}
                   </Text>
                 </View>
-                <Text style={[
-                  styles.assetValue,
-                  responsiveTextStyles.h4,
-                  {
-                    color: isDark ? '#FDA4AF' : '#BE123C', // rose-300 / rose-700
-                  }
-                ]}>
+                <Text style={[styles.assetValue, responsiveTextStyles.h4, { color: isDark ? '#FDA4AF' : '#BE123C' }]}>
                   {formatMoney(financialSummary.totalLiabilities ?? financialSummary.total_liabilities ?? 0)}
                 </Text>
               </View>
             </View>
-            
-            {/* Active Loans */}
-            {financialSummary.liabilities && financialSummary.liabilities.length > 0 && (
-              <View style={styles.loansSection}>
-                <Text style={[styles.loansTitle, { color: colors.foreground }]}>
-                  {t('dashboard.activeLoans') || 'Active Loans'}
-                </Text>
-                {financialSummary.liabilities.map((loan) => (
-                  <View
-                    key={loan.id}
-                    style={[
-                      styles.loanCard,
-                      { backgroundColor: colors.card, borderColor: colors.border }
-                    ]}
-                  >
-                    <View style={styles.loanHeader}>
-                      <View style={styles.loanIconContainer}>
-                        <CreditCard size={16} color="#03A9F4" />
+              
+              {/* Active Loans */}
+              {financialSummary.liabilities && financialSummary.liabilities.length > 0 && (
+                <View style={styles.loansSection}>
+                  <Text style={[styles.loansTitle, { color: colors.foreground }]}>
+                    {t('dashboard.activeLoans') || 'Active Loans'}
+                  </Text>
+                  {financialSummary.liabilities.map((loan: any) => (
+                    <View
+                      key={loan.id}
+                      style={[
+                        styles.loanCard,
+                        { backgroundColor: colors.card, borderColor: colors.border }
+                      ]}
+                    >
+                      <View style={styles.loanHeader}>
+                        <View style={styles.loanIconContainer}>
+                          <CreditCard size={16} color="#03A9F4" />
+                        </View>
+                        <View style={styles.loanInfo}>
+                          <Text style={[styles.loanDescription, { color: colors.foreground }]}>
+                            {loan.description}
+                          </Text>
+                          <Text style={[styles.loanMeta, { color: colors.mutedForeground }]}>
+                            {loan.type} {t('dashboard.loan') || 'Loan'} • {t('dashboard.ends')} {formatDateForDisplay(loan.endDate ?? loan.end_date ?? '', i18n.language)}
+                          </Text>
+                        </View>
+                        <View style={styles.loanAmount}>
+                          <Text style={[styles.loanAmountText, { color: colors.foreground }]}>
+                            {formatMoney(loan.remainingAmount ?? loan.remaining_amount ?? 0)}
+                          </Text>
+                          <Text style={[styles.loanAmountSubtext, { color: colors.mutedForeground }]}>
+                            {t('dashboard.of') || 'of'} {formatMoney(loan.amount)}
+                          </Text>
+                        </View>
                       </View>
-                      <View style={styles.loanInfo}>
-                        <Text style={[styles.loanDescription, { color: colors.foreground }]}>
-                          {loan.description}
-                        </Text>
-                        <Text style={[styles.loanMeta, { color: colors.mutedForeground }]}>
-                          {loan.type} {t('dashboard.loan') || 'Loan'} • {t('dashboard.ends')} {formatDateForDisplay(loan.endDate ?? loan.end_date ?? '', i18n.language)}
-                        </Text>
-                      </View>
-                      <View style={styles.loanAmount}>
-                        <Text style={[styles.loanAmountText, { color: colors.foreground }]}>
-                          {formatMoney(loan.remainingAmount ?? loan.remaining_amount ?? 0)}
-                        </Text>
-                        <Text style={[styles.loanAmountSubtext, { color: colors.mutedForeground }]}>
-                          {t('dashboard.of') || 'of'} {formatMoney(loan.amount)}
-                        </Text>
+                      <View style={styles.loanProgress}>
+                        <View style={styles.loanProgressInfo}>
+                          <Text style={[styles.loanProgressText, { color: colors.mutedForeground }]}>
+                            {Math.round(loan.progress)}% {t('dashboard.paid') || 'Paid'}
+                          </Text>
+                          <Text style={[styles.loanProgressText, { color: colors.mutedForeground }]}>
+                            {formatMoney(loan.paidAmount ?? loan.paid_amount ?? 0)} {t('dashboard.paid') || 'paid'}
+                          </Text>
+                        </View>
+                        <View style={styles.loanProgressBar}>
+                          <View
+                            style={[
+                              styles.loanProgressFill,
+                              { width: `${Math.min(loan.progress, 100)}%` }
+                            ]}
+                          />
+                        </View>
                       </View>
                     </View>
-                    <View style={styles.loanProgress}>
-                      <View style={styles.loanProgressInfo}>
-                        <Text style={[styles.loanProgressText, { color: colors.mutedForeground }]}>
-                          {Math.round(loan.progress)}% {t('dashboard.paid') || 'Paid'}
-                        </Text>
-                        <Text style={[styles.loanProgressText, { color: colors.mutedForeground }]}>
-                          {formatMoney(loan.paidAmount ?? loan.paid_amount ?? 0)} {t('dashboard.paid') || 'paid'}
-                        </Text>
-                      </View>
-                      <View style={styles.loanProgressBar}>
-                        <View
-                          style={[
-                            styles.loanProgressFill,
-                            { width: `${Math.min(loan.progress, 100)}%` }
-                          ]}
-                        />
-                      </View>
-                    </View>
-                  </View>
-                ))}
-              </View>
-            )}
+                  ))}
+                </View>
+              )}
           </View>
         )}
 
-        {/* Quick Stats */}
-        <View style={styles.statsRow}>
-          <View style={[styles.statCard, { backgroundColor: colors.card }]}>
-            <View style={styles.statHeader}>
-              <Text style={[styles.statLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                {t('dashboard.savings') || 'Savings'}
-              </Text>
-              <TrendingUp size={16} color="#4CAF50" />
-            </View>
-            <View style={styles.statValueContainer}>
-              {!valuesHidden && (
-                <Text style={[styles.statCurrency, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                  {currency}
+        {/* Quick Stats - Savings and Spending Ratio in one row on iPad */}
+        <View style={[styles.cardContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={[{ gap: 12 }, isTablet && { flexDirection: 'row' }]}>
+            <View style={[styles.statCard, { flex: 1, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' }]}>
+              <View style={styles.statHeader}>
+                <Text style={[styles.statLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                  {t('dashboard.savings') || 'Savings'}
                 </Text>
-              )}
-              <Text style={[styles.statValue, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>
-                {formatValue(savings)}
-              </Text>
-            </View>
-          </View>
-          <View style={[styles.statCard, { backgroundColor: colors.card }]}>
-            <View style={styles.statHeader}>
-              <Text style={[styles.statLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                {t('dashboard.spendingRatio') || 'Spending Ratio'}
-              </Text>
-              <TrendingDown size={16} color={spendingRatioColor} />
-            </View>
-            <View style={styles.statValueContainer}>
-              {totalIncome > 0 ? (
-                <>
-                  <Text style={[styles.statValue, responsiveTextStyles.bodySmall, { color: spendingRatioColor }]}>
-                    {spendingRatio.toFixed(1)}%
-                  </Text>
-                  {!valuesHidden && (
-                    <Text style={[styles.statRatioText, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                      {t('dashboard.ofIncome') || 'of income'}
-                    </Text>
-                  )}
-                </>
-              ) : (
-                <Text style={[styles.statValue, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>
-                  N/A
-                </Text>
-              )}
-            </View>
-            {totalIncome > 0 && (
-              <View style={[styles.progressBar, { backgroundColor: '#e0e0e0' }]}>
-                <View
-                  style={[
-                    styles.progressFill,
-                    { 
-                      width: `${Math.min(spendingRatio, 100)}%`, 
-                      backgroundColor: spendingRatioColor,
-                      height: 6,
-                    },
-                  ]}
-                />
+                <TrendingUp size={16} color="#4CAF50" />
               </View>
-            )}
+              <View style={styles.statValueContainer}>
+                {!valuesHidden && (
+                  <Text style={[styles.statCurrency, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                    {currency}
+                  </Text>
+                )}
+                <Text style={[styles.statValue, responsiveTextStyles.bodySmall, { color: colors.foreground }]}>
+                  {formatValue(savings)}
+                </Text>
+              </View>
+            </View>
+            <View style={[styles.statCard, { flex: 1, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' }]}>
+              <View style={styles.statHeader}>
+                <Text style={[styles.statLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                  {t('dashboard.spendingRatio') || 'Spending Ratio'}
+                </Text>
+                <TrendingDown size={16} color={spendingRatioColor} />
+              </View>
+              <View style={styles.statValueContainer}>
+                {totalIncome > 0 ? (
+                  <>
+                    <Text style={[styles.statValue, responsiveTextStyles.bodySmall, { color: spendingRatioColor }]}>
+                      {spendingRatio.toFixed(1)}%
+                    </Text>
+                    {!valuesHidden && (
+                      <Text style={[styles.statRatioText, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                        {t('dashboard.ofIncome') || 'of income'}
+                      </Text>
+                    )}
+                  </>
+                ) : (
+                  <Text style={[styles.statValue, responsiveTextStyles.bodySmall, { color: colors.mutedForeground }]}>
+                    N/A
+                  </Text>
+                )}
+              </View>
+              {totalIncome > 0 && (
+                <View style={[styles.progressBar, { backgroundColor: '#e0e0e0' }]}>
+                  <View style={[styles.progressFill, { width: `${Math.min(spendingRatio, 100)}%`, backgroundColor: spendingRatioColor, height: 6 }]} />
+                </View>
+              )}
+            </View>
           </View>
         </View>
 
-        {/* Monthly Budget Overview - Unified Card */}
+        {/* Monthly Budget Overview */}
         {hasBudget && (
-          <View style={[styles.budgetCard, { backgroundColor: colors.card }]}>
-            {/* Header Row */}
+          <View style={[styles.cardContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.budgetHeader}>
               <View style={styles.budgetTitleRow}>
                 <PiggyBank size={20} color="#03A9F4" />
@@ -958,167 +836,179 @@ export default function DashboardScreen({
                   {periodLabel}
                 </Text>
               </View>
-            </View>
-
-            {/* Budget Summary Row */}
-            <View style={styles.budgetSummaryRow}>
-              <View style={styles.budgetSummaryItem}>
-                <Text style={[styles.budgetSummaryLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                  {t('dashboard.totalBudget') || 'Total Budget'}
-                </Text>
-                <View style={styles.budgetAmountRow}>
-                  {!valuesHidden && (
-                    <Text style={[styles.budgetCurrency, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                      {currency}{' '}
-                    </Text>
-                  )}
-                  <Text style={[styles.budgetTotal, responsiveTextStyles.h4, { color: colors.foreground, fontWeight: '700' }]}>
-                    {formatValue(monthlyBudgetTotal)}
+              <View style={styles.budgetSummaryRow}>
+                <View style={styles.budgetSummaryItem}>
+                  <Text style={[styles.budgetSummaryLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                    {t('dashboard.totalBudget') || 'Total Budget'}
                   </Text>
+                  <View style={styles.budgetAmountRow}>
+                    {!valuesHidden && (
+                      <Text style={[styles.budgetCurrency, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                        {currency}{' '}
+                      </Text>
+                    )}
+                    <Text style={[styles.budgetTotal, responsiveTextStyles.h4, { color: colors.foreground, fontWeight: '700' }]}>
+                      {formatValue(monthlyBudgetTotal)}
+                    </Text>
+                  </View>
+                </View>
+                <View style={[styles.budgetDivider, { backgroundColor: colors.border }]} />
+                <View style={styles.budgetSummaryItem}>
+                  <Text style={[styles.budgetSummaryLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                    {t('dashboard.spent') || 'Spent'}
+                  </Text>
+                  <View style={styles.budgetAmountRow}>
+                    {!valuesHidden && (
+                      <Text style={[styles.budgetCurrency, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                        {currency}{' '}
+                      </Text>
+                    )}
+                    <Text style={[
+                      styles.budgetSpentValue,
+                      responsiveTextStyles.h4,
+                      { color: isOverBudget ? colors.destructive : colors.foreground, fontWeight: '700' }
+                    ]}>
+                      {formatValue(monthlyBudgetSpent)}
+                    </Text>
+                  </View>
+                </View>
+                <View style={[styles.budgetDivider, { backgroundColor: colors.border }]} />
+                <View style={styles.budgetSummaryItem}>
+                  <Text style={[styles.budgetSummaryLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                    {isOverBudget ? (t('dashboard.over') || 'Over') : (t('dashboard.left') || 'Left')}
+                  </Text>
+                  <View style={styles.budgetAmountRow}>
+                    {!valuesHidden && (
+                      <Text style={[styles.budgetCurrency, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                        {currency}{' '}
+                      </Text>
+                    )}
+                    <Text style={[
+                      styles.budgetTotal, 
+                      responsiveTextStyles.h4, 
+                      { color: isOverBudget ? colors.destructive : colors.success, fontWeight: '700' }
+                    ]}>
+                      {valuesHidden ? '••••' : formatValue(Math.abs(monthlyBudgetRemaining))}
+                    </Text>
+                  </View>
                 </View>
               </View>
-              <View style={[styles.budgetDivider, { backgroundColor: colors.border }]} />
-              <View style={styles.budgetSummaryItem}>
-                <Text style={[styles.budgetSummaryLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                  {t('dashboard.spent') || 'Spent'}
-                </Text>
-                <View style={styles.budgetAmountRow}>
-                  {!valuesHidden && (
-                    <Text style={[styles.budgetCurrency, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                      {currency}{' '}
-                    </Text>
-                  )}
-                  <Text style={[
-                    styles.budgetSpentValue,
-                    responsiveTextStyles.h4,
-                    { color: isOverBudget ? colors.destructive : colors.foreground, fontWeight: '700' }
-                  ]}>
-                    {formatValue(monthlyBudgetSpent)}
-                  </Text>
+              <View style={styles.budgetProgressRow}>
+                <View style={[styles.budgetProgressBar, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#e0e0e0', flex: 1 }]}>
+                  <View
+                    style={[
+                      styles.budgetProgressFill,
+                      {
+                        width: `${budgetUsedPercentage}%`,
+                        backgroundColor: isOverBudget ? '#FF5252' : budgetUsedPercentage >= 80 ? '#FF9800' : '#03A9F4',
+                      },
+                    ]}
+                  />
                 </View>
-              </View>
-              <View style={[styles.budgetDivider, { backgroundColor: colors.border }]} />
-              <View style={styles.budgetSummaryItem}>
-                <Text style={[styles.budgetSummaryLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                  {isOverBudget ? (t('dashboard.over') || 'Over') : (t('dashboard.left') || 'Left')}
+                <Text style={[styles.budgetPercentage, responsiveTextStyles.caption, { color: colors.mutedForeground, marginLeft: 10 }]}>
+                  {budgetUsedPercentage.toFixed(0)}% {t('dashboard.used') || 'used'}
                 </Text>
-                <View style={styles.budgetAmountRow}>
-                  {!valuesHidden && (
-                    <Text style={[styles.budgetCurrency, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-                      {currency}{' '}
-                    </Text>
-                  )}
-                  <Text style={[
-                    styles.budgetTotal, 
-                    responsiveTextStyles.h4, 
-                    { color: isOverBudget ? colors.destructive : colors.success, fontWeight: '700' }
-                  ]}>
-                    {valuesHidden ? '••••' : formatValue(Math.abs(monthlyBudgetRemaining))}
-                  </Text>
-                </View>
               </View>
-            </View>
-
-            {/* Progress Bar - Separate Row */}
-            <View style={styles.budgetProgressRow}>
-              <View style={[styles.budgetProgressBar, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#e0e0e0', flex: 1 }]}>
-                <View
-                  style={[
-                    styles.budgetProgressFill,
-                    {
-                      width: `${budgetUsedPercentage}%`,
-                      backgroundColor: isOverBudget ? '#FF5252' : budgetUsedPercentage >= 80 ? '#FF9800' : '#03A9F4',
-                    },
-                  ]}
-                />
-              </View>
-              <Text style={[styles.budgetPercentage, responsiveTextStyles.caption, { color: colors.mutedForeground, marginLeft: 10 }]}>
-                {budgetUsedPercentage.toFixed(0)}% {t('dashboard.used') || 'used'}
-              </Text>
             </View>
           </View>
         )}
 
         {/* Income vs Expense Chart */}
-        <View style={[styles.chartCard, { backgroundColor: colors.card }]}>
+        <View style={[styles.cardContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.chartTitleContainer}>
             <Text style={[styles.chartTitle, responsiveTextStyles.h4, { color: colors.foreground }]}>
               {t('dashboard.incomeVsExpenses') || 'Income vs Expenses'}
             </Text>
           </View>
-          <View style={styles.chartContainer}>
-            {/* Y-Axis */}
-            <View style={styles.yAxisContainer}>
-              {yAxisTicks.map((tick, index) => (
-                <View key={index} style={[styles.yAxisTick, { top: tick.position }]}>
-                  <View style={[styles.yAxisLine, { backgroundColor: colors.border }]} />
-                  <Text style={[styles.yAxisLabel, { color: colors.mutedForeground }]}>
-                    {valuesHidden ? '••••' : formatValue(tick.value)}
-                  </Text>
-                </View>
-              ))}
-            </View>
-            {/* Chart Area with Grid Lines and Bars */}
-            <View style={styles.chartAreaContainer}>
-              {/* Horizontal Grid Lines */}
-              <View style={styles.gridLinesContainer}>
-                {yAxisTicks.map((tick, index) => (
-                  <View 
-                    key={`grid-${index}`} 
+          <View style={styles.animatedChartContainer}>
+            <View style={styles.chartBarsContainer}>
+              {/* Income Bar */}
+              <View style={styles.barWrapper}>
+                <View style={styles.barContainer}>
+                  <Animated.View
                     style={[
-                      styles.gridLine, 
-                      { 
-                        top: tick.position,
-                        backgroundColor: colors.border,
+                      styles.animatedBar,
+                      {
+                        height: incomeBarHeight.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: ['0%', `${Math.min((totalIncome / Math.max(totalIncome, totalExpenses, 1)) * 100, 100)}%`]
+                        }),
+                        backgroundColor: '#4CAF50',
                       }
-                    ]} 
-                  />
-                ))}
-              </View>
-              {/* Chart Bars */}
-              <View style={styles.chartBars}>
-              <View style={styles.chartBarContainer}>
-                <Animated.View
-                  style={[
-                    styles.chartBar,
-                    {
-                      height: incomeBarAnim,
-                      backgroundColor: '#4CAF50',
-                    },
-                  ]}
-                />
-                <Text style={[styles.chartBarLabel, { color: colors.foreground }]}>
-                  {t('dashboard.income') || 'Income'}
-                </Text>
-                <Text style={[styles.chartBarValue, { color: colors.foreground }]}>
+                    ]}
+                  >
+                    <LinearGradient
+                      colors={['#66BB6A', '#4CAF50']}
+                      style={styles.barGradient}
+                    />
+                  </Animated.View>
+                </View>
+                <Text style={[styles.barValue, responsiveTextStyles.bodySmall, { color: colors.foreground, fontWeight: '600' }]}>
                   {valuesHidden ? '••••' : `${currency} ${formatValue(totalIncome)}`}
                 </Text>
-              </View>
-              <View style={styles.chartBarContainer}>
-                <Animated.View
-                  style={[
-                    styles.chartBar,
-                    {
-                      height: expenseBarAnim,
-                      backgroundColor: '#FF5252',
-                    },
-                  ]}
-                />
-                <Text style={[styles.chartBarLabel, { color: colors.foreground }]}>
-                  {t('dashboard.expenses') || 'Expenses'}
+                <Text style={[styles.barLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                  {t('dashboard.income') || 'Income'}
                 </Text>
-                <Text style={[styles.chartBarValue, { color: colors.foreground }]}>
+              </View>
+              
+              {/* Expense Bar */}
+              <View style={styles.barWrapper}>
+                <View style={styles.barContainer}>
+                  <Animated.View
+                    style={[
+                      styles.animatedBar,
+                      {
+                        height: expenseBarHeight.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: ['0%', `${Math.min((totalExpenses / Math.max(totalIncome, totalExpenses, 1)) * 100, 100)}%`]
+                        }),
+                        backgroundColor: '#FF5252',
+                      }
+                    ]}
+                  >
+                    <LinearGradient
+                      colors={['#FF6B6B', '#FF5252']}
+                      style={styles.barGradient}
+                    />
+                  </Animated.View>
+                </View>
+                <Text style={[styles.barValue, responsiveTextStyles.bodySmall, { color: colors.foreground, fontWeight: '600' }]}>
                   {valuesHidden ? '••••' : `${currency} ${formatValue(totalExpenses)}`}
+                </Text>
+                <Text style={[styles.barLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                  {t('dashboard.expenses') || 'Expenses'}
                 </Text>
               </View>
             </View>
+            
+            {/* Net Savings Display */}
+            <View style={[styles.netSavingsCard, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)', borderColor: colors.border }]}>
+              <View style={styles.netSavingsContent}>
+                <Text style={[styles.netSavingsLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
+                  {t('dashboard.netSavings') || 'Net Savings'}
+                </Text>
+                <View style={styles.netSavingsValueRow}>
+                  {savings >= 0 ? (
+                    <TrendingUp size={20} color="#4CAF50" />
+                  ) : (
+                    <TrendingDown size={20} color="#FF5252" />
+                  )}
+                  <Text style={[
+                    styles.netSavingsValue,
+                    responsiveTextStyles.h3,
+                    { color: savings >= 0 ? '#4CAF50' : '#FF5252', fontWeight: '700' }
+                  ]}>
+                    {valuesHidden ? '••••' : `${currency} ${formatValue(Math.abs(savings))}`}
+                  </Text>
+                </View>
+              </View>
             </View>
           </View>
         </View>
 
         {/* Upcoming Payments */}
         {upcomingPayments.length > 0 && (
-          <View style={styles.section}>
+          <View style={[styles.cardContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, responsiveTextStyles.h4, { color: colors.foreground }]}>
                 {t('dashboard.upcomingPayments') || 'Upcoming Payments'}
@@ -1131,8 +1021,8 @@ export default function DashboardScreen({
                 </Pressable>
               )}
             </View>
-            <View style={{ gap: 12 }}> {/* space-y-3 (12px) */}
-              {upcomingPayments.slice(0, 3).map((payment) => (
+            <View style={{ gap: 12 }}>
+              {upcomingPayments.slice(0, 3).map((payment: any) => (
                 <View 
                   key={payment.id} 
                   style={[
@@ -1194,31 +1084,31 @@ export default function DashboardScreen({
                     </View>
                     <View style={styles.paymentAmountContainer}>
                       <View>
-                      <Text
-                        style={[
-                          styles.paymentAmount,
-                          responsiveTextStyles.caption,
-                          { color: payment.type === 'income' ? '#4CAF50' : colors.foreground },
-                        ]}
-                      >
-                      {valuesHidden ? '••••' : `${payment.currency} ${formatPaymentAmount(payment.amount)}`}
-                      </Text>
+                        <Text
+                          style={[
+                            styles.paymentAmount,
+                            responsiveTextStyles.caption,
+                            { color: payment.type === 'income' ? '#4CAF50' : colors.foreground },
+                          ]}
+                        >
+                          {valuesHidden ? '••••' : `${payment.currency} ${formatPaymentAmount(payment.amount)}`}
+                        </Text>
                         {!valuesHidden &&
                           payment.showConversion &&
                           payment.convertedAmount !== undefined && (
-                          <Text
-                            style={[
-                              styles.paymentCurrency,
-                              responsiveTextStyles.small,
-                              {
-                                color: colors.mutedForeground,
-                                fontWeight: '500',
-                              },
-                            ]}
-                          >
-                            ≈ {payment.defaultCurrency} {payment.convertedAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                          </Text>
-                        )}
+                            <Text
+                              style={[
+                                styles.paymentCurrency,
+                                responsiveTextStyles.small,
+                                {
+                                  color: colors.mutedForeground,
+                                  fontWeight: '500',
+                                },
+                              ]}
+                            >
+                              ≈ {payment.defaultCurrency} {payment.convertedAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                            </Text>
+                          )}
                       </View>
                     </View>
                   </View>
@@ -1229,7 +1119,7 @@ export default function DashboardScreen({
         )}
 
         {/* Recent Transactions */}
-        <View style={styles.section}>
+        <View style={[styles.cardContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, responsiveTextStyles.h4, { color: colors.foreground }]}>
               {t('dashboard.recentTransactions') || 'Recent Transactions'}
@@ -1244,7 +1134,7 @@ export default function DashboardScreen({
           </View>
           {recentTransactions.length > 0 ? (
             <View style={[styles.transactionsContainer, { backgroundColor: colors.card, borderRadius: 12 }]}>
-              {recentTransactions.slice(0, 5).map((transaction, index) => (
+              {recentTransactions.slice(0, 5).map((transaction: any, index: number) => (
                 <Pressable
                   key={transaction.id}
                   onHoverIn={() => setHoveredTransactionId(transaction.id)}
@@ -1311,19 +1201,19 @@ export default function DashboardScreen({
                         {!valuesHidden &&
                           transaction.showConversion &&
                           transaction.convertedAmount !== undefined && (
-                          <Text
-                            style={[
-                              styles.transactionCurrency,
-                              responsiveTextStyles.small,
-                              {
-                                color: colors.mutedForeground,
-                                fontWeight: '500',
-                              },
-                            ]}
-                          >
-                            ≈ {transaction.defaultCurrency} {transaction.convertedAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                          </Text>
-                        )}
+                            <Text
+                              style={[
+                                styles.transactionCurrency,
+                                responsiveTextStyles.small,
+                                {
+                                  color: colors.mutedForeground,
+                                  fontWeight: '500',
+                                },
+                              ]}
+                            >
+                              ≈ {transaction.defaultCurrency} {transaction.convertedAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                            </Text>
+                          )}
                       </View>
                       {hoveredTransactionId === transaction.id && (
                         <View style={styles.transactionActions}>
@@ -1386,7 +1276,7 @@ export default function DashboardScreen({
             </View>
             <ScrollView style={styles.notificationsList}>
               {notifications.length > 0 ? (
-                notifications.map((notification) => (
+                notifications.map((notification: any) => (
                   <Pressable
                     key={notification.id}
                     style={[
@@ -1459,6 +1349,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderRadius: 12,
     borderWidth: 1,
+  },
+  cardContainer: {
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 16,
+    marginBottom: 16,
   },
   licenseBannerText: {
     fontFamily: fonts.sans,
@@ -1864,8 +1760,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   assetsLiabilitiesRow: {
-    flexDirection: 'column', // grid-cols-1 (stacked vertically on mobile)
-    gap: 12, // gap-3 sm:gap-4 (12px base, 16px larger)
+    // flexDirection handled by ResponsiveRow
+    // gap handled by ResponsiveRow
     marginBottom: 0, // No margin, spacing handled by parent
   },
   assetCard: {
@@ -2130,6 +2026,68 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
     overflow: 'visible', // Allow title to be visible
+  },
+  animatedChartContainer: {
+    padding: 20,
+    gap: 20,
+  },
+  chartBarsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'flex-end',
+    height: 240,
+    gap: 40,
+  },
+  barWrapper: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 12,
+  },
+  barContainer: {
+    width: '100%',
+    height: 180,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    borderRadius: 12,
+    overflow: 'hidden',
+    justifyContent: 'flex-end',
+  },
+  animatedBar: {
+    width: '100%',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  barGradient: {
+    flex: 1,
+    width: '100%',
+  },
+  barValue: {
+    textAlign: 'center',
+    fontFamily: fonts.sans,
+  },
+  barLabel: {
+    textAlign: 'center',
+    fontFamily: fonts.sans,
+  },
+  netSavingsCard: {
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  netSavingsContent: {
+    gap: 8,
+  },
+  netSavingsLabel: {
+    fontFamily: fonts.sans,
+    textAlign: 'center',
+  },
+  netSavingsValueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  netSavingsValue: {
+    fontFamily: fonts.sans,
   },
   chartTitleContainer: {
     marginBottom: 12, // mb-3 sm:mb-4 (12px base, 16px larger) - using base value

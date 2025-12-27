@@ -148,7 +148,8 @@
     "onTrack": "On Track",
     "totalBudget": "Total Budget",
     "left": "Left",
-    "customRange": "Custom Range"
+    "customRange": "Custom Range",
+    "netSavings": "Net Savings"
   },
   "reports": {
     "reportsAnalytics": "Reports & Analytics",
@@ -581,7 +582,13 @@
     "oneTimePaymentYear": "One-time payment for 1 year access",
     "initiatingPurchase": "Initiating purchase...",
     "renewLicense": "Renew License",
-    "renewInstruction": "Please select a subscription plan below to extend your premium license."
+    "renewInstruction": "Please select a subscription plan below to extend your premium license.",
+    "monthlyPlanPrice": "1 Month - $2.98",
+    "yearlyPlanPrice": "1 Year - $19.98 (Best Value)",
+    "purchaseFailed": "Purchase failed",
+    "pleaseWait": "Please wait",
+    "biometricEnabled": "Biometric lock enabled",
+    "biometricDisabled": "Biometric lock disabled"
   },
   "categories": {
     "groceries": "Groceries",

@@ -76,6 +76,7 @@ import { translateCountryName } from '../utils/countryTranslator';
 import { notificationService } from '../services/notificationService';
 import { countriesService, Country } from '../api/services/countries';
 import { iapService } from '../services/inAppPurchase';
+import { useDeviceType, useResponsiveLayout } from '../hooks/useDeviceType';
 
 const LANGUAGE_FLAGS: Record<string, string> = {
   en: '🇺🇸',
@@ -89,6 +90,8 @@ const LANGUAGE_FLAGS: Record<string, string> = {
   ru: '🇷🇺',
   ja: '🇯🇵',
   de: '🇩🇪',
+  nl: '🇳🇱',
+  it: '🇮🇹',
 };
 
 interface SettingsScreenProps {
@@ -117,6 +120,8 @@ export default function SettingsScreen({
   const { t, i18n } = useTranslation('common');
   const { width } = useWindowDimensions();
   const { isDark, colors, toggleTheme } = useTheme();
+  const { isTablet } = useDeviceType();
+  const { padding, gap } = useResponsiveLayout();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [currencies, setCurrencies] = useState<Currency[]>([]);
@@ -207,6 +212,8 @@ export default function SettingsScreen({
   const [savingLanguage, setSavingLanguage] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [avatarLoadError, setAvatarLoadError] = useState(false);
+
+  const [iapProducts, setIapProducts] = useState<any[]>([]);
 
   const [avatarCacheTimestamp, setAvatarCacheTimestamp] = useState(Date.now());
 
@@ -344,8 +351,13 @@ export default function SettingsScreen({
       try {
         const settings = await usersService.getUserSettings();
         const backendNotificationsEnabled = settings.settings?.notificationsEnabled !== false;
-        setBiometricLock(settings.settings?.biometricLockEnabled || false);
+        const backendBiometricEnabled = settings.settings?.biometricLockEnabled || false;
+        setBiometricLock(backendBiometricEnabled);
         setBudgetCycleDay(settings.settings?.budgetCycleDay || 1);
+        
+        // Sync biometric setting to local storage (for offline access on app launch)
+        const { secureStorage } = await import('../services/secureStorage');
+        await secureStorage.setBiometricEnabled(backendBiometricEnabled);
         
         // Check actual notification permission status (without requesting)
         try {
@@ -379,6 +391,17 @@ export default function SettingsScreen({
         }
       } catch (error) {
         console.error('Failed to load settings:', error);
+      }
+
+      // Fetch IAP products for localized pricing
+      if (Platform.OS === 'ios') {
+        try {
+          const products = await iapService.getProducts();
+          console.log('IAP products fetched:', products);
+          setIapProducts(products);
+        } catch (error) {
+          console.error('Failed to load IAP products:', error);
+        }
       }
     } catch (error) {
       console.error('Failed to load initial data:', error);
@@ -754,11 +777,20 @@ export default function SettingsScreen({
 
   const handleToggleBiometricLock = async (enabled: boolean) => {
     try {
+      // Save to backend
       await usersService.updateUserSettings({
         biometric_lock_enabled: enabled,
       });
+      
+      // Save to LOCAL storage for offline access (critical for biometric to work)
+      const { secureStorage } = await import('../services/secureStorage');
+      await secureStorage.setBiometricEnabled(enabled);
+      
       setBiometricLock(enabled);
-      // Note: Biometric lock implementation would go here
+      showToast.success(
+        enabled ? t('settings.biometricEnabled') : t('settings.biometricDisabled'),
+        t('settings.success')
+      );
     } catch (error: any) {
       console.error('Error updating biometric lock:', error);
       showToast.error(t('settings.errorUpdateBiometricLock'), t('settings.error'));
@@ -967,7 +999,7 @@ export default function SettingsScreen({
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingHorizontal: isTablet ? padding : 16, paddingBottom: isTablet ? 40 : 100 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Profile Section */}
@@ -1475,22 +1507,27 @@ export default function SettingsScreen({
                     </View>
                   </View>
                   
-                  {/* Monthly Option */}
                   <Pressable
                     style={{
                       backgroundColor: colors.card,
                       borderColor: colors.border,
                       borderWidth: 1,
-                      paddingHorizontal: 16,
-                      paddingVertical: 12,
-                      borderRadius: 8,
-                      marginBottom: 8,
+                      paddingHorizontal: 20,
+                      paddingVertical: 16,
+                      borderRadius: 12,
+                      marginBottom: 12,
+                      shadowColor: colors.foreground,
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.1,
+                      shadowRadius: 4,
+                      elevation: 3,
+                      alignItems: 'center',
                     }}
                     onPress={async () => {
                       if (Platform.OS === 'ios') {
                         try {
                           showToast.info(t('settings.initiatingPurchase') || 'Initiating purchase...', 'Please wait');
-                          await iapService.purchaseSubscription('com.spendly.mobile.premium.monthly');
+                          await iapService.purchaseSubscription('com.spendly.mobile.premium.monthlyextension');
                         } catch (error: any) {
                           console.error('IAP Error:', error);
                           showToast.error(t('settings.purchaseFailed') || 'Purchase failed', 'Error');
@@ -1504,24 +1541,32 @@ export default function SettingsScreen({
                       }
                     }}
                   >
-                    <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 14 }}>
-                      1 Month - $2.98
+                    <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 16, textAlign: 'center' }}>
+                      {(() => {
+                        const monthlyProduct = iapProducts.find(p => p.productId === 'com.spendly.mobile.premium.monthlyextension');
+                        return monthlyProduct ? `1 Month - ${monthlyProduct.displayPrice}` : t('settings.monthlyPlanPrice', { defaultValue: '1 Month - $2.98' });
+                      })()}
                     </Text>
                   </Pressable>
 
-                  {/* Yearly Option */}
                   <Pressable
                     style={{
                       backgroundColor: colors.primary,
-                      paddingHorizontal: 16,
-                      paddingVertical: 12,
-                      borderRadius: 8,
+                      paddingHorizontal: 20,
+                      paddingVertical: 16,
+                      borderRadius: 12,
+                      shadowColor: colors.primary,
+                      shadowOffset: { width: 0, height: 4 },
+                      shadowOpacity: 0.3,
+                      shadowRadius: 6,
+                      elevation: 6,
+                      alignItems: 'center',
                     }}
                     onPress={async () => {
                       if (Platform.OS === 'ios') {
                         try {
                           showToast.info(t('settings.initiatingPurchase') || 'Initiating purchase...', 'Please wait');
-                          await iapService.purchaseSubscription('com.spendly.mobile.premium.yearly');
+                          await iapService.purchaseSubscription('com.spendly.mobile.premium.yearlyextension');
                         } catch (error: any) {
                           console.error('IAP Error:', error);
                           showToast.error(t('settings.purchaseFailed') || 'Purchase failed', 'Error');
@@ -1535,8 +1580,11 @@ export default function SettingsScreen({
                       }
                     }}
                   >
-                    <Text style={{ color: '#fff', fontWeight: '600', fontSize: 14 }}>
-                      1 Year - $19.98 (Best Value)
+                    <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16, textAlign: 'center' }}>
+                      {(() => {
+                        const yearlyProduct = iapProducts.find(p => p.productId === 'com.spendly.mobile.premium.yearlyextension');
+                        return yearlyProduct ? `1 Year - ${yearlyProduct.displayPrice} (Best Value)` : t('settings.yearlyPlanPrice', { defaultValue: '1 Year - $19.98 (Best Value)' });
+                      })()}
                     </Text>
                   </Pressable>
                 </View>

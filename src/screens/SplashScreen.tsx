@@ -9,11 +9,67 @@ type Props = {
   onFinish: () => void;
 };
 
+// Animated dot component with bounce effect
+const AnimatedDot = ({ delay, scale }: { delay: number; scale: number }) => {
+  const bounceAnim = useRef(new Animated.Value(0)).current;
+  const opacityAnim = useRef(new Animated.Value(0.5)).current;
+
+  useEffect(() => {
+    const bounceAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.parallel([
+          Animated.timing(bounceAnim, {
+            toValue: -8,
+            duration: 300,
+            delay,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(opacityAnim, {
+            toValue: 1,
+            duration: 300,
+            delay,
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.parallel([
+          Animated.timing(bounceAnim, {
+            toValue: 0,
+            duration: 300,
+            easing: Easing.in(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(opacityAnim, {
+            toValue: 0.5,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+        ]),
+      ])
+    );
+    bounceAnimation.start();
+    return () => bounceAnimation.stop();
+  }, [bounceAnim, opacityAnim, delay]);
+
+  return (
+    <Animated.View
+      style={{
+        width: Math.max(6, Math.min(8 * scale, 10)),
+        height: Math.max(6, Math.min(8 * scale, 10)),
+        borderRadius: Math.max(3, Math.min(4 * scale, 5)),
+        backgroundColor: 'rgba(255, 255, 255, 1)',
+        opacity: opacityAnim,
+        transform: [{ translateY: bounceAnim }],
+      }}
+    />
+  );
+};
+
 // Simple Spendly splash screen:
 // - Same blue gradient as web
 // - White rounded tile with logo-dark.png
 // - "Track. Save. Grow." tagline
-// - Three loading dots
+// - Three animated loading dots
 export default function SplashScreen({ onFinish }: Props) {
   const { t } = useTranslation('common');
   const logoOpacity = useRef(new Animated.Value(0)).current;
@@ -86,15 +142,7 @@ export default function SplashScreen({ onFinish }: Props) {
 
         <Animated.View style={[styles.dotsContainer, { opacity: dotsOpacity }]}>
           {[0, 1, 2].map((i) => (
-            <View
-              key={i}
-              style={{
-                width: Math.max(6, Math.min(8 * scale, 10)),
-                height: Math.max(6, Math.min(8 * scale, 10)),
-                borderRadius: Math.max(3, Math.min(4 * scale, 5)),
-                backgroundColor: 'rgba(255, 255, 255, 0.5)',
-              }}
-            />
+            <AnimatedDot key={i} delay={i * 150} scale={scale} />
           ))}
         </Animated.View>
       </View>

@@ -1,18 +1,29 @@
 import { Platform, Alert, DeviceEventEmitter } from 'react-native';
 import * as RNIap from 'react-native-iap';
 
-// Product IDs from App Store Connect
+// Product IDs from App Store Connect (Consumable products for validity extensions)
 export const SUBSCRIPTION_PRODUCTS = {
-  MONTHLY: 'com.spendly.mobile.premium.monthly',
-  YEARLY: 'com.spendly.mobile.premium.yearly',
+  MONTHLY: 'com.spendly.mobile.premium.monthlyextension',
+  YEARLY: 'com.spendly.mobile.premium.yearlyextension',
 } as const;
 
 export const PRODUCT_IDS = Object.values(SUBSCRIPTION_PRODUCTS);
+
+export interface ProductPrice {
+  productId: string;
+  price: string;
+  localizedPrice: string;
+  currency: string;
+}
 
 class InAppPurchaseService {
   private purchaseUpdateSubscription: any = null;
   private purchaseErrorSubscription: any = null;
   private isInitialized = false;
+  private cachedPrices: Map<string, ProductPrice> = new Map();
+  private isPurchasing = false;
+  private isRestoring = false;
+  private processedTransactionIds: Set<string> = new Set();
 
   /**
    * Initialize the IAP connection
@@ -34,15 +45,22 @@ class InAppPurchaseService {
       // Pre-fetch products to warm up cache and verify connection
       await this.getProducts();
       
-      // Clear any pending transactions to prevent duplicate purchase dialogs
+      // Mark all existing purchases as processed to prevent false success alerts
+      // This ensures only NEW purchases trigger the success dialog
       try {
-        const pendingPurchases = await RNIap.getAvailablePurchases();
-        if (pendingPurchases && pendingPurchases.length > 0) {
-          for (const purchase of pendingPurchases) {
-            await RNIap.finishTransaction({ purchase, isConsumable: false });
+        this.isRestoring = true;
+        const existingPurchases = await RNIap.getAvailablePurchases();
+        for (const purchase of existingPurchases) {
+          const transactionId = (purchase as any).transactionId || (purchase as any).id;
+          if (transactionId) {
+            this.processedTransactionIds.add(transactionId);
+            console.log('IAP: Marked existing transaction as processed:', transactionId);
           }
         }
-      } catch (pendingError) {
+      } catch (e) {
+        console.warn('Error marking existing purchases:', e);
+      } finally {
+        this.isRestoring = false;
       }
     } catch (error) {
       throw error;
@@ -62,7 +80,6 @@ class InAppPurchaseService {
     }
 
     try {
-      
       // Use 'all' type to catch both products and subscriptions
       const products = await RNIap.fetchProducts({ 
         skus: PRODUCT_IDS,
@@ -73,13 +90,73 @@ class InAppPurchaseService {
         return [];
       }
 
-      for (let i = 0; i < products.length; i++) {
-        const p = products[i];
+      // Cache prices for later use
+      for (const product of products) {
+        const p = product as any;
+        const productId = p.productId || p.id || '';
+        this.cachedPrices.set(productId, {
+          productId: productId,
+          price: String(p.price || '0'),
+          localizedPrice: p.localizedPrice || String(p.price) || '$0.00',
+          currency: p.currency || 'USD',
+        });
       }
       
       return products;
     } catch (error: any) {
       throw error;
+    }
+  }
+
+  /**
+   * Get formatted price for a product from App Store
+   */
+  async getProductPrice(productId: string): Promise<ProductPrice | null> {
+    // Check cache first
+    if (this.cachedPrices.has(productId)) {
+      return this.cachedPrices.get(productId) || null;
+    }
+
+    // Fetch products if not cached
+    await this.getProducts();
+    return this.cachedPrices.get(productId) || null;
+  }
+
+  /**
+   * Get all cached prices
+   */
+  getCachedPrices(): Map<string, ProductPrice> {
+    return this.cachedPrices;
+  }
+
+  /**
+   * Check if a purchase is in progress
+   */
+  isPurchaseInProgress(): boolean {
+    return this.isPurchasing;
+  }
+
+  /**
+   * Check if user has an active subscription
+   * Returns the active subscription product ID or null
+   */
+  async getActiveSubscription(): Promise<string | null> {
+    if (Platform.OS !== 'ios') {
+      return null;
+    }
+
+    try {
+      const purchases = await RNIap.getAvailablePurchases();
+      for (const purchase of purchases) {
+        const productId = (purchase as any).productId;
+        if (PRODUCT_IDS.includes(productId)) {
+          return productId;
+        }
+      }
+      return null;
+    } catch (error) {
+      console.warn('Error checking active subscription:', error);
+      return null;
     }
   }
 
@@ -92,54 +169,46 @@ class InAppPurchaseService {
       return;
     }
 
+    if (this.isPurchasing) {
+      return; // Prevent duplicate purchases
+    }
+
     if (!this.isInitialized) {
       await this.initialize();
     }
 
     try {
+      this.isPurchasing = true;
+      DeviceEventEmitter.emit('purchaseStarted');
       
-      // Set a flag to track if purchase dialog appears
-      let purchaseStarted = false;
+      console.log('IAP: Initiating new purchase for:', productId);
       
-      const purchasePromise = (RNIap.requestPurchase as any)({
+      // For react-native-iap v14+, use request.ios.sku structure (not apple!)
+      await RNIap.requestPurchase({
         request: {
-          ios: { sku: productId },
-          android: { skus: [productId] },
+          ios: { sku: productId }
         },
-        type: 'in-app',
+        type: 'in-app'
       });
-
-      // Add a timeout to detect if StoreKit silently fails
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => {
-          if (!purchaseStarted) {
-            reject(new Error('Purchase dialog did not appear after 2 seconds. Please ensure you are signed into a Sandbox account in Settings > App Store > Sandbox Account.'));
-          }
-        }, 2000);
-      });
-
-      await Promise.race([purchasePromise, timeoutPromise]);
       
     } catch (error: any) {
       
-      // Show user-friendly error (Alert is already imported)
-      if (error.message?.includes('Sandbox account')) {
-        Alert.alert(
-          'Sandbox Account Required',
-          'To test purchases, please sign in to a Sandbox test account:\n\n1. Open Settings app\n2. Go to App Store\n3. Scroll to "Sandbox Account"\n4. Sign in with your test account',
-          [{ text: 'OK' }]
-        );
-      } else if (error.message?.includes('dialog did not appear')) {
-        // Timeout error - silently ignore, user likely backed out
-      } else {
-        Alert.alert(
-          'Purchase Error',
-          error.message || 'Failed to initiate purchase. Please try again.',
-          [{ text: 'OK' }]
-        );
+      // Handle user cancellation silently
+      if (error.code === 'E_USER_CANCELLED') {
+        return;
       }
       
+      // Show user-friendly error for other cases
+      Alert.alert(
+        'Purchase Error',
+        error.message || 'Failed to initiate purchase. Please try again.',
+        [{ text: 'OK' }]
+      );
+      
       throw error;
+    } finally {
+      this.isPurchasing = false;
+      DeviceEventEmitter.emit('purchaseEnded');
     }
   }
 
@@ -170,23 +239,48 @@ class InAppPurchaseService {
     
     this.purchaseUpdateSubscription = RNIap.purchaseUpdatedListener(
       async (purchase: any) => {
+        const transactionId = purchase.transactionId || purchase.id;
+        
+        // Skip if this transaction was already processed (restored purchase)
+        if (transactionId && this.processedTransactionIds.has(transactionId)) {
+          console.log('IAP: Skipping already processed transaction:', transactionId);
+          await RNIap.finishTransaction({ purchase, isConsumable: true });
+          return;
+        }
+        
+        // Skip if we're in restore mode (not a new purchase)
+        if (this.isRestoring) {
+          console.log('IAP: Skipping transaction during restore');
+          await RNIap.finishTransaction({ purchase, isConsumable: true });
+          return;
+        }
         
         // In react-native-iap v14 with StoreKit 2, the receipt is in purchaseToken (JWT)
         const receipt = purchase.purchaseToken || purchase.transactionReceipt;
         
         if (receipt) {
           try {
-            await this.verifyPurchase(purchase);
-            await RNIap.finishTransaction({ purchase, isConsumable: false });
+            // Mark as processed before verification
+            if (transactionId) {
+              this.processedTransactionIds.add(transactionId);
+            }
+            
+            // This is a NEW purchase - verify and show success
+            await this.verifyPurchase(purchase, true);
+            // Use isConsumable: true to allow users to buy validity extensions multiple times
+            await RNIap.finishTransaction({ purchase, isConsumable: true });
           } catch (error) {
+            console.error('IAP: Error processing purchase:', error);
           }
         } else {
+          console.warn('IAP: No receipt found in purchase');
         }
       }
     );
 
     this.purchaseErrorSubscription = RNIap.purchaseErrorListener(
       (error: any) => {
+        console.error('IAP: Purchase error:', error);
       }
     );
     
@@ -194,8 +288,10 @@ class InAppPurchaseService {
 
   /**
    * Verify purchase with backend
+   * @param purchase - The purchase object from StoreKit
+   * @param showSuccessAlert - Whether to show success alert (false for restores)
    */
-  private async verifyPurchase(purchase: any): Promise<void> {
+  private async verifyPurchase(purchase: any, showSuccessAlert: boolean = true): Promise<void> {
 
     try {
       // Import apiClient from correct location
@@ -223,12 +319,14 @@ class InAppPurchaseService {
       } catch (refreshError) {
       }
       
-      // Show success message
-      Alert.alert(
-        'Purchase Successful! 🎉',
-        'Your subscription has been activated and your license has been extended!',
-        [{ text: 'OK' }]
-      );
+      // Show success message only for new purchases (not restores)
+      if (showSuccessAlert) {
+        Alert.alert(
+          'Purchase Successful! 🎉',
+          'Your subscription has been activated and your license has been extended!',
+          [{ text: 'OK' }]
+        );
+      }
       
     } catch (error) {
       

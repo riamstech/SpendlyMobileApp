@@ -13,6 +13,8 @@ import ptBRCommon from '../locales/pt-BR/common.json';
 import deCommon from '../locales/de/common.json';
 import jaCommon from '../locales/ja/common.json';
 import ruCommon from '../locales/ru/common.json';
+import nlCommon from '../locales/nl/common.json';
+import itCommon from '../locales/it/common.json';
 
 export const SUPPORTED_LANGUAGES = [
   { code: 'en', name: 'English' },
@@ -25,6 +27,8 @@ export const SUPPORTED_LANGUAGES = [
   { code: 'de', name: 'Deutsch' },
   { code: 'ja', name: '日本語' },
   { code: 'ru', name: 'Русский' },
+  { code: 'nl', name: 'Nederlands' },
+  { code: 'it', name: 'Italiano' },
 ];
 
 const resources = {
@@ -38,6 +42,8 @@ const resources = {
   de: { common: deCommon },
   ja: { common: jaCommon },
   ru: { common: ruCommon },
+  nl: { common: nlCommon },
+  it: { common: itCommon },
 };
 
 // Get device locale using the new API

@@ -109,5 +109,34 @@ async googleLogin(data: { token: string; device_name: string }): Promise<AuthRes
       apiClient.setToken(response.token);
     }
     return response;
+  },
+
+  /**
+   * Refresh the authentication token
+   */
+  async refreshToken(): Promise<AuthResponse | null> {
+    try {
+      const response = await apiClient.post<AuthResponse>('/auth/refresh');
+      if (response.token) {
+        apiClient.setToken(response.token);
+      }
+      return response;
+    } catch (error) {
+      // Token refresh failed, user needs to re-login
+      apiClient.clearToken();
+      return null;
+    }
+  },
+
+  /**
+   * Check if current token is valid
+   */
+  async validateToken(): Promise<boolean> {
+    try {
+      await apiClient.get('/auth/me');
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 };

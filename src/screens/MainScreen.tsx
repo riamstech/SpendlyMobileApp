@@ -16,7 +16,7 @@ import GoalsScreen from './GoalsScreen';
 import AnalyticsScreen from './AnalyticsScreen';
 import ReceiptsScreen from './ReceiptsScreen';
 import SupportTicketsScreen from './SupportTicketsScreen';
-import BottomTabNavigator from '../components/BottomTabNavigator';
+import AdaptiveNavigator from '../components/AdaptiveNavigator';
 import StripePaymentDialog from '../components/StripePaymentDialog';
 import { usersService } from '../api/services/users';
 import { currenciesService } from '../api/services/currencies';
@@ -26,6 +26,7 @@ import i18n from '../i18n';
 import { Transaction } from '../api/types/transaction';
 import { transactionsService } from '../api/services/transactions';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import OfflineIndicator from '../components/OfflineIndicator';
 import { Alert } from 'react-native';
 import { authService } from '../api/services/auth';
 
@@ -327,29 +328,31 @@ export default function MainScreen({ onLogout, initialScreen }: MainScreenProps)
 
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
-        {activeTab === 'home' ? (
-          <DashboardScreen
-            key={dashboardRefreshKey}
-            onViewAllTransactions={() => setShowAllTransactions(true)}
-            onViewAllPayments={() => setShowAllPayments(true)}
-            onViewInbox={() => setShowInbox(true)}
-            onEditTransaction={handleEditTransaction}
-            onDeleteTransaction={handleDeleteTransaction}
-            onRenewLicense={() => {
-              setActiveTab('settings');
-              setShowRenewInstruction(true);
-            }}
-          />
-        ) : (
-          renderScreen()
-        )}
-      </View>
-      <BottomTabNavigator
+      <OfflineIndicator />
+      <AdaptiveNavigator
         activeTab={activeTab}
         onTabChange={handleTabChange}
         onAddClick={handleAddClick}
-      />
+      >
+        <View style={styles.content}>
+          {activeTab === 'home' ? (
+            <DashboardScreen
+              key={dashboardRefreshKey}
+              onViewAllTransactions={() => setShowAllTransactions(true)}
+              onViewAllPayments={() => setShowAllPayments(true)}
+              onViewInbox={() => setShowInbox(true)}
+              onEditTransaction={handleEditTransaction}
+              onDeleteTransaction={handleDeleteTransaction}
+              onRenewLicense={() => {
+                setActiveTab('settings');
+                setShowRenewInstruction(true);
+              }}
+            />
+          ) : (
+            renderScreen()
+          )}
+        </View>
+      </AdaptiveNavigator>
       
       {/* Payment Dialog */}
       {stripePaymentData && (

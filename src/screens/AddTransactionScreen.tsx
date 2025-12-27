@@ -39,6 +39,7 @@ import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { showToast } from '../utils/toast';
 import { CategoryIcon } from '../components/CategoryIcon';
 import { useCategories } from '../hooks/useCategories';
+import { useDeviceType, useResponsiveLayout } from '../hooks/useDeviceType';
 
 interface AddTransactionScreenProps {
   onSuccess?: () => void;
@@ -52,6 +53,8 @@ export default function AddTransactionScreen({
   const { t, i18n } = useTranslation('common');
   const { width } = useWindowDimensions();
   const { isDark, colors } = useTheme();
+  const { isTablet } = useDeviceType();
+  const { padding } = useResponsiveLayout();
   const [transactionType, setTransactionType] = useState<'income' | 'expense'>('expense');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
@@ -314,7 +317,7 @@ export default function AddTransactionScreen({
 
       <ScrollView
         style={[styles.scrollView, { backgroundColor: colors.background }]}
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: 100 }]}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: isTablet ? 40 : 100, paddingHorizontal: isTablet ? padding : 16 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Transaction Type */}

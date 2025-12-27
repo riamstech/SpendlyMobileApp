@@ -37,6 +37,7 @@ import {
 import { useTheme } from '../contexts/ThemeContext';
 import { translateCategoryName } from '../utils/categoryTranslator';
 import { getEmojiFromIcon } from '../utils/iconMapper';
+import { useDeviceType, useResponsiveLayout } from '../hooks/useDeviceType';
 
 const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2'];
 
@@ -50,6 +51,8 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
   const { t, i18n } = useTranslation('common');
   const { width } = useWindowDimensions();
   const { isDark, colors } = useTheme();
+  const { isTablet } = useDeviceType();
+  const { padding } = useResponsiveLayout();
   
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -477,6 +480,7 @@ export default function AnalyticsScreen({ onBack }: AnalyticsScreenProps) {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
+        contentContainerStyle={{ paddingBottom: isTablet ? 40 : 100, paddingHorizontal: isTablet ? padding : 16 }}
       >
         {/* Insights Tab */}
         {activeTab === 'insights' && (

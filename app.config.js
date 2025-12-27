@@ -5,7 +5,7 @@ module.exports = {
     name: "Spendly",
     slug: "SpendlyMobileApp",
     scheme: "spendly",
-    version: "1.0.1",
+    version: "1.0.2",
     main: "index.ts",
     orientation: "portrait",
     icon: "./assets/icon.png",
@@ -13,12 +13,14 @@ module.exports = {
     splash: {
       image: "./assets/splash-icon.png",
       resizeMode: "contain",
-      backgroundColor: "#ffffff"
+      backgroundColor: "#ffffff",
+      tabletImage: "./assets/splash-icon.png"
     },
     ios: {
-      supportsTablet: false,
+      supportsTablet: true,
+      isTabletOnly: false,
       bundleIdentifier: "com.spendly.mobile",
-      buildNumber: "11",
+      buildNumber: "1",
       deploymentTarget: "13.4",
       icon: "./assets/icon.png",
       displayName: "Spendly Money",
@@ -102,7 +104,8 @@ module.exports = {
         {
           iosUrlScheme: process.env.GOOGLE_IOS_URL_SCHEME || "com.googleusercontent.apps.913299133500-c6hjl99i7q14h40ne17mm2e2jrh2q9pu"
         }
-      ]
+      ],
+      "expo-secure-store"
     ]
   }
 };
