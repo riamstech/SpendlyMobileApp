@@ -809,22 +809,22 @@ export default function ReportsScreen() {
     backgroundGradientTo: colors.card,
     decimalPlaces: 0,
     color: (opacity = 1) => isDark 
-      ? `rgba(255, 255, 255, ${opacity * 0.7})` 
-      : `rgba(117, 117, 117, ${opacity})`, // #757575 like Cordova
+      ? `rgba(255, 255, 255, ${opacity * 0.6})` 
+      : `rgba(102, 102, 102, ${opacity * 0.8})`,
     labelColor: (opacity = 1) => isDark 
-      ? `rgba(255, 255, 255, ${opacity * 0.7})` 
-      : `rgba(117, 117, 117, ${opacity})`, // #757575 like Cordova
+      ? `rgba(255, 255, 255, ${opacity * 0.6})` 
+      : `rgba(102, 102, 102, ${opacity * 0.8})`,
     style: {
       borderRadius: 12,
     },
     propsForDots: {
-      r: '5',
+      r: '4',
       strokeWidth: '2',
-      stroke: '#03A9F4',
+      stroke: '#1e40af',
     },
     propsForBackgroundLines: {
-      strokeDasharray: '3, 3', // Dashed grid lines like Cordova
-      stroke: isDark ? 'rgba(255, 255, 255, 0.1)' : '#e0e0e0',
+      strokeDasharray: '3, 3',
+      stroke: isDark ? 'rgba(255, 255, 255, 0.08)' : '#e8e8e8',
     },
     propsForLabels: {
       fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
@@ -1045,37 +1045,37 @@ export default function ReportsScreen() {
         {/* Summary Cards */}
         <View style={styles.summaryRow}>
           <View style={[styles.summaryCard, { 
-            backgroundColor: isDark ? 'rgba(76, 175, 80, 0.15)' : '#E8F5E9' 
+            backgroundColor: isDark ? 'rgba(76, 175, 80, 0.08)' : '#f5faf5' 
           }]}>
-            <TrendingUp size={24} color="#4CAF50" />
+            <TrendingUp size={24} color="#2d7a3a" />
             <Text style={[styles.summaryLabel, responsiveTextStyles.caption, { 
-              color: isDark ? colors.foreground : '#666' 
+              color: '#666' 
             }]}>{t('reports.totalIncome')}</Text>
-            <Text style={[styles.summaryValue, responsiveTextStyles.h3, { color: '#4CAF50' }]}>
+            <Text style={[styles.summaryValue, responsiveTextStyles.h3, { color: '#2d7a3a' }]}>
               {displayCurrency} {formatValue(totalIncome)}
             </Text>
           </View>
           <View style={[styles.summaryCard, { 
-            backgroundColor: isDark ? 'rgba(255, 82, 82, 0.15)' : '#FFEBEE' 
+            backgroundColor: isDark ? 'rgba(220, 53, 69, 0.08)' : '#faf5f5' 
           }]}>
-            <TrendingDown size={24} color="#FF5252" />
+            <TrendingDown size={24} color="#c41e3a" />
             <Text style={[styles.summaryLabel, responsiveTextStyles.caption, { 
-              color: isDark ? colors.foreground : '#666' 
+              color: '#666' 
             }]}>{t('reports.totalExpenses')}</Text>
-            <Text style={[styles.summaryValue, responsiveTextStyles.h3, { color: '#FF5252' }]}>
+            <Text style={[styles.summaryValue, responsiveTextStyles.h3, { color: '#c41e3a' }]}>
               {displayCurrency} {formatValue(totalExpenses)}
             </Text>
           </View>
         </View>
         
         <View style={[styles.summaryCard, styles.summaryCardFull, { 
-          backgroundColor: isDark ? 'rgba(3, 169, 244, 0.15)' : '#E3F2FD' 
+          backgroundColor: isDark ? 'rgba(30, 64, 175, 0.08)' : '#f5f8fa' 
         }]}>
-          <DollarSign size={24} color="#03A9F4" />
+          <DollarSign size={24} color="#1e40af" />
           <Text style={[styles.summaryLabel, responsiveTextStyles.caption, { 
-            color: isDark ? colors.foreground : '#666' 
+            color: '#666' 
           }]}>{t('reports.netSavings')}</Text>
-          <Text style={[styles.summaryValue, responsiveTextStyles.h3, { color: '#03A9F4' }]}>
+          <Text style={[styles.summaryValue, responsiveTextStyles.h3, { color: '#1e40af' }]}>
             {displayCurrency} {formatValue(totalSavings)}
           </Text>
         </View>
@@ -1086,11 +1086,11 @@ export default function ReportsScreen() {
             <Text style={[styles.chartTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>{t('reports.incomeVsExpensesOverTime')}</Text>
             <View style={styles.chartLegend}>
               <View style={styles.legendItem}>
-                <View style={[styles.legendDot, { backgroundColor: '#4CAF50' }]} />
+                <View style={[styles.legendDot, { backgroundColor: '#2d7a3a' }]} />
                 <Text style={[styles.legendText, { color: colors.foreground }]}>{t('dashboard.income', { defaultValue: 'Income' })}</Text>
               </View>
               <View style={styles.legendItem}>
-                <View style={[styles.legendDot, { backgroundColor: '#FF5252' }]} />
+                <View style={[styles.legendDot, { backgroundColor: '#c41e3a' }]} />
                 <Text style={[styles.legendText, { color: colors.foreground }]}>{t('dashboard.expenses', { defaultValue: 'Expenses' })}</Text>
               </View>
             </View>
@@ -1509,13 +1509,16 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 10,
     paddingHorizontal: 12,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f8f8f8',
     borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e8e8e8',
   },
   filterButtonText: {
     flex: 1,
     ...textStyles.bodySmall,
     color: '#333',
+    fontWeight: '500',
   },
   downloadButtonsContainer: {
     flexDirection: 'row',
@@ -1592,10 +1595,24 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
   },
   summaryCardFull: {
     width: '100%',
     marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
   },
   summaryLabel: {
     ...textStyles.caption,
@@ -1609,19 +1626,21 @@ const styles = StyleSheet.create({
   },
   chartCard: {
     backgroundColor: '#fff',
-    borderRadius: 16,
+    borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
   },
   chartTitle: {
     ...textStyles.h3,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: '600',
+    color: '#1a1a1a',
     marginBottom: 12,
   },
   chartLegend: {
@@ -1636,33 +1655,36 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   legendDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
   legendText: {
     ...textStyles.caption,
     color: '#666',
+    fontSize: 12,
   },
   chart: {
     marginVertical: 8,
-    borderRadius: 16,
+    borderRadius: 12,
   },
   categoryCard: {
     backgroundColor: '#fff',
-    borderRadius: 16,
+    borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
   },
   categoryTitle: {
     ...textStyles.h3,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: '600',
+    color: '#1a1a1a',
     marginBottom: 16,
   },
   categoryItem: {

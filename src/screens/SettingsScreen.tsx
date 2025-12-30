@@ -214,6 +214,7 @@ export default function SettingsScreen({
   const [avatarLoadError, setAvatarLoadError] = useState(false);
 
   const [iapProducts, setIapProducts] = useState<any[]>([]);
+  const [iapLoading, setIapLoading] = useState(false);
 
   const [avatarCacheTimestamp, setAvatarCacheTimestamp] = useState(Date.now());
 
@@ -396,11 +397,18 @@ export default function SettingsScreen({
       // Fetch IAP products for localized pricing
       if (Platform.OS === 'ios') {
         try {
+          setIapLoading(true);
+          // Initialize IAP service first
+          await iapService.initialize();
           const products = await iapService.getProducts();
           console.log('IAP products fetched:', products);
           setIapProducts(products);
         } catch (error) {
           console.error('Failed to load IAP products:', error);
+          // Don't show error toast for IAP failures, just log
+          setIapProducts([]); // Ensure empty array on failure
+        } finally {
+          setIapLoading(false);
         }
       }
     } catch (error) {
@@ -1526,11 +1534,20 @@ export default function SettingsScreen({
                     onPress={async () => {
                       if (Platform.OS === 'ios') {
                         try {
-                          showToast.info(t('settings.initiatingPurchase') || 'Initiating purchase...', 'Please wait');
-                          await iapService.purchaseSubscription('com.spendly.mobile.premium.monthlyextension');
+                          // Check if IAP service is initialized
+                          if (!iapService.isPurchaseInProgress()) {
+                            showToast.info(t('settings.initiatingPurchase') || 'Initiating purchase...', 'Please wait');
+                            await iapService.purchaseSubscription('com.spendly.mobile.premium.monthlyextension');
+                          } else {
+                            showToast.info('Purchase already in progress...', 'Please wait');
+                          }
                         } catch (error: any) {
                           console.error('IAP Error:', error);
-                          showToast.error(t('settings.purchaseFailed') || 'Purchase failed', 'Error');
+                          if (error.message && error.message.includes('user_cancelled')) {
+                            // User cancelled, don't show error
+                            return;
+                          }
+                          showToast.error(error.message || (t('settings.purchaseFailed') || 'Purchase failed'), 'Error');
                         }
                       } else {
                         setStripePaymentData({
@@ -1544,7 +1561,7 @@ export default function SettingsScreen({
                     <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 16, textAlign: 'center' }}>
                       {(() => {
                         const monthlyProduct = iapProducts.find(p => p.productId === 'com.spendly.mobile.premium.monthlyextension');
-                        return monthlyProduct ? `1 Month - ${monthlyProduct.displayPrice}` : t('settings.monthlyPlanPrice', { defaultValue: '1 Month - $2.98' });
+                        return monthlyProduct ? `1 Month - ${monthlyProduct.localizedPrice || monthlyProduct.price}` : 'Loading price...';
                       })()}
                     </Text>
                   </Pressable>
@@ -1565,11 +1582,20 @@ export default function SettingsScreen({
                     onPress={async () => {
                       if (Platform.OS === 'ios') {
                         try {
-                          showToast.info(t('settings.initiatingPurchase') || 'Initiating purchase...', 'Please wait');
-                          await iapService.purchaseSubscription('com.spendly.mobile.premium.yearlyextension');
+                          // Check if IAP service is initialized
+                          if (!iapService.isPurchaseInProgress()) {
+                            showToast.info(t('settings.initiatingPurchase') || 'Initiating purchase...', 'Please wait');
+                            await iapService.purchaseSubscription('com.spendly.mobile.premium.yearlyextension');
+                          } else {
+                            showToast.info('Purchase already in progress...', 'Please wait');
+                          }
                         } catch (error: any) {
                           console.error('IAP Error:', error);
-                          showToast.error(t('settings.purchaseFailed') || 'Purchase failed', 'Error');
+                          if (error.message && error.message.includes('user_cancelled')) {
+                            // User cancelled, don't show error
+                            return;
+                          }
+                          showToast.error(error.message || (t('settings.purchaseFailed') || 'Purchase failed'), 'Error');
                         }
                       } else {
                         setStripePaymentData({
@@ -1583,7 +1609,7 @@ export default function SettingsScreen({
                     <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16, textAlign: 'center' }}>
                       {(() => {
                         const yearlyProduct = iapProducts.find(p => p.productId === 'com.spendly.mobile.premium.yearlyextension');
-                        return yearlyProduct ? `1 Year - ${yearlyProduct.displayPrice} (Best Value)` : t('settings.yearlyPlanPrice', { defaultValue: '1 Year - $19.98 (Best Value)' });
+                        return yearlyProduct ? `1 Year - ${yearlyProduct.localizedPrice || yearlyProduct.price} (Best Value)` : 'Loading price...';
                       })()}
                     </Text>
                   </Pressable>

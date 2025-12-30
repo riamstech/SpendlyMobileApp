@@ -1426,39 +1426,43 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   balanceCard: {
-    borderRadius: 12,
-    padding: 16, // p-4 sm:p-6 (16px base, 24px larger)
-    marginBottom: 24, // space-y-6 (24px)
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 24,
+    backgroundColor: '#1e40af', // Professional blue instead of gradient
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   balanceHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 8,
+    marginBottom: 12,
   },
   balanceLabel: {
     ...baseTextStyles.caption,
-    color: 'rgba(255,255,255,0.9)',
-    letterSpacing: 0.5, // tracking-wide
+    color: 'rgba(255,255,255,0.85)',
+    letterSpacing: 0.3,
+    fontWeight: '500',
   },
   balanceAmountContainer: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    marginBottom: 16, // mb-4 sm:mb-6 (16px base, 24px larger)
+    marginBottom: 20,
   },
   balanceCurrency: {
     ...baseTextStyles.caption,
-    color: 'rgba(255,255,255,0.8)',
+    color: 'rgba(255,255,255,0.75)',
+    marginRight: 4,
   },
   balanceAmount: {
     ...baseTextStyles.displaySmall,
     fontFamily: fonts.sans,
     color: '#fff',
+    fontWeight: '700',
   },
   balanceStats: {
     flexDirection: 'row',
@@ -1466,31 +1470,37 @@ const styles = StyleSheet.create({
   },
   balanceStatItem: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 8,
-    padding: 10, // p-2.5 sm:p-3 (10px base, 12px larger)
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   balanceStatHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginBottom: 4,
+    marginBottom: 6,
   },
   balanceStatLabel: {
     fontFamily: fonts.sans,
-    color: 'rgba(255,255,255,0.8)',
-    opacity: 0.8,
+    color: 'rgba(255,255,255,0.75)',
+    fontSize: 11,
+    fontWeight: '500',
   },
   balanceStatValueContainer: {
     flexDirection: 'row',
     alignItems: 'baseline',
   },
   balanceStatCurrency: {
-    color: 'rgba(255,255,255,0.8)',
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 10,
+    marginRight: 2,
   },
   balanceStatValue: {
     fontWeight: '600',
     color: '#fff',
+    fontSize: 14,
   },
   statsRow: {
     flexDirection: 'row',
@@ -1500,22 +1510,28 @@ const styles = StyleSheet.create({
   statCard: {
     flex: 1,
     borderRadius: 12,
-    padding: 12, // p-3 sm:p-4 (12px base, 16px larger)
+    padding: 14,
+    backgroundColor: '#fff',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
   },
   statHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8, // mb-2 (8px)
+    marginBottom: 10,
   },
   statLabel: {
     fontFamily: fonts.sans,
     flex: 1,
+    fontSize: 12,
+    color: '#666',
+    fontWeight: '500',
   },
   statValueContainer: {
     flexDirection: 'row',
@@ -1523,21 +1539,27 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   statCurrency: {
-    marginRight: 4,
-    color: '#333',
+    marginRight: 3,
+    color: '#666',
+    fontSize: 11,
   },
   statValue: {
-    fontWeight: 'bold',
+    fontWeight: '700',
+    color: '#1a1a1a',
+    fontSize: 16,
   },
   statRatioText: {
     fontFamily: fonts.sans,
-    marginLeft: 4,
+    marginLeft: 6,
+    fontSize: 12,
+    color: '#666',
   },
   progressBar: {
-    height: 6, // h-1.5 (6px)
+    height: 6,
     borderRadius: 3,
     overflow: 'hidden',
-    marginTop: 8, // mt-2 (8px)
+    marginTop: 8,
+    backgroundColor: '#e8e8e8',
   },
   progressFill: {
     height: '100%',
@@ -1561,14 +1583,17 @@ const styles = StyleSheet.create({
   },
   paymentCard: {
     borderRadius: 12,
-    padding: 12, // p-3 sm:p-4 (12px base, 16px larger)
-    marginBottom: 0, // No margin, using gap in parent
+    padding: 14,
+    marginBottom: 0,
     borderLeftWidth: 4,
+    backgroundColor: '#fff',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowRadius: 4,
     elevation: 1,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
   },
   paymentContent: {
     flexDirection: 'row',
@@ -1632,17 +1657,21 @@ const styles = StyleSheet.create({
   transactionsContainer: {
     borderRadius: 12,
     overflow: 'hidden',
+    backgroundColor: '#fff',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowRadius: 4,
     elevation: 1,
     marginTop: 4,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
   },
   transactionCard: {
-    paddingVertical: 16, // taller cards like web
+    paddingVertical: 14,
     paddingHorizontal: 16,
-    borderBottomWidth: 1, // divide-y equivalent
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0,
@@ -1731,12 +1760,15 @@ const styles = StyleSheet.create({
   financialHealthCard: {
     borderRadius: 12,
     padding: 16,
-    marginBottom: 24, // space-y-6 (24px)
+    marginBottom: 24,
+    backgroundColor: '#fff',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
   },
   financialHealthHeader: {
     flexDirection: 'row',
@@ -1868,14 +1900,16 @@ const styles = StyleSheet.create({
   },
   budgetCard: {
     backgroundColor: '#fff',
-    borderRadius: 16,
+    borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
   },
   budgetHeader: {
     flexDirection: 'row',
