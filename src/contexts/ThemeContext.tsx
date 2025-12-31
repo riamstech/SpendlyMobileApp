@@ -48,7 +48,7 @@ const lightColors: ThemeColors = {
   successForeground: '#ffffff',
   warning: '#FFC107',
   warningForeground: '#212121',
-  border: 'rgba(0, 0, 0, 0.1)',
+  border: '#f0f0f0',
   input: '#f3f3f5',
   inputBackground: '#f3f3f5',
 };
@@ -72,7 +72,7 @@ const darkColors: ThemeColors = {
   successForeground: '#ffffff',
   warning: '#FFC107',
   warningForeground: '#212121',
-  border: 'rgba(255, 255, 255, 0.1)',
+  border: '#333333',
   input: '#2a2a2a',
   inputBackground: '#2a2a2a',
 };
