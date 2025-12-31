@@ -599,44 +599,41 @@ export default function DashboardScreen({
           </View>
         </View>
 
-        {/* Balance Overview Card - Full Width */}
-        <LinearGradient
-          colors={['#03A9F4', '#0288D1']}
-          style={[styles.balanceCard, isTablet && { padding: 24 }]}
-        >
+        {/* Balance Overview Card - Professional White Design */}
+        <View style={[styles.cardContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.balanceHeader}>
-            <Wallet size={16} color="rgba(255,255,255,0.9)" />
-            <Text style={[styles.balanceLabel, responsiveTextStyles.caption]}>
+            <Wallet size={20} color={colors.foreground} />
+            <Text style={[styles.balanceLabel, responsiveTextStyles.h4, { color: colors.foreground, fontWeight: '600' }]}>
               {t('dashboard.totalBalance') || 'Total Balance'}
             </Text>
           </View>
           <View style={styles.balanceAmountContainer}>
-            {!valuesHidden && <Text style={[styles.balanceCurrency, responsiveTextStyles.caption]}>{currency}{' '}</Text>}
-            <Text style={[styles.balanceAmount, responsiveTextStyles.displaySmall]}>{formatValue(totalBalance)}</Text>
+            {!valuesHidden && <Text style={[styles.balanceCurrency, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>{currency}{' '}</Text>}
+            <Text style={[styles.balanceAmount, responsiveTextStyles.displaySmall, { color: colors.foreground }]}>{formatValue(totalBalance)}</Text>
           </View>
-          <View style={[styles.balanceStats, isTablet && { gap: 20 }]}>
+          <View style={[styles.balanceStats, isTablet && { gap: 20 }, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 16, marginTop: 16 }]}>
             <View style={[styles.balanceStatItem, isTablet && { padding: 16 }]}>
               <View style={styles.balanceStatHeader}>
-                <ArrowUpRight size={14} color="rgba(255,255,255,0.9)" />
-                <Text style={[styles.balanceStatLabel, responsiveTextStyles.caption]}>{t('dashboard.income') || 'Income'}</Text>
+                <ArrowUpRight size={16} color="#4CAF50" />
+                <Text style={[styles.balanceStatLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>{t('dashboard.income') || 'Income'}</Text>
               </View>
               <View style={styles.balanceStatValueContainer}>
-                {!valuesHidden && <Text style={[styles.balanceStatCurrency, responsiveTextStyles.caption]}>{currency}{' '}</Text>}
-                <Text style={[styles.balanceStatValue, responsiveTextStyles.bodySmall]}>{formatValue(totalIncome)}</Text>
+                {!valuesHidden && <Text style={[styles.balanceStatCurrency, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>{currency}{' '}</Text>}
+                <Text style={[styles.balanceStatValue, responsiveTextStyles.bodySmall, { color: '#4CAF50', fontWeight: '600' }]}>{formatValue(totalIncome)}</Text>
               </View>
             </View>
             <View style={[styles.balanceStatItem, isTablet && { padding: 16 }]}>
               <View style={styles.balanceStatHeader}>
-                <ArrowDownRight size={14} color="rgba(255,255,255,0.9)" />
-                <Text style={[styles.balanceStatLabel, responsiveTextStyles.caption]}>{t('dashboard.expenses') || 'Expenses'}</Text>
+                <ArrowDownRight size={16} color="#FF5252" />
+                <Text style={[styles.balanceStatLabel, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>{t('dashboard.expenses') || 'Expenses'}</Text>
               </View>
               <View style={styles.balanceStatValueContainer}>
-                {!valuesHidden && <Text style={[styles.balanceStatCurrency, responsiveTextStyles.caption]}>{currency}{' '}</Text>}
-                <Text style={[styles.balanceStatValue, responsiveTextStyles.bodySmall]}>{formatValue(totalExpenses)}</Text>
+                {!valuesHidden && <Text style={[styles.balanceStatCurrency, responsiveTextStyles.caption, { color: colors.mutedForeground }]}>{currency}{' '}</Text>}
+                <Text style={[styles.balanceStatValue, responsiveTextStyles.bodySmall, { color: '#FF5252', fontWeight: '600' }]}>{formatValue(totalExpenses)}</Text>
               </View>
             </View>
           </View>
-        </LinearGradient>
+        </View>
 
         {/* Financial Health */}
         {financialSummary && (
@@ -1429,24 +1426,22 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     marginBottom: 24,
-    backgroundColor: '#1e40af', // Professional blue instead of gradient
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.05,
     shadowRadius: 8,
-    elevation: 3,
+    elevation: 2,
   },
   balanceHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 12,
+    marginBottom: 16,
   },
   balanceLabel: {
-    ...baseTextStyles.caption,
-    color: 'rgba(255,255,255,0.85)',
-    letterSpacing: 0.3,
-    fontWeight: '500',
+    fontFamily: fonts.sans,
+    fontWeight: '600',
+    marginBottom: 4,
   },
   balanceAmountContainer: {
     flexDirection: 'row',
@@ -1455,13 +1450,11 @@ const styles = StyleSheet.create({
   },
   balanceCurrency: {
     ...baseTextStyles.caption,
-    color: 'rgba(255,255,255,0.75)',
     marginRight: 4,
   },
   balanceAmount: {
     ...baseTextStyles.displaySmall,
     fontFamily: fonts.sans,
-    color: '#fff',
     fontWeight: '700',
   },
   balanceStats: {
@@ -1470,11 +1463,8 @@ const styles = StyleSheet.create({
   },
   balanceStatItem: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.08)',
     borderRadius: 12,
     padding: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
   },
   balanceStatHeader: {
     flexDirection: 'row',
@@ -1484,7 +1474,6 @@ const styles = StyleSheet.create({
   },
   balanceStatLabel: {
     fontFamily: fonts.sans,
-    color: 'rgba(255,255,255,0.75)',
     fontSize: 11,
     fontWeight: '500',
   },
@@ -1493,13 +1482,11 @@ const styles = StyleSheet.create({
     alignItems: 'baseline',
   },
   balanceStatCurrency: {
-    color: 'rgba(255,255,255,0.7)',
     fontSize: 10,
     marginRight: 2,
   },
   balanceStatValue: {
     fontWeight: '600',
-    color: '#fff',
     fontSize: 14,
   },
   statsRow: {
