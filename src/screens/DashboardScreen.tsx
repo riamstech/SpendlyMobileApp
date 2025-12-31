@@ -762,39 +762,31 @@ export default function DashboardScreen({
           </View>
         )}
 
-        {/* Quick Stats - Savings and Spending Ratio */}
-        <View style={[{ gap: 12, marginBottom: 24 }, isTablet && { flexDirection: 'row' }]}>
-          <View style={[styles.statCard, { flex: 1, backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
-            <View style={styles.statHeader}>
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(76,175,80,0.1)', justifyContent: 'center', alignItems: 'center' }}>
-                <TrendingUp size={18} color="#4CAF50" />
-              </View>
-            </View>
-            <Text style={[styles.statLabel, responsiveTextStyles.caption, { color: colors.mutedForeground, marginTop: 12 }]}>
-              {t('dashboard.savings') || 'Savings'}
-            </Text>
-            <Text style={[styles.statValue, responsiveTextStyles.h4, { color: savings >= 0 ? '#4CAF50' : '#FF5252', fontWeight: '600', marginTop: 4 }]}>
-              {valuesHidden ? '••••' : `${currency} ${formatValue(savings)}`}
-            </Text>
-          </View>
-          <View style={[styles.statCard, { flex: 1, backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
-            <View style={styles.statHeader}>
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: `${spendingRatioColor}15`, justifyContent: 'center', alignItems: 'center' }}>
-                <TrendingDown size={18} color={spendingRatioColor} />
-              </View>
-            </View>
-            <Text style={[styles.statLabel, responsiveTextStyles.caption, { color: colors.mutedForeground, marginTop: 12 }]}>
+        {/* Spending Ratio Indicator */}
+        <View style={[styles.cardContainer, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <Text style={[responsiveTextStyles.h4, { color: colors.foreground, fontWeight: '600' }]}>
               {t('dashboard.spendingRatio') || 'Spending Ratio'}
             </Text>
-            <Text style={[styles.statValue, responsiveTextStyles.h4, { color: spendingRatioColor, fontWeight: '600', marginTop: 4 }]}>
-              {totalIncome > 0 ? `${spendingRatio.toFixed(1)}%` : 'N/A'}
-            </Text>
-            {totalIncome > 0 && (
-              <View style={[styles.progressBar, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#f0f0f0', marginTop: 12 }]}>
-                <View style={[styles.progressFill, { width: `${Math.min(spendingRatio, 100)}%`, backgroundColor: spendingRatioColor, height: 6 }]} />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: `${spendingRatioColor}15`, justifyContent: 'center', alignItems: 'center' }}>
+                <TrendingDown size={16} color={spendingRatioColor} />
               </View>
-            )}
+              <Text style={[responsiveTextStyles.h3, { color: spendingRatioColor, fontWeight: '700' }]}>
+                {totalIncome > 0 ? `${spendingRatio.toFixed(1)}%` : 'N/A'}
+              </Text>
+            </View>
           </View>
+          {totalIncome > 0 && (
+            <View>
+              <View style={[styles.progressBar, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#f0f0f0', height: 10, borderRadius: 5 }]}>
+                <View style={[styles.progressFill, { width: `${Math.min(spendingRatio, 100)}%`, backgroundColor: spendingRatioColor, height: 10, borderRadius: 5 }]} />
+              </View>
+              <Text style={[responsiveTextStyles.caption, { color: colors.mutedForeground, marginTop: 8 }]}>
+                {t('dashboard.ofIncome') || 'of income'} • {totalIncome > 0 ? `${(100 - spendingRatio).toFixed(1)}%` : '0%'} {t('dashboard.remaining') || 'remaining'}
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Monthly Budget Overview */}
@@ -856,22 +848,19 @@ export default function DashboardScreen({
           </View>
         )}
 
-        {/* Income vs Expense Chart */}
+        {/* Income vs Expense Comparison */}
         <View style={[styles.cardContainer, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
           <Text style={[responsiveTextStyles.h4, { color: colors.foreground, fontWeight: '600', marginBottom: 20 }]}>
-            {t('dashboard.incomeVsExpenses') || 'Income vs Expenses'}
+            {t('dashboard.comparison') || 'Income vs Expenses'}
           </Text>
           
-          {/* Horizontal Bar Chart */}
+          {/* Comparison Bars */}
           <View style={{ gap: 16 }}>
             {/* Income Bar */}
             <View>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-                <Text style={[responsiveTextStyles.caption, { color: colors.mutedForeground }]}>{t('dashboard.income') || 'Income'}</Text>
-                <Text style={[responsiveTextStyles.caption, { color: '#4CAF50', fontWeight: '600' }]}>
-                  {valuesHidden ? '••••' : `${currency} ${formatValue(totalIncome)}`}
-                </Text>
-              </View>
+              <Text style={[responsiveTextStyles.caption, { color: colors.mutedForeground, marginBottom: 8 }]}>
+                {t('dashboard.income') || 'Income'}
+              </Text>
               <View style={{ height: 12, backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#f0f0f0', borderRadius: 6, overflow: 'hidden' }}>
                 <Animated.View
                   style={{
@@ -889,12 +878,9 @@ export default function DashboardScreen({
             
             {/* Expense Bar */}
             <View>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-                <Text style={[responsiveTextStyles.caption, { color: colors.mutedForeground }]}>{t('dashboard.expenses') || 'Expenses'}</Text>
-                <Text style={[responsiveTextStyles.caption, { color: '#FF5252', fontWeight: '600' }]}>
-                  {valuesHidden ? '••••' : `${currency} ${formatValue(totalExpenses)}`}
-                </Text>
-              </View>
+              <Text style={[responsiveTextStyles.caption, { color: colors.mutedForeground, marginBottom: 8 }]}>
+                {t('dashboard.expenses') || 'Expenses'}
+              </Text>
               <View style={{ height: 12, backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#f0f0f0', borderRadius: 6, overflow: 'hidden' }}>
                 <Animated.View
                   style={{
@@ -908,23 +894,6 @@ export default function DashboardScreen({
                   }}
                 />
               </View>
-            </View>
-          </View>
-          
-          {/* Net Savings Display */}
-          <View style={{ marginTop: 20, paddingTop: 16, borderTopWidth: 1, borderTopColor: colors.border, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={[responsiveTextStyles.caption, { color: colors.mutedForeground }]}>
-              {t('dashboard.netSavings') || 'Net Savings'}
-            </Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              {savings >= 0 ? (
-                <TrendingUp size={18} color="#4CAF50" />
-              ) : (
-                <TrendingDown size={18} color="#FF5252" />
-              )}
-              <Text style={[responsiveTextStyles.body, { color: savings >= 0 ? '#4CAF50' : '#FF5252', fontWeight: '700' }]}>
-                {valuesHidden ? '••••' : `${currency} ${formatValue(Math.abs(savings))}`}
-              </Text>
             </View>
           </View>
         </View>
