@@ -1045,7 +1045,8 @@ export default function ReportsScreen() {
         {/* Summary Cards */}
         <View style={styles.summaryRow}>
           <View style={[styles.summaryCard, { 
-            backgroundColor: isDark ? 'rgba(76, 175, 80, 0.08)' : '#f5faf5' 
+            backgroundColor: isDark ? 'rgba(76, 175, 80, 0.08)' : '#f5faf5',
+            borderColor: colors.border
           }]}>
             <TrendingUp size={24} color="#2d7a3a" />
             <Text style={[styles.summaryLabel, responsiveTextStyles.caption, { 
@@ -1056,7 +1057,8 @@ export default function ReportsScreen() {
             </Text>
           </View>
           <View style={[styles.summaryCard, { 
-            backgroundColor: isDark ? 'rgba(220, 53, 69, 0.08)' : '#faf5f5' 
+            backgroundColor: isDark ? 'rgba(220, 53, 69, 0.08)' : '#faf5f5',
+            borderColor: colors.border
           }]}>
             <TrendingDown size={24} color="#c41e3a" />
             <Text style={[styles.summaryLabel, responsiveTextStyles.caption, { 
@@ -1069,7 +1071,8 @@ export default function ReportsScreen() {
         </View>
         
         <View style={[styles.summaryCard, styles.summaryCardFull, { 
-          backgroundColor: isDark ? 'rgba(30, 64, 175, 0.08)' : '#f5f8fa' 
+          backgroundColor: isDark ? 'rgba(30, 64, 175, 0.08)' : '#f5f8fa',
+          borderColor: colors.border
         }]}>
           <DollarSign size={24} color="#1e40af" />
           <Text style={[styles.summaryLabel, responsiveTextStyles.caption, { 
@@ -1082,7 +1085,7 @@ export default function ReportsScreen() {
 
         {/* Income vs Expenses Bar Chart */}
         {monthlyData.length > 0 && (
-          <View style={[styles.chartCard, { backgroundColor: colors.card }]}>
+          <View style={[styles.chartCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Text style={[styles.chartTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>{t('reports.incomeVsExpensesOverTime')}</Text>
             <View style={styles.chartLegend}>
               <View style={styles.legendItem}>
@@ -1110,7 +1113,7 @@ export default function ReportsScreen() {
 
         {/* Savings Trend Line Chart */}
         {monthlyData.length > 0 && (
-          <View style={[styles.chartCard, { backgroundColor: colors.card }]}>
+          <View style={[styles.chartCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Text style={[styles.chartTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>{t('reports.savingsTrend')}</Text>
             <View style={styles.chartLegend}>
               <View style={styles.legendItem}>
@@ -1131,7 +1134,7 @@ export default function ReportsScreen() {
 
         {/* Category-wise Spending Pie Chart */}
         {categoryData.length > 0 && (
-          <View style={[styles.chartCard, { backgroundColor: colors.card }]}>
+          <View style={[styles.chartCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Text style={[styles.chartTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>{t('reports.spendingByCategory')}</Text>
             <PieChart
               data={pieChartData}
@@ -1148,7 +1151,7 @@ export default function ReportsScreen() {
 
         {/* Category Breakdown List */}
         {categoryData.length > 0 && (
-          <View style={[styles.categoryCard, { backgroundColor: colors.card }]}>
+          <View style={[styles.categoryCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Text style={[styles.categoryTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>{t('reports.categoryBreakdown')}</Text>
             {categoryData.map((cat, index) => (
               <View key={index} style={[styles.categoryItem, { borderBottomColor: colors.border }]}>
@@ -1170,7 +1173,7 @@ export default function ReportsScreen() {
         )}
 
         {/* Transactions List */}
-        <View style={[styles.categoryCard, { backgroundColor: colors.card }]}>
+        <View style={[styles.categoryCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.transactionsHeader}>
             <Text style={[styles.categoryTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>
               {t('reports.transactions')}
@@ -1246,7 +1249,7 @@ export default function ReportsScreen() {
         </View>
 
         {/* Investments List */}
-        <View style={[styles.categoryCard, { backgroundColor: colors.card }]}>
+        <View style={[styles.categoryCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.transactionsHeader}>
             <Text style={[styles.categoryTitle, responsiveTextStyles.h3, { color: colors.foreground }]}>
               {t('reports.investments')} ({investments.length})
