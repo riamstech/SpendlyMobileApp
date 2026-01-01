@@ -1182,7 +1182,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 16,
     paddingTop: 16,
-    paddingBottom: 32,
+    paddingBottom: 80,
   },
   licenseBanner: {
     flexDirection: 'row',
