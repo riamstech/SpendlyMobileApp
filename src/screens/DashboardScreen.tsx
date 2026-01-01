@@ -39,7 +39,6 @@ import {
   PiggyBank,
   Moon,
   Sun,
-  Globe,
 } from 'lucide-react-native';
 import { authService } from '../api/services/auth';
 import { dashboardService } from '../api/services/dashboard';
@@ -599,7 +598,7 @@ export default function DashboardScreen({
               onPress={() => setShowLanguageModal(true)}
               style={({ pressed }) => [styles.eyeButton, { opacity: pressed ? 0.7 : 1 }]}
             >
-              <Globe size={20} color={colors.foreground} />
+              <Text style={{ fontSize: 20 }}>🌐</Text>
             </Pressable>
             <Pressable
               onPress={() => onViewInbox ? onViewInbox() : setShowNotifications(true)}
@@ -995,7 +994,7 @@ export default function DashboardScreen({
             )}
           </View>
           {recentTransactions.length > 0 ? (
-            <View style={[styles.transactionsContainer, { backgroundColor: colors.card, borderRadius: 12 }]}>
+            <View style={[styles.transactionsContainer, { backgroundColor: colors.card, borderColor: colors.border, borderRadius: 12 }]}>
               {recentTransactions.slice(0, 5).map((transaction: any, index: number) => (
                 <Pressable
                   key={transaction.id}
@@ -1188,32 +1187,32 @@ export default function DashboardScreen({
       {/* Language Selection Modal */}
       <Modal
         visible={showLanguageModal}
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         onRequestClose={() => setShowLanguageModal(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+        <View style={[styles.modalOverlay, { zIndex: 1000 }]}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card, maxHeight: '80%' }]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{t('settings.language', { defaultValue: 'Language' })}</Text>
+              <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('settings.language', { defaultValue: 'Language' })}</Text>
               <Pressable onPress={() => setShowLanguageModal(false)} style={styles.closeButton}>
                 <Text style={[styles.closeButtonText, { color: colors.foreground }]}>✕</Text>
               </Pressable>
             </View>
             <ScrollView style={styles.languageList}>
               {[
-                { code: 'en', name: 'English' },
-                { code: 'es', name: 'Español' },
-                { code: 'fr', name: 'Français' },
-                { code: 'de', name: 'Deutsch' },
-                { code: 'it', name: 'Italiano' },
-                { code: 'pt-BR', name: 'Português (Brasil)' },
-                { code: 'ru', name: 'Русский' },
-                { code: 'nl', name: 'Nederlands' },
-                { code: 'zh-CN', name: '中文 (简体)' },
-                { code: 'hi', name: 'हिन्दी' },
-                { code: 'ja', name: '日本語' },
-                { code: 'ar', name: 'العربية' },
+                { code: 'en', name: 'English', flag: '🇬🇧' },
+                { code: 'es', name: 'Español', flag: '🇪🇸' },
+                { code: 'fr', name: 'Français', flag: '🇫🇷' },
+                { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+                { code: 'it', name: 'Italiano', flag: '🇮🇹' },
+                { code: 'pt-BR', name: 'Português (Brasil)', flag: '🇧🇷' },
+                { code: 'ru', name: 'Русский', flag: '🇷🇺' },
+                { code: 'nl', name: 'Nederlands', flag: '🇳🇱' },
+                { code: 'zh-CN', name: '中文 (简体)', flag: '🇨🇳' },
+                { code: 'hi', name: 'हिन्दी', flag: '🇮🇳' },
+                { code: 'ja', name: '日本語', flag: '🇯🇵' },
+                { code: 'ar', name: 'العربية', flag: '🇸🇦' },
               ].map((lang) => (
                 <Pressable
                   key={lang.code}
@@ -1229,17 +1228,20 @@ export default function DashboardScreen({
                     setShowLanguageModal(false);
                   }}
                 >
-                  <Text
-                    style={[
-                      styles.languageItemText,
-                      {
-                        color: i18n.language === lang.code ? colors.primary : colors.foreground,
-                        fontWeight: i18n.language === lang.code ? '600' : '400',
-                      },
-                    ]}
-                  >
-                    {lang.name}
-                  </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
+                    <Text style={{ fontSize: 24 }}>{lang.flag}</Text>
+                    <Text
+                      style={[
+                        styles.languageItemText,
+                        {
+                          color: i18n.language === lang.code ? colors.primary : colors.foreground,
+                          fontWeight: i18n.language === lang.code ? '600' : '400',
+                        },
+                      ]}
+                    >
+                      {lang.name}
+                    </Text>
+                  </View>
                   {i18n.language === lang.code && (
                     <Text style={{ color: colors.primary, fontSize: 18 }}>✓</Text>
                   )}
