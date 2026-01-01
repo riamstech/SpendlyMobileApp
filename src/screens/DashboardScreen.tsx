@@ -125,6 +125,26 @@ export default function DashboardScreen({
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [licenseStatus, setLicenseStatus] = useState<'active' | 'expiring' | 'expired'>('active');
   const [daysRemaining, setDaysRemaining] = useState(0);
+
+  // Language flag mapping
+  const languageFlags: Record<string, string> = {
+    en: '🇬🇧',
+    es: '🇪🇸',
+    fr: '🇫🇷',
+    de: '🇩🇪',
+    it: '🇮🇹',
+    'pt-BR': '🇧🇷',
+    ru: '🇷🇺',
+    nl: '🇳🇱',
+    'zh-CN': '🇨🇳',
+    hi: '🇮🇳',
+    ja: '🇯🇵',
+    ar: '🇸🇦',
+  };
+
+  const getCurrentLanguageFlag = () => {
+    return languageFlags[i18n.language] || '🌐';
+  };
   
   // Dashboard data state
   const [totalBalance, setTotalBalance] = useState(0);
@@ -598,7 +618,7 @@ export default function DashboardScreen({
               onPress={() => setShowLanguageModal(true)}
               style={({ pressed }) => [styles.eyeButton, { opacity: pressed ? 0.7 : 1 }]}
             >
-              <Text style={{ fontSize: 20 }}>🌐</Text>
+              <Text style={{ fontSize: 20 }}>{getCurrentLanguageFlag()}</Text>
             </Pressable>
             <Pressable
               onPress={() => onViewInbox ? onViewInbox() : setShowNotifications(true)}
@@ -1187,19 +1207,18 @@ export default function DashboardScreen({
       {/* Language Selection Modal */}
       <Modal
         visible={showLanguageModal}
-        animationType="fade"
-        transparent={true}
+        animationType="slide"
+        transparent={false}
         onRequestClose={() => setShowLanguageModal(false)}
       >
-        <View style={[styles.modalOverlay, { zIndex: 1000 }]}>
-          <View style={[styles.modalContent, { backgroundColor: colors.card, maxHeight: '80%' }]}>
-            <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('settings.language', { defaultValue: 'Language' })}</Text>
-              <Pressable onPress={() => setShowLanguageModal(false)} style={styles.closeButton}>
-                <Text style={[styles.closeButtonText, { color: colors.foreground }]}>✕</Text>
-              </Pressable>
-            </View>
-            <ScrollView style={styles.languageList}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+          <View style={styles.modalHeader}>
+            <Text style={[styles.modalTitle, { color: colors.foreground }]}>{t('settings.language', { defaultValue: 'Language' })}</Text>
+            <Pressable onPress={() => setShowLanguageModal(false)} style={styles.closeButton}>
+              <Text style={[styles.closeButtonText, { color: colors.foreground }]}>✕</Text>
+            </Pressable>
+          </View>
+          <ScrollView style={[styles.languageList, { backgroundColor: colors.background }]}>
               {[
                 { code: 'en', name: 'English', flag: '🇬🇧' },
                 { code: 'es', name: 'Español', flag: '🇪🇸' },
@@ -1248,8 +1267,7 @@ export default function DashboardScreen({
                 </Pressable>
               ))}
             </ScrollView>
-          </View>
-        </View>
+        </SafeAreaView>
       </Modal>
     </SafeAreaView>
   );
