@@ -1561,7 +1561,11 @@ export default function SettingsScreen({
                     <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 16, textAlign: 'center' }}>
                       {(() => {
                         const monthlyProduct = iapProducts.find(p => p.productId === 'com.spendly.mobile.premium.monthlyextension');
-                        return monthlyProduct ? `1 Month - ${monthlyProduct.localizedPrice || monthlyProduct.price}` : 'Loading price...';
+                        if (monthlyProduct) {
+                          return `1 Month - ${monthlyProduct.localizedPrice || monthlyProduct.price}`;
+                        }
+                        // Fallback to calculated pricing when IAP products not available
+                        return `1 Month - ${subscriptionPrices.monthly}`;
                       })()}
                     </Text>
                   </Pressable>
@@ -1609,7 +1613,11 @@ export default function SettingsScreen({
                     <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16, textAlign: 'center' }}>
                       {(() => {
                         const yearlyProduct = iapProducts.find(p => p.productId === 'com.spendly.mobile.premium.yearlyextension');
-                        return yearlyProduct ? `1 Year - ${yearlyProduct.localizedPrice || yearlyProduct.price} (Best Value)` : 'Loading price...';
+                        if (yearlyProduct) {
+                          return `1 Year - ${yearlyProduct.localizedPrice || yearlyProduct.price} (Best Value)`;
+                        }
+                        // Fallback to calculated pricing when IAP products not available
+                        return `1 Year - ${subscriptionPrices.yearly} (Best Value)`;
                       })()}
                     </Text>
                   </Pressable>
