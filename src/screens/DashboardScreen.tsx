@@ -39,6 +39,7 @@ import {
   PiggyBank,
   Moon,
   Sun,
+  Globe,
 } from 'lucide-react-native';
 import { authService } from '../api/services/auth';
 import { dashboardService } from '../api/services/dashboard';
@@ -122,6 +123,7 @@ export default function DashboardScreen({
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [licenseStatus, setLicenseStatus] = useState<'active' | 'expiring' | 'expired'>('active');
   const [daysRemaining, setDaysRemaining] = useState(0);
   
@@ -592,6 +594,12 @@ export default function DashboardScreen({
               style={({ pressed }) => [styles.eyeButton, { opacity: pressed ? 0.7 : 1 }]}
             >
               {isDark ? <Sun size={20} color={colors.foreground} /> : <Moon size={20} color={colors.foreground} />}
+            </Pressable>
+            <Pressable
+              onPress={() => setShowLanguageModal(true)}
+              style={({ pressed }) => [styles.eyeButton, { opacity: pressed ? 0.7 : 1 }]}
+            >
+              <Globe size={20} color={colors.foreground} />
             </Pressable>
             <Pressable
               onPress={() => onViewInbox ? onViewInbox() : setShowNotifications(true)}
@@ -1172,6 +1180,71 @@ export default function DashboardScreen({
                   </Text>
                 </View>
               )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Language Selection Modal */}
+      <Modal
+        visible={showLanguageModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowLanguageModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{t('settings.language', { defaultValue: 'Language' })}</Text>
+              <Pressable onPress={() => setShowLanguageModal(false)} style={styles.closeButton}>
+                <Text style={[styles.closeButtonText, { color: colors.foreground }]}>✕</Text>
+              </Pressable>
+            </View>
+            <ScrollView style={styles.languageList}>
+              {[
+                { code: 'en', name: 'English' },
+                { code: 'es', name: 'Español' },
+                { code: 'fr', name: 'Français' },
+                { code: 'de', name: 'Deutsch' },
+                { code: 'it', name: 'Italiano' },
+                { code: 'pt-BR', name: 'Português (Brasil)' },
+                { code: 'ru', name: 'Русский' },
+                { code: 'nl', name: 'Nederlands' },
+                { code: 'zh-CN', name: '中文 (简体)' },
+                { code: 'hi', name: 'हिन्दी' },
+                { code: 'ja', name: '日本語' },
+                { code: 'ar', name: 'العربية' },
+              ].map((lang) => (
+                <Pressable
+                  key={lang.code}
+                  style={[
+                    styles.languageItem,
+                    {
+                      backgroundColor: i18n.language === lang.code ? colors.accent : colors.card,
+                      borderBottomColor: colors.border,
+                    },
+                  ]}
+                  onPress={async () => {
+                    await i18n.changeLanguage(lang.code);
+                    setShowLanguageModal(false);
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.languageItemText,
+                      {
+                        color: i18n.language === lang.code ? colors.primary : colors.foreground,
+                        fontWeight: i18n.language === lang.code ? '600' : '400',
+                      },
+                    ]}
+                  >
+                    {lang.name}
+                  </Text>
+                  {i18n.language === lang.code && (
+                    <Text style={{ color: colors.primary, fontSize: 18 }}>✓</Text>
+                  )}
+                </Pressable>
+              ))}
             </ScrollView>
           </View>
         </View>
@@ -2212,6 +2285,20 @@ const styles = StyleSheet.create({
   },
   budgetInsightValue: {
     ...baseTextStyles.caption,
+  },
+  languageList: {
+    flex: 1,
+  },
+  languageItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+  },
+  languageItemText: {
+    ...baseTextStyles.body,
   },
 });
 
