@@ -37,6 +37,8 @@ import {
   Edit2,
   Trash2,
   PiggyBank,
+  Moon,
+  Sun,
 } from 'lucide-react-native';
 import { authService } from '../api/services/auth';
 import { dashboardService } from '../api/services/dashboard';
@@ -111,7 +113,7 @@ export default function DashboardScreen({
 }: DashboardScreenProps = {}) {
   const { t, i18n } = useTranslation('common');
   const { width } = useWindowDimensions();
-  const { isDark, colors } = useTheme();
+  const { isDark, colors, toggleTheme } = useTheme();
   const { isTablet } = useDeviceType();
   const { padding, gap, columns, showSidebar } = useResponsiveLayout();
   const responsiveTextStyles = createResponsiveTextStyles(width);
@@ -584,6 +586,12 @@ export default function DashboardScreen({
               style={({ pressed }) => [styles.eyeButton, { opacity: pressed ? 0.7 : 1 }]}
             >
               {valuesHidden ? <EyeOff size={20} color={colors.foreground} /> : <Eye size={20} color={colors.foreground} />}
+            </Pressable>
+            <Pressable
+              onPress={() => toggleTheme()}
+              style={({ pressed }) => [styles.eyeButton, { opacity: pressed ? 0.7 : 1 }]}
+            >
+              {isDark ? <Sun size={20} color={colors.foreground} /> : <Moon size={20} color={colors.foreground} />}
             </Pressable>
             <Pressable
               onPress={() => onViewInbox ? onViewInbox() : setShowNotifications(true)}
