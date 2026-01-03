@@ -1565,7 +1565,7 @@ export default function SettingsScreen({
                           return `1 Month - ${monthlyProduct.localizedPrice || monthlyProduct.price}`;
                         }
                         // Fallback to calculated pricing when IAP products not available
-                        return `1 Month - ${subscriptionPrices.monthly}`;
+                        return pricingData ? `1 Month - ${pricingData.monthly}` : 'Loading price...';
                       })()}
                     </Text>
                   </Pressable>
@@ -1617,7 +1617,7 @@ export default function SettingsScreen({
                           return `1 Year - ${yearlyProduct.localizedPrice || yearlyProduct.price} (Best Value)`;
                         }
                         // Fallback to calculated pricing when IAP products not available
-                        return `1 Year - ${subscriptionPrices.yearly} (Best Value)`;
+                        return pricingData ? `1 Year - ${pricingData.yearly} (Best Value)` : 'Loading price...';
                       })()}
                     </Text>
                   </Pressable>
