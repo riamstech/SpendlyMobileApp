@@ -1559,7 +1559,7 @@ export default function SettingsScreen({
                     }}
                   >
                     <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 16, textAlign: 'center' }}>
-                      1 Month - $2.00
+                      1 Month - USD $2.00
                     </Text>
                   </Pressable>
 
@@ -1604,7 +1604,7 @@ export default function SettingsScreen({
                     }}
                   >
                     <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16, textAlign: 'center' }}>
-                      1 Year - $10.00 (Best Value)
+                      1 Year - USD $10.00 (Best Value)
                     </Text>
                   </Pressable>
                 </View>
