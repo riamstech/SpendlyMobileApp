@@ -1560,12 +1560,8 @@ export default function SettingsScreen({
                   >
                     <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 16, textAlign: 'center' }}>
                       {(() => {
-                        // Prioritize IAP product prices from App Store
-                        const monthlyProduct = iapProducts.find(p => p.productId === 'com.spendly.mobile.premium.monthlyextension');
-                        if (monthlyProduct && monthlyProduct.localizedPrice) {
-                          return `1 Month - ${monthlyProduct.localizedPrice}`;
-                        }
-                        // Fallback to calculated pricing when IAP products not available
+                        // Use calculated pricing which properly handles currency conversion
+                        // IAP prices are in device's App Store region, not user's selected currency
                         return pricingData ? `1 Month - ${pricingData.monthly}` : 'Loading price...';
                       })()}
                     </Text>
@@ -1613,12 +1609,8 @@ export default function SettingsScreen({
                   >
                     <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16, textAlign: 'center' }}>
                       {(() => {
-                        // Prioritize IAP product prices from App Store
-                        const yearlyProduct = iapProducts.find(p => p.productId === 'com.spendly.mobile.premium.yearlyextension');
-                        if (yearlyProduct && yearlyProduct.localizedPrice) {
-                          return `1 Year - ${yearlyProduct.localizedPrice} (Best Value)`;
-                        }
-                        // Fallback to calculated pricing when IAP products not available
+                        // Use calculated pricing which properly handles currency conversion
+                        // IAP prices are in device's App Store region, not user's selected currency
                         return pricingData ? `1 Year - ${pricingData.yearly} (Best Value)` : 'Loading price...';
                       })()}
                     </Text>
