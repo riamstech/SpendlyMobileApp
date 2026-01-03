@@ -579,7 +579,7 @@ export default function DashboardScreen({
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingHorizontal: isTablet ? padding : 16, paddingBottom: isTablet ? 40 : 32 }
+          { paddingHorizontal: isTablet ? padding : 16, paddingBottom: isTablet ? 120 : 100 }
         ]}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
