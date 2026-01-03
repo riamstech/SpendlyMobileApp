@@ -1559,11 +1559,7 @@ export default function SettingsScreen({
                     }}
                   >
                     <Text style={{ color: colors.foreground, fontWeight: '600', fontSize: 16, textAlign: 'center' }}>
-                      {(() => {
-                        // Use calculated pricing which properly handles currency conversion
-                        // IAP prices are in device's App Store region, not user's selected currency
-                        return pricingData ? `1 Month - ${pricingData.monthly}` : 'Loading price...';
-                      })()}
+                      1 Month - $2.00
                     </Text>
                   </Pressable>
 
@@ -1608,11 +1604,7 @@ export default function SettingsScreen({
                     }}
                   >
                     <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16, textAlign: 'center' }}>
-                      {(() => {
-                        // Use calculated pricing which properly handles currency conversion
-                        // IAP prices are in device's App Store region, not user's selected currency
-                        return pricingData ? `1 Year - ${pricingData.yearly} (Best Value)` : 'Loading price...';
-                      })()}
+                      1 Year - $10.00 (Best Value)
                     </Text>
                   </Pressable>
                 </View>
